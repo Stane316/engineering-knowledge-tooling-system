@@ -30,6 +30,7 @@
     "check:env": "node scripts/check-env.mjs",
     "db:inspect": "node scripts/inspect-data-layer.mjs",
     "db:reindex": "node scripts/reindex.mjs",
+    "providers": "node scripts/providers.mjs",
     "prepare": "husky"
   },
   "devDependencies": {

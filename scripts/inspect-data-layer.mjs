@@ -101,6 +101,20 @@ console.log(
   `  vecteurs      ${single('SELECT count(*) AS total FROM vectors.resources_vectors').total}`,
 );
 
+// Espace d'embedding : condition sine qua non pour interpréter les vecteurs.
+const hasSpaceTable = query(
+  "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'embedding_spaces'",
+).length;
+const space = hasSpaceTable
+  ? query(
+      'SELECT space, provider, model, dimensions FROM embedding_spaces ORDER BY updated_at DESC LIMIT 1',
+    )[0]
+  : undefined;
+
+console.log(
+  `  espace        ${space === undefined ? 'non lié (aucun vecteur écrit par le Sprint 4.5)' : `${space.space} via ${space.provider} (${space.dimensions} dims natif)`}`,
+);
+
 const integrity = new Indexer(connection).checkIntegrity();
 
 console.log("\nCohérence de l'index");
