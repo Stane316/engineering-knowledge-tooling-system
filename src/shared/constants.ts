@@ -19,5 +19,6 @@ export const TABLES = {
   audits: 'audits',
   resourcesFts: 'resources_fts',
   resourcesVectors: 'resources_vectors',
+  embeddingSpaces: 'embedding_spaces',
   migrations: 'schema_migrations',
 } as const;

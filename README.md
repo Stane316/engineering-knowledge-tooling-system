@@ -94,40 +94,50 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 
 ## 5. Commandes
 
-| Commande                          | Rôle                                           |
-| --------------------------------- | ---------------------------------------------- |
-| `npm run dev`                     | Exécution en développement (`tsx watch`)       |
-| `npm run build`                   | Compilation dans `dist/`                       |
-| `npm start`                       | Exécution du build                             |
-| `npm run typecheck`               | Vérification TypeScript sans émission          |
-| `npm run lint` / `lint:fix`       | ESLint (flat config)                           |
-| `npm run format` / `format:check` | Prettier                                       |
-| `npm test` / `test:watch`         | Tests Vitest                                   |
-| `npm run coverage`                | Couverture (atteint 100 %)                     |
-| `npm run test:benchmark`          | Benchmark recherche (Recall@5, p95, 100K docs) |
-| `npm run verify`                  | typecheck + lint + format + build + couverture |
-| `npm run setup`                   | Hooks Git + vérification de l'environnement    |
-| `npm run check:env`               | Diagnostics (Node, SQLite, sqlite-vec, outils) |
-| `npm run db:inspect`              | État des 3 bases + cohérence de l'index        |
-| `npm run db:reindex`              | Reconstruit l'index plein texte                |
-| `npm run security:secrets`        | Scan Gitleaks des fichiers indexés             |
-| `npm run clean`                   | Supprime `dist/`                               |
+| Commande                          | Rôle                                             |
+| --------------------------------- | ------------------------------------------------ |
+| `npm run dev`                     | Exécution en développement (`tsx watch`)         |
+| `npm run build`                   | Compilation dans `dist/`                         |
+| `npm start`                       | Exécution du build                               |
+| `npm run typecheck`               | Vérification TypeScript sans émission            |
+| `npm run lint` / `lint:fix`       | ESLint (flat config)                             |
+| `npm run format` / `format:check` | Prettier                                         |
+| `npm test` / `test:watch`         | Tests Vitest                                     |
+| `npm run coverage`                | Couverture (atteint 100 %)                       |
+| `npm run test:benchmark`          | Benchmark recherche (Recall@5, p95, 100K docs)   |
+| `npm run verify`                  | typecheck + lint + format + build + couverture   |
+| `npm run setup`                   | Hooks Git + vérification de l'environnement      |
+| `npm run check:env`               | Diagnostics (Node, SQLite, sqlite-vec, outils)   |
+| `npm run db:inspect`              | État des 3 bases + cohérence de l'index          |
+| `npm run db:reindex`              | Reconstruit l'index plein texte                  |
+| `npm run providers`               | État des 13 fournisseurs d'API et chaîne d'appel |
+| `npm run security:secrets`        | Scan Gitleaks des fichiers indexés               |
+| `npm run clean`                   | Supprime `dist/`                                 |
 
 ## 6. Configuration
 
-| Variable                 | Défaut                   | Rôle                                           |
-| ------------------------ | ------------------------ | ---------------------------------------------- |
-| `NODE_ENV`               | `development`            | `development`, `test` ou `production`          |
-| `EKTS_DATA_DIR`          | `./data`                 | Répertoire des bases SQLite (résolu en absolu) |
-| `LOG_LEVEL`              | `info`                   | Niveau Pino (`trace`…`silent`)                 |
-| `OPENAI_API_KEY`         | —                        | Embeddings OpenAI (Sprint 4, via `.env`)       |
-| `OPENAI_EMBEDDING_MODEL` | `text-embedding-3-small` | Modèle d'embedding (1536 dims)                 |
-| `EMBEDDING_DIMENSION`    | `1536`                   | Doit correspondre au schéma `float[1536]`      |
+| Variable                                                                  | Défaut                   | Rôle                                           |
+| ------------------------------------------------------------------------- | ------------------------ | ---------------------------------------------- |
+| `NODE_ENV`                                                                | `development`            | `development`, `test` ou `production`          |
+| `EKTS_DATA_DIR`                                                           | `./data`                 | Répertoire des bases SQLite (résolu en absolu) |
+| `LOG_LEVEL`                                                               | `info`                   | Niveau Pino (`trace`…`silent`)                 |
+| `OPENAI_API_KEY`                                                          | —                        | Embeddings OpenAI (une clé parmi d'autres)     |
+| `GEMINI_API_KEY`                                                          | —                        | Embeddings Gemini (palier gratuit)             |
+| `OPENROUTER_API_KEY`                                                      | —                        | Embeddings/chat (même espace qu'OpenAI)        |
+| `NOVITA_API_KEY`                                                          | —                        | Embeddings `baai/bge-m3` (gratuit)             |
+| `TAVILY_API_KEY` / `SERPER_API_KEY` / `SERPAPI_API_KEY`                   | —                        | Recherche web                                  |
+| `DEEPSEEK_API_KEY` / `ZAI_API_KEY` / `NVIDIA_API_KEY` / `STEPFUN_API_KEY` | —                        | Chat (Sprint 6)                                |
+| `E2B_API_KEY`                                                             | —                        | Bac à sable d'exécution (Sprint 8)             |
+| `EKTS_PROVIDER_POLICY`                                                    | `quality`                | `quality`, `free` ou `cost`                    |
+| `OPENAI_EMBEDDING_MODEL`                                                  | `text-embedding-3-small` | Modèle d'embedding (1536 dims)                 |
+| `EMBEDDING_DIMENSION`                                                     | `1536`                   | Doit correspondre au schéma `float[1536]`      |
 
 Aucun secret n'est nécessaire pour installer, compiler ou lancer les tests (le benchmark utilise un
-fournisseur d'embeddings local). La clé OpenAI n'est requise que pour indexer et rechercher en mode
-vectoriel réel ; elle passe exclusivement par `.env` (ignoré par Git et Gitleaks) ou les GitHub
-Secrets. Voir `docs/guides/SEARCH_ENGINE.md`.
+fournisseur d'embeddings local). Une clé reste nécessaire pour indexer et rechercher en mode
+vectoriel réel : OpenAI, OpenRouter, Gemini ou Novita, au choix. Les clés passent exclusivement par
+`.env` (ignoré par Git et Gitleaks). Chaque fournisseur accepte jusqu'à huit clés suffixées `_2`
+à `_8`, et le repli entre fournisseurs est automatique à l'intérieur d'un même espace d'embedding.
+Voir `docs/guides/PROVIDERS.md` et `docs/guides/SEARCH_ENGINE.md`.
 
 ## 7. Structure du dépôt
 
@@ -138,7 +148,7 @@ engineering-knowledge-tooling-system/
 ├── migrations/              # migrations SQLite (Sprint 2)
 ├── docs/
 │   ├── blueprint/           # documentation de conception (15 phases, 48 sprints)
-│   ├── guides/              # guides projet (SETUP, DATA_LAYER, KNOWLEDGE_MANAGER, SEARCH_ENGINE)
+│   ├── guides/              # guides projet (SETUP, DATA_LAYER, KNOWLEDGE_MANAGER, SEARCH_ENGINE, PROVIDERS)
 │   └── audit/               # audits (état des lieux de démarrage)
 ├── .github/workflows/       # CI (qualité + secrets)
 ├── AGENTS.md                # règles pour les agents IA
@@ -157,18 +167,19 @@ engineering-knowledge-tooling-system/
 
 ## 9. Documentation
 
-| Document                                                                                                                     | Contenu                            |
-| ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| [`docs/blueprint/INDEX.md`](docs/blueprint/INDEX.md)                                                                         | Index de la conception (15 phases) |
-| [`docs/blueprint/Docs/00-REFERENCE-GLOBALE-PROJET.md`](docs/blueprint/Docs/00-REFERENCE-GLOBALE-PROJET.md)                   | Référence globale                  |
-| [`docs/blueprint/Docs/02-ARCHITECTURE-TECHNIQUE.md`](docs/blueprint/Docs/02-ARCHITECTURE-TECHNIQUE.md)                       | Architecture cible                 |
-| [`docs/blueprint/Docs/03-STACK-ET-DECISIONS-TECHNOLOGIQUES.md`](docs/blueprint/Docs/03-STACK-ET-DECISIONS-TECHNOLOGIQUES.md) | Stack et ADR                       |
-| [`docs/blueprint/Docs/05-SECURITE-ET-GESTION-DES-SECRETS.md`](docs/blueprint/Docs/05-SECURITE-ET-GESTION-DES-SECRETS.md)     | Sécurité                           |
-| [`docs/blueprint/Docs/06-GUIDE-GIT-GITHUB.md`](docs/blueprint/Docs/06-GUIDE-GIT-GITHUB.md)                                   | Workflow Git                       |
-| [`docs/blueprint/Docs/08-REGISTRE-DECISIONS-ET-RISQUES.md`](docs/blueprint/Docs/08-REGISTRE-DECISIONS-ET-RISQUES.md)         | ADR et risques                     |
-| [`docs/audit/ETAT-DES-LIEUX-2026-10-21.md`](docs/audit/ETAT-DES-LIEUX-2026-10-21.md)                                         | Audit de démarrage                 |
-| [`docs/guides/SEARCH_ENGINE.md`](docs/guides/SEARCH_ENGINE.md)                                                               | Moteur de recherche (Sprint 4)     |
-| [`AGENTS.md`](AGENTS.md)                                                                                                     | Règles de travail des agents       |
+| Document                                                                                                                     | Contenu                                              |
+| ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| [`docs/blueprint/INDEX.md`](docs/blueprint/INDEX.md)                                                                         | Index de la conception (15 phases)                   |
+| [`docs/blueprint/Docs/00-REFERENCE-GLOBALE-PROJET.md`](docs/blueprint/Docs/00-REFERENCE-GLOBALE-PROJET.md)                   | Référence globale                                    |
+| [`docs/blueprint/Docs/02-ARCHITECTURE-TECHNIQUE.md`](docs/blueprint/Docs/02-ARCHITECTURE-TECHNIQUE.md)                       | Architecture cible                                   |
+| [`docs/blueprint/Docs/03-STACK-ET-DECISIONS-TECHNOLOGIQUES.md`](docs/blueprint/Docs/03-STACK-ET-DECISIONS-TECHNOLOGIQUES.md) | Stack et ADR                                         |
+| [`docs/blueprint/Docs/05-SECURITE-ET-GESTION-DES-SECRETS.md`](docs/blueprint/Docs/05-SECURITE-ET-GESTION-DES-SECRETS.md)     | Sécurité                                             |
+| [`docs/blueprint/Docs/06-GUIDE-GIT-GITHUB.md`](docs/blueprint/Docs/06-GUIDE-GIT-GITHUB.md)                                   | Workflow Git                                         |
+| [`docs/blueprint/Docs/08-REGISTRE-DECISIONS-ET-RISQUES.md`](docs/blueprint/Docs/08-REGISTRE-DECISIONS-ET-RISQUES.md)         | ADR et risques                                       |
+| [`docs/audit/ETAT-DES-LIEUX-2026-10-21.md`](docs/audit/ETAT-DES-LIEUX-2026-10-21.md)                                         | Audit de démarrage                                   |
+| [`docs/guides/SEARCH_ENGINE.md`](docs/guides/SEARCH_ENGINE.md)                                                               | Moteur de recherche (Sprint 4)                       |
+| [`docs/guides/PROVIDERS.md`](docs/guides/PROVIDERS.md)                                                                       | Fournisseurs, routage, rotation de clés (Sprint 4.5) |
+| [`AGENTS.md`](AGENTS.md)                                                                                                     | Règles de travail des agents                         |
 
 ## 10. Licence
 

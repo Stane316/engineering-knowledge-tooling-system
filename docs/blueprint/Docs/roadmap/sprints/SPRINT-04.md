@@ -1082,4 +1082,68 @@ Avant de commencer, vérifier :
 
 ---
 
+---
+
+## 13. Addendum — Sprint 4.5 (hors plan) : couche fournisseurs
+
+**Ajouté le 22 octobre 2026, à la demande de l'utilisateur.** Ce sprint ne figure
+pas dans le plan initial ; il répond à un besoin apparu à l'usage : treize clés
+d'API (OpenAI, Gemini, DeepSeek, Z.ai, OpenRouter, NVIDIA, Novita, StepFun,
+Tavily, Serper, SerpApi, E2B, Sofya) étaient disponibles et le Sprint 4 n'en
+exploitait qu'une.
+
+### 13.1 Pourquoi le Sprint 4 seul ne suffisait pas
+
+`EmbeddingsService` construisait un client OpenAI à partir d'une clé unique. Le
+projet fonctionnait, mais :
+
+- une seule clé pour tout le projet : quota épuisé = indexation arrêtée ;
+- aucune capacité extérieure à l'embedding (chat, recherche web, bac à sable) ;
+- aucun moyen de constater, sans lire le code, quelles clés étaient réellement
+  exploitées.
+
+### 13.2 Livrables
+
+| Livrable | Fichier | Rôle |
+|---|---|---|
+| Catalogue | `src/shared/providers/catalog.ts` | 13 fournisseurs, capacités, protocoles, paliers |
+| Trousseau | `src/shared/providers/env.ts` | Clés `_2`…`_8`, masquage, rédaction |
+| Client HTTP | `src/business/providers/http.ts` | Timeout, reprises, `Retry-After`, erreurs typées |
+| Disjoncteur | `src/business/providers/health.ts` | 3 échecs → 60 s, doublé jusqu'à 10 min |
+| Routage | `src/business/providers/routing.ts` | Capacité → espace → politique → santé |
+| Adaptateurs | `src/business/providers/adapters.ts` | 6 protocoles, alignement 1536 |
+| Passerelle | `src/business/providers/gateway.ts` | Rotation, repli, trace |
+| Embedding | `src/business/providers/embedding-provider.ts` | `EmbeddingProvider` adossé à la passerelle |
+| Migration | `src/data/migrations/002_embedding_space.ts` | Liaison de l'index à un espace |
+| Diagnostic | `scripts/providers.mjs` | État des clés et chaîne d'appel, sans réseau |
+| Guide | `docs/guides/PROVIDERS.md` | Mode d'emploi complet |
+
+### 13.3 Décisions structurantes
+
+- **ADR-015** — registre déclaratif, routage par capacité : ajouter un
+  fournisseur compatible OpenAI ne demande aucun code exécutable.
+- **ADR-016** — l'espace d'embedding est l'identité de bascule : jamais de repli
+  entre deux modèles produisant des vecteurs incomparables.
+- **ADR-017** — `.env` chargé par `process.loadEnvFile` : aucune dépendance
+  ajoutée, et `npm run providers` voit les clés comme le reste du projet.
+
+### 13.4 Ce que le Sprint 4.5 ne fait pas
+
+- Pas de streaming ni de sortie structurée pour le chat (Sprint 6 en aura besoin).
+- Pas de comptage de tokens ni de coût.
+- Pas de fournisseur local (Ollama) : sans clé d'API, il demande une entrée
+  `local` dans le catalogue (ADR-T01, différé au Sprint 5).
+- **Sofya** reste déclarée `unknown` : la clé est collectée, jamais utilisée.
+
+### 13.5 Impact sur les sprints suivants
+
+| Sprint | Impact |
+|---|---|
+| Sprint 5 (CLI) | `status` peut afficher les fournisseurs configurés et l'espace actif sans nouveau code |
+| Sprint 6 (MCP) | Le chat multi-fournisseurs est disponible pour la synthèse RAG |
+| Sprint 7-8 (navigateur) | E2B est déjà déclaré pour le bac à sable |
+| Sprint 13+ (veille) | Tavily/Serper/SerpApi sont déjà déclarés pour la collecte |
+
+---
+
 **Fin du dossier Sprint 4 — Search Engine**

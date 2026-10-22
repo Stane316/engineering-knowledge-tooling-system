@@ -572,6 +572,74 @@ FTS avancés ne sont pas exposés (hors périmètre, à rouvrir si un besoin ré
 
 ---
 
+### 2.2.2 Décisions d'implémentation du Sprint 4.5 — couche fournisseurs (22 octobre 2026)
+
+Le besoin exprimé est de tirer parti de **treize clés d'API hétérogènes** sans
+écrire treize chemins de code. Ces décisions fixent la forme de la réponse.
+
+#### ADR-015 — Registre déclaratif et routage par capacité
+
+**Statut :** ✅ APPLIQUÉ
+**Contexte :** l'appelant connaît son besoin (« je veux un embedding »), pas le
+fournisseur qui doit y répondre. Coder `if (fournisseur === 'openai')` dans
+chaque service répartirait la connaissance des fournisseurs dans tout le projet
+et rendrait l'ajout du quatorzième fournisseur coûteux.
+**Décision :** un catalogue de données (`PROVIDERS`, 13 entrées) décrit chaque
+fournisseur : capacités, protocole filaire, URL de base, modèles, palier
+tarifaire, variables d'environnement. `planRoutes()` produit une chaîne
+ordonnée de candidats pour une capacité donnée ; les services ne dépendent que
+de `ProviderGateway`.
+**Conséquences :** ajouter un fournisseur compatible OpenAI ne demande aucune
+ligne de code exécutable ; un fournisseur dont le protocole n'est pas modélisé
+(`sofya`) est collecté mais jamais appelé ; le catalogue devient une surface de
+test à part entière (12 tests d'invariants).
+
+#### ADR-016 — L'espace d'embedding est l'identité de bascule
+
+**Statut :** ✅ APPLIQUÉ
+**Contexte :** la rotation et le repli entre fournisseurs n'ont de sens que si
+les vecteurs produits restent comparables. Deux modèles d'embedding distincts
+produisent des espaces vectoriels disjoints : mélanger leurs sorties ne lève
+aucune erreur, cela dégrade silencieusement la recherche.
+**Décision :** un espace canonique (`éditeur/modèle`) est attaché à chaque
+modèle d'embedding du catalogue. `planRoutes()` épingle l'espace du premier
+candidat et écarte tous les autres ; `assertSpace()` refuse une écriture
+incompatible dans un index non vide ; la migration 002 persiste la liaison dans
+`main.embedding_spaces` ; `switchSpace()` purge puis relie explicitement.
+**Conséquences :** le repli est possible d'OpenAI vers OpenRouter (même
+`text-embedding-3-small`) et de Novita vers OpenRouter (même `baai/bge-m3`),
+mais jamais d'OpenAI vers Gemini ; changer d'espace est une opération
+destructive, donc explicite et non automatique.
+
+#### ADR-017 — Chargement de `.env` par `process.loadEnvFile`
+
+**Statut :** ✅ APPLIQUÉ
+**Contexte :** `.env` n'était lu que par `tsx watch` et par les tests, via des
+chemins ad hoc. Les scripts exécutés avec `node dist/…` (dont
+`npm run providers`) démarraient sans aucune clé, ce qui donnait l'illusion
+d'une configuration absente.
+**Décision :** `loadEnvFile()` s'appuie sur `process.loadEnvFile` (Node ≥ 20.12,
+déjà disponible avec `engines: >= 22.12`) ; il n'écrase jamais une variable
+définie par le shell, ignore silencieusement un fichier absent et n'échoue pas
+sur une ligne malformée. Il n'est appelé que lorsqu'aucun environnement n'est
+injecté, ce qui préserve la testabilité (les tests fournissent leur `env`).
+**Conséquences :** aucune dépendance `dotenv` ; un `.env` fautif ne bloque pas
+le démarrage ; la précédence est celle de Node (environnement > fichier).
+
+#### Risques nouveaux (Sprint 4.5)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-4.5.1 | Bascule silencieuse entre modèles d'embedding → vecteurs incomparables | **Élevé** | Faible | Espace épinglé par `planRoutes`, `assertSpace`, migration 002, `EmbeddingSpaceMismatchError`, 20 tests d'intégration |
+| R-4.5.2 | Palier gratuit d'un fournisseur supprimé ou rétrogradé | Moyen | **Élevée** | `status` et `free` dans le catalogue, politique `quality` par défaut, repli multi-fournisseurs, `npm run providers` pour constater l'état réel |
+| R-4.5.3 | Multiplication des clés en `.env` → fuite par copie ou partage d'écran | **Élevé** | Moyenne | `.env` ignoré, Gitleaks pré-commit + CI, `maskKey` (clés < 12 caractères entièrement masquées), `redactKeys` sur les erreurs |
+| R-4.5.4 | Disjoncteur trop agressif : panne locale transitoire → fournisseur écarté 10 min | Faible | Moyenne | Seuil de 3 échecs, relégation en fin de chaîne (jamais suppression), reprise après `Retry-After` |
+| R-4.5.5 | Protocole d'un fournisseur mal modélisé → 400 systématique | Moyen | Faible | Protocole `unknown` explicite, fournisseur collecté mais exclu du routage ; vérification documentée par fournisseur (§2 de `PROVIDERS.md`) |
+| R-4.5.6 | Coût non maîtrisé sur les fournisseurs payants | Moyen | Moyenne | Politique `cost`/`free`, `npm run providers` affiche le palier, aucun appel de facturation automatisé |
+| R-4.5.7 | Dépendance à un agrégateur (OpenRouter) devenu point unique de bascule | Faible | Faible | Bascule indépendante par capacité ; OpenRouter n'est jamais le seul candidat d'un espace |
+
+---
+
 ### 2.3 Décisions à vérifier
 
 | ID | Sujet | Information | Date vérification | Statut |
@@ -585,7 +653,7 @@ FTS avancés ne sont pas exposés (hors périmètre, à rouvrir si un besoin ré
 
 | ID | Sujet | Options | Sprint décision | Statut |
 |----|-------|---------|-----------------|--------|
-| ADR-T01 | Ollama vs OpenAI embeddings | Local vs cloud | Sprint 4 | ❓ À DÉCIDER |
+| ADR-T01 | Ollama vs OpenAI embeddings | Local vs cloud | Sprint 5 | ⏸️ DIFFÉRÉ — la couche fournisseurs (ADR-015) rend l'ajout d'un fournisseur local déclaratif, mais Ollama n'utilise pas de clé d'API : il demande une entrée `local` dans le catalogue. |
 | ADR-T02 | Mode navigateur (local/service) | Feature flag | Sprint 7 | ❓ À DÉCIDER |
 | ADR-T03 | PostgreSQL migration | Si multi-users requis | Phase 3 | ❓ À DÉCIDER |
 

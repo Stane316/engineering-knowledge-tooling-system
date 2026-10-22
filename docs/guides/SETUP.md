@@ -175,7 +175,15 @@ echo $?              # bash / zsh
 | `NODE_ENV` | `development`, `test`, `production` | `development` | Profil d'exécution ; toute autre valeur retombe sur `development` |
 | `EKTS_DATA_DIR` | chemin relatif ou absolu | `data` | Répertoire des bases SQLite, résolu en absolu |
 | `LOG_LEVEL` | `trace`…`fatal`, `silent` | `info` | Verbosité Pino |
-| `OPENAI_API_KEY` | `sk-…` | — | **Sprint 4** : obligatoire pour générer des embeddings réels |
+| `OPENAI_API_KEY` | `sk-…` | — | Embeddings OpenAI (une clé parmi d'autres, voir §4.4) |
+| `GEMINI_API_KEY` | chaîne | — | Embeddings Gemini (palier gratuit) |
+| `OPENROUTER_API_KEY` | `sk-or-…` | — | Embeddings/chat OpenRouter (même espace qu'OpenAI) |
+| `NOVITA_API_KEY` | chaîne | — | Embeddings `baai/bge-m3` (gratuit) |
+| `TAVILY_API_KEY`, `SERPER_API_KEY`, `SERPAPI_API_KEY` | chaîne | — | Recherche web |
+| `DEEPSEEK_API_KEY`, `ZAI_API_KEY`, `NVIDIA_API_KEY`, `STEPFUN_API_KEY` | chaîne | — | Chat (Sprint 6) |
+| `E2B_API_KEY` | chaîne | — | Bac à sable (Sprint 8) |
+| `EKTS_PROVIDER_POLICY` | `quality`, `free`, `cost` | `quality` | Politique de sélection des fournisseurs |
+| `EKTS_EMBEDDING_SPACE` | `éditeur/modèle` | — | Espace d'embedding imposé (dépannage) |
 | `OPENAI_EMBEDDING_MODEL` | nom de modèle | `text-embedding-3-small` | Doit produire 1536 dimensions |
 | `EMBEDDING_DIMENSION` | entier | `1536` | Doit rester 1536 (schéma `float[1536]`) |
 
@@ -191,12 +199,12 @@ $env:EKTS_DATA_DIR = "$env:LOCALAPPDATA\ekts"; $env:LOG_LEVEL = "debug"; npm sta
 
 ### 4.2 Fichier `.env`
 
-Depuis le Sprint 4, la génération d'embeddings exige une clé OpenAI. Créez `.env` à partir du
-modèle versionné :
+Depuis le Sprint 4.5, la génération d'embeddings accepte **plusieurs fournisseurs**
+(OpenAI, OpenRouter, Gemini, Novita). Créez `.env` à partir du modèle versionné :
 
 ```powershell
 Copy-Item .env.example .env
-notepad .env      # renseigner OPENAI_API_KEY=sk-...
+notepad .env      # renseigner au moins une clé d'embedding
 ```
 
 ```bash
@@ -204,8 +212,37 @@ cp .env.example .env
 ```
 
 `.env` est **ignoré par Git**, par Gitleaks et par le hook pre-commit ; ne jamais forcer son
-ajout (`git add -f`). Les tests et le benchmark n'ont **pas** besoin de la clé : ils utilisent un
+ajout (`git add -f`). Les tests et le benchmark n'ont **pas** besoin de clé : ils utilisent un
 fournisseur d'embeddings local et déterministe.
+
+### 4.4 Plusieurs clés par fournisseur
+
+Un même fournisseur accepte jusqu'à huit clés, suffixées `_2` à `_8` :
+
+```dotenv
+OPENAI_API_KEY=sk-premiere-cle
+OPENAI_API_KEY_2=sk-seconde-cle
+GEMINI_API_KEY=AIza...
+GEMINI_API_KEY_2=AIza...
+```
+
+Les clés tournent à chaque appel réussi : deux comptes gratuits doublent le quota
+disponible. Si une clé est refusée, la suivante est essayée dans le même appel.
+Limite : les clés d'un même fournisseur doivent donner accès **au même modèle**,
+sinon l'espace d'embedding devient ambigu.
+
+### 4.5 Vérifier la configuration
+
+```powershell
+npm run build
+npm run providers
+```
+
+Aucun appel réseau, aucun coût : la commande affiche les clés détectées (masquées),
+les capacités par fournisseur, les espaces d'embedding disponibles et la chaîne
+d'appel résolue. C'est le premier réflexe en cas de « aucun fournisseur disponible ».
+
+Mode d'emploi complet : [`docs/guides/PROVIDERS.md`](PROVIDERS.md).
 
 ### 4.3 Chemins des bases
 

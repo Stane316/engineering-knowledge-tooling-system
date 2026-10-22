@@ -42,7 +42,12 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | **MVP-2** — Inspection navigateur | 7 à 12 | ✅ 24 dossiers | ⏳ | — |
 | **MVP-3** — Capitalisation projets | 13 à 18 | ⏳ non documentés | ⏳ | — |
 
-**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 3 au 22 octobre 2026 (119 tests, couverture 100 %).
+**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 4.5 au 22 octobre 2026 (391 tests, couverture 100 %).
+
+> **Sprint 4.5** est un sprint hors plan, ajouté à la demande de l'utilisateur
+> (multiplication des clés d'API disponibles). Il ne décale aucun sprint
+> documenté : il complète le Sprint 4 en rendant la couche d'accès aux modèles
+> indépendante du fournisseur.
 
 ---
 
@@ -66,6 +71,10 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 4 | 4-2 | Génération embeddings (OpenAI) + indexation vectorielle | ✅ Rédigée | ✅ Livré | ✅ C4.2, C4.5, C4.16 |
 | Sprint 4 | 4-3 | Fusion RRF + benchmarks + documentation | ✅ Rédigée | ✅ Livré | ✅ C4.4, C4.6–C4.8 |
 | Sprint 4 | Dossier parent | Search Engine (Semaine 7-8) | ✅ Rédigée | ⏸️ En attente de validation | ✅ C4.1–C4.16 tracés |
+| Sprint 4.5 | 4.5-1 | Catalogue déclaratif (13 fournisseurs, 4 capacités) + trousseau multi-clés | ➕ Hors plan | ✅ `catalogue` | ✅ 27 tests |
+| Sprint 4.5 | 4.5-2 | `HttpClient`, disjoncteur, routage par capacité et par espace | ➕ Hors plan | ✅ `routing` | ✅ 43 tests |
+| Sprint 4.5 | 4.5-3 | Adaptateurs, `ProviderGateway` (rotation, repli, trace), espace d'embedding persistant | ➕ Hors plan | ✅ `gateway` | ✅ 65 tests |
+| Sprint 4.5 | 4.5-4 | `npm run providers`, `.env.example` complet, guide `PROVIDERS.md` | ➕ Hors plan | ✅ `scripts` | ✅ 391 tests, 100 % |
 | Sprint 5 | 5-1 | Commandes de base (init, add, get) | ✅ Rédigée | ⏳ | — |
 | Sprint 5 | 5-2 | Commandes de recherche et gestion (search, list, delete) | ✅ Rédigée | ⏳ | — |
 | Sprint 5 | 5-3 | Commande status + tests intégration + documentation | ✅ Rédigée | ⏳ | — |
@@ -121,13 +130,18 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Sprint 4 : `FTSRepository` (BM25 `0/10/5/1`, jointure `resource_id`, requête assainie), `VectorRepository` (KNN + normalisation cosinus), `EmbeddingsService` (OpenAI + validation), `VectorIndexer`/décorateur, `fuseResults` (RRF k=60), `SearchEngine` — 240 tests, couverture 100 % | `246638a` |
 | 22/10/2026 | Sprint 4 : benchmark 100 000 documents / 100 000 vecteurs — Recall@5 1.000, Faithfulness 1.000, p95 308 ms ; job CI `benchmark` ajouté | `4a8915d` |
 | 22/10/2026 | Documentation Sprint 4 : guide `SEARCH_ENGINE.md`, traçabilité C4.1–C4.16, ADR-012 à ADR-014, risques R-4.1 à R-4.4 ; CI verte 6 jobs | `55663fa` |
+| 22/10/2026 | Sprint 4.5 : catalogue de 13 fournisseurs, trousseau multi-clés (`_2`…`_8`), `HttpClient` (timeout/reprises/`Retry-After`), disjoncteur, routage par capacité et par espace d'embedding | `sprint-4.5` |
+| 22/10/2026 | Sprint 4.5 : `ProviderGateway` (rotation, repli, trace), `GatewayEmbeddingProvider`, migration 002 `embedding-space`, `npm run providers`, `.env.example` complet | `sprint-4.5` |
+| 22/10/2026 | Sprint 4.5 : guide `PROVIDERS.md`, ADR-015 à ADR-017, risques R-4.5.1 à R-4.5.7 ; 391 tests, couverture 100 % | `sprint-4.5` |
 
 ---
 
 ## 5. Prochaines étapes
 
-1. **Sprint 4 terminé** — en attente de validation utilisateur (⏸️) avant le Sprint 5.
+1. **Sprint 4.5 terminé** — en attente de validation utilisateur (⏸️) avant le Sprint 5.
 2. **Sprint 5** — CLI (Commander.js) : `init`, `add`, `search`, `get`, `list`, `delete`, `status`.
+   La couche fournisseurs (Sprint 4.5) est disponible pour la commande `status` : nombre de
+   fournisseurs configurés, espace d'embedding actif, chaîne d'appel résolue.
 3. Mise à jour de ce registre à la fin de chaque sous-sprint (statut + commit).
 4. Validation utilisateur avant passage au Sprint 6.
 
@@ -144,3 +158,10 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 > corrigés après vérification empirique. L'indexation vectorielle automatique passe par un
 > décorateur (`withVectorIndexing`) pour respecter l'interdiction de modifier `KnowledgeManager`.
 > Voir `docs/guides/SEARCH_ENGINE.md` §7 (E4-1 à E4-10) et `SPRINT-04.md` §8.5.
+>
+> **Sprint 4.5 (hors plan)** : la demande utilisateur — exploiter treize clés d'API
+> hétérogènes « à leur plein potentiel » — ne correspondait à aucun sprint documenté.
+> La réponse architecturale est un catalogue déclaratif et un routage par capacité
+> (ADR-015), avec l'espace d'embedding comme unité de bascule (ADR-016) : deux modèles
+> produisant des vecteurs incomparables ne se remplacent jamais silencieusement.
+> Voir `docs/guides/PROVIDERS.md`.
