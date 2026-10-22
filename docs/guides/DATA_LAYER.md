@@ -225,7 +225,7 @@ tests/
 ## 8. Tests
 
 ```bash
-npm test                      # 66 tests (unitaires + intégration)
+npm test                      # 67 tests (unitaires + intégration)
 npm run coverage              # 100 % (seuils 80 %)
 ```
 

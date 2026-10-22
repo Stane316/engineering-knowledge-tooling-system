@@ -42,7 +42,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | **MVP-2** — Inspection navigateur | 7 à 12 | ✅ 24 dossiers | ⏳ | — |
 | **MVP-3** — Capitalisation projets | 13 à 18 | ⏳ non documentés | ⏳ | — |
 
-**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 et 2 au 22 octobre 2026 (66 tests, couverture 100 %).
+**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 et 2 au 22 octobre 2026 (67 tests, couverture 100 %).
 
 ---
 
@@ -54,9 +54,9 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 1 | 1-2 | Structure dossiers + dépendances | ✅ Rédigée | ✅ `9c96f2a` | ✅ 8 tests, 100 % |
 | Sprint 1 | 1-3 | Gitleaks + README + CI | ✅ Rédigée | ✅ `d5b567c` | ✅ CI + hook |
 | Sprint 1 | Dossier parent | Setup projet | ✅ Rédigée | ⏸️ En attente de validation | ✅ |
-| Sprint 2 | 2-1 | Schémas SQLite (3 bases) | ✅ Rédigée | ✅ `Sprint 2` | ✅ 15 tests, 100 % |
-| Sprint 2 | 2-2 | Repository Resource + tests | ✅ Rédigée | ✅ `Sprint 2` | ✅ 26 tests, 100 % |
-| Sprint 2 | 2-3 | Validation Zod + documentation | ✅ Rédigée | ✅ `Sprint 2` | ✅ 17 tests, 100 % |
+| Sprint 2 | 2-1 | Schémas SQLite (3 bases) | ✅ Rédigée | ✅ `e0ac3b3` | ✅ 15 tests, 100 % |
+| Sprint 2 | 2-2 | Repository Resource + tests | ✅ Rédigée | ✅ `e0ac3b3` | ✅ 26 tests, 100 % |
+| Sprint 2 | 2-3 | Validation Zod + documentation | ✅ Rédigée | ✅ `e0ac3b3` | ✅ 17 tests, 100 % |
 | Sprint 2 | Dossier parent | Data Layer (SQLite) | ✅ Rédigée | ⏸️ En attente de validation | ✅ |
 | Sprint 3 | 3-1 | Knowledge Manager CRUD (add, get, list) | ✅ Rédigée | ⏳ | — |
 | Sprint 3 | 3-2 | Knowledge Manager CRUD suite (update, delete) + tests complets | ✅ Rédigée | ⏳ | — |
@@ -110,9 +110,9 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Sprint 1-2 : arborescence `src/`, dépendances runtime (better-sqlite3, commander, zod, pino), configuration et logger typés | `9c96f2a` |
 | 22/10/2026 | Sprint 1-3 : Gitleaks + hook pre-commit, CI GitHub Actions, `SETUP.md`, README définitif | `d5b567c` |
 | 22/10/2026 | CI verte (qualité Node 22.x et 24.x + détection de secrets) ; correction des chemins historiques dans l'allowlist Gitleaks | `896308e` |
-| 22/10/2026 | Sprint 2-1 : 3 bases SQLite (WAL, permissions 600), migrations versionnées, FTS5 autonome, `sqlite-vec` 0.1.9 | `Sprint 2` |
-| 22/10/2026 | Sprint 2-2 : `ResourceRepository` (CRUD, filtres, pagination, indexation FTS transactionnelle) | `Sprint 2` |
-| 22/10/2026 | Sprint 2-3 : validation Zod 4, `docs/guides/DATA_LAYER.md`, 66 tests, couverture 100 % | `Sprint 2` |
+| 22/10/2026 | Sprint 2-1 : 3 bases SQLite (WAL, permissions 600), migrations versionnées, FTS5 autonome, `sqlite-vec` 0.1.9 | `e0ac3b3` |
+| 22/10/2026 | Sprint 2-2 : `ResourceRepository` (CRUD, filtres, pagination, indexation FTS transactionnelle) | `e0ac3b3` |
+| 22/10/2026 | Sprint 2-3 : validation Zod 4, `docs/guides/DATA_LAYER.md`, 67 tests, couverture 100 % | `344c18e` |
 
 ---
 
