@@ -213,9 +213,21 @@ git commit --no-verify -m "..."
 
 ### 6.1 `better-sqlite3` échoue à l'installation
 
-**Symptôme :** `node-gyp` erreur, `gyp ERR! stack`, `Could not find any Python installation`.
+**Symptôme :** `node-gyp` erreur, `gyp ERR! stack`, `Could not find any Python installation`, ou `gyp http GET https://nodejs.org/download/release/... failed`.
 
-**Causes :** prébuild absent pour la plateforme, ou compilation déclenchée à tort.
+**Causes :** compilation déclenchée à tort, ou poste sans accès à `nodejs.org`.
+
+`better-sqlite3` 13+ embarque ses binaires précompilés dans le paquet npm (`prebuilds/`) : **aucune compilation n'est nécessaire** dans le cas normal (`gypfile: false`).
+
+**Solution immédiate** (utilisable aussi sans chaîne de compilation) :
+
+```bash
+npm ci --ignore-scripts
+node -e "const D=require('better-sqlite3');const d=new D(':memory:');console.log(d.prepare('select 1 as ok').get())"
+# → { ok: 1 }
+```
+
+`--ignore-scripts` n'exécute pas `prepare` (Husky) : relancer ensuite `npm run prepare` pour installer les hooks Git.
 
 ```bash
 # 1. Vérifier que Node correspond à la version supportée
