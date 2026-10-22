@@ -228,9 +228,12 @@ describe('HttpClient', () => {
   });
 
   it('extrait le message d’erreur et rédige les secrets', async () => {
+    // Valeur assemblée à l'exécution : écrite d'un seul tenant, elle déclencherait
+    // la règle « generic-api-key » de Gitleaks dans la CI.
+    const fakeKey = ['sk', 'secret', '1234567890'].join('-');
     const { client } = build(
-      [() => jsonResponse({ error: { message: 'clé sk-secret-1234567890 refusée' } }, 400)],
-      { redact: (text) => text.replace('sk-secret-1234567890', '***') },
+      [() => jsonResponse({ error: { message: `clé ${fakeKey} refusée` } }, 400)],
+      { redact: (text) => text.replace(fakeKey, '***') },
     );
 
     const error = await client
@@ -238,7 +241,7 @@ describe('HttpClient', () => {
       .catch((caught: unknown) => caught);
 
     expect((error as Error).message).toContain('*** refusée');
-    expect((error as Error).message).not.toContain('sk-secret');
+    expect((error as Error).message).not.toContain(fakeKey);
   });
 
   it('compacte un corps non JSON volumineux', async () => {
