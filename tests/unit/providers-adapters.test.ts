@@ -4,8 +4,10 @@ import {
   alignToSchema,
   chatOpenAiCompatible,
   embedOpenAiCompatible,
+  fetchSofya,
   searchSerper,
   searchSerpApi,
+  searchSofya,
   searchTavily,
 } from '../../src/business/providers/adapters.js';
 import type { HttpClient } from '../../src/business/providers/http.js';
@@ -260,6 +262,99 @@ describe('recherche web', () => {
     await expect(searchTavily(client, route('tavily', ''), 'k', 'q', 1)).resolves.toEqual([]);
     await expect(searchSerper(client, route('serper', ''), 'k', 'q', 1)).resolves.toEqual([]);
     await expect(searchSerpApi(client, route('serpapi', ''), 'k', 'q', 1)).resolves.toEqual([]);
+    await expect(searchSofya(client, route('sofya', ''), 'k', 'q', 1)).resolves.toEqual([]);
+  });
+
+  it('normalise les résultats Sofya (contenu extrait, pas seulement un extrait)', async () => {
+    const { client, captured } = fakeClient({
+      results: [
+        {
+          title: 'T',
+          url: 'https://d.test',
+          content: 'contenu complet de la page',
+          description: 'résumé',
+          published_date: '2026-10-01',
+        },
+        { title: 'Sans contenu', url: 'https://e.test', description: 'résumé seul' },
+      ],
+    });
+
+    const results = await searchSofya(client, route('sofya', ''), 'ay_live_1', 'rag', 5);
+
+    expect(results).toEqual([
+      { title: 'T', url: 'https://d.test', snippet: 'contenu complet de la page' },
+      { title: 'Sans contenu', url: 'https://e.test', snippet: 'résumé seul' },
+    ]);
+    expect(captured[0]?.url).toBe('https://sofya.co/v1/search');
+    expect(captured[0]?.headers.authorization).toBe('Bearer ay_live_1');
+    expect(captured[0]?.body).toEqual({
+      query: 'rag',
+      max_results: 5,
+      search_depth: 'basic',
+      include_answer: false,
+    });
+  });
+});
+
+describe('lecture d’URL (Sofya)', () => {
+  it('convertit les pages en markdown et conserve les métadonnées', async () => {
+    const { client, captured } = fakeClient({
+      results: [
+        {
+          title: 'Doc',
+          url: 'https://f.test',
+          content: '# Titre\n\ntexte',
+          success: true,
+          published_time: '2026-09-30',
+        },
+      ],
+    });
+
+    const pages = await fetchSofya(client, route('sofya', ''), 'ay_live_2', ['https://f.test']);
+
+    expect(pages).toEqual([
+      {
+        title: 'Doc',
+        url: 'https://f.test',
+        content: '# Titre\n\ntexte',
+        success: true,
+        publishedTime: '2026-09-30',
+      },
+    ]);
+    expect(captured[0]?.url).toBe('https://sofya.co/v1/fetch');
+    expect(captured[0]?.body).toEqual({ urls: ['https://f.test'] });
+  });
+
+  it('reporte un échec partiel au lieu de le masquer', async () => {
+    const { client } = fakeClient({
+      results: [
+        { title: 'OK', url: 'https://g.test', content: 'texte', success: true },
+        { url: 'https://h.test', success: false, error: 'HTTP 404' },
+        // `error` seul suffit à marquer l'échec, même sans `success: false`.
+        { url: 'https://i.test', content: '', error: 'page protégée' },
+      ],
+    });
+
+    const pages = await fetchSofya(client, route('sofya', ''), 'k', [
+      'https://g.test',
+      'https://h.test',
+      'https://i.test',
+    ]);
+
+    expect(pages.map((page) => page.success)).toEqual([true, false, false]);
+    expect(pages[1]?.error).toBe('HTTP 404');
+    expect(pages[2]?.error).toBe('page protégée');
+  });
+
+  it('échoue explicitement quand aucune page n’est renvoyée', async () => {
+    const { client } = fakeClient({ results: [] });
+
+    await expect(fetchSofya(client, route('sofya', ''), 'k', ['https://j.test'])).rejects.toThrow(
+      ProviderError,
+    );
+    await expect(fetchSofya(client, route('sofya', ''), 'k', ['https://j.test'])).rejects.toThrow(
+      /aucune page renvoyée/,
+    );
   });
 });
 

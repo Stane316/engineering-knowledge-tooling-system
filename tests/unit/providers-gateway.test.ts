@@ -1,10 +1,15 @@
-import { describe, expect, it } from 'vitest';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+import { describe, expect, it, vi } from 'vitest';
 
 import { ProviderGateway, createProviderGateway } from '../../src/business/providers/gateway.js';
 import { ProviderHealth } from '../../src/business/providers/health.js';
 import { EMBEDDING_DIMENSIONS } from '../../src/shared/constants.js';
 import { NoProviderAvailableError, ProviderError } from '../../src/shared/errors.js';
 import { loadKeyring } from '../../src/shared/providers/env.js';
+import type { ProviderDescriptor } from '../../src/shared/providers/types.js';
 
 interface ScriptedCall {
   url: string;
@@ -270,6 +275,18 @@ describe('ProviderGateway — chat et recherche', () => {
     expect(outcome.trace.provider).toBe('serpapi');
   });
 
+  it('interroge Sofya quand elle est la seule clé de recherche', async () => {
+    const { gateway: gw, calls } = gateway({ SOFYA_API_KEY: 'ay_live_1' }, () =>
+      json({ results: [{ title: 'T', url: 'https://a.test', content: 'contenu' }] }),
+    );
+
+    const outcome = await gw.search('rag', 3);
+
+    expect(outcome.trace.provider).toBe('sofya');
+    expect(outcome.results).toEqual([{ title: 'T', url: 'https://a.test', snippet: 'contenu' }]);
+    expect(calls[0]?.url).toBe('https://sofya.co/v1/search');
+  });
+
   it('refuse un protocole de recherche inconnu sans planter', async () => {
     const { gateway: gw } = gateway({ TAVILY_API_KEY: 'k' }, () => json({}));
     const route = {
@@ -286,6 +303,114 @@ describe('ProviderGateway — chat et recherche', () => {
         1,
       ),
     ).rejects.toThrow(/protocole de recherche non géré/);
+  });
+});
+
+describe('ProviderGateway — lecture d’URL', () => {
+  it('récupère une page via Sofya et expose la trace', async () => {
+    const { gateway: gw, calls } = gateway({ SOFYA_API_KEY: 'ay_live_1' }, () =>
+      json({ results: [{ title: 'Doc', url: 'https://a.test', content: '# Doc', success: true }] }),
+    );
+
+    const outcome = await gw.fetchPages(['https://a.test']);
+
+    expect(outcome.pages).toEqual([
+      { title: 'Doc', url: 'https://a.test', content: '# Doc', success: true },
+    ]);
+    expect(outcome.trace).toMatchObject({ provider: 'sofya', model: 'Sofya', attempts: 0 });
+    expect(calls[0]?.url).toBe('https://sofya.co/v1/fetch');
+  });
+
+  it('refuse une liste d’URL vide', async () => {
+    const { gateway: gw } = gateway({ SOFYA_API_KEY: 'k' }, () => json({}));
+
+    await expect(gw.fetchPages([])).rejects.toThrow(/aucune URL à récupérer/);
+  });
+
+  it('refuse plus de dix URL (limite du fournisseur)', async () => {
+    const { gateway: gw, calls } = gateway({ SOFYA_API_KEY: 'k' }, () => json({}));
+    const urls = Array.from({ length: 11 }, (_, index) => `https://x.test/${String(index)}`);
+
+    await expect(gw.fetchPages(urls)).rejects.toThrow(/au plus 10 URL par appel/);
+    expect(calls).toHaveLength(0);
+  });
+
+  it('refuse un protocole de lecture inconnu sans planter', async () => {
+    const { gateway: gw } = gateway({ SOFYA_API_KEY: 'k' }, () => json({}));
+    const route = {
+      provider: { ...gw.plan('web-fetch')[0]?.provider, protocol: 'e2b' as const },
+      model: '',
+      keys: ['k'],
+    };
+
+    await expect(
+      (gw as unknown as { fetchWith: (...args: unknown[]) => Promise<unknown> }).fetchWith(
+        route,
+        'k',
+        ['https://a.test'],
+      ),
+    ).rejects.toThrow(/protocole de lecture non géré/);
+  });
+});
+
+describe('ProviderGateway — fournisseurs déclarés', () => {
+  const mistral: ProviderDescriptor = {
+    id: 'mistral',
+    label: 'Mistral',
+    envKeys: ['MISTRAL_API_KEY'],
+    baseUrl: 'https://api.mistral.ai/v1',
+    protocol: 'openai-compatible',
+    capabilities: ['chat'],
+    chat: [{ model: 'mistral-large-latest', free: false }],
+    docsUrl: 'https://docs.mistral.ai',
+    status: 'verified',
+  };
+
+  it('utilise un fournisseur déclaré par l’utilisateur', async () => {
+    const env = { MISTRAL_API_KEY: 'm-1' };
+    const { gateway: gw, calls } = gateway(
+      env,
+      () => json({ choices: [{ message: { content: 'bonjour' } }] }),
+      { keyring: loadKeyring(env, [mistral]), providers: [mistral] },
+    );
+
+    const outcome = await gw.chat([{ role: 'user', content: 'salut' }]);
+
+    expect(outcome.text).toBe('bonjour');
+    expect(outcome.trace.provider).toBe('mistral');
+    expect(calls[0]?.url).toBe('https://api.mistral.ai/v1/chat/completions');
+  });
+
+  it('charge providers.custom.json quand aucun registre n’est injecté', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'ekts-registry-'));
+    const file = join(directory, 'providers.custom.json');
+    writeFileSync(
+      file,
+      JSON.stringify([
+        {
+          id: 'mistral',
+          label: 'Mistral',
+          envKeys: ['MISTRAL_API_KEY'],
+          baseUrl: 'https://api.mistral.ai/v1',
+          protocol: 'openai-compatible',
+          capabilities: ['chat'],
+          chat: [{ model: 'mistral-large-latest', free: true }],
+        },
+      ]),
+      'utf8',
+    );
+
+    vi.stubEnv('EKTS_PROVIDERS_FILE', file);
+    vi.stubEnv('MISTRAL_API_KEY', 'm-1');
+
+    try {
+      const gw = createProviderGateway();
+
+      expect(gw.plan('chat').some((route) => route.provider.id === 'mistral')).toBe(true);
+    } finally {
+      vi.unstubAllEnvs();
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 });
 
