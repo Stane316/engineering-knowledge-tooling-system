@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 21 octobre 2026 — Sprint 0 (hygiène documentaire)  
+**Dernière mise à jour :** 22 octobre 2026 — Sprint 1 (setup projet)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -38,11 +38,11 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 
 | Périmètre | Sprints | Documentation | Implémentation | Tests |
 |-----------|---------|---------------|----------------|-------|
-| **MVP-1** — Bibliothèque, recherche, CLI, MCP | 1 à 6 | ✅ 24 dossiers | ⏳ | — |
+| **MVP-1** — Bibliothèque, recherche, CLI, MCP | 1 à 6 | ✅ 24 dossiers | 🟡 Sprint 1 terminé | ✅ |
 | **MVP-2** — Inspection navigateur | 7 à 12 | ✅ 24 dossiers | ⏳ | — |
 | **MVP-3** — Capitalisation projets | 13 à 18 | ⏳ non documentés | ⏳ | — |
 
-**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** 0 ligne de code au 21 octobre 2026 (avant Sprint 1).
+**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprint 1 (2 400+ lignes de code, tests et documentation) au 22 octobre 2026.
 
 ---
 
@@ -50,10 +50,10 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 
 | Sprint | Sous-sprint | Sujet | Documentation | Implémentation | Tests |
 |--------|-------------|-------|---------------|----------------|-------|
-| Sprint 1 | 1-1 | Initialisation TypeScript + outils qualité | ✅ Rédigée | ⏳ | — |
-| Sprint 1 | 1-2 | Structure dossiers + dépendances | ✅ Rédigée | ⏳ | — |
-| Sprint 1 | 1-3 | Gitleaks + README + CI | ✅ Rédigée | ⏳ | — |
-| Sprint 1 | Dossier parent | Setup projet | ✅ Rédigée | ⏳ | — |
+| Sprint 1 | 1-1 | Initialisation TypeScript + outils qualité | ✅ Rédigée | ✅ `363b7b8` | ✅ 3 tests, 100 % |
+| Sprint 1 | 1-2 | Structure dossiers + dépendances | ✅ Rédigée | ✅ `9c96f2a` | ✅ 8 tests, 100 % |
+| Sprint 1 | 1-3 | Gitleaks + README + CI | ✅ Rédigée | ✅ `Sprint 1-3` | ✅ CI + hook |
+| Sprint 1 | Dossier parent | Setup projet | ✅ Rédigée | ⏸️ En attente de validation | ✅ |
 | Sprint 2 | 2-1 | Schémas SQLite (3 bases) | ✅ Rédigée | ⏳ | — |
 | Sprint 2 | 2-2 | Repository Resource + tests | ✅ Rédigée | ⏳ | — |
 | Sprint 2 | 2-3 | Validation Zod + documentation | ✅ Rédigée | ⏳ | — |
@@ -106,11 +106,15 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Date | Événement | Commit |
 |------|-----------|--------|
 | 21/10/2026 | Création du registre ; 48 dossiers normalisés en `⏳ NON COMMENCÉ` (documentation ✅) | `Sprint 0` |
+| 22/10/2026 | Sprint 1-1 : TypeScript 5.9, ESLint 10 (flat config), Prettier 3, Vitest 5 + couverture v8 | `363b7b8` |
+| 22/10/2026 | Sprint 1-2 : arborescence `src/`, dépendances runtime (better-sqlite3, commander, zod, pino), configuration et logger typés | `9c96f2a` |
+| 22/10/2026 | Sprint 1-3 : Gitleaks + hook pre-commit, CI GitHub Actions, `SETUP.md`, README définitif | `Sprint 1-3` |
 
 ---
 
 ## 5. Prochaines étapes
 
-1. **Sprint 1** — setup du projet (3 sous-sprints) : voir `SPRINT-01.md` et l'addendum du 21/10/2026.
-2. Mise à jour de ce registre à la fin de chaque sous-sprint (statut + commit).
-3. Validation utilisateur avant passage au Sprint 2.
+1. **Sprint 1 terminé** — en attente de validation utilisateur (⏸️) avant le Sprint 2.
+2. **Sprint 2** — Data Layer SQLite : schémas des 3 bases, repository `Resource`, validation Zod.
+3. Mise à jour de ce registre à la fin de chaque sous-sprint (statut + commit).
+4. Validation utilisateur avant passage au Sprint 3.

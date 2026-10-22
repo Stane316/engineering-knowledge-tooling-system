@@ -1,0 +1,35 @@
+title = "EKTS Gitleaks Configuration"
+
+[extend]
+# Conserve toutes les règles par défaut (AWS, Stripe, GitHub, etc.)
+useDefault = true
+
+[[rules]]
+id = "ekts-openai-key"
+description = "OpenAI API Key"
+regex = '''sk-[A-Za-z0-9]{32,}'''
+tags = ["openai", "api-key"]
+
+[[rules]]
+id = "ekts-anthropic-key"
+description = "Anthropic API Key"
+regex = '''sk-ant-[A-Za-z0-9_-]{32,}'''
+tags = ["anthropic", "api-key"]
+
+[[allowlists]]
+description = "Dépendances, artefacts de build et fixtures de test"
+paths = [
+  '''node_modules''',
+  '''\.git''',
+  '''dist''',
+  '''build''',
+  '''coverage''',
+  '''tests/fixtures''',
+]
+
+[[allowlists]]
+description = "Exemples de secrets volontairement présents dans les dossiers de sprint"
+paths = [
+  '''docs/blueprint/Docs/roadmap/sprints/SPRINT-01-03\.md''',
+  '''docs/blueprint/Docs/roadmap/sprints/SPRINT-04(\.md|-0[23]\.md)''',
+]
