@@ -1,6 +1,6 @@
 # Sprint 4-3 — Fusion RRF + benchmarks + documentation
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 3 jours  
 **Objectif :** Fusionner les 2 moteurs via RRF, valider les benchmarks et documenter  
 **Dépendance :** Sprint 4-2 ✅

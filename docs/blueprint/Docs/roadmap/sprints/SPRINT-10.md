@@ -3,6 +3,7 @@
 **Durée estimée :** 2 semaines (10 jours ouvrables)  
 **Prérequis :** Sprint 2 (SQLite), Sprint 4 (Search Engine), Sprint 9 (Analyse 5 Dimensions)  
 **Objectif :** Stocker les rapports d'analyse, indexer pour recherche, préparer la génération de rapports
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 

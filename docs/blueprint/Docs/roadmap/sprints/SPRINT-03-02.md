@@ -1,6 +1,6 @@
 # Sprint 3-2 — Knowledge Manager CRUD suite (update, delete) + tests complets
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 4 jours  
 **Objectif :** Implémenter les 2 dernières méthodes + tests complets  
 **Dépendance :** Sprint 3-1 ✅

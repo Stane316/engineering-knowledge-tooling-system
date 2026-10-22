@@ -1,6 +1,6 @@
 # Sprint 3-1 — Knowledge Manager CRUD (add, get, list)
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 4 jours  
 **Objectif :** Implémenter les 3 premières méthodes du Knowledge Manager  
 **Dépendance :** Sprint 2 (Data Layer) ✅

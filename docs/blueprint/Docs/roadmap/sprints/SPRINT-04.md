@@ -1,6 +1,6 @@
 # Sprint 4 — Search Engine (Semaine 7-8)
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 2 semaines (10 jours ouvrables)  
 **Objectif :** Implémenter la recherche hybride (FTS + Vector + RRF)  
 **MVP :** MVP-1 (Knowledge Management Tool)

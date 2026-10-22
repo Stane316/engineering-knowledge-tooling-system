@@ -3,7 +3,8 @@
 **Date :** 21 octobre 2026  
 **Statut :** ✅ Terminée  
 **Durée réelle :** 1 jour  
-**Durée estimée :** 1-2 semaines
+**Durée estimée :** 1-2 semaines  
+**Note (21/10/2026) :** la décision « SDK TypeScript v2 » est corrigée en 1.32.x — voir ADR-011.
 
 ---
 

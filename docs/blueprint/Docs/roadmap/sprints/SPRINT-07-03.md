@@ -1,6 +1,6 @@
 # Sprint 7-3 — Accessibility Tree + Tests + Documentation
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 3 jours  
 **Objectif :** Extraire l'accessibility tree, tester et documenter  
 **Dépendance :** Sprint 7-2 (Playwright MCP + Navigation) ✅

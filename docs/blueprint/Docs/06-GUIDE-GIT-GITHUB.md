@@ -64,10 +64,12 @@ github.com/{utilisateur}/Engineering-Knowledge-Tooling-System/
 
 **Convention de nommage :**
 ```
+agent/sprint-XX-XX            ← agent (session classique)
+arena/{session-id}-{slug}     ← agent (session Arena, imposée)
+sprint/{numero-sprint}/{description}  ← utilisateur
 feature/{description-courte}
 fix/{description-courte}
 docs/{description-courte}
-sprint/{numero-sprint}/{description}
 ```
 
 **Exemples :**
@@ -351,6 +353,40 @@ update stuff
 2. Agent notifie utilisateur (message, issue comment)
 3. Utilisateur revue localement
 4. Utilisateur merge manuellement
+
+### 5.4 Dérogation de session — branches `arena/*`
+
+**Contexte :** les sessions de l'agent hébergé (Arena.ai) sont rattachées à **une seule branche imposée** par la plateforme, de la forme `arena/<session-id>-<slug>`. L'agent ne peut ni en changer, ni en créer une autre, ni pousser vers `main`.
+
+**Conséquences pratiques :**
+- La convention `agent/sprint-XX-XX` s'applique aux sessions où l'agent peut créer une branche ; en session Arena, la branche `arena/*` en tient lieu.
+- Les commits restent **atomiques par sous-sprint** (`feat(sprint-01-01): …`, `feat(sprint-01-02): …`, `feat(sprint-01-03): …`) afin de conserver la traçabilité.
+- L'utilisateur récupère la branche dans VS Code et fusionne manuellement après validation (`git merge --ff-only arena/…` si `main` n'a pas divergé, sinon merge commit).
+- Aucune pull request n'est créée, y compris depuis la branche `arena/*`.
+
+**Nommage retenu :**
+
+| Usage | Convention |
+|-------|------------|
+| Agent (session classique) | `agent/sprint-XX-XX` |
+| Agent (session Arena, imposée) | `arena/<session-id>-<slug>` |
+| Utilisateur | `sprint/XX/description`, `feature/*`, `fix/*`, `docs/*` |
+
+### 5.5 Fusion locale sans pull request
+
+**Procédure utilisateur (VS Code) :**
+```bash
+git fetch origin
+git checkout main
+git merge --ff-only origin/arena/<session-id>-<slug>
+# si divergence :
+# git merge --no-ff origin/arena/<session-id>-<slug>
+npm ci
+npm run lint && npm run typecheck && npm run build && npm test
+git push origin main
+```
+
+**Critère de fusion :** CI verte sur la branche + revue locale + tests exécutés. La « revue » du §2.2.1 se fait donc **localement**, sans pull request.
 
 ---
 

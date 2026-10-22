@@ -206,7 +206,7 @@
 | 6.9 | Documentation MCP | 4h | `docs/MCP.md` | API documentée |
 
 **Compétences requises :**
-- MCP SDK TypeScript v2
+- MCP SDK TypeScript 1.32.x
 - stdio transport
 - Tests d'intégration
 

@@ -101,7 +101,7 @@
 - FTS5 (intégré SQLite)
 - sqlite-vec (extension SQLite)
 - Commander.js (CLI)
-- MCP SDK TypeScript v2
+- MCP SDK TypeScript 1.32.x
 - Zod (validation schémas)
 - Pino (logs structurés)
 

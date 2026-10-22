@@ -4,6 +4,8 @@
 **Date création :** 2026-10-21  
 **Durée :** 4 jours  
 **Dépendance :** Sprint 5 terminé ✅
+**Statut :** ⏳ NON COMMENCÉ  
+**Addendum du 21 octobre 2026 :** utiliser `@modelcontextprotocol/sdk@^1.32.1` (aucune v2 publiée — ADR-011).
 
 ---
 
@@ -19,7 +21,7 @@ Le **Sprint 5** a livré une CLI complète avec 7 commandes. Le **Sprint 6-01** 
 
 ### 2.1 Objectifs fonctionnels
 
-- ✅ Installer `@modelcontextprotocol/sdk v2`
+- ✅ Installer `@modelcontextprotocol/sdk 1.32.x`
 - ✅ Configurer le transport stdio (stdin/stdout)
 - ✅ Implémenter le handler `initialize` (handshake MCP)
 - ✅ Implémenter le handler `tools/list` (liste outils vide)
@@ -55,7 +57,7 @@ Le **Sprint 5** a livré une CLI complète avec 7 commandes. Le **Sprint 6-01** 
 
 | Élément | Description |
 |---------|-------------|
-| Installation SDK | `@modelcontextprotocol/sdk v2` |
+| Installation SDK | `@modelcontextprotocol/sdk 1.32.x` |
 | Point d'entrée | `src/mcp/server.ts` |
 | Transport stdio | `src/mcp/transport.ts` |
 | Handler initialize | `src/mcp/handlers/initialize.ts` |
@@ -88,7 +90,7 @@ npm install @modelcontextprotocol/sdk
 **Vérification :**
 ```bash
 npm list @modelcontextprotocol/sdk
-# ✅ @modelcontextprotocol/sdk@2.x.x
+# ✅ @modelcontextprotocol/sdk@1.32.x
 ```
 
 **Tâche 6.1.2 : Créer la structure de dossiers**

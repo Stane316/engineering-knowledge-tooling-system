@@ -3,6 +3,7 @@
 **Durée :** 4 jours  
 **Objectif :** Implémenter le schéma SQLite et AuditRepository pour stocker les rapports d'analyse  
 **Dépendance :** Sprint 9 (Analyse 5 Dimensions) ✅
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 

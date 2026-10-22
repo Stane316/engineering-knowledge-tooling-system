@@ -14,7 +14,7 @@
 |---------|------|--------|--------|--------|
 | `00-Strategy/00_AUDIT_CADRAGE.md` | Analyse du blueprint source, points forts et lacunes | ✅ Validé | ~15 KB | Conserver |
 | `00-Strategy/00_GLOSSAIRE_TECHNIQUE.md` | Définitions des termes techniques (MCP, CLI, RAG, etc.) | ✅ Validé | ~12 KB | Conserver |
-| `00-Strategy/00_PLAN_DIRECTEUR_RECHERCHE.md` | Plan des 15 phases (14 exécutées) | ✅ Validé | ~18 KB | Conserver |
+| `00-Strategy/00_PLAN_DIRECTEUR_RECHERCHE.md` | Plan des 15 phases (15 exécutées) | ✅ Validé | ~18 KB | Conserver |
 
 ### 1.2 Phase 01 — Fondations techniques
 
@@ -28,7 +28,7 @@
 
 | Fichier | Rôle | Statut | Taille | Action |
 |---------|------|--------|--------|--------|
-| `02-Agent-Integration/02_MCP_ET_AGENTS.md` | Spécification MCP 2026-07-28, SDK TypeScript v2, stdio transport | ✅ Validé | ~25 KB | Conserver |
+| `02-Agent-Integration/02_MCP_ET_AGENTS.md` | Spécification MCP 2026-07-28, SDK TypeScript 1.32.x, stdio transport | ✅ Validé | ~25 KB | Conserver |
 | `02-Agent-Integration/02_MATRICE_COMPATIBILITE_CLIENTS.md` | Compatibilité clients MCP (Tier 1/2) | ✅ Validé | ~18 KB | Conserver |
 | `02-Agent-Integration/BILAN_PHASE_02.md` | Bilan Phase 02 | ✅ Validé | ~8 KB | Conserver |
 
@@ -138,7 +138,7 @@
 
 | Fichier | Rôle | Statut | Taille | Action |
 |---------|------|--------|--------|--------|
-| `INDEX.md` | Index général du projet, 47/47 livrables | ✅ Validé | ~33 KB | Conserver |
+| `INDEX.md` | Index général du projet, 51 fichiers de phase (37 livrables + 14 bilans) | ✅ Validé | ~33 KB | Conserver |
 | `Docs/00-REFERENCE-GLOBALE-PROJET.md` | Document référence principal (consolidation) | ✅ Validé | ~35 KB | Conserver |
 | `Docs/01-INVENTAIRE-SOURCES-ET-DOCUMENTS.md` | Ce document | ✅ Validé | ~20 KB | Conserver |
 
@@ -329,7 +329,7 @@
 
 ```
 /home/user/
-├── Engineering-Knowledge-Tooling-System/   ← Projet EKTS (47 livrables)
+├── docs/blueprint/                          ← Projet EKTS (51 fichiers de phase)
 │   ├── INDEX.md
 │   ├── 00-Strategy/                         (3 docs)
 │   ├── 01-Foundations/                      (2 docs + 1 bilan)

@@ -89,7 +89,7 @@ Ce document décrit l'architecture technique cible d'EKTS. Il sert de référenc
 graph TB
     subgraph "Interface Layer"
         CLI["CLI<br/>Commander.js"]
-        MCP["MCP Server<br/>stdio transport<br/>@modelcontextprotocol/sdk v2"]
+        MCP["MCP Server<br/>stdio transport<br/>@modelcontextprotocol/sdk 1.32.x"]
     end
 
     subgraph "Business Logic Layer"
@@ -217,7 +217,7 @@ ekts capitalize <path>                # Capitalisation projet
 
 **Rôle :** Exposition des capacités EKTS aux agents IA  
 **Statut :** 🟡 Prévu dans MVP-1 (Sprint 6)  
-**Technologie :** @modelcontextprotocol/sdk v2  
+**Technologie :** @modelcontextprotocol/sdk 1.32.x  
 **Transport :** stdio (local, sécurisé)  
 **Spécification :** MCP 2026-07-28 (stateless)
 

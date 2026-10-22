@@ -181,7 +181,7 @@ Implémenter un système RAG (Retrieval-Augmented Generation) pour EKTS en utili
 - Comment évaluer la qualité du retrieval ?
 
 ### Livrables attendus
-1. `07_ETUDE_RAG_ET_RECHERCHE_SEMANTIQUE.md` — Étude des approches RAG
+1. `07_ETUDE_RAG_RECHERCHE_SEMANTIQUE.md` — Étude des approches RAG
 2. `07_JEU_TEST_RECUPERATION.md` — Benchmark de qualité
 
 ### Durée estimée

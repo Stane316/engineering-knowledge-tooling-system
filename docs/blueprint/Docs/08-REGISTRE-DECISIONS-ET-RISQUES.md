@@ -483,6 +483,47 @@ Zod comme bibliothèque de validation
 
 ---
 
+#### ADR-011 — Révision de la baseline technique (Node 22, TypeScript 5.9, ESLint flat, SDK MCP 1.32)
+
+**Statut :** ✅ ACCEPTÉ  
+**Date :** 21 octobre 2026 (Sprint 0)  
+**Phase :** Implémentation — avant Sprint 1  
+**Référence :** `docs/audit/ETAT-DES-LIEUX-2026-10-21.md` §5.2, décisions D2 et D3
+
+**Contexte :**
+- La documentation des sprints a été rédigée sur une base Node.js 20, ESLint `eslintrc`, TypeScript 5 sans borne et SDK MCP « v2 ».
+- L'instantané du registre npm du 21 octobre 2026 montre que Vitest 5, better-sqlite3 13 et commander 15 exigent Node ≥ 22.12, qu'ESLint 10 a supprimé `eslintrc`, que TypeScript 7.0.2 sort du peer range de `typescript-eslint` 8.x, et que la dernière version publiée du SDK MCP est **1.32.1** (aucune v2).
+
+**Décision :**
+1. Baseline **Node.js 22.12 LTS** (CI : 22.x et 24.x).
+2. **TypeScript 5.9.x épinglé** jusqu'au support de TS 7 par `typescript-eslint`.
+3. **ESLint 10 en flat config** (`eslint.config.js`), sans `.eslintrc`.
+4. **Vitest 5** avec `@vitest/coverage-v8` (suppression de `c8`).
+5. **`@modelcontextprotocol/sdk` 1.32.x** ; la cible « v2 » est transformée en veille (aucune date de publication connue).
+
+**Justification :**
+- ✅ Exécutabilité immédiate des commandes documentées
+- ✅ Cohérence avec l'environnement de développement constaté (Node 22.22.3)
+- ✅ Sécurité et support : Node 20 est en fin de vie depuis avril 2026
+- ✅ Reproductibilité : versions majeures épinglées + lockfile commité
+
+**Alternatives considérées :**
+- ❌ Rester Node 20 en épinglant Vitest 3, better-sqlite3 12, commander 14, ESLint 9 : dette immédiate et support de sécurité limité
+- ❌ Attendre le SDK MCP v2 : bloque le Sprint 6 sans date
+
+**Conséquences :**
+- ✅ Positif : toolchain alignée, builds reproductibles
+- ⚠️ Négatif : Node 20 n'est plus supporté
+- 🔄 Mitigation : `.nvmrc`, `engines`, CI sur 22.x/24.x
+- 🔄 Veille : réévaluation trimestrielle (ADR-V04 : publication éventuelle du SDK MCP v2)
+
+**Conditions de réexamen :**
+- Publication du SDK MCP v2
+- Support de TypeScript 7 par `typescript-eslint`
+- Fin de vie de Node 22 (avril 2027)
+
+---
+
 ### 2.3 Décisions à vérifier
 
 | ID | Sujet | Information | Date vérification | Statut |
@@ -490,6 +531,7 @@ Zod comme bibliothèque de validation
 | ADR-V01 | Claude Code Max pricing | Prix annoncés, non confirmés officiellement | Avril 2027 | ⚠️ À VÉRIFIER |
 | ADR-V02 | Cursor pricing | Évolutions rapides, offre étudiant fermée juin 2026 | Avril 2027 | ⚠️ À VÉRIFIER |
 | ADR-V03 | OpenAI Codex Pro 500 | $500/mois, à vérifier | Avril 2027 | ⚠️ À VÉRIFIER |
+| ADR-V04 | SDK MCP v2 | Aucune version 2 publiée au 21/10/2026 (latest 1.32.1) | Janvier 2027 | 👁️ VEILLE |
 
 ### 2.4 Décisions à prendre
 
@@ -635,12 +677,41 @@ MCP server EKTS incompatible avec certains agents Tier 1 (Claude Code, Cursor, C
 
 **Mitigation :**
 - ✅ Spec MCP 2026-07-28 respectée
-- ✅ SDK TypeScript v2 officiel
+- ✅ SDK TypeScript 1.32.x officiel (ADR-011)
 - ✅ Tests manuels avec 3 agents (Sprint 6)
 
 **Plan de repli :**
 - Debug avec documentation MCP
 - Alternative : CLI uniquement (pas MCP)
+
+---
+
+#### RISQ-T05 — Dérive des versions de la toolchain
+
+**Catégorie :** Technique  
+**Probabilité :** Élevé  
+**Impact :** Moyen  
+**Score :** 6 (Élevé × Moyen)  
+**Propriétaire :** Développeur principal  
+**Statut :** ✅ En mitigation
+
+**Description :**
+Les majeures npm évoluent plus vite que la documentation ; des commandes documentées deviennent inexécutables (ESLint 10, TypeScript 7, SDK MCP v2).
+
+**Signaux d'alerte :**
+- `npm ci` ou `npm run lint` échoue après une montée de version
+- Peer dependency conflict (`ERESOLVE`)
+- Version majeure publiée non couverte par un ADR
+
+**Mitigation :**
+- ✅ Versions majeures épinglées dans `package.json`
+- ✅ `package-lock.json` commité
+- ✅ ADR-011 et revue trimestrielle de la toolchain
+- ✅ CI qui exécute lint + build + tests à chaque push
+
+**Plan de repli :**
+- Revenir à la version du lockfile (`npm ci`)
+- Ouvrir une révision d'ADR avant toute montée de majeure
 
 ---
 
@@ -913,6 +984,7 @@ Pricing outils IA change (augmentation, suppression free tier).
 | RISQ-T02 | Embeddings coût | Financier | Moyen | Moyen | 4 | ✅ En mitigation |
 | RISQ-T03 | Playwright stabilité | Technique | Moyen | Élevé | 6 | ✅ En mitigation |
 | RISQ-T04 | MCP compatibilité | Technique | Faible | Élevé | 3 | ✅ En mitigation |
+| RISQ-T05 | Dérive des versions | Technique | Élevé | Moyen | 6 | ✅ En mitigation |
 | RISQ-O01 | Scope creep | Opérationnel | Moyen | Moyen | 4 | ✅ En mitigation |
 | RISQ-O02 | Retard planning | Opérationnel | Moyen | Moyen | 4 | ✅ En mitigation |
 | RISQ-O03 | Compétences manquantes | Opérationnel | Faible | Élevé | 3 | ✅ En mitigation |
@@ -942,6 +1014,7 @@ Pricing outils IA change (augmentation, suppression free tier).
 | ADR-005 (Architecture C) | RISQ-O01 (scope creep) |
 | ADR-007 (4 niveaux sécurité) | RISQ-S01, RISQ-S02, RISQ-S03 |
 | ADR-008 (Outils IA) | RISQ-F01, RISQ-F02 |
+| ADR-011 (Baseline technique) | RISQ-T05 (dérive des versions) |
 
 ### 4.2 Risques non couverts
 

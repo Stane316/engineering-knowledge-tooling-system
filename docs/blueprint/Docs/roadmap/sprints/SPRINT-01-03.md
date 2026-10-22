@@ -4,7 +4,7 @@
 **Parent :** SPRINT-01 (Setup projet)  
 **Durée prévue :** 4 jours  
 **Date de documentation :** 21 octobre 2026  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 
@@ -15,7 +15,7 @@
 **Résultat concret attendu :**
 - Gitleaks pre-commit hook configuré et fonctionnel
 - README.md complet (installation, usage, structure)
-- docs/SETUP.md détaillé (guide développeur)
+- docs/guides/SETUP.md détaillé (guide développeur)
 - CI GitHub Actions fonctionnelle (lint + test + build)
 - Projet prêt pour push vers GitHub
 
@@ -40,71 +40,73 @@
 
 **Objectif :** Configurer détection automatique de secrets avant commit  
 **Durée :** 2h  
-**Fichiers concernés :** `.gitleaks.toml`, `.git/hooks/pre-commit`, `.gitignore`
+**Fichiers concernés :** `.gitleaks.toml`, `.husky/pre-commit`, `.gitignore`
 
 **Actions :**
 
 ```bash
-# 1. Installer Gitleaks (si pas déjà fait)
+# 1. Installer Gitleaks 8.30.1 (si pas déjà fait)
 # macOS
 brew install gitleaks
 # Linux
-# wget https://github.com/gitleaks/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_linux_x64.tar.gz
-# tar -xzf gitleaks_8.18.0_linux_x64.tar.gz
-# sudo mv gitleaks /usr/local/bin/
+wget https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+tar -xzf gitleaks_8.30.1_linux_x64.tar.gz
+sudo mv gitleaks /usr/local/bin/
 
 # 2. Vérifier installation
 gitleaks version
+# Attendu : 8.30.1
 
-# 3. Initialiser Git (si pas fait)
-git init
-
-# 4. Créer .gitleaks.toml
+# 3. Créer .gitleaks.toml (étend la configuration par défaut)
 cat > .gitleaks.toml << 'EOF'
 title = "EKTS Gitleaks Configuration"
 
-# Règles personnalisées
-[[rules]]
-  description = "OpenAI API Key"
-  regex = '''sk-[a-zA-Z0-9]{48}'''
-  tags = ["openai", "api_key"]
+[extend]
+# Conserve toutes les règles par défaut (AWS, Stripe, GitHub, etc.)
+useDefault = true
 
 [[rules]]
-  description = "Anthropic API Key"
-  regex = '''sk-ant-[a-zA-Z0-9]{48}'''
-  tags = ["anthropic", "api_key"]
+id = "ekts-openai-key"
+description = "OpenAI API Key"
+regex = '''sk-[A-Za-z0-9]{32,}'''
+tags = ["openai", "api-key"]
 
 [[rules]]
-  description = "Generic API Key"
-  regex = '''(?i)(api[_-]?key|api[_-]?secret)["'\s:=]+["']?([a-zA-Z0-9]{32,})["']?'''
-  tags = ["api", "key"]
+id = "ekts-anthropic-key"
+description = "Anthropic API Key"
+regex = '''sk-ant-[A-Za-z0-9_-]{32,}'''
+tags = ["anthropic", "api-key"]
 
-[allowlist]
-  description = "Global allowlist"
-  paths = [
-    '''node_modules''',
-    '''\.git''',
-    '''dist''',
-    '''build''',
-    '''docs''',
-    '''coverage''',
-  ]
+# Allowlists globales (syntaxe v8.25+)
+[[allowlists]]
+description = "Dépendances et artefacts de build"
+paths = [
+  '''node_modules''',
+  '''\.git''',
+  '''dist''',
+  '''build''',
+  '''coverage''',
+]
+
+[[allowlists]]
+description = "Fixture de documentation du Sprint 1 (faux secret volontaire)"
+paths = [
+  '''docs/blueprint/Docs/roadmap/sprints/SPRINT-01-03\.md''',
+]
 EOF
 
-# 5. Créer pre-commit hook
-mkdir -p .git/hooks
-cat > .git/hooks/pre-commit << 'EOF'
-#!/bin/sh
-echo "Running Gitleaks..."
-gitleaks detect --source . --staged --verbose
-if [ $? -ne 0 ]; then
-  echo "Gitleaks detected secrets in staged files!"
-  echo "Please remove secrets before committing."
-  exit 1
+# 4. Installer le hook versionné (husky)
+npm install -D husky@^9.1.7
+npx husky init
+cat > .husky/pre-commit << 'EOF'
+#!/usr/bin/env sh
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --pre-commit --staged --redact
+else
+  echo "gitleaks absent : scan local ignoré (la CI applique le contrôle)."
 fi
 EOF
-
-chmod +x .git/hooks/pre-commit
+chmod +x .husky/pre-commit
 
 # 6. Créer .gitignore
 cat > .gitignore << 'EOF'
@@ -196,12 +198,15 @@ rm test-secret.txt
 
 **Objectif :** Documenter projet et installation  
 **Durée :** 4h  
-**Fichiers concernés :** `README.md`, `docs/SETUP.md`
+**Fichiers concernés :** `README.md`, `docs/guides/SETUP.md`
 
 **Actions :**
 
 ```bash
-# 1. Créer README.md
+# 1. Créer le dossier des guides projet
+mkdir -p docs/guides
+
+# 2. Créer README.md
 cat > README.md << 'EOF'
 # EKTS — Engineering Knowledge & Tooling System
 
@@ -236,7 +241,7 @@ src/
 
 ### Prérequis
 
-- Node.js 20+ LTS
+- Node.js 22.12+ LTS
 - npm 10+
 - Git
 
@@ -328,13 +333,13 @@ npm run coverage
 - `.env` jamais commité
 - Fichiers SQLite `chmod 600`
 
-Voir `docs/SECURITY.md` pour détails.
+Voir `docs/guides/SECURITY.md` pour détails.
 
 ## Documentation
 
-- `docs/SETUP.md` — Guide développeur
-- `docs/ARCHITECTURE.md` — Architecture technique
-- `docs/ROADMAP.md` — Roadmap projet
+- `docs/guides/SETUP.md` — Guide développeur
+- `docs/guides/ARCHITECTURE.md` — Architecture technique
+- `docs/guides/ROADMAP.md` — Roadmap projet
 
 ## Licence
 
@@ -345,8 +350,8 @@ MIT
 Voir `CONTRIBUTING.md` (à créer)
 EOF
 
-# 2. Créer docs/SETUP.md
-cat > docs/SETUP.md << 'EOF'
+# 2. Créer docs/guides/SETUP.md
+cat > docs/guides/SETUP.md << 'EOF'
 # Guide de setup développeur
 
 ## Prérequis
@@ -356,14 +361,14 @@ cat > docs/SETUP.md << 'EOF'
 ```bash
 # Vérifier version
 node --version
-# Attendu : v20.x.x ou supérieur
+# Attendu : v22.12.x ou supérieur
 
 # Installer (si nécessaire)
 # macOS
-brew install node@20
+brew install node@22
 
 # Linux (Ubuntu/Debian)
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install -y nodejs
 ```
 
@@ -564,26 +569,26 @@ EOF
 
 # 3. Vérifier documentation
 cat README.md
-cat docs/SETUP.md
+cat docs/guides/SETUP.md
 ```
 
 **Résultat attendu :**
 - README.md complet (vision, fonctionnalités, installation, usage, développement)
-- docs/SETUP.md détaillé (prérequis, installation, structure, commandes, dépannage)
+- docs/guides/SETUP.md détaillé (prérequis, installation, structure, commandes, dépannage)
 
 **Vérification :**
 ```bash
 # Vérifier présence
-ls README.md docs/SETUP.md
+ls README.md docs/guides/SETUP.md
 
 # Vérifier contenu
 head -20 README.md
-head -20 docs/SETUP.md
+head -20 docs/guides/SETUP.md
 ```
 
 **Critères d'acceptation :**
 - ✅ README.md existe et complet
-- ✅ docs/SETUP.md existe et détaillé
+- ✅ docs/guides/SETUP.md existe et détaillé
 - ✅ README contient : vision, fonctionnalités, installation, usage, développement
 - ✅ SETUP contient : prérequis, installation, structure, commandes, dépannage
 
@@ -607,9 +612,8 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
+    branches: ['**']
+  workflow_dispatch:
 
 jobs:
   test:
@@ -618,7 +622,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x, 22.x]
+        node-version: [22.x, 24.x]
 
     steps:
       - name: Checkout code
@@ -636,6 +640,9 @@ jobs:
       - name: Run lint
         run: npm run lint
 
+      - name: Run typecheck
+        run: npm run typecheck
+
       - name: Run build
         run: npm run build
 
@@ -646,11 +653,12 @@ jobs:
         run: npm run coverage
 
       - name: Upload coverage
-        if: matrix.node-version == '20.x'
-        uses: codecov/codecov-action@v3
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          files: ./coverage/coverage-final.json
-          fail_ci_if_error: false
+          name: coverage-${{ matrix.node-version }}
+          path: coverage/
+          retention-days: 7
 EOF
 
 # 3. Vérifier syntaxe YAML
@@ -668,7 +676,7 @@ git commit -m "ci: configure GitHub Actions"
 **Résultat attendu :**
 - `.github/workflows/ci.yml` configuré
 - Workflow CI : lint + build + test + coverage
-- Test sur Node.js 20.x et 22.x
+- Test sur Node.js 22.x et 24.x
 - Upload coverage (optionnel, Codecov)
 
 **Vérification :**
@@ -686,7 +694,7 @@ cat .github/workflows/ci.yml
 **Critères d'acceptation :**
 - ✅ `.github/workflows/ci.yml` existe
 - ✅ Workflow déclenché sur push/PR vers main
-- ✅ Test sur Node.js 20.x et 22.x
+- ✅ Test sur Node.js 22.x et 24.x
 - ✅ Exécute lint + build + test + coverage
 - ✅ CI verte après push
 
@@ -699,10 +707,10 @@ cat .github/workflows/ci.yml
 | Fichier | Rôle |
 |---------|------|
 | `.gitleaks.toml` | Configuration Gitleaks |
-| `.git/hooks/pre-commit` | Hook détection secrets |
+| `.husky/pre-commit` | Hook versionné de détection des secrets |
 | `.gitignore` | Fichiers ignorés Git |
 | `README.md` | Documentation projet |
-| `docs/SETUP.md` | Guide développeur |
+| `docs/guides/SETUP.md` | Guide développeur |
 | `.github/workflows/ci.yml` | CI GitHub Actions |
 
 ### 4.2 Fichiers à modifier
@@ -745,10 +753,10 @@ git push -u origin main
 ### 6.1 Agent IA
 
 - ✅ Configurer Gitleaks
-- ✅ Créer pre-commit hook
+- ✅ Créer pre-commit hook versionné (husky)
 - ✅ Créer .gitignore
 - ✅ Créer README.md
-- ✅ Créer docs/SETUP.md
+- ✅ Créer docs/guides/SETUP.md
 - ✅ Configurer GitHub Actions
 - ✅ Commit tous fichiers
 
@@ -782,7 +790,7 @@ rm test-secret.txt
 
 # Vérifier documentation
 cat README.md
-cat docs/SETUP.md
+cat docs/guides/SETUP.md
 
 # Vérifier CI
 cat .github/workflows/ci.yml
@@ -793,7 +801,7 @@ cat .github/workflows/ci.yml
 - ✅ Gitleaks détecte 0 secrets (code propre)
 - ✅ Pre-commit hook bloque commit avec secret
 - ✅ README.md complet
-- ✅ docs/SETUP.md détaillé
+- ✅ docs/guides/SETUP.md détaillé
 - ✅ CI configurée
 
 ---
@@ -803,13 +811,13 @@ cat .github/workflows/ci.yml
 | ID | Critère | Méthode |
 |----|---------|---------|
 | C1.6.1 | `.gitleaks.toml` existe | `ls .gitleaks.toml` |
-| C1.6.2 | Pre-commit hook configuré | `ls .git/hooks/pre-commit` |
+| C1.6.2 | Pre-commit hook configuré | `ls .husky/pre-commit` |
 | C1.6.3 | Hook détecte secrets | Test manuel |
 | C1.6.4 | `.gitignore` exclut fichiers sensibles | `cat .gitignore` |
 | C1.7.1 | README.md existe | `ls README.md` |
 | C1.7.2 | README complet | `cat README.md` |
-| C1.7.3 | docs/SETUP.md existe | `ls docs/SETUP.md` |
-| C1.7.4 | SETUP détaillé | `cat docs/SETUP.md` |
+| C1.7.3 | docs/guides/SETUP.md existe | `ls docs/guides/SETUP.md` |
+| C1.7.4 | SETUP détaillé | `cat docs/guides/SETUP.md` |
 | C1.8.1 | `.github/workflows/ci.yml` existe | `ls .github/workflows/ci.yml` |
 | C1.8.2 | CI configurée | `cat .github/workflows/ci.yml` |
 | C1.8.3 | CI verte après push | GitHub UI |
@@ -827,7 +835,7 @@ gitleaks detect --source . --verbose > gitleaks.log 2>&1
 
 **Captures à conserver :**
 - README.md (contenu)
-- docs/SETUP.md (contenu)
+- docs/guides/SETUP.md (contenu)
 - `.github/workflows/ci.yml` (contenu)
 - GitHub Actions : CI verte (capture écran)
 
@@ -839,7 +847,7 @@ gitleaks detect --source . --verbose > gitleaks.log 2>&1
 - ❌ Gitleaks non configuré
 - ❌ Pre-commit hook ne fonctionne pas
 - ❌ README.md incomplet
-- ❌ docs/SETUP.md manquant
+- ❌ docs/guides/SETUP.md manquant
 - ❌ CI GitHub Actions échoue
 
 **Action si échec :**
@@ -864,7 +872,7 @@ gitleaks detect --source . --verbose > gitleaks.log 2>&1
 **Pour passer à Sprint 2 :**
 - ✅ Tous critères C1.6.x, C1.7.x, C1.8.x satisfaits
 - ✅ Gitleaks configuré et fonctionnel
-- ✅ README.md et docs/SETUP.md complets
+- ✅ README.md et docs/guides/SETUP.md complets
 - ✅ CI GitHub Actions verte
 - ✅ Approbation utilisateur Sprint 1 complet
 

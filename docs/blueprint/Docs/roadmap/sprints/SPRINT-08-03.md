@@ -3,6 +3,7 @@
 **Durée :** 3 jours  
 **Objectif :** Intégrer axe-core, implémenter l'inspection L3 (approfondie), tester et documenter  
 **Dépendance :** Sprint 8-2 (Lighthouse + L2) ✅
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 

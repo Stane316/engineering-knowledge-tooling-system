@@ -2,7 +2,8 @@
 
 **Version :** 1.0  
 **Date création :** 2026-10-21  
-**Statut :** 🟡 Documenté — En attente approbation
+**Statut :** ⏳ NON COMMENCÉ  
+**Addendum du 21 octobre 2026 :** le SDK MCP n'existe qu'en ligne 1.x (dernière version : **1.32.1**) ; la cible « v2 » est remplacée par `^1.32` et suivie en veille (ADR-011, ADR-V04).
 
 ---
 
@@ -22,7 +23,7 @@ Le **Sprint 6** va étendre cette capacité aux **agents IA** via le protocole M
 
 ### 2.1 Objectif principal
 
-Implémenter un serveur MCP conforme à la spécification **MCP 2026-07-28** (stateless) utilisant le SDK **@modelcontextprotocol/sdk v2** avec transport **stdio**.
+Implémenter un serveur MCP conforme à la spécification **MCP 2026-07-28** (stateless) utilisant le SDK **@modelcontextprotocol/sdk 1.32.x** avec transport **stdio**.
 
 ### 2.2 Objectifs fonctionnels
 
@@ -85,7 +86,7 @@ Exposer 4 outils MCP MVP-1 :
 ### 3.3 Hypothèses
 
 - ✅ Les agents Tier 1 (Claude Code, Cursor, GitHub Copilot) supportent MCP 2026-07-28
-- ✅ Le SDK @modelcontextprotocol/sdk v2 est stable et bien documenté
+- ✅ Le SDK @modelcontextprotocol/sdk 1.32.x est stable et bien documenté
 - ✅ Le transport stdio est suffisant pour MVP-1 (pas besoin de HTTP/SSE)
 - ✅ Les utilisateurs ont accès à au moins un agent Tier 1 pour les tests
 - ✅ Les bases de données SQLite sont déjà créées (Sprint 2)
@@ -161,7 +162,7 @@ Exposer 4 outils MCP MVP-1 :
 **Objectif :** Configurer le serveur MCP avec transport stdio et vérifier qu'il démarre correctement.
 
 **Livrables :**
-- ✅ Configuration `@modelcontextprotocol/sdk v2`
+- ✅ Configuration `@modelcontextprotocol/sdk 1.32.x`
 - ✅ Serveur MCP démarre via stdio
 - ✅ Handler `initialize` implémenté (conforme MCP 2026-07-28)
 - ✅ Handler `tools/list` implémenté (retourne liste vide)
@@ -352,7 +353,7 @@ Agent IA
 
 ### 7.1 SDK MCP
 
-**Choix :** `@modelcontextprotocol/sdk v2`
+**Choix :** `@modelcontextprotocol/sdk 1.32.x`
 
 **Justification :**
 - ✅ SDK officiel (Linux Foundation)

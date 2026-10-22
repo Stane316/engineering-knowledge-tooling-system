@@ -3,6 +3,7 @@
 **Durée estimée :** 2 semaines (10 jours ouvrables)  
 **Prérequis :** Sprint 8 (Inspection L1-L3), Sprint 9 (Analyse 5 Dimensions), Sprint 10 (Stockage + Indexation)  
 **Objectif :** Générer des rapports d'inspection, comparer les audits, exposer via CLI et MCP
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 

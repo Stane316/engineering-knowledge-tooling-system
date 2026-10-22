@@ -1,6 +1,6 @@
 # Sprint 4-1 — Recherche FTS5 (BM25) + Vectorielle (sqlite-vec)
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 4 jours  
 **Objectif :** Implémenter les 2 moteurs de recherche séparément  
 **Dépendance :** Sprint 3 (Knowledge Manager) ✅

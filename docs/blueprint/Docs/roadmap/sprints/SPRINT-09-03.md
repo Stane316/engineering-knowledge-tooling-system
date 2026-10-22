@@ -3,6 +3,7 @@
 **Durée :** 3 jours  
 **Objectif :** Implémenter la matrice de sévérité, la priorisation automatique, les tests d'intégration et la documentation  
 **Dépendance :** Sprint 9-2 (SEO + UX + Contenu) ✅
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 

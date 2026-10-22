@@ -4,7 +4,7 @@
 **Parent :** SPRINT-01 (Setup projet)  
 **Durée prévue :** 3 jours  
 **Date de documentation :** 21 octobre 2026  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 
@@ -39,7 +39,7 @@
 
 **Objectif :** Créer tous dossiers nécessaires à l'architecture  
 **Durée :** 2h  
-**Fichiers concernés :** Dossiers src/*, tests/*, docs/
+**Fichiers concernés :** Dossiers src/*, tests/*, docs/guides/
 
 **Actions :**
 
@@ -54,7 +54,7 @@ mkdir -p src/data/migrations
 mkdir -p src/shared
 
 # 2. Créer docs
-mkdir -p docs
+mkdir -p docs/guides
 
 # 3. Créer migrations
 mkdir -p migrations
@@ -67,7 +67,7 @@ touch src/data/repositories/.gitkeep
 touch src/data/schemas/.gitkeep
 touch src/data/migrations/.gitkeep
 touch src/shared/.gitkeep
-touch docs/.gitkeep
+touch docs/guides/.gitkeep
 touch migrations/.gitkeep
 
 # 5. Créer fichiers source minimaux
@@ -129,7 +129,7 @@ tree -L 3 src/
 **Critères d'acceptation :**
 - ✅ Dossiers src/cli, src/mcp, src/business, src/data, src/shared créés
 - ✅ Dossiers tests/unit, tests/integration, tests/benchmark créés
-- ✅ Dossier docs créé
+- ✅ Dossier `docs/guides` créé
 - ✅ Dossier migrations créé
 - ✅ `src/shared/types.ts` existe avec interfaces
 - ✅ `src/shared/config.ts` existe avec configuration
@@ -146,10 +146,10 @@ tree -L 3 src/
 
 ```bash
 # 1. Installer dépendances production
-npm install better-sqlite3 commander zod pino
+npm install better-sqlite3@^13.0.3 commander@^15.0.0 zod@^4.6.7 pino@^10.4.0
 
 # 2. Installer types TypeScript
-npm install -D @types/better-sqlite3
+npm install -D @types/better-sqlite3@^9.6.0
 
 # 3. Vérifier installation
 npm ls --depth=0
@@ -160,7 +160,7 @@ npm ls --depth=0
 # "clean": "rm -rf dist"
 
 # 5. Installer tsx pour développement
-npm install -D tsx
+npm install -D tsx@^4.23.15
 
 # 6. Tester dev
 npm run dev

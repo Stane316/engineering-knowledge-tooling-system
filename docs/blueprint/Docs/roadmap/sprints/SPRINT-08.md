@@ -3,6 +3,7 @@
 **Durée :** 2 semaines (10 jours ouvrables)  
 **Objectif :** Implémenter les 3 niveaux d'inspection (L1-L3) avec intégration Lighthouse et axe-core  
 **MVP :** MVP-2 (Inspection Navigateur)
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 

@@ -2,7 +2,8 @@
 
 **Statut :** ✅ Terminé (Phases 00-14 terminées)  
 **Date de dernière mise à jour :** 21 octobre 2026  
-**Version du blueprint source :** 1.0 (21 octobre 2026)
+**Version du blueprint source :** 1.0 (21 octobre 2026)  
+**Emplacement :** `docs/blueprint/INDEX.md` — les chemins `Docs/…` de ce document sont relatifs à `docs/blueprint/`. Le code (`src/`, `tests/`) et les audits (`docs/audit/`) sont à la racine du dépôt.
 
 ---
 
@@ -61,7 +62,7 @@ Engineering-Knowledge-Tooling-System/
 │   ├── 06_MODELE_DONNEES.md               ✅ Terminé (Phase 06)
 │   ├── 06_STRATEGIE_RECHERCHE.md          ✅ Terminé (Phase 06)
 │   ├── BILAN_PHASE_06.md                  ✅ Terminé (Phase 06)
-│   ├── 07_ETUDE_RAG_ET_RECHERCHE_SEMANTIQUE.md ✅ Terminé (Phase 07)
+│   ├── 07_ETUDE_RAG_RECHERCHE_SEMANTIQUE.md ✅ Terminé (Phase 07)
 │   └── 07_JEU_TEST_RECUPERATION.md        ✅ Terminé (Phase 07)
 │
 ├── 05-Creative-Engineering/          ← Design, motion, 3D, capitalisation
@@ -92,12 +93,9 @@ Engineering-Knowledge-Tooling-System/
 │   ├── 14_PLAN_MAINTENANCE_ET_VEILLE.md   ✅ Terminé (Phase 14)
 │   └── BILAN_PHASE_14.md                  ✅ Terminé (Phase 14)
 │
-└── Sources/                          ← Données et références
-    ├── blueprint-v1.md                    ✅ Blueprint source
-    ├── recherche-dri/                     ✅ Ressources antérieures (DRI)
-    ├── recherche-students/                ✅ Ressources antérieures (Students)
-    ├── recherche-harnai/                  ✅ Ressources antérieures (HarnAI)
-    └── cartographie-creation-numerique.md ✅ Cartographie créative
+└── Docs/                             ← Documentation consolidée
+    ├── Référence/                        ✅ Ressources (DRI, HarnAI, Students, Human-Brilliance)
+    └── roadmap/sprints/                  ✅ 48 dossiers de sprint (SPRINT-01 à SPRINT-12)
 ```
 
 ---
@@ -138,7 +136,7 @@ Engineering-Knowledge-Tooling-System/
 | 01_FONDATIONS_ET_PREREQUIS.md | ✅ Terminé | ~18 KB | 21 oct. 2026 |
 | 01_PARCOURS_DAPPRENTISSAGE.md | ✅ Terminé | ~14 KB | 21 oct. 2026 |
 
-### Phases 02-14 — À venir ⏳
+### Phases 02-14 — Terminées ✅
 
 | Phase | Dossier | Livrables attendus | Statut |
 |-------|---------|-------------------|--------|
@@ -156,20 +154,21 @@ Engineering-Knowledge-Tooling-System/
 | 13 | 07-Architecture-and-Roadmap/ | 4 documents + bilan | ✅ Terminé |
 | 14 | 07-Architecture-and-Roadmap/ | 2 documents + bilan | ✅ Terminé |
 
-**Total :** 47 livrables terminés, 0 livrables à venir ✅
+**Total :** 51 fichiers de phase — 37 livrables numérotés + 14 bilans ✅
 
 ---
 
 ## 5. Ressources antérieures intégrées
 
-Le projet EKTS s'appuie sur des recherches antérieures qui sont intégrées dans le dossier `Sources/` :
+Le projet EKTS s'appuie sur des recherches antérieures intégrées dans `Docs/Référence/` :
 
 | Ressource | Contenu | Couverture EKTS |
 |-----------|---------|-----------------|
-| **recherche-dri/** | 12 documents, 177 ressources gratuites | Domaine A (bibliothèque de connaissances) |
-| **recherche-students/** | 3 documents, 54 services étudiants | Domaine A (ressources avec réductions) |
-| **recherche-harnai/** | 9 documents, 28 outils harness IA | Domaine G (intégration agents, MCP) |
-| **cartographie-creation-numerique.md** | 141 KB, audit de 5 plateformes créatives | Domaine E (design, motion, 3D) |
+| **dri/** | 12 fichiers, 177 ressources gratuites | Domaine A (bibliothèque de connaissances) |
+| **students/** | 6 fichiers, 54 services étudiants | Domaine A (ressources avec réductions) |
+| **harnai/** | 17 fichiers, 28 outils harness IA | Domaine G (intégration agents, MCP) |
+| **Human-Brilliance/** | 1 PDF, outils IA par domaine | Domaine E (design, motion, 3D) |
+| **cartographie-creation-numerique.md** | ~140 KB, audit de 5 plateformes créatives | Domaine E (design, motion, 3D) |
 
 Ces ressources seront intégrées progressivement dans les phases concernées (06, 09, 12).
 

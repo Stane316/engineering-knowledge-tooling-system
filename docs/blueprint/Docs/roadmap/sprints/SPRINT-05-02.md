@@ -1,6 +1,6 @@
 # Sprint 5-2 — Commandes de recherche et gestion (search, list, delete)
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 4 jours  
 **Objectif :** Implémenter les 3 commandes principales (search, list, delete)  
 **Dépendance :** Sprint 5-1 ✅

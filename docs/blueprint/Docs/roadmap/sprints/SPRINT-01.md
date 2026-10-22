@@ -5,7 +5,8 @@
 **Position dans la roadmap :** Premier sprint de MVP-1  
 **Durée prévue :** 2 semaines (Semaine 1-2)  
 **Date de documentation :** 21 octobre 2026  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ⏳ NON COMMENCÉ  
+**Addendum du 21 octobre 2026 :** baseline **Node.js 22.12 LTS**, TypeScript **5.9.x**, ESLint **10 flat config**, Vitest **5** (sans `c8`), SDK MCP **1.32.x**. Voir `docs/audit/ETAT-DES-LIEUX-2026-10-21.md` et **ADR-011** (`Docs/08`). Les commandes de ce dossier intègrent ces corrections.
 
 ---
 
@@ -71,7 +72,7 @@ EKTS (Engineering Knowledge & Tooling System) est un système personnel d'ingén
 
 ### 1.8 Hypothèses restantes
 
-- Node.js 20+ disponible dans l'environnement
+- Node.js 22.12+ disponible dans l'environnement
 - npm 10+ disponible
 - Git disponible (pour hooks pre-commit)
 - GitHub repository créé par l'utilisateur (action manuelle)
@@ -149,7 +150,7 @@ EKTS (Engineering Knowledge & Tooling System) est un système personnel d'ingén
 
 | Prérequis | Vérification | Action si manquant | Responsable |
 |-----------|--------------|-------------------|-------------|
-| **Node.js 20+** | `node --version` | Installer Node.js 20 LTS | Agent ou utilisateur |
+| **Node.js 22.12+** | `node --version` | Installer Node.js 22 LTS | Agent ou utilisateur |
 | **npm 10+** | `npm --version` | Installer npm 10+ | Agent ou utilisateur |
 | **Git** | `git --version` | Installer Git | Agent ou utilisateur |
 | **Workspace writable** | `touch test && rm test` | Vérifier permissions | Agent |
@@ -236,7 +237,7 @@ Sprint 1-3 (Jours 7-10)
 ### 5.1 Node.js et TypeScript
 
 **Décision de référence :** ADR-005 (Architecture C Hybride)  
-**Version :** Node.js 20 LTS, TypeScript 5+  
+**Version :** Node.js 22.12 LTS, TypeScript 5.9.x  
 **Configuration :** `tsconfig.json` avec `strict: true`
 
 **Justification :**
@@ -773,7 +774,7 @@ Tu vas effectuer le Sprint 1 du projet EKTS (Engineering Knowledge & Tooling Sys
 ## Vérification des prérequis
 
 **Prérequis obligatoires :**
-- [ ] Node.js 20+
+- [ ] Node.js 22.12+
 - [ ] npm 10+
 - [ ] Git
 - [ ] Workspace writable
@@ -812,7 +813,7 @@ Tu vas effectuer le Sprint 1 du projet EKTS (Engineering Knowledge & Tooling Sys
 
 **Obligations :**
 - ✅ Respecter structure dossiers définie
-- ✅ Utiliser versions spécifiées (Node.js 20+, TypeScript 5+)
+- ✅ Utiliser versions spécifiées (Node.js 22.12+, TypeScript 5.9.x)
 - ✅ Configurer outils qualité (ESLint, Prettier, Vitest)
 - ✅ Configurer détection secrets (Gitleaks)
 - ✅ Documenter (README, SETUP)

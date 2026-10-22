@@ -1,6 +1,6 @@
 # Sprint 4-2 — Génération embeddings (OpenAI) + indexation vectorielle
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 3 jours  
 **Objectif :** Générer embeddings via OpenAI et les indexer dans sqlite-vec  
 **Dépendance :** Sprint 4-1 ✅

@@ -1,6 +1,6 @@
 # Sprint 3 — Knowledge Manager (Semaine 5-6)
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 2 semaines (10 jours ouvrables)  
 **Objectif :** Implémenter la logique métier (Knowledge Manager) — CRUD ressources + orchestration indexation FTS automatique  
 **MVP :** MVP-1 (Knowledge Management Tool)

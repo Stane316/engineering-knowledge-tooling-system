@@ -3,6 +3,7 @@
 **Durée :** 3 jours  
 **Objectif :** Définir les types d'inspection et implémenter l'inspection L1 (rapide)  
 **Dépendance :** Sprint 7 (Playwright Setup) ✅
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 

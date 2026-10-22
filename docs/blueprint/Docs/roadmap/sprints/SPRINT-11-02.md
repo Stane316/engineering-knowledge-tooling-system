@@ -3,6 +3,7 @@
 **Durée :** 3 jours  
 **Objectif :** Implémenter la comparaison d'audits (avant/après)  
 **Dépendance :** Sprint 11-1 (Rapports Markdown + PDF) ✅
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 

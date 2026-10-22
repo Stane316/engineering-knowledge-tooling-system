@@ -1,6 +1,6 @@
 # Sprint 7-1 — Installation Playwright + Configuration
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 3 jours  
 **Objectif :** Installer Playwright et configurer l'environnement  
 **Dépendance :** Sprint 6 (MCP Server) ✅

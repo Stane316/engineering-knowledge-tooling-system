@@ -3,6 +3,7 @@
 **Durée estimée :** 2 semaines (10 jours ouvrables)  
 **Prérequis :** Sprints 7-11 (MVP-2 complet : Inspection, Analyse, Stockage, Rapports, CLI, MCP)  
 **Objectif :** Valider le MVP-2 avec tests E2E, documentation complète, et préparer le MVP-3
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 

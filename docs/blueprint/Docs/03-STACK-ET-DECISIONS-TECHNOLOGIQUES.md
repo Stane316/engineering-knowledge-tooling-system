@@ -34,8 +34,8 @@ Ce document consolide :
 
 | Technologie | Version | Rôle | Statut | Justification |
 |-------------|---------|------|--------|---------------|
-| **Node.js** | 20+ LTS | Runtime JavaScript | ✅ VALIDÉ | LTS stable, écosystème mature, compatible MCP SDK |
-| **TypeScript** | 5+ | Langage typé | ✅ VALIDÉ | Type-safe, excellent DX, requis par MCP SDK |
+| **Node.js** | 22.12+ LTS | Runtime JavaScript | ✅ VALIDÉ | LTS stable, écosystème mature, requis par Vitest 5 et better-sqlite3 13 |
+| **TypeScript** | 5.9.x (épinglé) | Langage typé | ✅ VALIDÉ | Type-safe, excellent DX ; TS 7 non supporté par typescript-eslint 8.x |
 
 **Alternatives évaluées :**
 - ❌ **Deno** : Écarté — écosystème moins mature, MCP SDK non officiel
@@ -47,7 +47,7 @@ Ce document consolide :
 | Technologie | Version | Rôle | Statut | Justification |
 |-------------|---------|------|--------|---------------|
 | **SQLite** | 3.45+ | Base principale | ✅ VALIDÉ | Embedded, WAL mode, performance 80x vs lectures simples |
-| **better-sqlite3** | 11+ | Driver Node.js | ✅ VALIDÉ | Synchrone, rapide, bien maintenu |
+| **better-sqlite3** | 13+ | Driver Node.js | ✅ VALIDÉ | Synchrone, rapide, bien maintenu (Node ≥ 22) |
 | **FTS5** | Intégré SQLite | Full-text search | ✅ VALIDÉ | BM25 scoring, compétitif avec PostgreSQL tsvector |
 | **sqlite-vec** | 0.1+ | Search vectorielle | ✅ VALIDÉ | Extension SQLite, cosine similarity, <100K vecteurs |
 
@@ -67,12 +67,14 @@ ekts-vectors.db  → Index vectoriel (sqlite-vec embeddings)
 
 | Technologie | Version | Rôle | Statut | Justification |
 |-------------|---------|------|--------|---------------|
-| **Commander.js** | 12+ | CLI framework | ✅ VALIDÉ | Simple, bien documenté, populaire |
-| **@modelcontextprotocol/sdk** | 2+ | Protocole MCP | ✅ VALIDÉ | Officiel, spec 2026-07-28, TypeScript natif |
-| **Zod** | 3+ | Validation runtime | ✅ VALIDÉ | Type-safe, inférence TypeScript, excellent DX |
-| **Pino** | 9+ | Logging structuré | ✅ VALIDÉ | Rapide, JSON, performant (10x Winston) |
-| **Vitest** | 2+ | Tests unitaires | ✅ VALIDÉ | Natif TypeScript, rapide, compatible Vite |
-| **c8** | 10+ | Couverture tests | ✅ VALIDÉ | Natif V8, simple, efficace |
+| **Commander.js** | 15+ | CLI framework | ✅ VALIDÉ | Simple, bien documenté, populaire |
+| **@modelcontextprotocol/sdk** | 1.32+ | Protocole MCP | ✅ VALIDÉ | Officiel, spec 2026-07-28, TypeScript natif (aucune v2 publiée — ADR-011) |
+| **Zod** | 4+ | Validation runtime | ✅ VALIDÉ | Type-safe, inférence TypeScript, excellent DX |
+| **Pino** | 10+ | Logging structuré | ✅ VALIDÉ | Rapide, JSON, performant (10x Winston) |
+| **Vitest** | 5+ | Tests unitaires | ✅ VALIDÉ | Natif TypeScript, rapide, compatible Vite |
+| **@vitest/coverage-v8** | 5+ | Couverture tests | ✅ VALIDÉ | Intégré à Vitest ; `c8` séparé supprimé |
+
+**Vérification des versions (21 octobre 2026) :** instantané de `registry.npmjs.org` consigné dans `docs/audit/ETAT-DES-LIEUX-2026-10-21.md` §5.2. Les versions majeures retenues sont épinglées dans `package.json` ; toute montée de version passe par une révision d'ADR.
 
 **Alternatives évaluées :**
 

@@ -22,8 +22,8 @@ EKTS nécessite une couche de persistance pour stocker ressources, projets et au
 **Documents de référence obligatoires :**
 - `Docs/02-ARCHITECTURE-TECHNIQUE.md` §4.3 — Data Layer
 - `Docs/03-STACK-ET-DECISIONS-TECHNOLOGIQUES.md` — ADR-001 (SQLite WAL)
-- `Docs/04-Knowledge/06_ARCHITECTURE_STOCKAGE.md` — Architecture détaillée
-- `Docs/04-Knowledge/06_MODELE_DONNEES.md` — Modèle de données
+- `04-Knowledge/06_ARCHITECTURE_STOCKAGE.md` — Architecture détaillée
+- `04-Knowledge/06_MODELE_DONNEES.md` — Modèle de données
 
 **Décisions à respecter :**
 - ADR-001 : SQLite WAL + FTS5 + sqlite-vec (3 bases séparées)
@@ -753,8 +753,8 @@ Tu vas effectuer le Sprint 2 du projet EKTS : Data Layer (SQLite).
 4. `Docs/roadmap/sprints/SPRINT-02-03.md` — Sous-sprint 3
 5. `Docs/02-ARCHITECTURE-TECHNIQUE.md` §4.3 — Data Layer
 6. `Docs/03-STACK-ET-DECISIONS-TECHNOLOGIQUES.md` — ADR-001
-7. `Docs/04-Knowledge/06_ARCHITECTURE_STOCKAGE.md` — Architecture SQLite
-8. `Docs/04-Knowledge/06_MODELE_DONNEES.md` — Modèle de données
+7. `04-Knowledge/06_ARCHITECTURE_STOCKAGE.md` — Architecture SQLite
+8. `04-Knowledge/06_MODELE_DONNEES.md` — Modèle de données
 
 ## Audit de l'état actuel
 

@@ -4,7 +4,7 @@
 **Parent :** SPRINT-01 (Setup projet)  
 **Durée prévue :** 3 jours  
 **Date de documentation :** 21 octobre 2026  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 
@@ -26,7 +26,7 @@
 
 | Prérequis | Vérification | Action si manquant |
 |-----------|--------------|-------------------|
-| Node.js 20+ | `node --version` | Installer Node.js 20 LTS |
+| Node.js 22.12+ | `node --version` | Installer Node.js 22 LTS |
 | npm 10+ | `npm --version` | Installer npm 10+ |
 | Git | `git --version` | Installer Git |
 | Workspace writable | `touch test && rm test` | Vérifier permissions |
@@ -56,7 +56,7 @@ npm init -y
 # - Scripts : build, dev, start, clean
 
 # 3. Installer TypeScript
-npm install -D typescript @types/node
+npm install -D typescript@~5.9.3 @types/node@^22
 
 # 4. Créer tsconfig.json
 npx tsc --init
@@ -105,42 +105,43 @@ npm run build
 
 **Objectif :** Configurer linting et formatage code  
 **Durée :** 2h  
-**Fichiers concernés :** `.eslintrc.json`, `.prettierrc`, `.eslintignore`, `.prettierignore`
+**Fichiers concernés :** `eslint.config.js`, `.prettierrc`, `.prettierignore`
 
 **Actions :**
 
 ```bash
-# 1. Installer ESLint + Prettier + plugins
-npm install -D eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin prettier eslint-config-prettier eslint-plugin-prettier
+# 1. Installer ESLint 10 (flat config), typescript-eslint et Prettier
+npm install -D eslint@^10.13.0 @eslint/js@^10.0.1 typescript-eslint@^8.72.0 prettier@^3.9.10 eslint-config-prettier@^10.1.8
 
-# 2. Créer .eslintrc.json
-cat > .eslintrc.json << 'EOF'
-{
-  "root": true,
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": 2022,
-    "sourceType": "module"
+# 2. Créer eslint.config.js (ESLint 10 ne lit plus .eslintrc.*)
+cat > eslint.config.js << 'EOF'
+import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import prettier from 'eslint-config-prettier';
+
+export default tseslint.config(
+  { ignores: ['dist/**', 'coverage/**', 'node_modules/**'] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ['**/*.ts'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
   },
-  "plugins": ["@typescript-eslint", "prettier"],
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended"
-  ],
-  "rules": {
-    "prettier/prettier": "error",
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-    "@typescript-eslint/explicit-function-return-type": "warn"
-  }
-}
+  prettier,
+);
 EOF
 
 # 3. Créer .prettierrc
 cat > .prettierrc << 'EOF'
 {
   "semi": true,
-  "trailingComma": "es5",
+  "trailingComma": "all",
   "singleQuote": true,
   "printWidth": 100,
   "tabWidth": 2,
@@ -148,17 +149,7 @@ cat > .prettierrc << 'EOF'
 }
 EOF
 
-# 4. Créer .eslintignore
-cat > .eslintignore << 'EOF'
-node_modules/
-dist/
-build/
-coverage/
-*.db
-.env
-EOF
-
-# 5. Créer .prettierignore
+# 4. Créer .prettierignore
 cat > .prettierignore << 'EOF'
 node_modules/
 dist/
@@ -169,39 +160,39 @@ coverage/
 package-lock.json
 EOF
 
-# 6. Ajouter scripts package.json
-# "lint": "eslint src --ext .ts",
-# "lint:fix": "eslint src --ext .ts --fix",
-# "format": "prettier --write 'src/**/*.ts'",
-# "format:check": "prettier --check 'src/**/*.ts'"
+# 5. Ajouter scripts package.json
+# "lint": "eslint .",
+# "lint:fix": "eslint . --fix",
+# "format": "prettier --write .",
+# "format:check": "prettier --check ."
 
-# 7. Tester lint
+# 6. Tester lint
 npm run lint
 
-# 8. Tester format
-npm run format
+# 7. Tester format
+npm run format:check
 ```
 
 **Résultat attendu :**
 - ESLint configuré pour TypeScript
 - Prettier configuré
 - `npm run lint` passe
-- `npm run format` formate code
+- `npm run format:check` vérifie le formatage
 
 **Vérification :**
 ```bash
 npm run lint
 # Attendu : 0 erreurs (ou warnings seulement)
 
-npm run format
-# Attendu : fichiers formatés
+npm run format:check
+# Attendu : aucun fichier à reformater
 ```
 
 **Critères d'acceptation :**
-- ✅ `.eslintrc.json` existe avec règles TypeScript
+- ✅ `eslint.config.js` existe (flat config)
 - ✅ `.prettierrc` existe
 - ✅ `npm run lint` passe sans erreur
-- ✅ `npm run format` fonctionne
+- ✅ `npm run format:check` passe
 
 ---
 
@@ -215,7 +206,7 @@ npm run format
 
 ```bash
 # 1. Installer Vitest + coverage
-npm install -D vitest @vitest/coverage-v8 c8
+npm install -D vitest@^5.0.5 @vitest/coverage-v8@^5.0.5
 
 # 2. Créer vitest.config.ts
 cat > vitest.config.ts << 'EOF'
@@ -293,9 +284,8 @@ npm run coverage
 | `package.json` | Configuration npm |
 | `tsconfig.json` | Configuration TypeScript |
 | `src/index.ts` | Point d'entrée (vide) |
-| `.eslintrc.json` | Configuration ESLint |
+| `eslint.config.js` | Configuration ESLint (flat config) |
 | `.prettierrc` | Configuration Prettier |
-| `.eslintignore` | Fichiers ignorés ESLint |
 | `.prettierignore` | Fichiers ignorés Prettier |
 | `vitest.config.ts` | Configuration Vitest |
 | `tests/example.test.ts` | Test exemple |
@@ -342,7 +332,7 @@ npm run coverage
 ```bash
 npm run build      # Build TypeScript
 npm run lint       # Linting
-npm run format     # Formatage
+npm run format:check  # Vérification du formatage
 npm test           # Tests Vitest
 npm run coverage   # Couverture
 ```
@@ -365,10 +355,10 @@ npm run coverage   # Couverture
 | C1.1.2 | `tsconfig.json` avec `strict: true` | `cat tsconfig.json` |
 | C1.1.3 | `src/index.ts` existe | `ls src/` |
 | C1.1.4 | `npm run build` fonctionne | `npm run build` |
-| C1.2.1 | `.eslintrc.json` existe | `ls .eslintrc.json` |
+| C1.2.1 | `eslint.config.js` existe | `ls eslint.config.js` |
 | C1.2.2 | `.prettierrc` existe | `ls .prettierrc` |
 | C1.2.3 | `npm run lint` passe | `npm run lint` |
-| C1.2.4 | `npm run format` fonctionne | `npm run format` |
+| C1.2.4 | `npm run format:check` passe | `npm run format:check` |
 | C1.3.1 | `vitest.config.ts` existe | `ls vitest.config.ts` |
 | C1.3.2 | `npm test` exécute Vitest | `npm test` |
 | C1.3.3 | `npm run coverage` génère rapport | `npm run coverage` |

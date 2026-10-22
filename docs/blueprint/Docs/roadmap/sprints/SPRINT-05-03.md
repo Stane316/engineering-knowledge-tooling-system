@@ -1,6 +1,6 @@
 # Sprint 5-3 — Commande status + tests intégration + documentation
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 3 jours  
 **Objectif :** Dernière commande (status), tests d'intégration complets, documentation CLI  
 **Dépendance :** Sprint 5-2 ✅

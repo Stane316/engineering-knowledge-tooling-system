@@ -1,6 +1,6 @@
 # Sprint 3-3 — Indexation FTS automatique + documentation
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 2 jours  
 **Objectif :** Orchestrer l'indexation FTS automatique + documenter l'API  
 **Dépendance :** Sprint 3-2 ✅

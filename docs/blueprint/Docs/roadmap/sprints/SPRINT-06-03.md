@@ -4,6 +4,7 @@
 **Date création :** 2026-10-21  
 **Durée :** 3 jours  
 **Dépendance :** Sprint 6-02 terminé ✅
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 

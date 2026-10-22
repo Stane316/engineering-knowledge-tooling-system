@@ -3,7 +3,8 @@
 **Statut :** ✅ Terminé  
 **Date :** 21 octobre 2026  
 **Version :** 1.0  
-**Spécification MCP référencée :** 2026-07-28
+**Spécification MCP référencée :** 2026-07-28  
+**Note (21/10/2026) :** la cible « SDK TypeScript v2 » est corrigée en `@modelcontextprotocol/sdk` 1.32.x (aucune v2 publiée) — voir ADR-011. Le corps du document conserve l'analyse d'origine.
 
 ---
 

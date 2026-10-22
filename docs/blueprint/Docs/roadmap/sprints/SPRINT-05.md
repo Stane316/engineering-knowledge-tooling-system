@@ -1,6 +1,6 @@
 # Sprint 5 — CLI (Semaine 9-10)
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 2 semaines (10 jours ouvrables)  
 **Objectif :** Implémenter l'interface CLI (Commander.js) avec 7 commandes  
 **MVP :** MVP-1 (Knowledge Management Tool)

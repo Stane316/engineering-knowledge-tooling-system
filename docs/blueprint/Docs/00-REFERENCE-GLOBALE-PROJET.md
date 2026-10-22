@@ -11,7 +11,7 @@
 
 ## Comment utiliser ce document
 
-Ce document est le **point d'entrée unique** du projet EKTS. Il consolide l'ensemble des recherches, analyses, décisions et recommandations produites durant 14 phases de recherche (phases 00 à 14).
+Ce document est le **point d'entrée unique** du projet EKTS. Il consolide l'ensemble des recherches, analyses, décisions et recommandations produites durant 15 phases de recherche (phases 00 à 14).
 
 **Ce document ne remplace pas les documents de phase.** Il les référence et permet de retrouver rapidement l'information détaillée.
 
@@ -145,13 +145,13 @@ Construire un environnement personnel, local-first lorsque c'est pertinent, qui 
 
 ### 2.1 Vue d'ensemble des phases
 
-**14 phases exécutées** (Phases 00 à 14), produisant **47 livrables** (~1.2 MB de documentation).
+**15 phases exécutées** (Phases 00 à 14), produisant **37 livrables numérotés + 14 bilans (51 fichiers)** (~1.5 MB de documentation).
 
 | Phase | Titre | Livrables | Décisions clés | Statut |
 |-------|-------|-----------|----------------|--------|
 | **00** | Cadrage et stratégie | 3 | Architecture en couches, MVP séquencés | ✅ |
 | **01** | Fondations techniques | 2 | Parcours 6 niveaux, JS/TS flexible | ✅ |
-| **02** | MCP et intégration agentique | 2 | MCP spec 2026-07-28, SDK TS v2, stdio | ✅ |
+| **02** | MCP et intégration agentique | 2 | MCP spec 2026-07-28, SDK TS 1.32.x, stdio | ✅ |
 | **03** | Conception d'outils et services | 2 | 5 principes, Zod, Pino, monorepo | ✅ |
 | **04** | Automatisation navigateur | 3 | Playwright (96/100), 4 niveaux inspection | ✅ |
 | **05** | Scraping responsable | 2 | 5 principes éthiques, règle d'or, hiérarchie | ✅ |
@@ -170,12 +170,12 @@ Construire un environnement personnel, local-first lorsque c'est pertinent, qui 
 **Phase 00 — Cadrage :**
 - Analyse du blueprint source
 - Identification des 8 domaines fonctionnels (A-H)
-- Plan de recherche en 15 phases (14 exécutées)
+- Plan de recherche en 15 phases (15 exécutées)
 - Glossaire technique (24 KB)
 
 **Phase 02 — MCP :**
 - Spécification MCP 2026-07-28 comme référence (Linux Foundation)
-- SDK TypeScript v2 comme choix principal
+- SDK TypeScript 1.32.x comme choix principal (aucune v2 publiée au 21/10/2026 — ADR-011)
 - Transport stdio pour MVP (local, sécurisé)
 - 4 outils MCP prioritaires : search, get, list, validate
 - Matrice compatibilité clients MCP
@@ -225,31 +225,31 @@ Construire un environnement personnel, local-first lorsque c'est pertinent, qui 
 **Recherche DRI (Digital Resource Inventory) :**
 - 12 documents, 177 ressources gratuites
 - Couvre Domaine A (bibliothèque de connaissances)
-- Fichiers : `/home/user/recherche/dri/`
+- Fichiers : `Docs/Référence/dri/`
 
 **Recherche Students :**
 - 54 services avec plans étudiants
 - 39 éligibles au Bénin
 - Valeur totale : ~$7,200/an
-- Fichiers : `/home/user/recherche/students/`
+- Fichiers : `Docs/Référence/students/`
 
 **Recherche HarnAI :**
 - 28 outils harness IA catalogués
 - 7 familles d'outils
 - Compatibilité MCP évaluée
-- Fichiers : `/home/user/recherche/harnai/`
+- Fichiers : `Docs/Référence/harnai/`
 
 **Documents Digital Experience :**
 - `DIGITAL EXPERIENCE DESIGN SYSTEM.md` (27 KB) — Design System complet
 - `DIGITAL EXPERIENCE UX & QUALITY SYSTEM.md` (27 KB) — UX, accessibilité, qualité
 - `DIGITAL EXPERIENCE 3D & MOTION ENGINEERING SYSTEM.md` (38 KB) — 3D, motion, WebGL
-- Fichiers : `/home/user/uploads/`
+- Fichiers : documents externes non versionnés (hors dépôt)
 - **Rôle :** Sources de connaissances pour Domaine E (créatif), PAS l'architecture EKTS
 
 **Cartographie création numérique :**
-- `cartographie-creation-numerique.md` (144 KB)
+- `cartographie-creation-numerique.md` (~140 KB)
 - Audit de 5 plateformes créatives
-- Fichier : `/home/user/cartographie-creation-numerique.md`
+- Fichier : `Docs/Référence/cartographie-creation-numerique.md`
 
 ### 2.4 Éléments incertains ou à vérifier
 
@@ -587,14 +587,14 @@ interface Repository<T> {
 
 | Technologie | Rôle | Statut | Justification | Alternatives | Coût | Sprint |
 |-------------|------|--------|---------------|--------------|------|--------|
-| **Node.js 20+** | Runtime | ✅ Décidé | LTS, stable, écosystème mature | Deno, Bun | $0 | 1 |
+| **Node.js 22.12+** | Runtime | ✅ Décidé | LTS, stable, écosystème mature | Deno, Bun | $0 | 1 |
 | **TypeScript** | Langage | ✅ Décidé | Type-safe, excellent DX, MCP SDK | JavaScript | $0 | 1 |
 | **SQLite WAL** | Base données | ✅ Décidé | Performance 80x, zéro ops, portable | PostgreSQL, MySQL | $0 | 2 |
 | **better-sqlite3** | Driver SQLite | ✅ Décidé | Rapide, synchrone, bien maintenu | sqlite3 (async) | $0 | 2 |
 | **FTS5** | Full-text search | ✅ Décidé | Intégré SQLite, BM25, compétitif | PostgreSQL tsvector | $0 | 2 |
 | **sqlite-vec** | Vector search | ✅ Décidé | Extension SQLite, cosine, <100K vectors | pgvector, Pinecone | $0 | 2 |
 | **Commander.js** | CLI framework | ✅ Décidé | Simple, bien documenté, populaire | yargs, oclif | $0 | 5 |
-| **MCP SDK TypeScript v2** | MCP protocol | ✅ Décidé | Officiel, spec 2026-07-28, mature | Custom implementation | $0 | 6 |
+| **MCP SDK TypeScript 1.32.x** | MCP protocol | ✅ Décidé | Officiel, spec 2026-07-28, mature | Custom implementation | $0 | 6 |
 | **Zod** | Validation | ✅ Décidé | Type-safe, runtime, excellent DX | Joi, Yup | $0 | 2 |
 | **Pino** | Logging | ✅ Décidé | Rapide, structuré JSON, performant | Winston, Bunyan | $0 | 1 |
 | **Vitest** | Tests | ✅ Décidé | Rapide, natif TypeScript, compatible Vite | Jest, Mocha | $0 | 1 |
@@ -609,7 +609,7 @@ interface Repository<T> {
 ### 5.2 Technologies par catégorie
 
 **Langage et runtime :**
-- Node.js 20+ (LTS)
+- Node.js 22.12+ (LTS)
 - TypeScript (strict mode)
 
 **Base de données :**
@@ -619,7 +619,7 @@ interface Repository<T> {
 
 **Frameworks et bibliothèques :**
 - Commander.js (CLI)
-- MCP SDK TypeScript v2 (protocol)
+- MCP SDK TypeScript 1.32.x (protocol)
 - Zod (validation)
 - Pino (logging)
 - Vitest (tests)
@@ -971,52 +971,51 @@ MVP-3 (Mois 7-9)
 - `04-Knowledge/` — Stockage et recherche (5 documents + 2 bilans)
 - `05-Creative-Engineering/` — Créatif et capitalisation (5 documents + 2 bilans)
 - `06-Security/` — Sécurité (2 documents + bilan)
-- `07-Architecture-and-Roadmap/` — Architecture et roadmap (10 documents + 3 bilans)
+- `07-Architecture-and-Roadmap/` — Architecture et roadmap (9 documents + 3 bilans)
 
 ### 12.2 Documents de référence externes
 
-**Blueprint source :**
-- `/home/user/uploads/Blueprint_Systeme_Ingenierie_IA.md` (37 KB)
+**Chemins relatifs au dépôt (les documents sont versionnés) :**
 
-**Documents Digital Experience :**
-- `/home/user/uploads/DIGITAL EXPERIENCE DESIGN SYSTEM.md` (27 KB)
-- `/home/user/uploads/DIGITAL EXPERIENCE UX & QUALITY SYSTEM.md` (27 KB)
-- `/home/user/uploads/DIGITAL EXPERIENCE 3D & MOTION ENGINEERING SYSTEM.md` (38 KB)
+**Blueprint source :**
+- `Docs/Référence/Blueprint_Systeme_Ingenierie_IA.md` (37 KB)
 
 **Recherches antérieures :**
-- `/home/user/recherche/dri/` — 12 documents DRI
-- `/home/user/recherche/students/` — 3 documents Students
-- `/home/user/recherche/harnai/` — 9 documents HarnAI
+- `Docs/Référence/dri/` — 12 fichiers DRI
+- `Docs/Référence/students/` — 6 fichiers Students
+- `Docs/Référence/harnai/` — 17 fichiers HarnAI
 
 **Cartographie créative :**
-- `/home/user/cartographie-creation-numerique.md` (144 KB)
+- `Docs/Référence/cartographie-creation-numerique.md` (~140 KB)
+- `Docs/Référence/Human-Brilliance/Outils-IA-par-domaine.pdf` (9,4 Mo)
 
-### 12.3 Documents complémentaires à créer
+### 12.3 Documents complémentaires — état réel au 21 octobre 2026
 
-**Documents recommandés (PARTIE I) :**
+**Documents de référence (PARTIE I) :**
 1. ✅ `Docs/00-REFERENCE-GLOBALE-PROJET.md` — Ce document
-2. ⏳ `Docs/01-INVENTAIRE-SOURCES-ET-DOCUMENTS.md` — Inventaire complet
-3. ⏳ `Docs/02-ARCHITECTURE-TECHNIQUE.md` — Architecture détaillée
-4. ⏳ `Docs/03-STACK-ET-DECISIONS-TECHNOLOGIQUES.md` — Stack et ADR
-5. ⏳ `Docs/04-FLUX-OPERATIONNELS.md` — Flux détaillés
-6. ⏳ `Docs/05-SECURITE-ET-GESTION-DES-SECRETS.md` — Sécurité
-7. ⏳ `Docs/06-GUIDE-GIT-GITHUB.md` — Guide Git
-8. ⏳ `Docs/07-CONFIGURATIONS-EXTERNES.md` — Configurations externes
-9. ⏳ `Docs/08-REGISTRE-DECISIONS-ET-RISQUES.md` — Registre ADR + risques
+2. ✅ `Docs/01-INVENTAIRE-SOURCES-ET-DOCUMENTS.md` — Inventaire complet
+3. ✅ `Docs/02-ARCHITECTURE-TECHNIQUE.md` — Architecture détaillée
+4. ✅ `Docs/03-STACK-ET-DECISIONS-TECHNOLOGIQUES.md` — Stack et ADR
+5. ⏸️ `Docs/04-FLUX-OPERATIONNELS.md` — Non créé ; reporté, les flux sont décrits dans `Docs/02` et les dossiers de sprint
+6. ✅ `Docs/05-SECURITE-ET-GESTION-DES-SECRETS.md` — Sécurité
+7. ✅ `Docs/06-GUIDE-GIT-GITHUB.md` — Guide Git
+8. ⏸️ `Docs/07-CONFIGURATIONS-EXTERNES.md` — Non créé ; reporté, aucune configuration externe n'est requise avant le Sprint 6
+9. ✅ `Docs/08-REGISTRE-DECISIONS-ET-RISQUES.md` — Registre ADR + risques
 
-**Documents PARTIE II (à venir) :**
-- `Docs/roadmap/ROADMAP-GLOBALE.md` — Roadmap consolidée
-- `Docs/roadmap/REGISTRE-AVANCEMENT.md` — Suivi avancement
-- `Docs/roadmap/sprints/SPRINT-XX.md` — Dossiers sprints
+**Documents PARTIE II :**
+- ✅ `Docs/roadmap/sprints/SPRINT-01` à `SPRINT-12` — 48 dossiers de sprint
+- ✅ `Docs/roadmap/REGISTRE-AVANCEMENT.md` — Suivi d'avancement
+- ⏸️ `Docs/roadmap/ROADMAP-GLOBALE.md` — Non créé ; la roadmap fait foi dans `07-Architecture-and-Roadmap/13_ROADMAP_IMPLEMENTATION.md`
 
-**Documents PARTIE III (à venir) :**
-- `Docs/audit/AUDIT-CAPACITES-AGENTIQUES.md` — Audit capacités
+**Documents PARTIE III :**
+- ✅ `docs/audit/ETAT-DES-LIEUX-2026-10-21.md` — Audit de démarrage (racine du dépôt)
+- ⏸️ `Docs/audit/AUDIT-CAPACITES-AGENTIQUES.md` — Non créé ; l'audit existant est `AUDIT-ECOSYSTEME-AGENTIQUE.md`
 
 ---
 
 ## Conclusion
 
-Ce document de référence consolide l'ensemble des recherches, analyses, décisions et recommandations produites durant 14 phases de recherche (phases 00 à 14).
+Ce document de référence consolide l'ensemble des recherches, analyses, décisions et recommandations produites durant 15 phases de recherche (phases 00 à 14).
 
 **Points clés :**
 - ✅ **Vision claire** : Système personnel d'ingénierie augmenté par l'IA

@@ -1,6 +1,6 @@
 # Sprint 7 — Playwright Setup (Semaine 13-14)
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 2 semaines (10 jours ouvrables)  
 **Objectif :** Intégrer Playwright et Playwright MCP pour l'inspection navigateur  
 **MVP :** MVP-2 (Inspection Navigateur)

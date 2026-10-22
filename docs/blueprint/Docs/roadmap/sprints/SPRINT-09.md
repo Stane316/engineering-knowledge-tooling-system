@@ -1,5 +1,10 @@
 # Sprint 9 — Analyse 5 Dimensions (Semaine 17-18)
 
+**MVP :** MVP-2 (Inspection Navigateur)  
+**Statut :** ⏳ NON COMMENCÉ  
+
+---
+
 ## 1. Contexte et objectifs
 
 ### 1.1 Contexte

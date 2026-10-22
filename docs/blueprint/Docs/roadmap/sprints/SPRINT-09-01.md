@@ -3,6 +3,7 @@
 **Durée :** 4 jours  
 **Objectif :** Implémenter PerformanceAnalyzer et AccessibilityAnalyzer  
 **Dépendance :** Sprint 8 (4 Niveaux d'Inspection) ✅
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 

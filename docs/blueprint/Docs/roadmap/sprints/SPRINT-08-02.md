@@ -3,6 +3,7 @@
 **Durée :** 4 jours  
 **Objectif :** Intégrer Lighthouse et implémenter l'inspection L2 (standard)  
 **Dépendance :** Sprint 8-1 (Types + L1) ✅
+**Statut :** ⏳ NON COMMENCÉ  
 
 ---
 

@@ -1,6 +1,6 @@
 # Sprint 7-2 — Playwright MCP + Navigation basique
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 4 jours  
 **Objectif :** Intégrer Playwright MCP et implémenter la navigation basique  
 **Dépendance :** Sprint 7-1 (Installation Playwright) ✅

@@ -260,7 +260,7 @@ Ce document définit le plan de recherche en 15 phases pour transformer le bluep
 - Expériences communautaires
 
 **Livrables :**
-- `04-Knowledge/07_ETUDE_RAG_ET_RECHERCHE_SEMANTIQUE.md` — Étude comparative
+- `04-Knowledge/07_ETUDE_RAG_RECHERCHE_SEMANTIQUE.md` — Étude comparative
 - `04-Knowledge/07_JEU_TEST_RECUPERATION.md` — Jeu de test et résultats
 
 **Critères de sortie :**

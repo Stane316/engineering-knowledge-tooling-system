@@ -1,6 +1,6 @@
 # Sprint 5-1 — Commandes de base (init, add, get)
 
-**Statut :** 🟡 Documenté — En attente approbation  
+**Statut :** ⏳ NON COMMENCÉ  
 **Durée :** 3 jours  
 **Objectif :** Implémenter les 3 premières commandes CLI  
 **Dépendance :** Sprint 4 (Search Engine) ✅
