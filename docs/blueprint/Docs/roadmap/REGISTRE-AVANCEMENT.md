@@ -140,6 +140,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Correctif `429 no credits` : indexation vectorielle réellement best-effort (`vectorIndexed` + `vectorWarning`), embeddings résolus par la passerelle (OpenAI/Gemini/OpenRouter/Novita), `EKTS_OFFLINE`, commande `ekts reindex --vectors [--force]` ; ADR-020, risques R-5.9 à R-5.12 | `fix/embeddings` |
 | 22/10/2026 | Correctif d'outillage après un merge sans effet : `.gitattributes` (`eol=lf`) contre les CRLF Windows, `npm run doctor`, procédures `SETUP.md` §6.11 (renormalisation) et §6.12 (merge par SHA, « Already up to date ») ; risques R-5.7 et R-5.8 | `fix/checkout` |
 
+| 23/10/2026 | Correctif « `verify` rouge sur le poste » : `openCliServices` et `createRuntime` acceptent un environnement injecté, `createTestRuntime` hermétique (`{}`), `isOffline`/`embeddingSpace` alignés ; 549 tests, couverture 100 %, vert avec et sans `.env` ; ADR-021, risque R-5.13, dépannage `SETUP.md` §6.13 | `fix/tests-hermetiques` |
 ---
 
 ## 5. Prochaines étapes

@@ -702,6 +702,39 @@ fournisseur est une opération documentée et non un effet de bord silencieux.
 clé Anthropic apporte du chat, jamais des vecteurs. Le découpage des rôles est
 donc structurel, pas seulement conventionnel.
 
+#### ADR-021 — L'environnement est injecté ; une bibliothèque ne relit pas le disque
+
+**Statut :** ✅ APPLIQUÉ
+**Contexte :** `npm run verify` était vert en CI et rouge sur le poste : 7 tests
+sur 547 (`tests/cli/services.test.ts` ×4, `tests/cli/program.test.ts` ×3). La
+cause n'était pas une régression du code mais une **dépendance cachée au poste**.
+`openCliServices` appelait `createProviderGateway()` sans environnement ; la
+fabrique, en l'absence d'`env`, chargeait `.env` depuis le répertoire courant.
+Le `.env` de développement contenant seize fournisseurs, l'absence totale de
+clé — que ces tests simulaient par `vi.stubEnv('OPENAI_API_KEY', '')` — devenait
+impossible : Gemini, OpenRouter ou Novita prenaient le relais, les embeddings
+étaient résolus, et les assertions « aucun fournisseur » échouaient. Le même
+mécanisme pouvait déclencher un appel réseau réel pendant les tests.
+
+**Décision :**
+1. `openCliServices` accepte `env`. Fourni, **aucun fichier n'est lu** : ni
+   `.env`, ni `providers.custom.json` ; seules les variables de l'objet comptent.
+   Omis, la production est inchangée (`.env` chargé au point d'entrée).
+2. `createRuntime(overrides, env)` transmet l'environnement injecté aux
+   services ; `createTestRuntime` injecte `{}` par défaut — hermétique.
+3. `embeddingSpace` et `isOffline` reçoivent le même `env` que la résolution :
+   une seule source de vérité, aucune relecture implicite de `process.env`.
+4. Le chemin de production reste exercé par un test dédié qui n'affirme rien
+   sur les clés (le poste peut en avoir, la CI non) : il vérifie seulement
+   l'invariant « espace d'embedding présent si et seulement si service présent ».
+
+**Conséquences :** la suite donne le même résultat sur le poste et en CI, avec
+ou sans `.env` ; un test qui veut une clé doit la déclarer explicitement, ce qui
+rend les scénarios « sans fournisseur » réellement testables. Coût : deux
+branches de production (chargement du disque) ne sont couvertes que par un test
+de fumée volontairement neutre. Le contrat de la passerelle (ADR-017) est
+conservé : sans `env`, `.env` et le registre local sont lus.
+
 #### Risques nouveaux (Sprint 4.5)
 
 | ID | Risque | Impact | Probabilité | Mitigation |
@@ -731,6 +764,7 @@ donc structurel, pas seulement conventionnel.
 | R-5.9 | Quota d'embeddings épuisé (429) → ressource perdue | **Élevé** | Moyenne | Indexation vectorielle best-effort, `vectorWarning` explicite, `ekts reindex --vectors` pour rattraper (ADR-020) |
 | R-5.10 | Dépendance à un fournisseur unique pour les vecteurs | Moyen | Moyenne | Résolution par la passerelle : OpenAI, Gemini, OpenRouter, Novita ; `EKTS_EMBEDDING_SPACE` pour épingler un espace |
 | R-5.11 | Bascule silencieuse d'espace lors d'un changement de clé | **Élevé** | Faible | Purge interdite sans `--force`, `EmbeddingSpaceMismatchError`, maintenance testée (6 tests) |
+| R-5.13 | Tests dépendants du `.env` du poste (verts en CI, rouges localement) | Moyen | **Élevée** | `env` injecté dans `openCliServices`/`createRuntime`, `createTestRuntime` hermétique par défaut, chemin de production couvert sans hypothèse sur les clés (ADR-021) |
 | R-5.12 | Confusion Anthropic = fournisseur d'embeddings | Faible | Moyenne | `.env.example` et `CLI.md` explicitent le découpage des rôles ; échec explicite listant les quatre fournisseurs possibles |
 
 ---

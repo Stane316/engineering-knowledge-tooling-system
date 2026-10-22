@@ -444,6 +444,7 @@ node dist/cli/index.js search "sqlite" --mode fts --json | jq '.count'
 | `spawn ekts ENOENT` | `npm link` non exécuté | Utiliser `node dist\cli\index.js` ou `npm run cli -- …` |
 | Caractères illisibles | Console non UTF-8 | `chcp 65001`, ou `--no-colors` (les tableaux sont ASCII) |
 | `no such table: resources` | Bases absentes ou `migrate: false` | `npm run cli -- init` |
+| `npm run verify` échoue sur les tests d'embeddings alors que la CI est verte | Le `.env` du poste fournissait des clés aux tests (corrigé, ADR-021) | Récupérer la dernière version de la branche, puis `npm ci` et `npm run verify` ; voir `SETUP.md` §6.13 |
 | Index incohérent dans `status` | Écriture interrompue entre fichiers attachés | `npm run db:reindex` |
 
 ---
