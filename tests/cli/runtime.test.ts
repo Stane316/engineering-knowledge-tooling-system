@@ -143,6 +143,15 @@ describe('createRuntime', () => {
     await expect(runtime.confirm('?')).resolves.toBe(true);
   });
 
+  it('laisse les services lire le disque quand aucun env n’est injecté', () => {
+    // `createRuntime()` de production n'injecte rien : la CLI a chargé `.env`
+    // à son point d'entrée. Le mode `disabled` évite toute résolution de
+    // fournisseur, donc tout accès réseau.
+    const runtime = createRuntime({ dataDir });
+
+    runtime.openServices({ dataDir, embeddingsMode: 'disabled' }).close();
+  });
+
   it('déduit le répertoire de données de l’environnement', () => {
     const runtime = createRuntime({}, { EKTS_DATA_DIR: dataDir });
 

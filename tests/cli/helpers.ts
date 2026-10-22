@@ -26,6 +26,14 @@ export interface TestRuntime extends CliRuntime {
 export interface TestRuntimeOptions {
   embeddings?: IEmbeddingsService;
   embeddingSpace?: EmbeddingSpace;
+  /**
+   * Environnement vu par les commandes. Défaut : `{}` — **hermétique**.
+   *
+   * Un test ne doit jamais dépendre du `.env` du poste : sans clé, `auto`
+   * retombe sur le plein texte et `required` échoue, quel que soit le contenu
+   * du répertoire courant. Passer un objet explicite pour simuler des clés.
+   */
+  env?: NodeJS.ProcessEnv;
   color?: boolean;
   confirm?: (question: string) => Promise<boolean>;
   now?: () => number;
@@ -71,31 +79,36 @@ export function removeDataDir(dataDir: string): void {
  */
 export function createTestRuntime(dataDir: string, options: TestRuntimeOptions = {}): TestRuntime {
   const output: CapturedOutput = { stdout: '', stderr: '' };
+  const env = options.env ?? {};
 
-  const runtime = createRuntime({
-    io: {
-      write: (text) => {
-        output.stdout += text;
+  const runtime = createRuntime(
+    {
+      io: {
+        write: (text) => {
+          output.stdout += text;
+        },
+        writeError: (text) => {
+          output.stderr += text;
+        },
       },
-      writeError: (text) => {
-        output.stderr += text;
-      },
+      dataDir,
+      color: options.color ?? false,
+      ...(options.confirm === undefined ? {} : { confirm: options.confirm }),
+      ...(options.now === undefined ? {} : { now: options.now }),
+      openServices:
+        options.openServices ??
+        ((servicesOptions) =>
+          openCliServices({
+            ...servicesOptions,
+            env,
+            ...(options.embeddings === undefined ? {} : { embeddings: options.embeddings }),
+            ...(options.embeddingSpace === undefined
+              ? {}
+              : { embeddingSpace: options.embeddingSpace }),
+          })),
     },
-    dataDir,
-    color: options.color ?? false,
-    ...(options.confirm === undefined ? {} : { confirm: options.confirm }),
-    ...(options.now === undefined ? {} : { now: options.now }),
-    openServices:
-      options.openServices ??
-      ((servicesOptions) =>
-        openCliServices({
-          ...servicesOptions,
-          ...(options.embeddings === undefined ? {} : { embeddings: options.embeddings }),
-          ...(options.embeddingSpace === undefined
-            ? {}
-            : { embeddingSpace: options.embeddingSpace }),
-        })),
-  });
+    env,
+  );
 
   return Object.assign(runtime, { output });
 }

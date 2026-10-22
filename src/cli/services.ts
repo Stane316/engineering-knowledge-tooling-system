@@ -53,6 +53,16 @@ export interface OpenServicesOptions {
   readonly embeddingsMode?: EmbeddingsMode;
   /** Applique les migrations à l'ouverture (défaut : `true`). */
   readonly migrate?: boolean;
+  /**
+   * Environnement à consulter pour résoudre les fournisseurs.
+   *
+   * Omis, la production s'applique : `process.env`, complété par `.env` et par
+   * `providers.custom.json`, comme le fait la CLI au démarrage. Fourni — même
+   * vide — la résolution devient **hermétique** : aucun fichier du disque n'est
+   * lu, seules les variables de cet objet comptent. C'est le mode des tests :
+   * le `.env` du poste ne doit jamais décider du résultat d'une suite.
+   */
+  readonly env?: NodeJS.ProcessEnv;
 }
 
 /** Services ouverts pendant la durée d'une commande. */
@@ -181,6 +191,11 @@ export function isOffline(env: NodeJS.ProcessEnv = process.env): boolean {
  * clé disponible parmi OpenAI, Gemini, OpenRouter et Novita suffit, avec
  * rotation et repli. Un seul espace d'embedding est servi par index.
  *
+ * Quand `options.env` est fourni, **aucun fichier n'est lu** : ni `.env`, ni
+ * `providers.custom.json`. C'est ce qui rend les tests indépendants du poste
+ * de développement ; la CLI réelle n'injecte rien et conserve donc le
+ * chargement de `.env` au démarrage.
+ *
  * @throws {NoProviderAvailableError} Mode `required` et aucun fournisseur.
  * @throws {EmbeddingsError} Mode `required` et `EKTS_OFFLINE`.
  */
@@ -245,9 +260,15 @@ function once(database: EktsDatabase): () => void {
  * Le nom suit la convention `fournisseur/modèle` du registre (`openai/…`). Un
  * service sans propriété `model` (tests, doublures) retombe sur la
  * configuration d'environnement.
+ *
+ * @param service - Service d'embeddings (injecté ou résolu).
+ * @param env - Environnement consulté pour `OPENAI_EMBEDDING_MODEL`.
  */
-export function embeddingSpace(service: IEmbeddingsService): EmbeddingSpace {
-  const model = modelOf(service);
+export function embeddingSpace(
+  service: IEmbeddingsService,
+  env: NodeJS.ProcessEnv = process.env,
+): EmbeddingSpace {
+  const model = modelOf(service, env);
 
   return {
     space: `openai/${model}`,
@@ -257,14 +278,14 @@ export function embeddingSpace(service: IEmbeddingsService): EmbeddingSpace {
   };
 }
 
-function modelOf(service: IEmbeddingsService): string {
+function modelOf(service: IEmbeddingsService, env: NodeJS.ProcessEnv): string {
   const candidate = (service as Partial<EmbeddingsService>).model;
 
   if (typeof candidate === 'string' && candidate.length > 0) {
     return candidate;
   }
 
-  const fromEnv = process.env.OPENAI_EMBEDDING_MODEL?.trim();
+  const fromEnv = env.OPENAI_EMBEDDING_MODEL?.trim();
 
   return fromEnv === undefined || fromEnv.length === 0 ? DEFAULT_EMBEDDING_MODEL : fromEnv;
 }
@@ -278,7 +299,8 @@ function resolveEmbeddings(options: OpenServicesOptions): ResolvedEmbeddings | u
   if (options.embeddings !== undefined) {
     return {
       service: options.embeddings,
-      space: options.embeddingSpace ?? embeddingSpace(options.embeddings),
+      space:
+        options.embeddingSpace ?? embeddingSpace(options.embeddings, options.env ?? process.env),
     };
   }
 
@@ -288,7 +310,7 @@ function resolveEmbeddings(options: OpenServicesOptions): ResolvedEmbeddings | u
     return undefined;
   }
 
-  if (isOffline()) {
+  if (isOffline(options.env)) {
     if (mode === 'required') {
       throw new EmbeddingsError(
         'EKTS_OFFLINE est actif : les embeddings sont désactivés. Retirez EKTS_OFFLINE du .env ou utilisez --mode fts.',
@@ -299,7 +321,7 @@ function resolveEmbeddings(options: OpenServicesOptions): ResolvedEmbeddings | u
   }
 
   try {
-    const resolved = createGatewayEmbeddings();
+    const resolved = createGatewayEmbeddings(options.env);
 
     if (resolved === undefined && mode === 'required') {
       throw new NoProviderAvailableError(
@@ -323,10 +345,14 @@ function resolveEmbeddings(options: OpenServicesOptions): ResolvedEmbeddings | u
 /**
  * Résout les embeddings via la passerelle (rotation de clés, repli ordonné).
  *
+ * @param env - Environnement injecté (tests) ; omis, la passerelle charge
+ *   elle-même `.env` et `providers.custom.json`.
  * @returns `undefined` si aucun fournisseur d'embedding n'a de clé.
  */
-function createGatewayEmbeddings(): ResolvedEmbeddings | undefined {
-  const gateway = createProviderGateway();
+function createGatewayEmbeddings(
+  env: NodeJS.ProcessEnv | undefined,
+): ResolvedEmbeddings | undefined {
+  const gateway = createProviderGateway(env === undefined ? {} : { env });
   const routes = gateway.plan('embedding');
 
   if (routes.length === 0) {

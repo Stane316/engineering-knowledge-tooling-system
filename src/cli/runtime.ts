@@ -85,12 +85,17 @@ export async function confirmWithReadline(
  * Construit le runtime par défaut.
  *
  * @param overrides - Remplacements utilisés par les tests.
- * @param env - Environnement (injectable pour vérifier `EKTS_DATA_DIR`).
+ * @param env - Environnement injecté. Omis, le runtime lit `process.env` et
+ *   laisse `openCliServices` charger `.env` (production). Fourni — même vide —
+ *   il est transmis aux services : plus aucun fichier du disque n'est lu, ce
+ *   qui rend un test indépendant du `.env` du poste.
  */
 export function createRuntime(
   overrides: RuntimeOverrides = {},
-  env: NodeJS.ProcessEnv = process.env,
+  env?: NodeJS.ProcessEnv,
 ): CliRuntime {
+  const source = env ?? process.env;
+
   return {
     io: overrides.io ?? {
       write: (text) => {
@@ -100,10 +105,12 @@ export function createRuntime(
         process.stderr.write(text);
       },
     },
-    dataDir: overrides.dataDir ?? loadConfig(env).dataDir,
-    color: overrides.color ?? isColorSupported(process.stdout.isTTY === true, env),
+    dataDir: overrides.dataDir ?? loadConfig(source).dataDir,
+    color: overrides.color ?? isColorSupported(process.stdout.isTTY === true, source),
     now: overrides.now ?? Date.now,
     confirm: overrides.confirm ?? ((question) => confirmWithReadline(question)),
-    openServices: overrides.openServices ?? openCliServices,
+    openServices:
+      overrides.openServices ??
+      ((options) => openCliServices(env === undefined ? options : { ...options, env })),
   };
 }
