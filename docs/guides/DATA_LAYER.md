@@ -225,12 +225,24 @@ tests/
 ## 8. Tests
 
 ```bash
-npm test                      # 67 tests (unitaires + intégration)
+npm test                      # 68 tests (unitaires + intégration)
 npm run coverage              # 100 % (seuils 80 %)
 ```
 
 Les tests d'intégration créent une base réelle dans un répertoire temporaire
 (`mkdtempSync`), puis le suppriment : aucune écriture dans `data/` ni dans le dépôt.
+
+## 8.1 Inspection rapide
+
+```powershell
+npm run build        # db:inspect consomme le code compilé
+npm run db:inspect
+```
+
+Affiche les fichiers (taille, permissions), le `journal_mode` de chaque schéma, `user_version`,
+les tables (hors tables internes FTS5/vec0), les migrations appliquées, les versions SQLite et
+`sqlite-vec`, et le nombre de ressources indexées. Fonctionne sous PowerShell, bash et zsh —
+contrairement aux commandes `node -e "…"` multi-lignes.
 
 ## 9. Limites connues
 

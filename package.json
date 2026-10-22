@@ -26,6 +26,7 @@
     "security:secrets": "gitleaks git --pre-commit --staged --redact --config .gitleaks.toml",
     "setup": "husky && node scripts/check-env.mjs",
     "check:env": "node scripts/check-env.mjs",
+    "db:inspect": "node scripts/inspect-data-layer.mjs",
     "prepare": "husky"
   },
   "devDependencies": {

@@ -14,11 +14,12 @@ permissions:
 
 jobs:
   quality:
-    name: Qualité (Node ${{ matrix.node-version }})
-    runs-on: ubuntu-latest
+    name: Qualité (${{ matrix.os }}, Node ${{ matrix.node-version }})
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, windows-latest]
         node-version: [22.x, 24.x]
 
     steps:
@@ -56,7 +57,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-node-${{ matrix.node-version }}
+          name: coverage-${{ matrix.os }}-node-${{ matrix.node-version }}
           path: coverage/
           retention-days: 7
 

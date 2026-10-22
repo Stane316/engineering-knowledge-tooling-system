@@ -6,7 +6,7 @@
 | **Responsable** | Développeur du projet (poste local) / mainteneur (CI) |
 | **Prérequis** | Droits d'installation locale, accès réseau à npm et GitHub |
 | **Emplacement** | Racine du dépôt `engineering-knowledge-tooling-system` |
-| **Dernière mise à jour** | 2026-10-22 (correctif installation sans compilateur) |
+| **Dernière mise à jour** | 2026-10-22 (portabilité Windows : tests, encodage, PowerShell) |
 
 ---
 
@@ -139,8 +139,9 @@ npm run build
 | 3 | `npm run lint` | aucune sortie |
 | 4 | `npm run format:check` | `All matched files use Prettier code style!` |
 | 5 | `npm test` | `Tests 67 passed (67)` |
-| 6 | `npm run coverage` | `All files 100 %` |
-| 7 | `npm start` | `{"msg":"EKTS v0.1.0 — squelette initialisé (Sprint 1)"}` |
+| 6 | `npm run coverage` | `Tests 68 passed (68)` puis `All files 100 %` |
+| 7 | `npm run db:inspect` | 3 fichiers, `journal_mode=wal`, `user_version = 1` |
+| 8 | `npm start` | `{"msg":"EKTS v0.1.0 - squelette initialise (Sprint 1)"}` |
 
 **Raccourci** (typecheck + lint + format + build + couverture) :
 
@@ -150,10 +151,17 @@ npm run verify
 
 **Vérification du code de sortie :**
 
-```bash
-echo $?      # bash / zsh
+```powershell
 echo $LASTEXITCODE   # PowerShell
 ```
+
+```bash
+echo $?              # bash / zsh
+```
+
+> **PowerShell.** Ces commandes sont des scripts npm : elles s'exécutent à l'identique. En revanche
+> `2>/dev/null`, `||`, `&&` (Windows PowerShell 5.1) et `ls -la` **ne fonctionnent pas** : utiliser
+> `npm run check:env` et `npm run db:inspect` plutôt que des commandes `node -e "…"` multi-lignes.
 
 ---
 
@@ -428,6 +436,38 @@ Si `node-gyp` apparaît à l'étape 2 : `.npmrc` est absent (`git status`), le r
 recommencer après `Remove-Item -Recurse -Force node_modules` (§6.1 et §6.9).
 
 ---
+
+### 7.4 Accents et tirets illisibles (`ÔÇö`, `├®`) dans la console
+
+**Symptôme :**
+
+```
+{"level":30,"msg":"EKTS v0.1.0 ÔÇö squelette initialis├® (Sprint 1)"}
+```
+
+**Cause :** Node écrit les journaux en UTF-8, mais la console Windows utilise par défaut une page de
+codes OEM (CP437/CP850). Les octets UTF-8 d'un tiret cadratin ou d'un `é` y apparaissent décomposés.
+
+**Deux mesures :**
+
+1. **Les journaux d'exécution sont désormais en ASCII** (`src/index.ts`) : `npm start` reste lisible
+   sur n'importe quelle console, quelle que soit la page de codes. C'est une contrainte des
+   *sorties techniques*, pas de la documentation ni du code, qui restent en UTF-8.
+2. **Passer la console en UTF-8** si d'autres sorties affichent des accents :
+
+```powershell
+chcp 65001
+npm start
+```
+
+Pour rendre le réglage permanent dans le profil PowerShell :
+
+```powershell
+Add-Content $PROFILE 'chcp 65001 > $null'
+```
+
+**Vérification :** `npm start` doit afficher
+`{"level":30,...,"msg":"EKTS v0.1.0 - squelette initialise (Sprint 1)"}`.
 
 ## 8. Sécurité
 
