@@ -655,6 +655,48 @@ npm run test:coverage -- tests/business/ tests/data/
 | C4.15 | Gestion erreurs robuste | Revue code |
 | C4.16 | Configuration via variables d'environnement | `.env` utilisé |
 
+### 8.4 Traçabilité de l'implémentation (état au 22/10/2026)
+
+| # | Critère | État | Preuve |
+|---|---------|------|--------|
+| C4.1 | Recherche FTS5 (BM25) | ✅ | `src/data/fts-repository.ts` ; `tests/integration/fts-repository.test.ts` (13 tests : pondération, AND, ponctuation, accents, tri) |
+| C4.2 | Embeddings OpenAI | ✅ | `src/business/embeddings.ts` ; `tests/unit/embeddings.test.ts` + `tests/integration/embeddings-openai.test.ts` (SDK réel, `fetch` intercepté, aucun réseau) |
+| C4.3 | Recherche vectorielle | ✅ | `src/data/vector-repository.ts` ; `tests/integration/vector-repository.test.ts` (11 tests : KNN, normalisation, upsert, orphelins) |
+| C4.4 | Fusion RRF (k = 60) | ✅ | `src/business/rrf.ts` ; `tests/unit/rrf.test.ts` (15 tests) |
+| C4.5 | Indexation vectorielle automatique | ✅ | `src/business/vector-indexer.ts` (`withVectorIndexing`) ; `tests/integration/vector-indexer.test.ts` (11 tests : add/update/delete/reindex) |
+| C4.6 | Recall@5 ≥ 0.75 | ✅ **1.000** | `npm run test:benchmark` — 100 000 docs / 100 000 vecteurs |
+| C4.7 | Faithfulness ≥ 0.80 | ✅ **1.000** | Idem (proxy lexicale déterministe, voir écart E4-9) |
+| C4.8 | Latence < 500 ms sur 100K docs | ✅ **p95 308 ms** | Idem (hybride, 100 000 documents + 100 000 vecteurs) |
+| C4.9 | Couverture > 80 % | ✅ **100 %** | `npm run test:coverage` — 240 tests, lignes/branches/fonctions à 100 % |
+| C4.10 | Compilation TypeScript | ✅ | `npm run build` (NodeNext, strict, `noUncheckedIndexedAccess`) |
+| C4.11 | Linting | ✅ | `npm run lint` (ESLint 10 flat config) + `npm run format:check` |
+| C4.12 | Documentation API | ✅ | `docs/guides/SEARCH_ENGINE.md` |
+| C4.13 | Code lisible (JSDoc) | ✅ | JSDoc sur toutes les fonctions et classes publiques ; commentaires des décisions non évidentes |
+| C4.14 | Couplage faible (DI) | ✅ | `SearchEngine(dependencies)`, `EmbeddingsService({ provider })`, `VectorIndexer(embeddings, vectors)`, `createEmbeddingsService({ env, fetch, client })` |
+| C4.15 | Gestion d'erreurs robuste | ✅ | `SearchError` / `EmbeddingsError` / `FusionError` ; tout `SqliteError` est encapsulé (`tests/integration/search-errors.test.ts`) |
+| C4.16 | Configuration par environnement | ✅ | `.env.example` versionné, `.env` ignoré (git + Gitleaks) |
+
+### 8.5 Écarts assumés par rapport au dossier de sprint
+
+Le dossier de spécification a été écrit avant l'étude de `sqlite-vec` 0.1.9 et
+de FTS5 ; dix énoncés se sont révélés inexacts ou inapplicables. Ils ont été
+vérifiés empiriquement (SQL exécuté, erreur reproduite) avant d'être tranchés.
+Le détail, la preuve et la décision pour chacun figurent dans
+`docs/guides/SEARCH_ENGINE.md` §7 (E4-1 à E4-10). Les cinq plus structurants :
+
+| Écart | Énoncé du dossier | Réalité vérifiée | Décision |
+|-------|-------------------|------------------|----------|
+| E4-1 | `JOIN ... ON r.id = resources_fts.rowid` | `id` est un UUID `TEXT`, `rowid` un entier : 0 résultat | Jointure sur `resource_id` |
+| E4-2 | `bm25(..., 10, 5, 1)` | Un poids **par colonne** : `resource_id` recevait 10.0 | `bm25(..., 0.0, 10.0, 5.0, 1.0)` |
+| E4-3 | `ORDER BY score DESC` | BM25 est négatif → `DESC` inverse le classement | `ORDER BY score ASC` |
+| E4-4/5 | `<=>` et `INSERT OR REPLACE` | Opérateur inexistant ; contrainte d'unicité sur `vec0` | `MATCH ? AND k = ?` ; `DELETE` + `INSERT` |
+| E4-8 | Modifier `KnowledgeManager` | Interdit par la mission | Décorateur `withVectorIndexing()` |
+
+Deux écarts concernent le **protocole de mesure** : E4-9 (Faithfulness évaluée
+par une proxy lexicale, faute de LLM hors ligne) et le corpus du benchmark
+(requêtes construites à partir du titre cible) — protocole complet dans
+`docs/guides/SEARCH_ENGINE.md` §6.
+
 ---
 
 ## 9. Livrables attendus

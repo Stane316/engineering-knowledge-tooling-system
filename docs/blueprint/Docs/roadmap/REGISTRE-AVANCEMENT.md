@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 22 octobre 2026 — Sprint 3 (Knowledge Manager)  
+**Dernière mise à jour :** 22 octobre 2026 — Sprint 4 (Search Engine)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -61,11 +61,11 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 3 | 3-1 | Knowledge Manager CRUD (add, get, list) | ✅ Rédigée | ✅ `ce674d5` | ✅ 119 tests, 100 % |
 | Sprint 3 | 3-2 | Knowledge Manager CRUD suite (update, delete) + tests complets | ✅ Rédigée | ✅ `ce674d5` | ✅ C3.1–C3.15 tracés |
 | Sprint 3 | 3-3 | Indexation FTS automatique + documentation | ✅ Rédigée | ✅ `5df7e37` | ✅ 100 % |
-| Sprint 3 | Dossier parent | Knowledge Manager (Semaine 5-6) | ✅ Rédigée | ⏸️ En attente de validation | ✅ |
-| Sprint 4 | 4-1 | Recherche FTS5 (BM25) + Vectorielle (sqlite-vec) | ✅ Rédigée | ⏳ | — |
-| Sprint 4 | 4-2 | Génération embeddings (OpenAI) + indexation vectorielle | ✅ Rédigée | ⏳ | — |
-| Sprint 4 | 4-3 | Fusion RRF + benchmarks + documentation | ✅ Rédigée | ⏳ | — |
-| Sprint 4 | Dossier parent | Search Engine (Semaine 7-8) | ✅ Rédigée | ⏳ | — |
+| Sprint 3 | Dossier parent | Knowledge Manager (Semaine 5-6) | ✅ Rédigée | ✅ Validé le 22/10/2026 | ✅ C3.1–C3.15 tracés |
+| Sprint 4 | 4-1 | Recherche FTS5 (BM25) + Vectorielle (sqlite-vec) | ✅ Rédigée | ✅ Livré | ✅ C4.1, C4.3 |
+| Sprint 4 | 4-2 | Génération embeddings (OpenAI) + indexation vectorielle | ✅ Rédigée | ✅ Livré | ✅ C4.2, C4.5, C4.16 |
+| Sprint 4 | 4-3 | Fusion RRF + benchmarks + documentation | ✅ Rédigée | ✅ Livré | ✅ C4.4, C4.6–C4.8 |
+| Sprint 4 | Dossier parent | Search Engine (Semaine 7-8) | ✅ Rédigée | ⏸️ En attente de validation | ✅ C4.1–C4.16 tracés |
 | Sprint 5 | 5-1 | Commandes de base (init, add, get) | ✅ Rédigée | ⏳ | — |
 | Sprint 5 | 5-2 | Commandes de recherche et gestion (search, list, delete) | ✅ Rédigée | ⏳ | — |
 | Sprint 5 | 5-3 | Commande status + tests intégration + documentation | ✅ Rédigée | ⏳ | — |
@@ -118,15 +118,17 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Sprint 3 : `KnowledgeManager` (CRUD validé, tags, stats), erreurs métier typées, `Indexer` de maintenance, `npm run db:reindex` | `ce674d5` |
 | 22/10/2026 | Correctif d'un test instable (comparaison d'horodatages à la milliseconde), détecté par la CI | `7f2ff24` |
 | 22/10/2026 | Audit de conformité Sprint 3 : contrat `IIndexer`, preuve du couplage faible, table de traçabilité C3.1–C3.15 | `5df7e37` |
+| 22/10/2026 | Sprint 4 : `FTSRepository` (BM25 `0/10/5/1`, jointure `resource_id`, requête assainie), `VectorRepository` (KNN + normalisation cosinus), `EmbeddingsService` (OpenAI + validation), `VectorIndexer`/décorateur, `fuseResults` (RRF k=60), `SearchEngine` — 240 tests, couverture 100 % | à venir |
+| 22/10/2026 | Sprint 4 : benchmark 100 000 documents / 100 000 vecteurs — Recall@5 1.000, Faithfulness 1.000, p95 308 ms ; job CI `benchmark` ajouté | à venir |
 
 ---
 
 ## 5. Prochaines étapes
 
-1. **Sprint 3 terminé** — en attente de validation utilisateur (⏸️) avant le Sprint 4.
-2. **Sprint 4** — Search Engine : BM25 + embeddings `text-embedding-3-small`, fusion RRF (k=60), benchmarks.
+1. **Sprint 4 terminé** — en attente de validation utilisateur (⏸️) avant le Sprint 5.
+2. **Sprint 5** — CLI (Commander.js) : `init`, `add`, `search`, `get`, `list`, `delete`, `status`.
 3. Mise à jour de ce registre à la fin de chaque sous-sprint (statut + commit).
-4. Validation utilisateur avant passage au Sprint 5.
+4. Validation utilisateur avant passage au Sprint 6.
 
 > **Écart technique tranché au Sprint 2** : FTS5 autonome (pas de table de contenu externe) et
 > connexion unique avec bases attachées — la conception initiale du blueprint était irréalisable.
@@ -135,3 +137,9 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 > **Écart tranché au Sprint 3** : l'indexation FTS reste dans le repository (transaction unique) ;
 > `Indexer` couvre la maintenance (`reindexAll`, `checkIntegrity`). Un indexeur appelé après coup
 > casserait l'atomicité et créerait des doublons de `rowid`. Voir `SPRINT-03-03.md`.
+>
+> **Écarts tranchés au Sprint 4** : dix énoncés du dossier (jointure `rowid`, arité de `bm25`,
+> sens du tri, opérateur `<=>`, `INSERT OR REPLACE`, etc.) étaient inapplicables et ont été
+> corrigés après vérification empirique. L'indexation vectorielle automatique passe par un
+> décorateur (`withVectorIndexing`) pour respecter l'interdiction de modifier `KnowledgeManager`.
+> Voir `docs/guides/SEARCH_ENGINE.md` §7 (E4-1 à E4-10) et `SPRINT-04.md` §8.5.
