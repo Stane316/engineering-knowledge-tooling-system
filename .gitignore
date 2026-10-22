@@ -1,5 +1,6 @@
 # Secrets
 .env
+!.env.example
 .env.local
 .env.*.local
 *.key
@@ -11,6 +12,7 @@ node_modules/
 
 # Build
 dist/
+dist-benchmark/
 build/
 coverage/
 

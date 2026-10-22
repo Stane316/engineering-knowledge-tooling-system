@@ -61,6 +61,28 @@ jobs:
           path: coverage/
           retention-days: 7
 
+  benchmark:
+    name: Benchmark recherche (100K documents)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Compiler et mesurer (seuils C4.6, C4.7, C4.8)
+        # Corpus réduit (20 000 documents, 5 000 vecteurs) pour rester sous
+        # 2 minutes : le protocole est identique, seule l'échelle change.
+        run: npm run test:benchmark -- --documents=20000 --vectors=5000 --queries=100 --assert
+
   secrets:
     name: Détection de secrets
     runs-on: ubuntu-latest
