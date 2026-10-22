@@ -496,6 +496,7 @@ git commit -m "feat(business): implement Knowledge Manager listResources"
 | `generateId()` / `getTimestamp()` dans `src/utils` | `randomUUID()` et `new Date().toISOString()` dans le repository | Déjà factorisés au Sprint 2 ; pas de duplication. |
 | Manager appelant `repository.create(resource)` puis `indexer.indexFTS()` | `repository.create(input)`, indexation transactionnelle interne | Voir l'addendum de SPRINT-03-03 : un indexeur séparé casserait l'atomicité et créerait des doublons de `rowid`. |
 | Méthodes `async` | Conservées | Prépare l'ajout d'embeddings (appel réseau) au Sprint 4 sans rupture de contrat. |
+| Squelette `searchResources` (§2.3 de SPRINT-03) | Non ajouté | Une méthode levant « non implémenté » serait du code mort, à exclure de la couverture ; `IKnowledgeManager` est le contrat stable que le Sprint 4 étendra. |
 
 ### Fichiers produits
 

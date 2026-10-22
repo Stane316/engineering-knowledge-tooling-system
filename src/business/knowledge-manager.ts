@@ -11,7 +11,7 @@ import {
   type ResourceFilters,
   type ResourceType,
 } from '../shared/validators.js';
-import { Indexer } from './indexer.js';
+import { Indexer, type IIndexer } from './indexer.js';
 import type {
   AddResourceInput,
   IKnowledgeManager,
@@ -34,7 +34,8 @@ const RESOURCE_TYPES: readonly ResourceType[] = ['article', 'video', 'tutorial',
 export class KnowledgeManager implements IKnowledgeManager {
   constructor(
     private readonly repository: ResourceRepository,
-    private readonly indexer: Indexer,
+    /** Maintenance des index ; `IIndexer` permet d'en injecter un autre (mock, composite Sprint 4). */
+    private readonly indexer: IIndexer,
   ) {}
 
   /** Crée une ressource validée et normalisée (tags dédupliqués). */

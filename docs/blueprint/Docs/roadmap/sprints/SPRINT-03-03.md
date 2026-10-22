@@ -879,7 +879,9 @@ conception a été **écartée** pour trois raisons vérifiées :
    l'ajouter au domaine ferait fuiter un détail de stockage.
 
 `IIndexer` est donc **conservé, mais pour la maintenance** : `Indexer.reindexAll()` et
-`checkIntegrity()`. C'est la réponse à la limite documentée au Sprint 2 (durabilité non
+`checkIntegrity()`, définis dans `src/business/indexer.ts` et implémentés par `Indexer`.
+`KnowledgeManager` reçoit un `IIndexer` (et non la classe) : le Sprint 4 pourra injecter un
+indexeur composite (plein texte + vecteurs) sans modifier le manager. C'est la réponse à la limite documentée au Sprint 2 (durabilité non
 transactionnelle entre fichiers attachés en mode WAL) et la commande de réparation annoncée.
 
 ### Écarts assumés par rapport au plan

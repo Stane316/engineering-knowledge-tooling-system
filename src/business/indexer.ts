@@ -33,6 +33,25 @@ export interface IndexIntegrityReport {
 }
 
 /**
+ * Contrat de maintenance des index.
+ *
+ * C'est le point d'extension du Sprint 4 : `VectorIndexer` implémentera la même
+ * interface pour l'index vectoriel, et `KnowledgeManager` pourra recevoir un
+ * `IIndexer` composite sans changer de signature (injection de dépendances,
+ * ADR-005).
+ */
+export interface IIndexer {
+  /** Reconstruit l'index depuis la base principale. */
+  reindexAll(): ReindexReport;
+  /** Compare la base principale et l'index, sans rien modifier. */
+  checkIntegrity(): IndexIntegrityReport;
+  /** Nombre de ressources enregistrées dans la base principale. */
+  countResources(): number;
+  /** Nombre d'entrées présentes dans l'index. */
+  countIndexed(): number;
+}
+
+/**
  * Maintenance de l'index plein texte (`ekts-fts.db`).
  *
  * **L'indexation courante n'est pas ici** : `ResourceRepository` écrit la
@@ -46,7 +65,7 @@ export interface IndexIntegrityReport {
  * arrêt brutal peut laisser l'index en retard (voir `docs/guides/DATA_LAYER.md`
  * §9.1). `reindexAll()` reconstruit l'index depuis la source de vérité.
  */
-export class Indexer {
+export class Indexer implements IIndexer {
   private readonly selectResources;
   private readonly selectIndexed;
   private readonly countResourcesStatement;
