@@ -35,7 +35,10 @@ function cli(...args: string[]): RunResult {
   try {
     const stdout = execFileSync(process.execPath, [CLI, ...args], {
       encoding: 'utf8',
-      env: { ...process.env, EKTS_DATA_DIR: dataDir },
+      // `EKTS_OFFLINE` rend le test déterministe et gratuit : sans lui, une clé
+      // présente dans le `.env` du poste déclencherait un appel réel (et un
+      // échec si le compte n'a plus de crédits).
+      env: { ...process.env, EKTS_DATA_DIR: dataDir, EKTS_OFFLINE: '1' },
     });
 
     return { status: 0, stdout, stderr: '' };
@@ -111,6 +114,7 @@ describe('CLI compilée (intégration)', () => {
 
     const resource = JSON.parse(added.stdout) as { id: string; vectorIndexed: boolean };
 
+    // Hors ligne : la ressource est créée et indexée en plein texte seulement.
     expect(resource.vectorIndexed).toBe(false);
 
     const read = cli('get', resource.id, '--json');

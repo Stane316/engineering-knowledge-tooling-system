@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { EmbeddingsService } from '../../src/business/embeddings.js';
+import type { EmbeddingSpace } from '../../src/business/vector-indexer.js';
 import type { IEmbeddingsService } from '../../src/business/embeddings.js';
 import {
   openCliServices,
@@ -24,6 +25,7 @@ export interface TestRuntime extends CliRuntime {
 
 export interface TestRuntimeOptions {
   embeddings?: IEmbeddingsService;
+  embeddingSpace?: EmbeddingSpace;
   color?: boolean;
   confirm?: (question: string) => Promise<boolean>;
   now?: () => number;
@@ -71,6 +73,9 @@ export function createTestRuntime(dataDir: string, options: TestRuntimeOptions =
         openCliServices({
           ...servicesOptions,
           ...(options.embeddings === undefined ? {} : { embeddings: options.embeddings }),
+          ...(options.embeddingSpace === undefined
+            ? {}
+            : { embeddingSpace: options.embeddingSpace }),
         })),
   });
 

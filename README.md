@@ -124,6 +124,7 @@ npx --no-install ekts init
 npx --no-install ekts add --type article --title "Introduction à SQLite" --tags "sqlite,base" --content "SQLite est une base légère."
 npx --no-install ekts search "sqlite" --mode fts
 npx --no-install ekts list --json
+npx --no-install ekts reindex --vectors
 ```
 
 > `npx --no-install ekts` utilise le champ `bin` du paquet et produit une sortie
