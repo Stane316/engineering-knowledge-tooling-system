@@ -12,7 +12,11 @@ export type EktsErrorCode =
   | 'INDEXING_FAILED'
   | 'SEARCH_FAILED'
   | 'EMBEDDINGS_FAILED'
-  | 'FUSION_FAILED';
+  | 'FUSION_FAILED'
+  | 'PROVIDER_FAILED'
+  | 'PROVIDER_UNAVAILABLE'
+  | 'PROVIDER_RATE_LIMITED'
+  | 'EMBEDDING_SPACE_MISMATCH';
 
 export class EktsError extends Error {
   constructor(
@@ -79,5 +83,76 @@ export class EmbeddingsError extends EktsError {
 export class FusionError extends EktsError {
   constructor(message: string, options?: { cause?: unknown }) {
     super(`Fusion échouée : ${message}`, 'FUSION_FAILED', options);
+  }
+}
+
+/**
+ * Échec d'un appel à un fournisseur d'API (réseau, HTTP, réponse illisible).
+ *
+ * Le message ne contient **jamais** de clé : les corps de réponse sont filtrés
+ * par `redactKeys()` avant d'être concaténés.
+ */
+export class ProviderError extends EktsError {
+  constructor(
+    readonly provider: string,
+    message: string,
+    options?: { cause?: unknown; status?: number },
+  ) {
+    const status = options?.status === undefined ? '' : ` [HTTP ${String(options.status)}]`;
+    super(`Fournisseur ${provider}${status} : ${message}`, 'PROVIDER_FAILED', options);
+    this.status = options?.status;
+  }
+
+  /** Code HTTP, absent pour une erreur réseau. */
+  readonly status: number | undefined;
+}
+
+/** Quota ou débit dépassé après épuisement des tentatives et des clés. */
+export class RateLimitError extends EktsError {
+  constructor(
+    readonly provider: string,
+    readonly retryAfterMs: number,
+    options?: { cause?: unknown },
+  ) {
+    super(
+      `Fournisseur ${provider} : quota ou débit dépassé (nouvelle tentative possible dans ${String(Math.ceil(retryAfterMs / 1000))} s)`,
+      'PROVIDER_RATE_LIMITED',
+      options,
+    );
+  }
+}
+
+/** Aucun fournisseur configuré et sain ne peut servir la demande. */
+export class NoProviderAvailableError extends EktsError {
+  constructor(
+    readonly capability: string,
+    readonly reasons: readonly string[],
+    options?: { cause?: unknown },
+  ) {
+    const detail = reasons.length > 0 ? ` (${reasons.join(' ; ')})` : '';
+    super(
+      `Aucun fournisseur disponible pour « ${capability} »${detail}. Vérifiez .env et « npm run providers ».`,
+      'PROVIDER_UNAVAILABLE',
+      options,
+    );
+  }
+}
+
+/**
+ * L'index vectoriel contient déjà des vecteurs d'un autre espace d'embedding.
+ *
+ * Des vecteurs issus de deux modèles différents ne sont pas comparables : les
+ * mélanger détruirait silencieusement le rappel. Le changement d'espace exige
+ * donc une réindexation explicite.
+ */
+export class EmbeddingSpaceMismatchError extends EktsError {
+  constructor(
+    readonly expected: string,
+    readonly actual: string,
+  ) {
+    super(
+      `Espace d'embedding incompatible : l'index contient « ${expected} », la configuration demande « ${actual} ». Réindexez avec la commande dédiée ou rétablissez l'ancien fournisseur.`,
+      'EMBEDDING_SPACE_MISMATCH',
+    );
   }
 }
