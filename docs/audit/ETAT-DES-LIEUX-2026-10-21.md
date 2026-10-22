@@ -7,6 +7,7 @@
 **Dépôt :** `Stane316/engineering-knowledge-tooling-system` (privé)  
 **Nature :** audit de démarrage — lecture seule sur l'existant, aucune ligne de code écrite  
 **Règles respectées :** aucune pull request créée, aucun secret manipulé, aucun fichier du dépôt supprimé
+**Chemins :** sauf mention contraire, les chemins `Docs/…`, `00-Strategy/…`, `04-Knowledge/…` sont relatifs à `docs/blueprint/` (arborescence issue du Sprint 0).
 
 ---
 
@@ -284,7 +285,7 @@ Instantané du registre npm le **21 octobre 2026** :
 | **E2** | 🟠 | Titre « Phases 02-14 — À venir ⏳ » alors que tout est terminé. | `INDEX.md:141` | Renommer « Phases 02-14 — Terminées ✅ » |
 | **E3** | 🟠 | « 47 livrables » alors qu'il existe **37 livrables numérotés + 14 bilans = 51 fichiers**. | `INDEX.md:159` ; comptage §3.2 | Corriger le total et expliciter la définition |
 | **E4** | 🟠 | `Docs/00` marque comme ⏳ des documents **déjà écrits** (01, 02, 03, 05, 06, 08) et liste deux documents réellement absents (`04-FLUX-OPERATIONNELS`, `07-CONFIGURATIONS-EXTERNES`). | `Docs/00…:996-1004` | Mettre à jour les statuts ; décider création ou abandon de 04/07 |
-| **E5** | 🟠 | Chemins erronés dans les documents de sprint : `Docs/04-Knowledge/…` alors que le dossier est `04-Knowledge/…` ; `07_ETUDE_RAG_ET_RECHERCHE_SEMANTIQUE.md` alors que le fichier est `07_ETUDE_RAG_RECHERCHE_SEMANTIQUE.md`. | `SPRINT-02.md:25-26`, `SPRINT-02-03.md:464`, `Docs/00…:338` | Corriger le préfixe et le nom |
+| **E5** | 🟠 | Chemins erronés : `Docs/04-Knowledge/…` dans les sprints alors que le dossier est `04-Knowledge/…` ; nom de fichier erroné `07_ETUDE_RAG_ET_RECHERCHE_SEMANTIQUE.md` (le fichier réel est `07_ETUDE_RAG_RECHERCHE_SEMANTIQUE.md`). | `SPRINT-02.md:25-26`, `SPRINT-02-03.md:464`, `INDEX.md:65`, `00-Strategy/00_PLAN_DIRECTEUR_RECHERCHE.md:263` | Corriger le préfixe et le nom |
 | **E6** | 🟠 | Chemins absolus obsolètes `/home/user/uploads/…`, `/home/user/recherche/…`, `/home/user/matrice-decision.csv`. | `Docs/00…:979-990` | Remplacer par les chemins relatifs du dépôt |
 | **E7** | 🟠 | Comptages de références faux : HarnAI annoncé à 9 ou 15 documents (réel : **17 fichiers**) ; Students à 3 (réel : **6 fichiers**). | `INDEX.md:170-171`, `Docs/Référence/00-README.md:13-15`, prompt §Références | Aligner sur le contenu réel |
 | **E8** | 🟠 | **Statuts de sprint hétérogènes** : 8 « ⏳ NON COMMENCÉ », 17 « 🟡 Documenté — En attente approbation », **23 sans en-tête de statut**. Un gabarit affiche « ✅ Validé (88/88) ». | `grep` sur les 48 fichiers ; `SPRINT-12-03.md:559` | Unifier la convention (voir F3) ; marquer les gabarits |
