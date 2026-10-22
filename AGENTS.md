@@ -16,11 +16,11 @@
 
 ## 2. Branches
 
-| Contexte | Branche |
-|----------|---------|
-| Session Arena (imposée) | `arena/<session-id>-<slug>` |
-| Agent en session classique | `agent/sprint-XX-XX` |
-| Utilisateur | `sprint/XX/description`, `feature/*`, `fix/*`, `docs/*` |
+| Contexte                   | Branche                                                 |
+| -------------------------- | ------------------------------------------------------- |
+| Session Arena (imposée)    | `arena/<session-id>-<slug>`                             |
+| Agent en session classique | `agent/sprint-XX-XX`                                    |
+| Utilisateur                | `sprint/XX/description`, `feature/*`, `fix/*`, `docs/*` |
 
 Commits atomiques : un commit par sous-sprint ou par correction cohérente, message au format `type(scope): description` (français ou anglais, rester cohérent dans le commit).
 
@@ -35,18 +35,18 @@ Commits atomiques : un commit par sous-sprint ou par correction cohérente, mess
 
 ## 4. Baseline technique (ADR-011)
 
-| Élément | Version |
-|---------|---------|
-| Node.js | ≥ 22.12 (LTS) |
-| TypeScript | 5.9.x épinglé |
-| ESLint | 10+ — **flat config** (`eslint.config.js`) |
-| Vitest | 5+ avec `@vitest/coverage-v8` |
-| better-sqlite3 | 13+ |
-| commander | 15+ |
-| zod | 4+ |
-| pino | 10+ |
-| @modelcontextprotocol/sdk | 1.32.x (aucune v2 publiée) |
-| Gitleaks | 8.30.1 |
+| Élément                   | Version                                    |
+| ------------------------- | ------------------------------------------ |
+| Node.js                   | ≥ 22.12 (LTS)                              |
+| TypeScript                | 5.9.x épinglé                              |
+| ESLint                    | 10+ — **flat config** (`eslint.config.js`) |
+| Vitest                    | 5+ avec `@vitest/coverage-v8`              |
+| better-sqlite3            | 13+                                        |
+| commander                 | 15+                                        |
+| zod                       | 4+                                         |
+| pino                      | 10+                                        |
+| @modelcontextprotocol/sdk | 1.32.x (aucune v2 publiée)                 |
+| Gitleaks                  | 8.30.1                                     |
 
 Toute montée de version majeure nécessite une révision d'ADR dans `Docs/08`.
 

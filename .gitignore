@@ -1,0 +1,44 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets/
+
+# Dépendances
+node_modules/
+
+# Build
+dist/
+build/
+coverage/
+
+# Données locales
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Outils
+.gitleaks-report.json
+eslint-report.json
+
+# Temporaires
+*.tmp
+*.bak
