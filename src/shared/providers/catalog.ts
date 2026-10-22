@@ -7,11 +7,13 @@ import type { Capability, ProviderDescriptor, ProviderId } from './types.js';
  * `docsUrl`) — voir `docs/guides/PROVIDERS.md` §2 pour la date de vérification.
  * Aucune clé n'est stockée ici : uniquement des métadonnées.
  *
- * **Pourquoi sept fournisseurs « chat » ne font-ils qu'un seul protocole ?**
- * OpenAI, OpenRouter, Gemini, DeepSeek, Z.ai, NVIDIA, Novita et StepFun exposent
- * tous une surface `/chat/completions` compatible OpenAI. Un adaptateur unique
- * les couvre ; seules les *déviations* (en-tête, modèle, champ additionnel) sont
- * déclarées dans le catalogue. Ajouter un fournisseur = ajouter une entrée.
+ * **Pourquoi neuf fournisseurs « chat » ne font-ils qu'un seul protocole ?**
+ * OpenAI, OpenRouter, Gemini, DeepSeek, Z.ai, NVIDIA, Novita, StepFun et MiniMax
+ * exposent tous une surface `/chat/completions` compatible OpenAI. Un adaptateur
+ * unique les couvre ; seules les *déviations* (en-tête, modèle, champ
+ * additionnel) sont déclarées dans le catalogue. Ajouter un fournisseur =
+ * ajouter une entrée — ou, sans toucher au code, un bloc dans
+ * `providers.custom.json` (voir `custom-providers.ts`).
  */
 export const PROVIDERS: readonly ProviderDescriptor[] = [
   {
@@ -177,6 +179,21 @@ export const PROVIDERS: readonly ProviderDescriptor[] = [
     chat: [{ model: 'step-3.5-flash', free: false, strengths: ['rapide', 'multimodal'] }],
   },
   {
+    id: 'minimax',
+    label: 'MiniMax',
+    envKeys: ['MINIMAX_API_KEY'],
+    baseUrl: 'https://api.minimax.io/v1',
+    protocol: 'openai-compatible',
+    capabilities: ['chat'],
+    docsUrl: 'https://platform.minimax.io/docs/api-reference/text-chat-openai',
+    status: 'verified',
+    note: 'Région internationale (api.minimaxi.com en Chine) ; embo-01 (1024 dims, ancienne API) n’est pas exposé en surface OpenAI — chat uniquement',
+    chat: [
+      { model: 'MiniMax-M3', free: false, strengths: ['raisonnement', 'agentique'] },
+      { model: 'MiniMax-M3.1-Flash', free: false, strengths: ['rapide', 'multimodal'] },
+    ],
+  },
+  {
     id: 'tavily',
     label: 'Tavily',
     envKeys: ['TAVILY_API_KEY'],
@@ -224,25 +241,67 @@ export const PROVIDERS: readonly ProviderDescriptor[] = [
     id: 'sofya',
     label: 'Sofya',
     envKeys: ['SOFYA_API_KEY'],
-    baseUrl: '',
-    protocol: 'unknown',
-    capabilities: [],
-    docsUrl: '',
-    status: 'unverified',
-    note: 'Protocole non confirmé : clé collectée et affichée, jamais utilisée tant que non déclarée',
+    baseUrl: 'https://sofya.co',
+    protocol: 'sofya',
+    capabilities: ['web-search', 'web-fetch'],
+    docsUrl: 'https://sofya.co/docs',
+    status: 'verified',
+    note: 'Recherche avec contenu extrait (pas seulement des extraits) et lecture d’URL en markdown (PDF/DOCX inclus). Extract et research, facturés 10 et 50 crédits et synthétisés par un LLM, ne sont pas exposés',
   },
 ];
 
-/** Index par identifiant, construit une fois au chargement. */
-const BY_ID = new Map<ProviderId, ProviderDescriptor>(PROVIDERS.map((item) => [item.id, item]));
+/**
+ * Fusionne les fournisseurs déclarés par l'utilisateur avec ceux livrés.
+ *
+ * Un identifiant déjà connu **remplace** l'entrée livrée sans changer sa
+ * position : c'est le moyen prévu pour adapter un fournisseur existant (autre
+ * région, autre base URL, plan « coding ») sans dupliquer son entrée. Les
+ * nouveaux identifiants sont ajoutés à la suite, donc en fin de chaîne
+ * d'appel — un fournisseur maison ne prend jamais la priorité sur un
+ * fournisseur éprouvé.
+ *
+ * @throws {Error} Identifiant déclaré deux fois dans `custom`.
+ */
+export function mergeProviders(
+  custom: readonly ProviderDescriptor[],
+  base: readonly ProviderDescriptor[] = PROVIDERS,
+): ProviderDescriptor[] {
+  const merged = [...base];
+  const positions = new Map(merged.map((provider, index) => [provider.id, index]));
+  const declared = new Set<string>();
+
+  for (const provider of custom) {
+    if (declared.has(provider.id)) {
+      throw new Error(`fournisseur « ${provider.id} » déclaré deux fois`);
+    }
+
+    declared.add(provider.id);
+
+    const position = positions.get(provider.id);
+
+    if (position === undefined) {
+      positions.set(provider.id, merged.length);
+      merged.push(provider);
+    } else {
+      merged[position] = provider;
+    }
+  }
+
+  return merged;
+}
 
 /**
  * Fournisseur par identifiant.
  *
- * @throws {Error} Identifiant inconnu du catalogue (erreur de programmation).
+ * @param id - Identifiant (livré ou déclaré par l'utilisateur).
+ * @param providers - Registre à consulter (défaut : catalogue livré).
+ * @throws {Error} Identifiant inconnu du registre (erreur de programmation).
  */
-export function getProvider(id: ProviderId): ProviderDescriptor {
-  const provider = BY_ID.get(id);
+export function getProvider(
+  id: ProviderId,
+  providers: readonly ProviderDescriptor[] = PROVIDERS,
+): ProviderDescriptor {
+  const provider = providers.find((item) => item.id === id);
 
   if (provider === undefined) {
     throw new Error(`fournisseur inconnu : ${id}`);
@@ -251,25 +310,47 @@ export function getProvider(id: ProviderId): ProviderDescriptor {
   return provider;
 }
 
-/** Fournisseurs déclarant une capacité donnée, dans l'ordre du catalogue. */
-export function providersWith(capability: Capability): ProviderDescriptor[] {
-  return PROVIDERS.filter((provider) => provider.capabilities.includes(capability));
+/** Fournisseurs déclarant une capacité donnée, dans l'ordre du registre. */
+export function providersWith(
+  capability: Capability,
+  providers: readonly ProviderDescriptor[] = PROVIDERS,
+): ProviderDescriptor[] {
+  return providers.filter((provider) => provider.capabilities.includes(capability));
 }
 
 /** Fournisseurs exploitables (protocole connu) pour une capacité donnée. */
-export function usableProviders(capability: Capability): ProviderDescriptor[] {
-  return providersWith(capability).filter((provider) => provider.protocol !== 'unknown');
+export function usableProviders(
+  capability: Capability,
+  providers: readonly ProviderDescriptor[] = PROVIDERS,
+): ProviderDescriptor[] {
+  return providersWith(capability, providers).filter((provider) => provider.protocol !== 'unknown');
 }
 
-/** Capacités couvertes par le catalogue, sans doublon. */
-export function allCapabilities(): Capability[] {
+/** Ordre d'affichage des capacités (du plus structurant au plus accessoire). */
+const CAPABILITY_ORDER: readonly Capability[] = [
+  'embedding',
+  'chat',
+  'web-search',
+  'web-fetch',
+  'sandbox',
+];
+
+/**
+ * Capacités couvertes par le registre, sans doublon.
+ *
+ * L'ordre est canonique et non celui de déclaration : la sortie de
+ * `npm run providers` doit être stable d'une exécution à l'autre.
+ */
+export function allCapabilities(
+  providers: readonly ProviderDescriptor[] = PROVIDERS,
+): Capability[] {
   const seen = new Set<Capability>();
 
-  for (const provider of PROVIDERS) {
+  for (const provider of providers) {
     for (const capability of provider.capabilities) {
       seen.add(capability);
     }
   }
 
-  return [...seen];
+  return CAPABILITY_ORDER.filter((capability) => seen.has(capability));
 }

@@ -65,6 +65,24 @@ describe('loadKeyring', () => {
     expect(keyring.get('openai')).toEqual(['sk-1', 'sk-2']);
   });
 
+  it('accepte trois clés Z.ai (ZAI_API_KEY, _2 puis _3)', () => {
+    // Le suffixe n'est pas propre à OpenAI : tout fournisseur livré ou déclaré
+    // en bénéficie, sans configuration supplémentaire.
+    const keyring = loadKeyring({
+      ZAI_API_KEY: 'z-1',
+      ZAI_API_KEY_2: 'z-2',
+      ZAI_API_KEY_3: 'z-3',
+    });
+
+    expect(keyring.get('zai')).toEqual(['z-1', 'z-2', 'z-3']);
+  });
+
+  it('ignore les suffixes au-delà de _8', () => {
+    const keyring = loadKeyring({ ZAI_API_KEY: 'z-1', ZAI_API_KEY_9: 'z-9' });
+
+    expect(keyring.get('zai')).toEqual(['z-1']);
+  });
+
   it('accepte l’alias SERPLY pour SerpApi', () => {
     const keyring = loadKeyring({ SERPLY_API_KEY: 'serply-1' });
 

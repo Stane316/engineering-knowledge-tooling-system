@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { ProviderHealth } from '../../src/business/providers/health.js';
 import { availableSpaces, planRoutes } from '../../src/business/providers/routing.js';
 import { loadKeyring, type Keyring } from '../../src/shared/providers/env.js';
+import type { ProviderDescriptor } from '../../src/shared/providers/types.js';
 
 const keyring = (env: NodeJS.ProcessEnv): Keyring => loadKeyring(env);
 
@@ -141,10 +142,54 @@ describe('planRoutes', () => {
     expect(routes[0]?.provider.id).toBe('e2b');
   });
 
-  it('ignore une clé de fournisseur non vérifié', () => {
-    expect(planRoutes({ capability: 'chat', keyring: keyring({ SOFYA_API_KEY: 's-1' }) })).toEqual(
-      [],
-    );
+  it('ignore un fournisseur au protocole inconnu, même avec une clé', () => {
+    const ghost: ProviderDescriptor = {
+      id: 'ghost',
+      label: 'Ghost',
+      envKeys: ['GHOST_API_KEY'],
+      baseUrl: 'https://ghost.example.com',
+      protocol: 'unknown',
+      capabilities: ['chat'],
+      chat: [{ model: 'ghost-1', free: true }],
+      docsUrl: 'https://ghost.example.com',
+      status: 'unverified',
+    };
+    const registry = new Map<string, readonly string[]>([['ghost', ['g-1']]]);
+
+    expect(planRoutes({ capability: 'chat', keyring: registry, providers: [ghost] })).toEqual([]);
+  });
+
+  it('décrit une route de lecture d’URL sans modèle', () => {
+    const routes = planRoutes({
+      capability: 'web-fetch',
+      keyring: keyring({ SOFYA_API_KEY: 'ay_live_1' }),
+    });
+
+    expect(routes[0]).toMatchObject({ provider: { id: 'sofya' }, model: '' });
+  });
+
+  it('route un fournisseur déclaré par l’utilisateur', () => {
+    const custom: ProviderDescriptor = {
+      id: 'mistral',
+      label: 'Mistral',
+      envKeys: ['MISTRAL_API_KEY'],
+      baseUrl: 'https://api.mistral.ai/v1',
+      protocol: 'openai-compatible',
+      capabilities: ['chat'],
+      chat: [{ model: 'mistral-large-latest', free: true }],
+      docsUrl: 'https://docs.mistral.ai',
+      status: 'verified',
+    };
+
+    const routes = planRoutes({
+      capability: 'chat',
+      keyring: new Map([['mistral', ['m-1']]]),
+      providers: [custom],
+      policy: 'free',
+    });
+
+    expect(routes).toHaveLength(1);
+    expect(routes[0]?.provider.id).toBe('mistral');
   });
 });
 

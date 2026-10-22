@@ -1,9 +1,12 @@
 import { loadEnvFile } from '../../shared/env-file.js';
-import { usableProviders } from '../../shared/providers/catalog.js';
+import { PROVIDERS, usableProviders } from '../../shared/providers/catalog.js';
+import { loadProviderRegistry } from '../../shared/providers/custom-providers.js';
 import { loadKeyring, redactKeys, type Keyring } from '../../shared/providers/env.js';
 import type {
   Capability,
   ChatMessage,
+  FetchedPage,
+  ProviderDescriptor,
   ProviderId,
   ResolvedRoute,
   RouteTrace,
@@ -17,9 +20,12 @@ import {
   alignToSchema,
   chatOpenAiCompatible,
   embedOpenAiCompatible,
+  fetchSofya,
   searchSerpApi,
   searchSerper,
+  searchSofya,
   searchTavily,
+  SOFYA_MAX_URLS,
   type ChatOptions,
 } from './adapters.js';
 
@@ -32,6 +38,8 @@ export interface GatewayOptions extends Omit<HttpOptions, 'fetch' | 'redact'> {
   /** Espace d'embedding exigé (protège l'index existant). */
   space?: string;
   health?: ProviderHealth;
+  /** Registre complet (catalogue livré + fournisseurs déclarés). */
+  providers?: readonly ProviderDescriptor[];
 }
 
 export interface CallOptions {
@@ -51,6 +59,11 @@ export interface ChatOutcome {
 
 export interface SearchOutcome {
   results: WebSearchResult[];
+  trace: RouteTrace;
+}
+
+export interface FetchOutcome {
+  pages: FetchedPage[];
   trace: RouteTrace;
 }
 
@@ -77,10 +90,12 @@ export class ProviderGateway {
   private readonly http: HttpClient;
   private readonly policy: RoutingPolicy;
   private readonly space: string | undefined;
+  private readonly providers: readonly ProviderDescriptor[];
   private readonly cursors = new Map<ProviderId, number>();
 
   constructor(options: GatewayOptions) {
-    this.keyring = options.keyring ?? loadKeyring(options.env ?? process.env);
+    this.providers = options.providers ?? PROVIDERS;
+    this.keyring = options.keyring ?? loadKeyring(options.env ?? process.env, this.providers);
     this.health = options.health ?? new ProviderHealth(options.now ?? Date.now);
     this.policy = options.policy ?? 'quality';
     this.space = options.space;
@@ -100,6 +115,7 @@ export class ProviderGateway {
       capability,
       keyring: this.keyring,
       policy: this.policy,
+      providers: this.providers,
       ...(this.space === undefined ? {} : { space: this.space }),
     }).length;
   }
@@ -111,6 +127,7 @@ export class ProviderGateway {
       keyring: this.keyring,
       policy: overrides.policy ?? this.policy,
       health: this.health,
+      providers: this.providers,
       ...((overrides.space ?? this.space) === undefined
         ? {}
         : { space: overrides.space ?? this.space }),
@@ -175,6 +192,51 @@ export class ProviderGateway {
     return { results: outcome.values, trace: outcome.trace };
   }
 
+  /**
+   * Récupère le contenu de une à dix URL (markdown propre).
+   *
+   * Capacité distincte de la recherche : elle sert à importer une page déjà
+   * connue (documentation, article, PDF) dans la base de connaissances.
+   *
+   * @param urls - Une à dix URL ; au-delà, la limite du fournisseur serait
+   *   atteinte et la requête serait rejetée côté serveur.
+   * @throws {Error} Liste vide ou plus de dix URL.
+   * @throws {NoProviderAvailableError} Aucun fournisseur de lecture disponible.
+   */
+  async fetchPages(urls: readonly string[], options: CallOptions = {}): Promise<FetchOutcome> {
+    if (urls.length === 0) {
+      throw new Error('aucune URL à récupérer');
+    }
+
+    if (urls.length > SOFYA_MAX_URLS) {
+      throw new Error(
+        `au plus ${String(SOFYA_MAX_URLS)} URL par appel (${String(urls.length)} demandées)`,
+      );
+    }
+
+    const outcome = await this.callWithFailover('web-fetch', options, async (route, key) => ({
+      values: await this.fetchWith(route, key, urls),
+      model: route.provider.label,
+    }));
+
+    return { pages: outcome.values, trace: outcome.trace };
+  }
+
+  private fetchWith(
+    route: ResolvedRoute,
+    key: string,
+    urls: readonly string[],
+  ): Promise<FetchedPage[]> {
+    switch (route.provider.protocol) {
+      case 'sofya':
+        return fetchSofya(this.http, route, key, urls);
+      default:
+        return Promise.reject(
+          new Error(`protocole de lecture non géré : ${route.provider.protocol}`),
+        );
+    }
+  }
+
   private searchWith(
     route: ResolvedRoute,
     key: string,
@@ -188,6 +250,8 @@ export class ProviderGateway {
         return searchSerper(this.http, route, key, query, limit);
       case 'serpapi':
         return searchSerpApi(this.http, route, key, query, limit);
+      case 'sofya':
+        return searchSofya(this.http, route, key, query, limit);
       default:
         return Promise.reject(
           new Error(`protocole de recherche non géré : ${route.provider.protocol}`),
@@ -212,7 +276,7 @@ export class ProviderGateway {
     if (routes.length === 0) {
       throw aggregateFailure(
         capability,
-        usableProviders(capability).map((provider) => ({
+        usableProviders(capability, this.providers).map((provider) => ({
           provider: provider.id,
           error: new Error(`clé absente (${provider.envKeys.join(' ou ')})`),
         })),
@@ -287,6 +351,13 @@ export function createProviderGateway(
   }
 
   const env = options.env ?? process.env;
+
+  // Fournisseurs déclarés par l'utilisateur : lus depuis le disque en
+  // production uniquement. Un `env` injecté (tests) garantit un registre figé,
+  // indépendant du répertoire courant.
+  const providers =
+    options.providers ?? (options.env === undefined ? loadProviderRegistry({ env }) : PROVIDERS);
+
   const rawPolicy = env.EKTS_PROVIDER_POLICY?.trim();
   let policy: RoutingPolicy | undefined;
 
@@ -304,6 +375,7 @@ export function createProviderGateway(
 
   return new ProviderGateway({
     ...options,
+    providers,
     ...(policy === undefined ? {} : { policy }),
     ...(space === undefined || space.length === 0 ? {} : { space }),
   });

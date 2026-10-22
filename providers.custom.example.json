@@ -1,0 +1,22 @@
+[
+  {
+    "id": "mistral",
+    "label": "Mistral",
+    "envKeys": ["MISTRAL_API_KEY"],
+    "baseUrl": "https://api.mistral.ai/v1",
+    "protocol": "openai-compatible",
+    "capabilities": ["chat"],
+    "chat": [{ "model": "mistral-large-latest", "free": false }],
+    "docsUrl": "https://docs.mistral.ai",
+    "note": "Exemple : surface /chat/completions compatible OpenAI"
+  },
+  {
+    "id": "together",
+    "label": "Together AI",
+    "envKeys": ["TOGETHER_API_KEY"],
+    "baseUrl": "https://api.together.xyz/v1",
+    "protocol": "openai-compatible",
+    "capabilities": ["chat"],
+    "chat": [{ "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo", "free": true }]
+  }
+]

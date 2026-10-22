@@ -1,6 +1,11 @@
 import { EMBEDDING_DIMENSIONS } from '../../shared/constants.js';
 import { EmbeddingsError, ProviderError } from '../../shared/errors.js';
-import type { ChatMessage, ResolvedRoute, WebSearchResult } from '../../shared/providers/types.js';
+import type {
+  ChatMessage,
+  FetchedPage,
+  ResolvedRoute,
+  WebSearchResult,
+} from '../../shared/providers/types.js';
 import type { HttpClient } from './http.js';
 
 /** Réponse d'embedding au format OpenAI. */
@@ -23,6 +28,30 @@ interface SerperResponse {
 interface SerpApiResponse {
   organic_results?: { title?: unknown; link?: unknown; snippet?: unknown; position?: unknown }[];
 }
+
+interface SofyaSearchResponse {
+  results?: {
+    title?: unknown;
+    url?: unknown;
+    content?: unknown;
+    description?: unknown;
+    published_date?: unknown;
+  }[];
+}
+
+interface SofyaFetchResponse {
+  results?: {
+    title?: unknown;
+    url?: unknown;
+    content?: unknown;
+    success?: unknown;
+    error?: unknown;
+    published_time?: unknown;
+  }[];
+}
+
+/** Nombre maximal d'URL par appel chez Sofya (limite documentée). */
+export const SOFYA_MAX_URLS = 10;
 
 /** En-tête d'authentification standard. */
 const bearer = (key: string): Record<string, string> => ({ authorization: `Bearer ${key}` });
@@ -184,6 +213,83 @@ export async function searchSerpApi(
     url: asString(item.link),
     snippet: asString(item.snippet),
   }));
+}
+
+/**
+ * Recherche web via Sofya (`POST /v1/search`, Bearer).
+ *
+ * Particularité assumée : Sofya renvoie le **contenu extrait** des pages, pas
+ * seulement un extrait. `snippet` porte donc ce contenu, ce qui rend les
+ * résultats directement indexables ; `description` ne sert que de repli quand
+ * l'extraction a échoué côté fournisseur.
+ */
+export async function searchSofya(
+  http: HttpClient,
+  route: ResolvedRoute,
+  key: string,
+  query: string,
+  limit: number,
+): Promise<WebSearchResult[]> {
+  const response = await http.requestJson<SofyaSearchResponse>({
+    url: `${route.provider.baseUrl}/v1/search`,
+    headers: bearer(key),
+    provider: route.provider.id,
+    body: {
+      query,
+      max_results: limit,
+      search_depth: 'basic',
+      include_answer: false,
+    },
+  });
+
+  return (response.results ?? []).map((item) => ({
+    title: asString(item.title),
+    url: asString(item.url),
+    snippet: asString(item.content) || asString(item.description),
+  }));
+}
+
+/**
+ * Lecture d'URL via Sofya (`POST /v1/fetch`, Bearer) : markdown propre.
+ *
+ * Gère les pages web, les PDF et les DOCX. Un échec sur une URL n'invalide pas
+ * les autres : il est reporté dans `success` / `error` plutôt que masqué.
+ *
+ * @param urls - Une à dix URL (limite du fournisseur, vérifiée par l'appelant).
+ * @throws {ProviderError} Réponse sans résultat exploitable.
+ */
+export async function fetchSofya(
+  http: HttpClient,
+  route: ResolvedRoute,
+  key: string,
+  urls: readonly string[],
+): Promise<FetchedPage[]> {
+  const response = await http.requestJson<SofyaFetchResponse>({
+    url: `${route.provider.baseUrl}/v1/fetch`,
+    headers: bearer(key),
+    provider: route.provider.id,
+    body: { urls: [...urls] },
+  });
+
+  const items = response.results;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new ProviderError(route.provider.id, 'aucune page renvoyée');
+  }
+
+  return items.map((item) => {
+    const error = asString(item.error);
+    const publishedTime = asString(item.published_time);
+
+    return {
+      title: asString(item.title),
+      url: asString(item.url),
+      content: asString(item.content),
+      success: item.success !== false && error.length === 0,
+      ...(publishedTime.length === 0 ? {} : { publishedTime }),
+      ...(error.length === 0 ? {} : { error }),
+    };
+  });
 }
 
 /**

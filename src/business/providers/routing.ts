@@ -1,4 +1,4 @@
-import { usableProviders } from '../../shared/providers/catalog.js';
+import { PROVIDERS, usableProviders } from '../../shared/providers/catalog.js';
 import type { Keyring } from '../../shared/providers/env.js';
 import type {
   Capability,
@@ -22,6 +22,8 @@ export interface PlanOptions {
   space?: string;
   /** Disjoncteur : les fournisseurs ouverts passent en fin de chaîne. */
   health?: ProviderHealth;
+  /** Registre à interroger (défaut : catalogue livré + fournisseurs déclarés chargés par l'appelant). */
+  providers?: readonly ProviderDescriptor[];
 }
 
 interface Candidate {
@@ -51,7 +53,11 @@ interface Candidate {
  */
 export function planRoutes(options: PlanOptions): ResolvedRoute[] {
   const policy = options.policy ?? 'quality';
-  let candidates = collectCandidates(options.capability, options.keyring);
+  let candidates = collectCandidates(
+    options.capability,
+    options.keyring,
+    options.providers ?? PROVIDERS,
+  );
 
   if (options.capability === 'embedding') {
     const space = options.space ?? candidates.find((item) => item.space !== undefined)?.space;
@@ -84,10 +90,14 @@ export function planRoutes(options: PlanOptions): ResolvedRoute[] {
 }
 
 /** Tous les candidats d'une capacité, avant filtrage. */
-function collectCandidates(capability: Capability, keyring: Keyring): Candidate[] {
+function collectCandidates(
+  capability: Capability,
+  keyring: Keyring,
+  providers: readonly ProviderDescriptor[],
+): Candidate[] {
   const candidates: Candidate[] = [];
 
-  for (const provider of usableProviders(capability)) {
+  for (const provider of usableProviders(capability, providers)) {
     const keys = keyring.get(provider.id) ?? [];
 
     if (keys.length === 0) {
@@ -115,7 +125,7 @@ function collectCandidates(capability: Capability, keyring: Keyring): Candidate[
       }
     }
 
-    if (capability === 'web-search' || capability === 'sandbox') {
+    if (capability === 'web-search' || capability === 'web-fetch' || capability === 'sandbox') {
       candidates.push({ provider, model: '', free: true, keys });
     }
   }
@@ -139,7 +149,10 @@ function sortByHealth(candidates: Candidate[], health: ProviderHealth): Candidat
  * `baai/bge-m3` ouvre deux fournisseurs (Novita, OpenRouter), tandis que
  * `openai/text-embedding-3-small` en ouvre deux autres.
  */
-export function availableSpaces(keyring: Keyring): {
+export function availableSpaces(
+  keyring: Keyring,
+  providers: readonly ProviderDescriptor[] = PROVIDERS,
+): {
   space: string;
   dimensions: number;
   free: boolean;
@@ -150,7 +163,7 @@ export function availableSpaces(keyring: Keyring): {
     { space: string; dimensions: number; free: boolean; providers: ProviderDescriptor[] }
   >();
 
-  for (const provider of usableProviders('embedding')) {
+  for (const provider of usableProviders('embedding', providers)) {
     if ((keyring.get(provider.id)?.length ?? 0) === 0) {
       continue;
     }
