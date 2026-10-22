@@ -1,13 +1,40 @@
 import type Database from 'better-sqlite3';
 
 import { EMBEDDING_DIMENSIONS, TABLES, VECTOR_SCHEMA } from '../shared/constants.js';
-import { EmbeddingsError, IndexingError, SearchError } from '../shared/errors.js';
+import {
+  EmbeddingSpaceMismatchError,
+  EmbeddingsError,
+  IndexingError,
+  SearchError,
+} from '../shared/errors.js';
 import type { SearchResult } from '../shared/types.js';
 import { DEFAULT_LIMIT, assertLimit, toResource, type ResourceRow } from './fts-repository.js';
 
 /** Ligne de la jointure KNN, enrichie de la distance brute. */
 interface VectorRow extends ResourceRow {
   distance: number;
+}
+
+/**
+ * Ligne de la table `embedding_spaces`.
+ *
+ * Une seule ligne est active à la fois : `bindSpace()` supprime les autres.
+ */
+interface EmbeddingSpaceRow {
+  space: string;
+  provider: string;
+  model: string;
+  dimensions: number;
+  updated_at: string;
+}
+
+/** Liaison de l'index à un espace d'embedding. */
+export interface EmbeddingSpaceBinding {
+  space: string;
+  provider: string;
+  model: string;
+  dimensions: number;
+  updatedAt: string;
 }
 
 const SELECT_COLUMNS = [
@@ -105,6 +132,9 @@ export class VectorRepository {
   private readonly deleteStatement: Database.Statement | undefined;
   private readonly getStatement: Database.Statement | undefined;
   private readonly countStatement: Database.Statement | undefined;
+  private readonly bindSpaceStatement: Database.Statement | undefined;
+  private readonly clearSpacesStatement: Database.Statement | undefined;
+  private readonly readSpaceStatement: Database.Statement | undefined;
 
   constructor(private readonly connection: Database.Database) {
     if (!this.hasTable()) {
@@ -125,6 +155,24 @@ export class VectorRepository {
     this.deleteStatement = connection.prepare(`DELETE FROM ${table} WHERE resource_id = ?`);
     this.getStatement = connection.prepare(`SELECT embedding FROM ${table} WHERE resource_id = ?`);
     this.countStatement = connection.prepare(`SELECT count(*) AS n FROM ${table}`);
+    this.bindSpaceStatement = connection.prepare(`
+      INSERT INTO ${TABLES.embeddingSpaces} (space, provider, model, dimensions, created_at, updated_at)
+      VALUES (@space, @provider, @model, @dimensions, @now, @now)
+      ON CONFLICT(space) DO UPDATE
+        SET provider = excluded.provider,
+            model = excluded.model,
+            dimensions = excluded.dimensions,
+            updated_at = excluded.updated_at
+    `);
+    this.clearSpacesStatement = connection.prepare(
+      `DELETE FROM ${TABLES.embeddingSpaces} WHERE space <> ?`,
+    );
+    this.readSpaceStatement = connection.prepare(`
+      SELECT space, provider, model, dimensions, updated_at
+        FROM ${TABLES.embeddingSpaces}
+       ORDER BY updated_at DESC, space ASC
+       LIMIT 1
+    `);
   }
 
   /** L'index vectoriel est-il disponible (extension chargée, table créée) ? */
@@ -230,6 +278,106 @@ export class VectorRepository {
 
     const row = this.countStatement.get() as { n: number };
     return row.n;
+  }
+
+  /**
+   * Lie l'index à un espace d'embedding.
+   *
+   * Remplace la liaison précédente : un index ne peut être comparé qu'à un seul
+   * repère à la fois. Appelé par l'indexer avant la première écriture.
+   *
+   * @param binding - Espace, fournisseur, modèle et dimensions.
+   * @throws {IndexingError} Table `embedding_spaces` absente ou écriture refusée.
+   */
+  bindSpace(binding: Omit<EmbeddingSpaceBinding, 'updatedAt'>): void {
+    if (this.bindSpaceStatement === undefined) {
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const apply = this.connection.transaction(() => {
+      this.bindSpaceStatement?.run({
+        space: binding.space,
+        provider: binding.provider,
+        model: binding.model,
+        dimensions: binding.dimensions,
+        now,
+      });
+      this.clearSpacesStatement?.run(binding.space);
+    });
+
+    try {
+      apply();
+    } catch (error) {
+      throw new IndexingError('liaison de l’espace d’embedding', { cause: error });
+    }
+  }
+
+  /** Espace actuellement lié à l'index, ou `null` si aucun. */
+  activeSpace(): EmbeddingSpaceBinding | null {
+    if (this.readSpaceStatement === undefined) {
+      return null;
+    }
+
+    const row = this.readSpaceStatement.get() as EmbeddingSpaceRow | undefined;
+
+    if (row === undefined) {
+      return null;
+    }
+
+    return {
+      space: row.space,
+      provider: row.provider,
+      model: row.model,
+      dimensions: row.dimensions,
+      updatedAt: row.updated_at,
+    };
+  }
+
+  /**
+   * Refuse d'écrire dans un index construit avec un autre espace.
+   *
+   * Sans ce garde-fou, une bascule de fournisseur remplirait l'index de
+   * vecteurs issus de deux modèles : aucune erreur, mais un rappel
+   * silencieusement dégradé. La sortie est explicite
+   * (`EmbeddingSpaceMismatchError`) et indique comment repartir proprement.
+   *
+   * @throws {EmbeddingSpaceMismatchError} Index non vide d'un autre espace.
+   */
+  assertSpace(space: string): void {
+    const active = this.activeSpace();
+
+    if (active === null || active.space === space || this.count() === 0) {
+      return;
+    }
+
+    throw new EmbeddingSpaceMismatchError(active.space, space);
+  }
+
+  /**
+   * Vide l'index vectoriel et oublie l'espace lié.
+   *
+   * @returns Nombre de vecteurs supprimés.
+   * @throws {IndexingError} Purge refusée par SQLite.
+   */
+  clearAll(): number {
+    if (!this.isAvailable()) {
+      return 0;
+    }
+
+    const removed = this.count();
+    const clear = this.connection.transaction(() => {
+      this.connection.prepare(`DELETE FROM ${VECTOR_SCHEMA}.${TABLES.resourcesVectors}`).run();
+      this.connection.prepare(`DELETE FROM ${TABLES.embeddingSpaces}`).run();
+    });
+
+    try {
+      clear();
+    } catch (error) {
+      throw new IndexingError('purge de l’index vectoriel', { cause: error });
+    }
+
+    return removed;
   }
 
   private hasTable(): boolean {
