@@ -108,7 +108,13 @@ describe('services CLI', () => {
   it('ignore une configuration de fournisseurs invalide en mode auto', () => {
     vi.stubEnv('EKTS_PROVIDER_POLICY', 'tarif-maison');
 
-    expect(openCliServices({ dataDir, embeddingsMode: 'auto' }).embeddings).toBeUndefined();
+    const services = openCliServices({ dataDir, embeddingsMode: 'auto' });
+
+    try {
+      expect(services.embeddings).toBeUndefined();
+    } finally {
+      services.close();
+    }
   });
 
   it('signale une configuration de fournisseurs invalide en mode required', () => {
@@ -131,11 +137,16 @@ describe('services CLI', () => {
     vi.stubEnv('EKTS_OFFLINE', '1');
     vi.stubEnv('OPENAI_API_KEY', 'sk-cli-test');
 
-    expect(openCliServices({ dataDir, embeddingsMode: 'auto' }).embeddings).toBeUndefined();
+    const auto = openCliServices({ dataDir, embeddingsMode: 'auto' });
+    const disabled = openCliServices({ dataDir, embeddingsMode: 'disabled' });
 
-    const services = openCliServices({ dataDir, embeddingsMode: 'disabled' });
-
-    services.close();
+    try {
+      expect(auto.embeddings).toBeUndefined();
+      expect(disabled.embeddings).toBeUndefined();
+    } finally {
+      auto.close();
+      disabled.close();
+    }
   });
 
   it('refuse les embeddings en mode required quand le mode hors ligne est actif', () => {

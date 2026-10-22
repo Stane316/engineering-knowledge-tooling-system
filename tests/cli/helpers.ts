@@ -42,9 +42,27 @@ export function createDataDir(): string {
   return mkdtempSync(join(tmpdir(), 'ekts-cli-'));
 }
 
-/** Supprime un répertoire de données (idempotent). */
+/**
+ * Supprime un répertoire de données (idempotent).
+ *
+ * Sous Windows, SQLite peut conserver brièvement un verrou sur un fichier :
+ * `EBUSY` au `unlink`. Quelques tentatives suffisent ; au-delà, l'échec est
+ * volontairement ignoré — un répertoire temporaire résiduel ne fait pas
+ * échouer un test, contrairement à une connexion oubliée.
+ */
 export function removeDataDir(dataDir: string): void {
-  rmSync(dataDir, { recursive: true, force: true });
+  const attempts = 5;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      rmSync(dataDir, { recursive: true, force: true });
+      return;
+    } catch {
+      if (attempt === attempts) {
+        return;
+      }
+    }
+  }
 }
 
 /**
