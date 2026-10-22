@@ -4,7 +4,7 @@
 **Parent :** SPRINT-02 (Data Layer)  
 **Durée prévue :** 2 jours  
 **Date de documentation :** 21 octobre 2026  
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ TERMINÉ (22/10/2026)  
 **Dépend de :** SPRINT-02-02 (Repository Resource) ⏳
 
 ---
@@ -636,3 +636,34 @@ npm run coverage > coverage-all.log 2>&1
 
 **Document rédigé le 21 octobre 2026 — PARTIE II du projet EKTS**  
 **Statut : ⏳ Sous-sprint 2-3 prêt pour exécution**
+
+---
+
+## Addendum d'implémentation — 22 octobre 2026
+
+**Statut : ✅ TERMINÉ** (commit `Sprint 2-3`).
+
+### Écarts assumés par rapport au plan
+
+| Point du plan | Réalisation | Raison |
+|---------------|-------------|--------|
+| `z.string().url()`, `z.string().uuid()`, `z.string().datetime()` | `z.url()`, `z.uuid()`, `z.iso.datetime()` | API Zod 4 : les formats de chaîne sont des schémas de premier niveau, les méthodes équivalentes sont dépréciées. |
+| `z.record(z.unknown())` | `z.record(z.string(), z.unknown())` | Zod 4 impose le type de clé. |
+| `docs/DATA_LAYER.md` | `docs/guides/DATA_LAYER.md` | Regroupement des guides projet (`SETUP.md`, `DATA_LAYER.md`). |
+| Schéma de mise à jour sans contrainte | `.refine()` : objet vide rejeté | Une requête `UPDATE` sans champ n'a aucun sens et masquerait un appel erroné. |
+
+### Fichiers produits
+
+| Fichier | Rôle |
+|---------|------|
+| `src/shared/validators.ts` | 4 schémas Zod + types inférés (`z.input` / `z.infer`) |
+| `tests/unit/validators.test.ts` | 17 tests |
+| `docs/guides/DATA_LAYER.md` | Documentation technique complète du Data Layer |
+
+### Vérifications exécutées
+
+```bash
+npm test          # 66 tests OK
+npm run coverage  # 100 % (lignes, branches, fonctions, instructions)
+npm run lint && npm run typecheck && npm run build
+```

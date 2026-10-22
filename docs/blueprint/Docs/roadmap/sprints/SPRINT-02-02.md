@@ -4,7 +4,7 @@
 **Parent :** SPRINT-02 (Data Layer)  
 **Durée prévue :** 4 jours  
 **Date de documentation :** 21 octobre 2026  
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ TERMINÉ (22/10/2026)  
 **Dépend de :** SPRINT-02-01 (Schémas SQLite) ⏳
 
 ---
@@ -625,3 +625,36 @@ npm run coverage > coverage-repository.log 2>&1
 
 **Document rédigé le 21 octobre 2026 — PARTIE II du projet EKTS**  
 **Statut : ⏳ Sous-sprint 2-2 prêt pour exécution**
+
+---
+
+## Addendum d'implémentation — 22 octobre 2026
+
+**Statut : ✅ TERMINÉ** (commit `Sprint 2-2`).
+
+### Écarts assumés par rapport au plan
+
+| Point du plan | Réalisation | Raison |
+|---------------|-------------|--------|
+| Singleton `export const resourceRepository` | Injection par constructeur : `new ResourceRepository(connection)` | Testabilité (base temporaire par test), pas d'état global au chargement du module. |
+| Filtre tags par `LIKE '%tag%'` | `EXISTS (SELECT 1 FROM json_each(tags) WHERE value = @tag)` | Le `LIKE` produit des faux positifs (`sql` matche `sqlite`) ; `json_each` compare les valeurs exactes et impose la présence de **tous** les tags. |
+| Lien ressource ↔ FTS | `rowid` de `resources` comme `rowid` FTS + colonne `resource_id UNINDEXED` | Jointure directe sans index supplémentaire. |
+| `update()` avec `any` | Validation Zod + `null` explicite pour effacer `url`/`content`/`embeddingModel` | Distingue « champ absent » de « champ effacé ». |
+| — | Détection de la table vectorielle à la construction | Une base migrée sans `vec0` reste utilisable pour le CRUD. |
+
+### Fichiers produits
+
+| Fichier | Rôle |
+|---------|------|
+| `src/data/repositories/resource-repository.ts` | `create`, `getById`, `list`, `update`, `delete` |
+| `tests/integration/resource-repository.test.ts` | 26 tests (CRUD, filtres, pagination, FTS, vecteurs, erreurs) |
+
+### Vérifications exécutées
+
+```bash
+npm test -- tests/integration/resource-repository.test.ts   # 26 tests OK
+npm run coverage                                             # 100 %
+```
+
+Points vérifiés : écritures transactionnelles sur les trois schémas, réindexation FTS après
+`update`, purge du vecteur après `delete`, rejet des entrées invalides sans écriture résiduelle.
