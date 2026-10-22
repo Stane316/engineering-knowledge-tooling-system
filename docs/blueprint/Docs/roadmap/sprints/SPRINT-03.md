@@ -1,6 +1,6 @@
 # Sprint 3 — Knowledge Manager (Semaine 5-6)
 
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ TERMINÉ (22/10/2026)  
 **Durée :** 2 semaines (10 jours ouvrables)  
 **Objectif :** Implémenter la logique métier (Knowledge Manager) — CRUD ressources + orchestration indexation FTS automatique  
 **MVP :** MVP-1 (Knowledge Management Tool)
@@ -868,3 +868,26 @@ Avant de commencer, vérifier :
 ---
 
 **Fin du dossier Sprint 3 — Knowledge Manager**
+
+---
+
+## Addendum d'implémentation — 22 octobre 2026
+
+**Sprint 3 terminé.** Les trois sous-sprints sont livrés, testés et documentés.
+
+| Livrable | État |
+|----------|------|
+| `KnowledgeManager` (5 méthodes + `listTags`, `stats`, `reindex`) | ✅ |
+| `IKnowledgeManager` (contrat pour la CLI et le MCP) | ✅ |
+| Erreurs métier typées (`EktsError` et dérivées) | ✅ |
+| Validation Zod traduite en `ValidationError` | ✅ |
+| Indexation FTS automatique | ✅ transactionnelle dans le repository |
+| Maintenance de l'index (`checkIntegrity`, `reindexAll`, `npm run db:reindex`) | ✅ |
+| `docs/guides/KNOWLEDGE_MANAGER.md` | ✅ |
+| Tests | 117 tests, couverture 100 % |
+
+**Décision structurante :** l'indexation reste dans le repository (atomicité), `Indexer` est dédié à
+la maintenance. Détail et justification dans l'addendum de `SPRINT-03-03.md`.
+
+**Écart résiduel connu :** `updateResource` ne purge pas l'entrée vectorielle ; le recalcul
+appartient au Sprint 4 (génération d'embeddings).

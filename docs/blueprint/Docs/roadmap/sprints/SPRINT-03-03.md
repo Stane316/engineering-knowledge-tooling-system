@@ -1,6 +1,6 @@
 # Sprint 3-3 — Indexation FTS automatique + documentation
 
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ TERMINÉ (22/10/2026)  
 **Durée :** 2 jours  
 **Objectif :** Orchestrer l'indexation FTS automatique + documenter l'API  
 **Dépendance :** Sprint 3-2 ✅
@@ -856,3 +856,54 @@ git commit -m "docs: add Knowledge Manager API documentation"
 ---
 
 **Fin du document Sprint 3-3**
+
+---
+
+## Addendum d'implémentation — 22 octobre 2026
+
+**Statut : ✅ TERMINÉ.**
+
+### Décision de conception : l'indexation reste dans le repository
+
+Le plan prévoit un `FTSIndexer` séparé, appelé par le manager après chaque écriture. Cette
+conception a été **écartée** pour trois raisons vérifiées :
+
+1. **Atomicité.** `ResourceRepository` écrit la ressource et son entrée FTS dans une seule
+   transaction (Sprint 2). Un indexeur appelé ensuite pourrait échouer sans annuler l'écriture :
+   ressource présente, index absent — exactement l'incohérence que le sprint veut éviter.
+2. **Doublons de `rowid`.** FTS5 n'impose pas l'unicité du `rowid` : réindexer après l'insertion du
+   repository créerait une seconde ligne pour la même ressource, et `removeFTS()` les supprimerait
+   en bloc sans contrôle.
+3. **`rowid` inconnu du manager.** Le plan passe `resource.id` (UUID) comme `rowid`, alors que
+   l'index est aligné sur le `rowid` interne de `resources`. Le manager n'a pas cette valeur, et
+   l'ajouter au domaine ferait fuiter un détail de stockage.
+
+`IIndexer` est donc **conservé, mais pour la maintenance** : `Indexer.reindexAll()` et
+`checkIntegrity()`. C'est la réponse à la limite documentée au Sprint 2 (durabilité non
+transactionnelle entre fichiers attachés en mode WAL) et la commande de réparation annoncée.
+
+### Écarts assumés par rapport au plan
+
+| Point du plan | Réalisation | Raison |
+|---------------|-------------|--------|
+| `FTSIndexer` appelé à chaque CRUD | Indexation transactionnelle dans le repository ; `Indexer` dédié à la maintenance | Voir ci-dessus. |
+| `trigger SQLite` de synchronisation | Impossible (base attachée) — documenté au Sprint 2 | Contrainte SQLite : un trigger ne peut pas écrire dans une base attachée. |
+| `docs/KNOWLEDGE_MANAGER.md` | `docs/guides/KNOWLEDGE_MANAGER.md` | Regroupement des guides projet. |
+| — | Ajout de `npm run db:reindex` | Rend la réparation accessible sans écrire de code. |
+
+### Fichiers produits
+
+| Fichier | Rôle |
+|---------|------|
+| `src/business/indexer.ts` | `reindexAll`, `checkIntegrity`, `countResources`, `countIndexed` |
+| `scripts/reindex.mjs` | Commande `npm run db:reindex` |
+| `docs/guides/KNOWLEDGE_MANAGER.md` | API complète, erreurs, règles métier |
+| `tests/integration/indexer.test.ts` | 11 tests (intégrité, réindexation, cas limites) |
+
+### Vérifications
+
+```bash
+npm test              # 117 tests
+npm run coverage      # 100 %
+npm run build && npm run db:inspect && npm run db:reindex
+```

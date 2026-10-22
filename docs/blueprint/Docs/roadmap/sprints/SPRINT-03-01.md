@@ -1,6 +1,6 @@
 # Sprint 3-1 — Knowledge Manager CRUD (add, get, list)
 
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ TERMINÉ (22/10/2026)  
 **Durée :** 4 jours  
 **Objectif :** Implémenter les 3 premières méthodes du Knowledge Manager  
 **Dépendance :** Sprint 2 (Data Layer) ✅
@@ -479,3 +479,35 @@ git commit -m "feat(business): implement Knowledge Manager listResources"
 ---
 
 **Fin du document Sprint 3-1**
+
+---
+
+## Addendum d'implémentation — 22 octobre 2026
+
+**Statut : ✅ TERMINÉ.**
+
+### Écarts assumés par rapport au plan
+
+| Point du plan | Réalisation | Raison |
+|---------------|-------------|--------|
+| Dossiers `src/schemas/`, `src/types/`, `src/utils/` | `src/shared/validators.ts`, `src/shared/types.ts`, `src/shared/errors.ts` | Arborescence réellement livrée au Sprint 2 ; ces fichiers sont transverses, pas métier. |
+| `Resource` avec `url: string \| null` | `url?: string` (champ absent) | Convention TypeScript du Sprint 2 : l'absence est portée par `undefined`, `null` ne sert qu'au *payload* de mise à jour pour demander l'effacement. |
+| Interface `getResource → Promise<Resource \| null>` **et** pseudo-code levant `ResourceNotFoundError` | Interface respectée (`null`) + méthode distincte `getResourceOrThrow` | Le plan se contredisait. Deux appelants, deux besoins. |
+| `generateId()` / `getTimestamp()` dans `src/utils` | `randomUUID()` et `new Date().toISOString()` dans le repository | Déjà factorisés au Sprint 2 ; pas de duplication. |
+| Manager appelant `repository.create(resource)` puis `indexer.indexFTS()` | `repository.create(input)`, indexation transactionnelle interne | Voir l'addendum de SPRINT-03-03 : un indexeur séparé casserait l'atomicité et créerait des doublons de `rowid`. |
+| Méthodes `async` | Conservées | Prépare l'ajout d'embeddings (appel réseau) au Sprint 4 sans rupture de contrat. |
+
+### Fichiers produits
+
+| Fichier | Rôle |
+|---------|------|
+| `src/shared/errors.ts` | `EktsError`, `ResourceNotFoundError`, `ValidationError`, `IndexingError` |
+| `src/business/knowledge-manager.types.ts` | `IKnowledgeManager`, `AddResourceInput`, `KnowledgeStats` |
+| `src/business/knowledge-manager.ts` | `addResource`, `getResource`, `getResourceOrThrow`, `listResources` + `parseInput`, `normalizeTags` |
+
+### Vérifications
+
+```bash
+npm run typecheck && npm run lint   # OK
+npm test -- tests/integration/knowledge-manager.test.ts
+```

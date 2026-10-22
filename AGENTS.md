@@ -93,6 +93,7 @@ Visual Studio ou `build-essential` pour ce projet. Les hooks s'installent par `n
 - Gitleaks en pre-commit (`.husky/pre-commit`) **et** en CI.
 - `.env`, `*.db`, `data/`, `node_modules/`, `dist/`, `coverage/` ignorés.
 - Aucune donnée utilisateur réelle dans les tests : utiliser `tests/fixtures/`.
+- Les tests d'intégration créent une base temporaire (`mkdtempSync`), jamais `data/`.
 - Les identifiants de test ne doivent jamais ressembler à de vraies clés (préférer `sk-EXAMPLE-...`).
 
 ## 8. Workflow de récupération (branche `develop`)
