@@ -69,6 +69,15 @@ ne doit **jamais** lancer `node-gyp` (aucune chaîne de compilation requise). Ne
 fichier, ne pas exécuter `npm install --ignore-scripts=false`, et ne jamais proposer d'installer
 Visual Studio ou `build-essential` pour ce projet. Les hooks s'installent par `npm run setup`.
 
+**Environnement de l'utilisateur : Windows + PowerShell (terminal intégré de VS Code).**
+
+- Fournir les commandes **en PowerShell**, jamais en bash : pas de `2>/dev/null`, pas de `||`
+  ni de `&&` (Windows PowerShell 5.1 ne les accepte pas), pas de `ls -la`, `cat` ni `rm -rf`
+  (`Get-ChildItem`, `Get-Content`, `Remove-Item -Recurse -Force`).
+- Préférer un **script npm** (`npm run check:env`, `npm run db:inspect`) à une commande
+  `node -e "…"` multi-lignes : le collage d'un bloc multi-lignes est réinterprété par PowerShell.
+- Indiquer `npm.cmd` si la politique d'exécution bloque `npm.ps1`.
+
 ## 6. Définition de « terminé »
 
 - Critères d'acceptation du sous-sprint satisfaits et vérifiés par une commande.
