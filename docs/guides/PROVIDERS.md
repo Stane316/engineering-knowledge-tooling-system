@@ -18,7 +18,7 @@
 | Protocoles filaires | 7 (dont le protocole `sofya`) |
 | Clés par fournisseur | jusqu'à **8** (`_2` … `_8`) |
 | Dépendance ajoutée | **aucune** (`fetch` natif Node 22) |
-| Tests | 422 au total, couverture 100 % |
+| Tests | 425 au total, couverture 100 % |
 
 ---
 

@@ -42,7 +42,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | **MVP-2** — Inspection navigateur | 7 à 12 | ✅ 24 dossiers | ⏳ | — |
 | **MVP-3** — Capitalisation projets | 13 à 18 | ⏳ non documentés | ⏳ | — |
 
-**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 4.5 au 22 octobre 2026 (422 tests, couverture 100 %).
+**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 4.5 au 22 octobre 2026 (425 tests, couverture 100 %).
 
 > **Sprint 4.5** est un sprint hors plan, ajouté à la demande de l'utilisateur
 > (multiplication des clés d'API disponibles). Il ne décale aucun sprint
@@ -75,7 +75,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 4.5 | 4.5-2 | `HttpClient`, disjoncteur, routage par capacité et par espace | ➕ Hors plan | ✅ `routing` | ✅ 43 tests |
 | Sprint 4.5 | 4.5-3 | Adaptateurs, `ProviderGateway` (rotation, repli, trace), espace d'embedding persistant | ➕ Hors plan | ✅ `gateway` | ✅ 65 tests |
 | Sprint 4.5 | 4.5-4 | `npm run providers`, `.env.example` complet, guide `PROVIDERS.md` | ➕ Hors plan | ✅ `scripts` | ✅ 422 tests, 100 % |
-| Sprint 4.5 | 4.5-5 | Sofya (recherche + lecture markdown), MiniMax (chat), registre extensible `providers.custom.json` | ➕ Hors plan | ✅ `registry` | ✅ 31 tests dédiés |
+| Sprint 4.5 | 4.5-5 | Sofya (recherche + lecture markdown), MiniMax (chat), registre extensible `providers.custom.json` | ➕ Hors plan | ✅ `registry` | ✅ 34 tests ajoutés |
 | Sprint 5 | 5-1 | Commandes de base (init, add, get) | ✅ Rédigée | ⏳ | — |
 | Sprint 5 | 5-2 | Commandes de recherche et gestion (search, list, delete) | ✅ Rédigée | ⏳ | — |
 | Sprint 5 | 5-3 | Commande status + tests intégration + documentation | ✅ Rédigée | ⏳ | — |
