@@ -120,11 +120,16 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 
 ```powershell
 npm run build
-npm run cli -- init
-npm run cli -- add --type article --title "Introduction à SQLite" --tags "sqlite,base" --content "SQLite est une base légère."
-npm run cli -- search "sqlite" --mode fts
-npm run cli -- list --json
+npx --no-install ekts init
+npx --no-install ekts add --type article --title "Introduction à SQLite" --tags "sqlite,base" --content "SQLite est une base légère."
+npx --no-install ekts search "sqlite" --mode fts
+npx --no-install ekts list --json
 ```
+
+> `npx --no-install ekts` utilise le champ `bin` du paquet et produit une sortie
+> pure (aucun préambule npm), contrairement à `npm run cli -- …` qui imprime sa
+> bannière. En script, préférer `node dist\cli\index.js …` ou
+> `npm run --silent cli -- …`.
 
 Sept commandes (`init`, `add`, `get`, `search`, `list`, `delete`, `status`),
 deux formats de sortie (`--json` ou humain), cinq codes de sortie documentés.

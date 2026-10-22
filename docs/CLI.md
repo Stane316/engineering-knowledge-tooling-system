@@ -40,6 +40,7 @@ npm run build
 
 # 2. Exécuter sans installation globale
 node dist\cli\index.js --help
+npx --no-install ekts --help
 npm run cli -- --help
 
 # 3. (Optionnel) Rendre la commande disponible partout
@@ -47,8 +48,15 @@ npm link
 ekts --help
 ```
 
-> Sous PowerShell, `npm run cli -- <args>` est la forme la plus sûre : npm
-> transmet les arguments sans les réinterpréter.
+> **Trois formes équivalentes, un piège.**
+>
+> - `node dist\cli\index.js <args>` : la plus directe, sortie pure.
+> - `npx --no-install ekts <args>` : utilise le champ `bin` du paquet, sortie
+>   pure, aucune installation globale.
+> - `npm run cli -- <args>` : pratique, mais npm imprime sa bannière
+>   (`> ekts@0.1.0 cli`) **avant** la sortie du programme. Un `--json` piped
+>   vers `ConvertFrom-Json` ou `jq` échoue alors. Dans un script, utiliser
+>   `npm run --silent cli -- <args>`, `npx --no-install ekts` ou `node dist\…`.
 
 Prérequis : Node.js ≥ 22.12 et un `npm run build` à jour. Aucune clé n'est
 nécessaire pour `init`, `add` (indexation plein texte), `get`, `list`, `delete`,
@@ -324,22 +332,30 @@ d'erreur part sur **stderr**, jamais sur stdout.
 
 ## 7. Intégration avec des scripts
 
+**Règle d'or : en mode `--json`, aucun préambule ne doit polluer la sortie.**
+`npm run cli -- …` affiche la bannière npm ; utiliser `npx --no-install ekts`,
+`npm run --silent cli --` ou `node dist\cli\index.js`.
+
 ```powershell
 # PowerShell : récupérer les identifiants de toutes les ressources
-$liste = npm run cli -- list --json | ConvertFrom-Json
+$liste = node dist\cli\index.js list --json | ConvertFrom-Json
 $liste.resources | ForEach-Object { $_.id }
 
-# Compter les ressources d'un type
-(npm run cli -- search "sqlite" --mode fts --json | ConvertFrom-Json).count
+# Variante sans chemin (bin du paquet, sans installation globale)
+(npx --no-install ekts search "sqlite" --mode fts --json | ConvertFrom-Json).count
 
 # Vérifier l'état avant une sauvegarde
-npm run cli -- status --json | ConvertFrom-Json | Select-Object -ExpandProperty resources
+node dist\cli\index.js status --json | ConvertFrom-Json | Select-Object -ExpandProperty resources
+
+# Contrôler le code de sortie
+node dist\cli\index.js get $id --json
+if ($LASTEXITCODE -ne 0) { Write-Error "echec: $LASTEXITCODE" }
 ```
 
 ```bash
 # bash / jq
-ekts list --json | jq -r '.resources[].id'
-ekts search "sqlite" --mode fts --json | jq '.count'
+node dist/cli/index.js list --json | jq -r '.resources[].id'
+node dist/cli/index.js search "sqlite" --mode fts --json | jq '.count'
 ```
 
 ---
