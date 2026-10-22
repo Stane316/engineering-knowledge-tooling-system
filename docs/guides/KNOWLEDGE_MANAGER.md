@@ -200,7 +200,7 @@ try {
 ## 6. Tests
 
 ```bash
-npm test                    # 117 tests
+npm test                    # 119 tests
 npm run coverage            # 100 %
 ```
 
@@ -210,6 +210,7 @@ npm run coverage            # 100 %
 | `tests/unit/normalize-tags.test.ts` | Normalisation, `parseInput` |
 | `tests/integration/knowledge-manager.test.ts` | CRUD, validation, immuabilité, tags, stats, réindexation |
 | `tests/integration/indexer.test.ts` | Intégrité, réindexation, cas limites, erreur encapsulée |
+| `tests/unit/indexer-contract.test.ts` | Respect du contrat `IIndexer` et injection dans le manager |
 
 ## 7. Diagnostic en ligne de commande
 
@@ -221,7 +222,9 @@ npm run db:reindex     # reconstruit l'index si nécessaire
 
 ## 8. Ce que le Sprint 4 branchera
 
-- `IIndexer` étendu à l'indexation vectorielle (embeddings OpenAI) ;
+- `IIndexer` (déjà défini dans `src/business/indexer.ts`) étendu à l'indexation vectorielle :
+  un indexeur composite (plein texte + vecteurs) pourra être injecté dans `KnowledgeManager`
+  sans changer sa signature ;
 - `searchResources()` sur `KnowledgeManager` (recherche hybride BM25 + vecteurs, fusion RRF) ;
 - le vecteur est déjà purgé à la suppression : aucune reprise à prévoir côté `deleteResource`.
 

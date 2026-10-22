@@ -891,3 +891,39 @@ la maintenance. Détail et justification dans l'addendum de `SPRINT-03-03.md`.
 
 **Écart résiduel connu :** `updateResource` ne purge pas l'entrée vectorielle ; le recalcul
 appartient au Sprint 4 (génération d'embeddings).
+
+### Traçabilité des critères d'acceptation (§8)
+
+Chaque critère est rattaché à une preuve exécutable. `npm test` couvre l'ensemble.
+
+| # | Critère | Preuve |
+|---|---------|--------|
+| C3.1 | `addResource` crée et indexe | `knowledge-manager.test.ts` › *crée une ressource complète et l'indexe* |
+| C3.2 | `getResource` retourne par ID | › *getResourceOrThrow retourne la ressource existante* + *retourne null pour un identifiant inconnu* |
+| C3.3 | `listResources` filtrée | › *applique les filtres* (type, tags, limite) |
+| C3.4 | `updateResource` met à jour et réindexe | › *met à jour les champs fournis et réindexe* |
+| C3.5 | `deleteResource` supprime et retire du FTS | › *supprime la ressource et son index* |
+| C3.6 | Indexation automatique add/update/delete | Les trois tests ci-dessus vérifient l'index par requête `MATCH` |
+| C3.7 | Validation Zod (`Create`, `Update`) | › *lève ValidationError sur une entrée invalide, sans rien écrire* + *sur une mise à jour vide ou invalide* |
+| C3.8 | `ResourceNotFoundError`, `ValidationError` | `errors.test.ts` (codes, sérialisation) + branches métier |
+| C3.9 | Couverture > 80 % | **100 %** (lignes, branches, fonctions, instructions) |
+| C3.10 | Compilation TypeScript | `npm run build` |
+| C3.11 | Linting | `npm run lint` |
+| C3.12 | Documentation API | `docs/guides/KNOWLEDGE_MANAGER.md` (chemin déplacé, voir écarts) |
+| C3.13 | JSDoc et lisibilité | Revue : chaque classe et méthode publique documentée |
+| C3.14 | Couplage faible (injection) | `indexer-contract.test.ts` : `KnowledgeManager` accepte un `IIndexer` factice |
+| C3.15 | Responsabilité unique | Le manager orchestre ; le repository écrit ; l'indexeur maintient |
+
+**Écarts de contrat assumés (à relire lors de la validation) :**
+
+- §7.3 attend `getResource` → `ResourceNotFoundError` ; l'interface du même document impose
+  `Promise<Resource \| null>`. Les deux existent : `getResource` (null) et `getResourceOrThrow`
+  (exception), pour couvrir les deux besoins appelants.
+- §9.1 attend `indexer.ts` avec `indexFTS` / `removeFTS`. Non implémentés volontairement :
+  l'indexation est transactionnelle dans le repository (voir `SPRINT-03-03.md`). `Indexer`
+  expose à la place `reindexAll` / `checkIntegrity`, derrière l'interface `IIndexer`.
+- §2.3 prévoit un squelette `searchResources`. Non ajouté : une méthode qui lève
+  « non implémenté » serait du code mort et fausserait la couverture. `IKnowledgeManager` est le
+  contrat stable que le Sprint 4 étendra.
+- §9.2 attend `tests/business/`. Les tests sont dans `tests/integration/` (base SQLite réelle) et
+  `tests/unit/`, convention adoptée au Sprint 1 et conservée.
