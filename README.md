@@ -67,7 +67,9 @@ Décisions détaillées : [`docs/blueprint/Docs/03-STACK-ET-DECISIONS-TECHNOLOGI
 - **Node.js ≥ 22.12** (LTS) — `node --version`
 - **npm ≥ 10** — `npm --version`
 - **Git** — `git --version`
-- Outils de compilation (Linux : `build-essential`, python3) pour `better-sqlite3`
+
+Aucune chaîne de compilation n'est requise : les dépendances natives sont livrées avec
+leurs binaires précompilés.
 
 ### Mise en route
 
@@ -75,27 +77,35 @@ Décisions détaillées : [`docs/blueprint/Docs/03-STACK-ET-DECISIONS-TECHNOLOGI
 git clone https://github.com/Stane316/engineering-knowledge-tooling-system.git
 cd engineering-knowledge-tooling-system
 
-npm ci          # installation reproductible depuis le lockfile
+npm ci          # installation reproductible, sans compilation native
+npm run setup   # hooks Git + vérification de l'environnement
 npm run build   # compilation TypeScript
 npm start       # exécute dist/index.js
 ```
 
-Le guide complet (dépannage, hooks, variables d'environnement) est dans [`docs/guides/SETUP.md`](docs/guides/SETUP.md).
+**Aucun compilateur C++, Python ou Visual Studio n'est nécessaire.** `.npmrc` désactive les scripts
+de cycle de vie npm, qui déclenchaient une compilation inutile de `better-sqlite3` (voir
+[`SETUP.md` §6.1](docs/guides/SETUP.md)).
+
+Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans [`docs/guides/SETUP.md`](docs/guides/SETUP.md).
 
 ## 5. Commandes
 
-| Commande                          | Rôle                                     |
-| --------------------------------- | ---------------------------------------- |
-| `npm run dev`                     | Exécution en développement (`tsx watch`) |
-| `npm run build`                   | Compilation dans `dist/`                 |
-| `npm start`                       | Exécution du build                       |
-| `npm run typecheck`               | Vérification TypeScript sans émission    |
-| `npm run lint` / `lint:fix`       | ESLint (flat config)                     |
-| `npm run format` / `format:check` | Prettier                                 |
-| `npm test` / `test:watch`         | Tests Vitest                             |
-| `npm run coverage`                | Couverture avec seuils 80 %              |
-| `npm run security:secrets`        | Scan Gitleaks des fichiers indexés       |
-| `npm run clean`                   | Supprime `dist/`                         |
+| Commande                          | Rôle                                           |
+| --------------------------------- | ---------------------------------------------- |
+| `npm run dev`                     | Exécution en développement (`tsx watch`)       |
+| `npm run build`                   | Compilation dans `dist/`                       |
+| `npm start`                       | Exécution du build                             |
+| `npm run typecheck`               | Vérification TypeScript sans émission          |
+| `npm run lint` / `lint:fix`       | ESLint (flat config)                           |
+| `npm run format` / `format:check` | Prettier                                       |
+| `npm test` / `test:watch`         | Tests Vitest                                   |
+| `npm run coverage`                | Couverture avec seuils 80 %                    |
+| `npm run verify`                  | typecheck + lint + format + build + couverture |
+| `npm run setup`                   | Hooks Git + vérification de l'environnement    |
+| `npm run check:env`               | Diagnostics (Node, SQLite, sqlite-vec, outils) |
+| `npm run security:secrets`        | Scan Gitleaks des fichiers indexés             |
+| `npm run clean`                   | Supprime `dist/`                               |
 
 ## 6. Configuration
 

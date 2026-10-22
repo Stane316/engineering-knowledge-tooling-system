@@ -113,6 +113,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Sprint 2-1 : 3 bases SQLite (WAL, permissions 600), migrations versionnées, FTS5 autonome, `sqlite-vec` 0.1.9 | `e0ac3b3` |
 | 22/10/2026 | Sprint 2-2 : `ResourceRepository` (CRUD, filtres, pagination, indexation FTS transactionnelle) | `e0ac3b3` |
 | 22/10/2026 | Sprint 2-3 : validation Zod 4, `docs/guides/DATA_LAYER.md`, 67 tests, couverture 100 % | `344c18e` |
+| 22/10/2026 | Correctif installation : `.npmrc` (`ignore-scripts`), `npm run setup` / `check:env`, dépannage Windows | `721cbca` |
 
 ---
 

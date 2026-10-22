@@ -53,14 +53,21 @@ Toute montée de version majeure nécessite une révision d'ADR dans `Docs/08`.
 ## 5. Commandes
 
 ```bash
-npm ci                 # installation reproductible (lockfile commité)
+npm ci                 # installation reproductible (lockfile commité, sans compilation)
+npm run setup          # hooks Git + vérification de l'environnement
 npm run lint           # ESLint flat config
 npm run typecheck      # tsc --noEmit
 npm run build          # compilation dans dist/
 npm test               # Vitest
 npm run coverage       # couverture (seuils 80 %)
 npm run format:check   # Prettier
+npm run verify         # typecheck + lint + format + build + couverture
 ```
+
+`.npmrc` fixe `ignore-scripts=true` : `better-sqlite3` 13 charge ses binaires précompilés et npm
+ne doit **jamais** lancer `node-gyp` (aucune chaîne de compilation requise). Ne pas supprimer ce
+fichier, ne pas exécuter `npm install --ignore-scripts=false`, et ne jamais proposer d'installer
+Visual Studio ou `build-essential` pour ce projet. Les hooks s'installent par `npm run setup`.
 
 ## 6. Définition de « terminé »
 
@@ -86,7 +93,7 @@ npm run format:check   # Prettier
 1. **L'agent ne fusionne jamais lui-même.** Il pousse son travail sur sa branche (`arena/…`, `agent/…` ou `sprint/…`) et fournit les commandes de récupération.
 2. **L'utilisateur fusionne en local** dans `develop`, avec un commit de fusion explicite (`--no-ff`), puis pousse `develop`.
 3. **Aucune pull request**, aucune fusion automatique.
-4. **Après fusion** : `npm ci` (jamais `npm install`, sauf ajout ou mise à jour volontaire d'une dépendance), puis `npm run build` et `npm test`.
+4. **Après fusion** : `npm ci` (jamais `npm install`, sauf ajout ou mise à jour volontaire d'une dépendance), puis `npm run setup`, `npm run build` et `npm test`.
 5. **Un nouveau sprint ne démarre qu'après un feu vert explicite de l'utilisateur.**
 
 ```bash
@@ -99,6 +106,7 @@ git push origin develop
 
 # Vérification après fusion
 npm ci
+npm run setup
 npm run build
 npm test
 ```
