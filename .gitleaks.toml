@@ -33,3 +33,9 @@ paths = [
   '''(docs/blueprint/)?Docs/roadmap/sprints/SPRINT-01-03\.md''',
   '''(docs/blueprint/)?Docs/roadmap/sprints/SPRINT-04(\.md|-0[0-9]\.md)''',
 ]
+
+[[allowlists]]
+description = "Fausse clé de test (fixture) — présente dans l'historique, désormais assemblée à l'exécution"
+paths = ['''tests/unit/providers-(env|http)\.test\.ts''']
+regexTarget = "line"
+regexes = ['''sk-secret-1234567890''']
