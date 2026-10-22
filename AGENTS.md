@@ -65,6 +65,7 @@ npm run verify         # typecheck + lint + format + build + couverture
 npm run db:inspect     # état des trois bases
 npm run db:reindex     # reconstruction de l'index FTS
 npm run test:benchmark # benchmark recherche (C4.6, C4.7, C4.8)
+npm run providers      # état des clés d'API et chaîne d'appel (après npm run build)
 ```
 
 Variables lues à l'exécution : `EKTS_DATA_DIR`, `LOG_LEVEL`, `NODE_ENV` (base) ; `OPENAI_API_KEY`,
