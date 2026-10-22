@@ -13,6 +13,7 @@ export default defineConfig({
         'src/**/*.d.ts',
         'src/shared/types.ts',
         'src/business/knowledge-manager.types.ts',
+        'src/business/search-engine.types.ts',
       ],
       thresholds: {
         lines: 80,
