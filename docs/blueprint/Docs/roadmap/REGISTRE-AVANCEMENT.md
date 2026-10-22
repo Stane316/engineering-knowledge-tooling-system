@@ -118,8 +118,9 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Sprint 3 : `KnowledgeManager` (CRUD validé, tags, stats), erreurs métier typées, `Indexer` de maintenance, `npm run db:reindex` | `ce674d5` |
 | 22/10/2026 | Correctif d'un test instable (comparaison d'horodatages à la milliseconde), détecté par la CI | `7f2ff24` |
 | 22/10/2026 | Audit de conformité Sprint 3 : contrat `IIndexer`, preuve du couplage faible, table de traçabilité C3.1–C3.15 | `5df7e37` |
-| 22/10/2026 | Sprint 4 : `FTSRepository` (BM25 `0/10/5/1`, jointure `resource_id`, requête assainie), `VectorRepository` (KNN + normalisation cosinus), `EmbeddingsService` (OpenAI + validation), `VectorIndexer`/décorateur, `fuseResults` (RRF k=60), `SearchEngine` — 240 tests, couverture 100 % | à venir |
-| 22/10/2026 | Sprint 4 : benchmark 100 000 documents / 100 000 vecteurs — Recall@5 1.000, Faithfulness 1.000, p95 308 ms ; job CI `benchmark` ajouté | à venir |
+| 22/10/2026 | Sprint 4 : `FTSRepository` (BM25 `0/10/5/1`, jointure `resource_id`, requête assainie), `VectorRepository` (KNN + normalisation cosinus), `EmbeddingsService` (OpenAI + validation), `VectorIndexer`/décorateur, `fuseResults` (RRF k=60), `SearchEngine` — 240 tests, couverture 100 % | `246638a` |
+| 22/10/2026 | Sprint 4 : benchmark 100 000 documents / 100 000 vecteurs — Recall@5 1.000, Faithfulness 1.000, p95 308 ms ; job CI `benchmark` ajouté | `4a8915d` |
+| 22/10/2026 | Documentation Sprint 4 : guide `SEARCH_ENGINE.md`, traçabilité C4.1–C4.16, ADR-012 à ADR-014, risques R-4.1 à R-4.4 ; CI verte 6 jobs | `55663fa` |
 
 ---
 

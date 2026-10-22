@@ -657,6 +657,10 @@ npm run test:coverage -- tests/business/ tests/data/
 
 ### 8.4 Traçabilité de l'implémentation (état au 22/10/2026)
 
+Commits : `246638a` (moteur + tests), `4a8915d` (benchmark, `.env`, CI),
+`55663fa` (documentation). CI verte sur 6 jobs : qualité Ubuntu/Windows ×
+Node 22/24, benchmark, détection de secrets.
+
 | # | Critère | État | Preuve |
 |---|---------|------|--------|
 | C4.1 | Recherche FTS5 (BM25) | ✅ | `src/data/fts-repository.ts` ; `tests/integration/fts-repository.test.ts` (13 tests : pondération, AND, ponctuation, accents, tri) |
