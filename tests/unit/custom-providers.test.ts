@@ -1,6 +1,6 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -53,27 +53,29 @@ const mistral = {
 };
 
 describe('resolveProvidersFile', () => {
+  // `resolve('/base')` donne « C:\base » sous Windows : comparer au chemin
+  // absolu attendu, pas à la chaîne littérale.
+  const base = resolve('/base');
+
   it('retombe sur le fichier par défaut du répertoire courant', () => {
-    expect(resolveProvidersFile({ env: {}, cwd: '/base' })).toBe(
-      join('/base', DEFAULT_PROVIDERS_FILE),
-    );
+    expect(resolveProvidersFile({ env: {}, cwd: base })).toBe(join(base, DEFAULT_PROVIDERS_FILE));
   });
 
   it('suit EKTS_PROVIDERS_FILE', () => {
     const resolved = resolveProvidersFile({
       env: { [PROVIDERS_FILE_ENV]: 'config/providers.json' },
-      cwd: '/base',
+      cwd: base,
     });
 
-    expect(resolved).toBe(join('/base', 'config', 'providers.json'));
+    expect(resolved).toBe(join(base, 'config', 'providers.json'));
   });
 
   it('ignore une variable vide et privilégie le chemin explicite', () => {
-    expect(resolveProvidersFile({ env: { [PROVIDERS_FILE_ENV]: '   ' }, cwd: '/base' })).toBe(
-      join('/base', DEFAULT_PROVIDERS_FILE),
+    expect(resolveProvidersFile({ env: { [PROVIDERS_FILE_ENV]: '   ' }, cwd: base })).toBe(
+      join(base, DEFAULT_PROVIDERS_FILE),
     );
-    expect(resolveProvidersFile({ env: {}, file: 'autre.json', cwd: '/base' })).toBe(
-      join('/base', 'autre.json'),
+    expect(resolveProvidersFile({ env: {}, file: 'autre.json', cwd: base })).toBe(
+      join(base, 'autre.json'),
     );
   });
 });
