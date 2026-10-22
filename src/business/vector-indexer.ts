@@ -21,6 +21,26 @@ export interface VectorReindexReport {
   durationMs: number;
 }
 
+/** Espace d'embedding auquel l'index est lié. */
+export interface EmbeddingSpace {
+  space: string;
+  provider: string;
+  model: string;
+  dimensions: number;
+}
+
+export interface VectorIndexerOptions {
+  /**
+   * Espace servi par le fournisseur d'embeddings.
+   *
+   * S'il est fourni, l'index est **lié** à cet espace à la première écriture et
+   * toute écriture ultérieure dans un autre espace est refusée : deux modèles
+   * produisent des vecteurs incomparables, les mélanger dégraderait le rappel
+   * sans provoquer d'erreur.
+   */
+  space?: EmbeddingSpace;
+}
+
 /** Contrat de l'indexation vectorielle. */
 export interface IVectorIndexer {
   /** Calcule et stocke l'embedding d'une ressource (remplace l'existant). */
@@ -56,10 +76,16 @@ export function buildEmbeddingText(resource: Pick<Resource, 'title' | 'content' 
  * l'indexation testable sans clé API.
  */
 export class VectorIndexer implements IVectorIndexer {
+  private readonly space: EmbeddingSpace | undefined;
+  private bound = false;
+
   constructor(
     private readonly embeddings: IEmbeddingsService,
     private readonly vectors: VectorRepository,
-  ) {}
+    options: VectorIndexerOptions = {},
+  ) {
+    this.space = options.space;
+  }
 
   async indexResource(resource: Resource): Promise<void> {
     const text = buildEmbeddingText(resource);
@@ -70,7 +96,43 @@ export class VectorIndexer implements IVectorIndexer {
     }
 
     const embedding = await this.embeddings.embed(text);
+    this.ensureSpace();
     this.vectors.insertEmbedding(resource.id, embedding);
+  }
+
+  /**
+   * Lie l'index à l'espace configuré, une seule fois par instance.
+   *
+   * @throws {EmbeddingSpaceMismatchError} Index déjà rempli par un autre espace.
+   */
+  private ensureSpace(): void {
+    if (this.space === undefined || this.bound) {
+      return;
+    }
+
+    this.vectors.assertSpace(this.space.space);
+    this.vectors.bindSpace({
+      space: this.space.space,
+      provider: this.space.provider,
+      model: this.space.model,
+      dimensions: this.space.dimensions,
+    });
+    this.bound = true;
+  }
+
+  /**
+   * Purge l'index et le lie à un nouvel espace d'embedding.
+   *
+   * Seule façon propre de changer de modèle : les vecteurs de l'ancien espace
+   * n'ont plus de sens pour le nouveau.
+   *
+   * @returns Nombre de vecteurs supprimés.
+   */
+  switchSpace(space: EmbeddingSpace): number {
+    const removed = this.vectors.clearAll();
+    this.vectors.bindSpace(space);
+    this.bound = true;
+    return removed;
   }
 
   removeResource(resourceId: string): void {

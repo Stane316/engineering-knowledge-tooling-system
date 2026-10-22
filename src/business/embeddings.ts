@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 
 import { DEFAULT_EMBEDDING_MODEL, EMBEDDING_DIMENSIONS } from '../shared/constants.js';
+import { loadEnvFile } from '../shared/env-file.js';
 import { EmbeddingsError } from '../shared/errors.js';
 
 /** Nombre de textes envoyés par appel API (limite OpenAI : 2048). */
@@ -212,6 +213,11 @@ export interface CreateEmbeddingsServiceOptions {
 export function createEmbeddingsService(
   options: CreateEmbeddingsServiceOptions = {},
 ): EmbeddingsService {
+  // Aucun `env` injecté : on est en production, `.env` doit être pris en compte.
+  if (options.env === undefined) {
+    loadEnvFile();
+  }
+
   const env = options.env ?? process.env;
   const apiKey = env.OPENAI_API_KEY?.trim();
 
