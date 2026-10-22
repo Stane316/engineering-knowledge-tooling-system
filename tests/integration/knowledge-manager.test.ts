@@ -144,11 +144,19 @@ describe('KnowledgeManager', () => {
 
   describe('updateResource', () => {
     it('met à jour les champs fournis et réindexe', async () => {
+      // Horloge fixée : comparer deux horodatages à la milliseconde près sans
+      // contrôle du temps rend le test instable (création et mise à jour
+      // peuvent tomber dans le même milliseconde).
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-01-01T10:00:00.000Z'));
+
       const created = await manager.addResource({
         type: 'article',
         title: 'Ancien',
         content: 'anciencontenu',
       });
+
+      vi.setSystemTime(new Date('2026-01-01T10:00:05.000Z'));
 
       const updated = await manager.updateResource(created.id, {
         title: 'Nouveau',
@@ -158,8 +166,8 @@ describe('KnowledgeManager', () => {
 
       expect(updated.title).toBe('Nouveau');
       expect(updated.tags).toEqual(['neuf']);
-      expect(updated.createdAt).toBe(created.createdAt);
-      expect(updated.updatedAt).not.toBe(created.updatedAt);
+      expect(updated.createdAt).toBe('2026-01-01T10:00:00.000Z');
+      expect(updated.updatedAt).toBe('2026-01-01T10:00:05.000Z');
       expect(searchFts('anciencontenu')).toHaveLength(0);
       expect(searchFts('nouveaucontenu')).toHaveLength(1);
     });
