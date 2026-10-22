@@ -4,7 +4,7 @@
 
 > « Ne pas repartir de zéro : retrouver, comprendre, exécuter, vérifier et capitaliser sur ce qui a déjà été appris ou construit. »
 
-**Statut :** 🚧 Implémentation en cours — Sprint 3 terminé, en attente de validation
+**Statut :** 🚧 Implémentation en cours — Sprint 4 terminé, en attente de validation
 **Version :** 0.1.0
 **Licence :** MIT
 
@@ -103,7 +103,8 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 | `npm run lint` / `lint:fix`       | ESLint (flat config)                           |
 | `npm run format` / `format:check` | Prettier                                       |
 | `npm test` / `test:watch`         | Tests Vitest                                   |
-| `npm run coverage`                | Couverture avec seuils 80 %                    |
+| `npm run coverage`                | Couverture (atteint 100 %)                     |
+| `npm run test:benchmark`          | Benchmark recherche (Recall@5, p95, 100K docs) |
 | `npm run verify`                  | typecheck + lint + format + build + couverture |
 | `npm run setup`                   | Hooks Git + vérification de l'environnement    |
 | `npm run check:env`               | Diagnostics (Node, SQLite, sqlite-vec, outils) |
@@ -114,13 +115,19 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 
 ## 6. Configuration
 
-| Variable        | Défaut        | Rôle                                           |
-| --------------- | ------------- | ---------------------------------------------- |
-| `NODE_ENV`      | `development` | `development`, `test` ou `production`          |
-| `EKTS_DATA_DIR` | `./data`      | Répertoire des bases SQLite (résolu en absolu) |
-| `LOG_LEVEL`     | `info`        | Niveau Pino (`trace`…`silent`)                 |
+| Variable                 | Défaut                   | Rôle                                           |
+| ------------------------ | ------------------------ | ---------------------------------------------- |
+| `NODE_ENV`               | `development`            | `development`, `test` ou `production`          |
+| `EKTS_DATA_DIR`          | `./data`                 | Répertoire des bases SQLite (résolu en absolu) |
+| `LOG_LEVEL`              | `info`                   | Niveau Pino (`trace`…`silent`)                 |
+| `OPENAI_API_KEY`         | —                        | Embeddings OpenAI (Sprint 4, via `.env`)       |
+| `OPENAI_EMBEDDING_MODEL` | `text-embedding-3-small` | Modèle d'embedding (1536 dims)                 |
+| `EMBEDDING_DIMENSION`    | `1536`                   | Doit correspondre au schéma `float[1536]`      |
 
-Aucun secret n'est requis pour le Sprint 1. Les secrets futurs passent exclusivement par `.env` (ignoré) ou les GitHub Secrets.
+Aucun secret n'est nécessaire pour installer, compiler ou lancer les tests (le benchmark utilise un
+fournisseur d'embeddings local). La clé OpenAI n'est requise que pour indexer et rechercher en mode
+vectoriel réel ; elle passe exclusivement par `.env` (ignoré par Git et Gitleaks) ou les GitHub
+Secrets. Voir `docs/guides/SEARCH_ENGINE.md`.
 
 ## 7. Structure du dépôt
 
@@ -131,7 +138,7 @@ engineering-knowledge-tooling-system/
 ├── migrations/              # migrations SQLite (Sprint 2)
 ├── docs/
 │   ├── blueprint/           # documentation de conception (15 phases, 48 sprints)
-│   ├── guides/              # guides projet (SETUP…)
+│   ├── guides/              # guides projet (SETUP, DATA_LAYER, KNOWLEDGE_MANAGER, SEARCH_ENGINE)
 │   └── audit/               # audits (état des lieux de démarrage)
 ├── .github/workflows/       # CI (qualité + secrets)
 ├── AGENTS.md                # règles pour les agents IA
@@ -142,7 +149,7 @@ engineering-knowledge-tooling-system/
 
 ## 8. Qualité et sécurité
 
-- **CI** sur chaque push : lint, typecheck, build, tests, couverture (Node 22.x et 24.x) + scan Gitleaks de l'historique.
+- **CI** sur chaque push : lint, typecheck, build, tests, couverture (Node 22.x et 24.x), benchmark de recherche + scan Gitleaks de l'historique.
 - **Hook pre-commit** versionné (`.husky/pre-commit`) : scan Gitleaks des fichiers indexés.
 - **Aucun secret** dans le dépôt ; `.env`, `*.db`, `data/`, `dist/`, `coverage/` ignorés.
 - **Couverture** : seuils 80 % configurés dans `vitest.config.ts`.
@@ -160,6 +167,7 @@ engineering-knowledge-tooling-system/
 | [`docs/blueprint/Docs/06-GUIDE-GIT-GITHUB.md`](docs/blueprint/Docs/06-GUIDE-GIT-GITHUB.md)                                   | Workflow Git                       |
 | [`docs/blueprint/Docs/08-REGISTRE-DECISIONS-ET-RISQUES.md`](docs/blueprint/Docs/08-REGISTRE-DECISIONS-ET-RISQUES.md)         | ADR et risques                     |
 | [`docs/audit/ETAT-DES-LIEUX-2026-10-21.md`](docs/audit/ETAT-DES-LIEUX-2026-10-21.md)                                         | Audit de démarrage                 |
+| [`docs/guides/SEARCH_ENGINE.md`](docs/guides/SEARCH_ENGINE.md)                                                               | Moteur de recherche (Sprint 4)     |
 | [`AGENTS.md`](AGENTS.md)                                                                                                     | Règles de travail des agents       |
 
 ## 10. Licence

@@ -138,10 +138,11 @@ npm run build
 | 2 | `npm run typecheck` | aucune sortie après l'en-tête du script |
 | 3 | `npm run lint` | aucune sortie |
 | 4 | `npm run format:check` | `All matched files use Prettier code style!` |
-| 5 | `npm test` | `Tests 67 passed (67)` |
-| 6 | `npm run coverage` | `Tests 68 passed (68)` puis `All files 100 %` |
+| 5 | `npm test` | `Tests 240 passed (240)` |
+| 6 | `npm run coverage` | `All files 100 %` |
 | 7 | `npm run db:inspect` | 3 fichiers, `journal_mode=wal`, `user_version = 1` |
-| 8 | `npm start` | `{"msg":"EKTS v0.1.0 - squelette initialise (Sprint 1)"}` |
+| 8 | `npm run test:benchmark` | `OK - seuils respectes` (Recall@5, Faithfulness, p95) |
+| 9 | `npm start` | `{"msg":"EKTS v0.1.0 - squelette initialise (Sprint 1)"}` |
 
 **Raccourci** (typecheck + lint + format + build + couverture) :
 
@@ -174,6 +175,9 @@ echo $?              # bash / zsh
 | `NODE_ENV` | `development`, `test`, `production` | `development` | Profil d'exécution ; toute autre valeur retombe sur `development` |
 | `EKTS_DATA_DIR` | chemin relatif ou absolu | `data` | Répertoire des bases SQLite, résolu en absolu |
 | `LOG_LEVEL` | `trace`…`fatal`, `silent` | `info` | Verbosité Pino |
+| `OPENAI_API_KEY` | `sk-…` | — | **Sprint 4** : obligatoire pour générer des embeddings réels |
+| `OPENAI_EMBEDDING_MODEL` | nom de modèle | `text-embedding-3-small` | Doit produire 1536 dimensions |
+| `EMBEDDING_DIMENSION` | entier | `1536` | Doit rester 1536 (schéma `float[1536]`) |
 
 ```bash
 # bash / zsh
@@ -187,8 +191,21 @@ $env:EKTS_DATA_DIR = "$env:LOCALAPPDATA\ekts"; $env:LOG_LEVEL = "debug"; npm sta
 
 ### 4.2 Fichier `.env`
 
-Aucune variable n'est obligatoire aujourd'hui. `.env` est **ignoré par Git** ; ne jamais forcer
-son ajout (`git add -f`).
+Depuis le Sprint 4, la génération d'embeddings exige une clé OpenAI. Créez `.env` à partir du
+modèle versionné :
+
+```powershell
+Copy-Item .env.example .env
+notepad .env      # renseigner OPENAI_API_KEY=sk-...
+```
+
+```bash
+cp .env.example .env
+```
+
+`.env` est **ignoré par Git**, par Gitleaks et par le hook pre-commit ; ne jamais forcer son
+ajout (`git add -f`). Les tests et le benchmark n'ont **pas** besoin de la clé : ils utilisent un
+fournisseur d'embeddings local et déterministe.
 
 ### 4.3 Chemins des bases
 
@@ -196,7 +213,7 @@ son ajout (`git add -f`).
 |------|---------|------|
 | Principale | `data/ekts.db` | Ressources, projets, audits |
 | FTS | `data/ekts-fts.db` | Index plein texte FTS5 |
-| Vecteurs | `data/ekts-vectors.db` | Embeddings `sqlite-vec` |
+| Vecteurs | `data/ekts-vectors.db` | Embeddings `sqlite-vec` (1536 dimensions) |
 
 Créées à la première ouverture, permissions `600` (POSIX), jamais versionnées.
 

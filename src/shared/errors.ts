@@ -6,7 +6,13 @@
  * message et du code de sortie sans analyser une chaîne de caractères.
  */
 
-export type EktsErrorCode = 'RESOURCE_NOT_FOUND' | 'VALIDATION_FAILED' | 'INDEXING_FAILED';
+export type EktsErrorCode =
+  | 'RESOURCE_NOT_FOUND'
+  | 'VALIDATION_FAILED'
+  | 'INDEXING_FAILED'
+  | 'SEARCH_FAILED'
+  | 'EMBEDDINGS_FAILED'
+  | 'FUSION_FAILED';
 
 export class EktsError extends Error {
   constructor(
@@ -46,5 +52,32 @@ export class ValidationError extends EktsError {
 export class IndexingError extends EktsError {
   constructor(message: string, options?: { cause?: unknown }) {
     super(`Indexation échouée : ${message}`, 'INDEXING_FAILED', options);
+  }
+}
+
+/**
+ * Échec d'une recherche (requête FTS5 invalide, index vectoriel indisponible,
+ * vecteur de requête invalide…).
+ */
+export class SearchError extends EktsError {
+  constructor(message: string, options?: { cause?: unknown }) {
+    super(`Recherche échouée : ${message}`, 'SEARCH_FAILED', options);
+  }
+}
+
+/**
+ * Échec de la génération d'embeddings (clé absente, appel réseau en échec,
+ * réponse malformée, dimensions incohérentes…).
+ */
+export class EmbeddingsError extends EktsError {
+  constructor(message: string, options?: { cause?: unknown }) {
+    super(`Embeddings échoués : ${message}`, 'EMBEDDINGS_FAILED', options);
+  }
+}
+
+/** Échec de la fusion RRF (constante de lissage invalide, entrées incohérentes). */
+export class FusionError extends EktsError {
+  constructor(message: string, options?: { cause?: unknown }) {
+    super(`Fusion échouée : ${message}`, 'FUSION_FAILED', options);
   }
 }

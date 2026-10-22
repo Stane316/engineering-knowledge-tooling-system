@@ -62,7 +62,14 @@ npm test               # Vitest
 npm run coverage       # couverture (seuils 80 %)
 npm run format:check   # Prettier
 npm run verify         # typecheck + lint + format + build + couverture
+npm run db:inspect     # état des trois bases
+npm run db:reindex     # reconstruction de l'index FTS
+npm run test:benchmark # benchmark recherche (C4.6, C4.7, C4.8)
 ```
+
+Variables lues à l'exécution : `EKTS_DATA_DIR`, `LOG_LEVEL`, `NODE_ENV` (base) ; `OPENAI_API_KEY`,
+`OPENAI_EMBEDDING_MODEL`, `EMBEDDING_DIMENSION` (Sprint 4). `.env` est ignoré par Git et Gitleaks ;
+seul `.env.example` est versionné. Les tests et le benchmark ne requièrent **aucune** clé.
 
 `.npmrc` fixe `ignore-scripts=true` : `better-sqlite3` 13 charge ses binaires précompilés et npm
 ne doit **jamais** lancer `node-gyp` (aucune chaîne de compilation requise). Ne pas supprimer ce

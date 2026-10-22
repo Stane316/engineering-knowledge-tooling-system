@@ -524,6 +524,54 @@ Zod comme bibliothèque de validation
 
 ---
 
+### 2.2.1 Décisions d'implémentation du Sprint 4 (22 octobre 2026)
+
+Ces décisions découlent de la mise en œuvre réelle d'ADR-004 et sont consignées ici pour que les
+sprints 5 et 6 s'appuient sur l'état effectif du code, non sur la conception initiale.
+
+#### ADR-012 — Indexation vectorielle par décorateur, pas dans le manager
+
+**Statut :** ✅ APPLIQUÉ
+**Contexte :** le dossier de sprint prescrit de modifier `KnowledgeManager` pour appeler
+l'indexer vectoriel à chaque écriture. La mission du sprint interdit cette modification.
+**Décision :** `withVectorIndexing(manager, vectorIndexer)` renvoie un `IKnowledgeManager`
+décoré qui délègue les neuf méthodes et ajoute l'indexation après `addResource`,
+`updateResource`, `deleteResource` et `reindex`.
+**Conséquences :** `KnowledgeManager` reste utilisable sans réseau ; l'écriture SQLite et
+l'appel OpenAI ne partagent pas de transaction (dégradation réparable par `reindex()`).
+
+#### ADR-013 — Similarité cosinus sans migration du schéma
+
+**Statut :** ✅ APPLIQUÉ
+**Contexte :** la table `vec0` de la migration 001 n'a pas d'option `distance_metric`, donc
+`sqlite-vec` applique la distance L2 ; la spécification exige le cosinus. Recréer la table
+imposerait une migration destructive et une réindexation complète.
+**Décision :** normaliser les vecteurs à la norme 1 à l'écriture et à la lecture. Pour des vecteurs
+unitaires, `cos = 1 - distance²/2` : le classement L2 est identique au classement cosinus.
+**Conséquences :** aucune migration ; un futur changement de `distance_metric` devra être mesuré
+(normalisation devenue inutile, mais inoffensive).
+
+#### ADR-014 — Assainissement systématique des requêtes FTS
+
+**Statut :** ✅ APPLIQUÉ
+**Contexte :** FTS5 interprète `AND`, `OR`, `NOT`, `NEAR`, `*`, `"`, `-` et les parenthèses. Une
+saisie utilisateur comme `C++ (pointeurs)` produit `fts5: syntax error near ""`.
+**Décision :** `toFtsQuery()` découpe la saisie en mots, cite chaque terme et les joint par `AND` ;
+une requête sans terme exploitable renvoie `[]` sans interroger FTS5.
+**Conséquences :** aucune erreur de syntaxe possible depuis l'entrée utilisateur ; les opérateurs
+FTS avancés ne sont pas exposés (hors périmètre, à rouvrir si un besoin réel apparaît).
+
+#### Risques nouveaux (Sprint 4)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-4.1 | Coût OpenAI à l'indexation d'un gros corpus | Moyen | Moyenne | `embedBatch` (64 textes/appel), indexation incrémentale, fournisseur local pour les tests |
+| R-4.2 | Indisponibilité de l'API OpenAI | Moyen | Moyenne | Mode `fts` sans réseau ; erreurs typées ; `reindex()` pour rattraper |
+| R-4.3 | Pas d'index ANN : latence linéaire en nombre de vecteurs | Moyen | Faible (< 100K) | Mesuré à 308 ms p95 pour 100K vecteurs ; réexamen au-delà de 150K |
+| R-4.4 | Écart entre l'index FTS et l'index vectoriel après un échec d'embedding | Faible | Moyenne | `reindex()` du décorateur, `checkIntegrity()` pour le FTS |
+
+---
+
 ### 2.3 Décisions à vérifier
 
 | ID | Sujet | Information | Date vérification | Statut |
