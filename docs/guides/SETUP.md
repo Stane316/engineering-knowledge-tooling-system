@@ -6,7 +6,7 @@
 | **Responsable** | Développeur du projet (poste local) / mainteneur (CI) |
 | **Prérequis** | Droits d'installation locale, accès réseau à npm et GitHub |
 | **Emplacement** | Racine du dépôt `engineering-knowledge-tooling-system` |
-| **Dernière mise à jour** | 2026-10-22 (Sprint 1) |
+| **Dernière mise à jour** | 2026-10-22 (correctif installation sans compilateur) |
 
 ---
 
@@ -17,38 +17,36 @@
 | Node.js | 22.12.0 (LTS) | `node --version` | `v22.12.0` ou supérieur |
 | npm | 10.9.0 | `npm --version` | `10.9.0` ou supérieur |
 | Git | 2.40 | `git --version` | `git version 2.40` ou supérieur |
-| Chaîne de compilation | — | `python3 --version`, `make --version` | non vides (see §6.1) |
 | Gitleaks (optionnel) | 8.30.1 | `gitleaks version` | `8.30.1` |
 
-> Node 22 LTS est la **baseline officielle** (ADR-011). Node 24 est testé en CI comme version de compatibilité ascendante. Node 20 n'est plus supporté.
+> Node 22 LTS est la **baseline officielle** (ADR-011). Node 24 est testé en CI comme version de
+> compatibilité ascendante. Node 20 n'est plus supporté.
 
 ### 1.1 Installer Node 22
 
 ```bash
-# nvm (recommandé)
+# nvm (macOS / Linux)
 nvm install 22
 nvm use 22          # .nvmrc est présent à la racine
-
-# ou fnm
-fnm install 22 && fnm use 22
 ```
 
-**Vérification :** `node --version` → `v22.x.y` avec `x >= 12`.
-
-### 1.2 Installer les outils de compilation
-
-`better-sqlite3` publie des binaires précompilés pour les plateformes courantes ; ils sont utilisés automatiquement. La chaîne de compilation n'est nécessaire qu'en cas de repli.
-
-```bash
-# Debian / Ubuntu
-sudo apt-get update && sudo apt-get install -y build-essential python3
-
-# macOS
-xcode-select --install
-
-# Fedora / RHEL
-sudo dnf groupinstall "Development Tools" && sudo dnf install -y python3
+```powershell
+# nvm-windows (PowerShell)
+nvm install 22.12.0
+nvm use 22.12.0
 ```
+
+Node 24 fonctionne également (testé en CI). Éviter les versions impaires et les versions
+antérieures à 22.12.
+
+### 1.2 Chaîne de compilation : **non requise**
+
+`better-sqlite3` 13 embarque ses binaires précompilés pour `linux`, `darwin` et `win32`
+(x64 et arm64), et `sqlite-vec` fournit des paquets plateforme. **Aucun compilateur C++,
+aucun Python et aucun Visual Studio ne sont nécessaires.**
+
+Le dépôt neutralise donc les scripts de cycle de vie npm via `.npmrc` (`ignore-scripts=true`) :
+c'est ce qui garantit que `npm ci` ne tente jamais de recompiler quoi que ce soit (voir §6.1).
 
 ### 1.3 Installer Gitleaks (recommandé)
 
@@ -65,7 +63,16 @@ brew install gitleaks
 gitleaks version   # → 8.30.1
 ```
 
-Le hook `pre-commit` détecte l'absence du binaire et **n'échoue pas** : il affiche un avertissement et laisse la CI appliquer le contrôle. Installer Gitleaks reste fortement recommandé pour un retour immédiat.
+```powershell
+# Windows (PowerShell, sans droits administrateur)
+Invoke-WebRequest -Uri "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_windows_x64.zip" -OutFile "$env:TEMP\gitleaks.zip"
+Expand-Archive "$env:TEMP\gitleaks.zip" -DestinationPath "$env:LOCALAPPDATA\gitleaks" -Force
+$env:Path += ";$env:LOCALAPPDATA\gitleaks"
+gitleaks version
+```
+
+Sans Gitleaks, le hook `pre-commit` affiche un avertissement et laisse passer le commit ; la CI
+reste bloquante.
 
 ---
 
@@ -78,7 +85,9 @@ git clone https://github.com/Stane316/engineering-knowledge-tooling-system.git
 cd engineering-knowledge-tooling-system
 ```
 
-**Résultat attendu :** répertoire contenant `package.json`, `src/`, `docs/`.
+> **Windows :** éviter un dossier synchronisé (OneDrive, Dropbox) ou surveillé par un antivirus.
+> `C:\Users\<nom>\Downloads` est synchronisé par OneDrive chez beaucoup d'utilisateurs, ce qui
+> provoque des erreurs `EPERM` pendant l'installation (voir §6.9). Préférer `C:\dev\`.
 
 ### 2.2 Installer les dépendances
 
@@ -86,13 +95,32 @@ cd engineering-knowledge-tooling-system
 npm ci
 ```
 
-`npm ci` est **obligatoire** (et non `npm install`) : il installe exactement les versions de `package-lock.json`, qui est versionné.
+`npm ci` est **obligatoire** (et non `npm install`) : il installe exactement les versions de
+`package-lock.json`, qui est versionné.
 
-**Résultat attendu :** `added N packages` sans erreur, et création de `node_modules/`.
+**Résultat attendu :** `added 169 packages` sans erreur et sans aucune ligne `node-gyp`.
 
-**Attention :** `npm ci` exécute le script `prepare` → `husky`, qui installe les hooks Git. Si Husky échoue parce que le dépôt n'est pas encore initialisé, voir §6.3.
+### 2.3 Installer les hooks Git et vérifier l'environnement
 
-### 2.3 Compiler
+```bash
+npm run setup
+```
+
+Cette commande installe les hooks Husky (le script `prepare` n'est plus exécuté à cause de
+`ignore-scripts`) puis lance `scripts/check-env.mjs` :
+
+```
+OK   Dépendances installées
+OK   Version de Node — 22.22.3 (minimum 22.12)
+OK   better-sqlite3 — SQLite 3.53.4 (binaire précompilé)
+OK   sqlite-vec — v0.1.9
+OK   Outils de développement — tsc, vitest, eslint et prettier disponibles
+OK   Hooks Git — installés
+```
+
+Si une ligne est en `FAIL`, voir §6.
+
+### 2.4 Compiler
 
 ```bash
 npm run build
@@ -104,27 +132,27 @@ npm run build
 
 ## 3. Vérification complète
 
-Exécuter les commandes dans cet ordre ; chacune doit se terminer avec le code de sortie `0`.
-
 | # | Commande | Résultat attendu |
 |---|----------|------------------|
-| 1 | `npm run typecheck` | aucune sortie après l'en-tête du script |
-| 2 | `npm run lint` | aucune sortie après l'en-tête du script |
-| 3 | `npm run format:check` | `All matched files use Prettier code style!` |
-| 4 | `npm test` | `Tests  N passed (N)` |
-| 5 | `npm run coverage` | tableau de couverture, `All files` ≥ 80 % |
-| 6 | `npm start` | ligne JSON Pino `"msg":"EKTS v0.1.0 — squelette initialisé (Sprint 1)"` |
+| 1 | `npm run check:env` | 6 lignes `OK` |
+| 2 | `npm run typecheck` | aucune sortie après l'en-tête du script |
+| 3 | `npm run lint` | aucune sortie |
+| 4 | `npm run format:check` | `All matched files use Prettier code style!` |
+| 5 | `npm test` | `Tests 67 passed (67)` |
+| 6 | `npm run coverage` | `All files 100 %` |
+| 7 | `npm start` | `{"msg":"EKTS v0.1.0 — squelette initialisé (Sprint 1)"}` |
 
-**Procédure rapide (une seule ligne) :**
+**Raccourci** (typecheck + lint + format + build + couverture) :
 
 ```bash
-npm run typecheck && npm run lint && npm run format:check && npm run coverage && npm start
+npm run verify
 ```
 
 **Vérification du code de sortie :**
 
 ```bash
-echo $?   # → 0
+echo $?      # bash / zsh
+echo $LASTEXITCODE   # PowerShell
 ```
 
 ---
@@ -135,38 +163,34 @@ echo $?   # → 0
 
 | Variable | Valeurs | Défaut | Effet |
 |----------|---------|--------|-------|
-| `NODE_ENV` | `development`, `test`, `production` | `development` | Sélectionne le profil d'exécution ; toute autre valeur retombe sur `development` |
-| `EKTS_DATA_DIR` | chemin relatif ou absolu | `data` | Répertoire des bases SQLite ; résolu en chemin absolu depuis le répertoire courant |
-| `LOG_LEVEL` | `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `silent` | `info` | Niveau de verbosité Pino |
+| `NODE_ENV` | `development`, `test`, `production` | `development` | Profil d'exécution ; toute autre valeur retombe sur `development` |
+| `EKTS_DATA_DIR` | chemin relatif ou absolu | `data` | Répertoire des bases SQLite, résolu en absolu |
+| `LOG_LEVEL` | `trace`…`fatal`, `silent` | `info` | Verbosité Pino |
 
 ```bash
-# Exemple : données hors du dépôt, logs détaillés
+# bash / zsh
 EKTS_DATA_DIR="$HOME/.local/share/ekts" LOG_LEVEL=debug npm start
+```
 
-# Exemple : exécution silencieuse (utile en test)
-LOG_LEVEL=silent npm start
+```powershell
+# PowerShell
+$env:EKTS_DATA_DIR = "$env:LOCALAPPDATA\ekts"; $env:LOG_LEVEL = "debug"; npm start
 ```
 
 ### 4.2 Fichier `.env`
 
-Aucune variable n'est obligatoire au Sprint 1. Pour un usage local :
+Aucune variable n'est obligatoire aujourd'hui. `.env` est **ignoré par Git** ; ne jamais forcer
+son ajout (`git add -f`).
 
-```bash
-cp .env.example .env      # si le fichier existe
-# sinon créer .env manuellement
-```
-
-`.env` est **ignoré par Git** (voir `.gitignore`). Ne jamais y placer de valeur réelle destinée à la production, et ne jamais forcer son ajout (`git add -f`).
-
-### 4.3 Chemins des bases (Sprint 2+)
+### 4.3 Chemins des bases
 
 | Base | Fichier | Rôle |
 |------|---------|------|
-| Principale | `data/ekts.db` | Ressources, connaissances, projets, observations |
+| Principale | `data/ekts.db` | Ressources, projets, audits |
 | FTS | `data/ekts-fts.db` | Index plein texte FTS5 |
 | Vecteurs | `data/ekts-vectors.db` | Embeddings `sqlite-vec` |
 
-Le répertoire `data/` est créé à la première utilisation et n'est **jamais** versionné.
+Créées à la première ouverture, permissions `600` (POSIX), jamais versionnées.
 
 ---
 
@@ -174,9 +198,7 @@ Le répertoire `data/` est créé à la première utilisation et n'est **jamais*
 
 ### 5.1 Hook `pre-commit`
 
-Fichier : `.husky/pre-commit` (versionné).
-
-Contenu fonctionnel :
+Fichier versionné : `.husky/pre-commit`.
 
 ```sh
 if command -v gitleaks >/dev/null 2>&1; then
@@ -186,18 +208,17 @@ else
 fi
 ```
 
-Comportement :
+- Gitleaks présent → commit bloqué si un secret est détecté dans les fichiers indexés.
+- Gitleaks absent → avertissement, commit autorisé, CI bloquante.
 
-- Gitleaks présent → blocage du commit si un secret est détecté dans les fichiers indexés.
-- Gitleaks absent → avertissement, commit autorisé (la CI reste bloquante).
-
-### 5.2 Réinstaller les hooks
+### 5.2 Installer ou réinstaller les hooks
 
 ```bash
-npm run prepare
+npm run setup
 ```
 
-**Résultat attendu :** `.husky/_/` regénéré, aucune erreur.
+`npm run prepare` reste disponible mais n'est **pas** exécuté automatiquement
+(`ignore-scripts=true`).
 
 ### 5.3 Contournement volontaire
 
@@ -205,64 +226,70 @@ npm run prepare
 git commit --no-verify -m "..."
 ```
 
-À n'utiliser que pour un commit documentaire dont on a vérifié le contenu, jamais pour un fichier contenant un secret.
+Uniquement pour un commit documentaire relu, jamais pour un fichier contenant un secret.
 
 ---
 
 ## 6. Dépannage
 
-### 6.1 `better-sqlite3` échoue à l'installation
+### 6.1 `node-gyp` / Visual Studio / `gyp ERR!` pendant `npm ci`
 
-**Symptôme :** `node-gyp` erreur, `gyp ERR! stack`, `Could not find any Python installation`, ou `gyp http GET https://nodejs.org/download/release/... failed`.
+**Symptômes (Windows) :**
 
-**Causes :** compilation déclenchée à tort, ou poste sans accès à `nodejs.org`.
-
-`better-sqlite3` 13+ embarque ses binaires précompilés dans le paquet npm (`prebuilds/`) : **aucune compilation n'est nécessaire** dans le cas normal (`gypfile: false`).
-
-**Solution immédiate** (utilisable aussi sans chaîne de compilation) :
-
-```bash
-npm ci --ignore-scripts
-node -e "const D=require('better-sqlite3');const d=new D(':memory:');console.log(d.prepare('select 1 as ok').get())"
-# → { ok: 1 }
+```
+npm error command sh -c node-gyp rebuild
+gyp ERR! find VS You need to install the latest version of Visual Studio
+gyp ERR! find VS including the "Desktop development with C++" workload.
 ```
 
-`--ignore-scripts` n'exécute pas `prepare` (Husky) : relancer ensuite `npm run prepare` pour installer les hooks Git.
+**Symptômes (Linux/macOS) :**
+
+```
+gyp http GET https://nodejs.org/download/release/vX/node-vX-headers.tar.gz ... ECONNRESET
+gyp ERR! configure error
+```
+
+**Cause exacte.** `better-sqlite3` 13 embarque ses binaires (`prebuilds/`) et déclare
+`gypfile: false` : **aucune compilation n'est nécessaire**. Mais le lockfile ne conserve pas ce
+champ ; `npm ci` (ainsi que `npm install` en présence d'un lockfile) voit `binding.gyp`, en déduit
+un module natif et lance `node-gyp rebuild`. Sur une machine sans Visual Studio (Windows) ou sans
+chaîne de compilation, l'installation échoue alors que le binaire précompilé était déjà là.
+
+**Correctif (intégré au dépôt).** `.npmrc` contient `ignore-scripts=true`. Un `npm ci` normal
+n'essaie donc jamais de compiler :
 
 ```bash
-# 1. Vérifier que Node correspond à la version supportée
-node --version                 # attendu : v22.x ou v24.x
-
-# 2. Nettoyer et réinstaller sans cache
-rm -rf node_modules ~/.npm/_cacache
 npm ci
-
-# 3. Si la compilation est réellement nécessaire, installer la chaîne (§1.2)
-#    puis relancer
-npm rebuild better-sqlite3
+npm run setup
 ```
 
-**Vérification :**
+**Ne pas installer Visual Studio pour ce projet.** Si un `node-gyp rebuild` apparaît malgré tout,
+c'est que `.npmrc` a été supprimé ou contourné : le restaurer (`git checkout -- .npmrc`) puis
+relancer l'installation après avoir supprimé `node_modules`.
+
+**Vérification:**
 
 ```bash
-node -e "const D=require('better-sqlite3');const d=new D(':memory:');console.log(d.prepare('select 1 as ok').get())"
-# → { ok: 1 }
+node -e "const D=require('better-sqlite3');const d=new D(':memory:');console.log(d.prepare('select sqlite_version() v').get())"
+# → { v: '3.53.4' }
 ```
 
-**Récupération :** si le binaire reste introuvable, supprimer `node_modules/` et relancer `npm ci` après avoir mis à jour npm (`npm i -g npm@latest`).
+### 6.2 `npm ci` échoue après un `node_modules` incomplet
 
-### 6.2 `npm ci` refuse de s'exécuter
-
-**Symptôme :** `npm ci can only install packages when your package.json and package-lock.json are in sync`.
-
-**Procédure :**
+Dans 90 % des cas, l'échec vient d'un `node_modules` partiellement supprimé (voir §6.9) ou d'un
+`package-lock.json` désynchronisé.
 
 ```bash
-git checkout -- package-lock.json   # restaurer la version versionnée
+# 1. Restaurer le lockfile versionné
+git checkout -- package-lock.json
+
+# 2. Repartir d'un dossier de dépendances propre (voir §6.9 sur Windows)
+rm -rf node_modules
 npm ci
+npm run setup
 ```
 
-Si le décalage est légitime (dépendance ajoutée volontairement), régénérer le lockfile **dans un commit dédié** :
+Si le décalage est volontaire (dépendance ajoutée), régénérer le lockfile **dans un commit dédié** :
 
 ```bash
 npm install <paquet>
@@ -271,42 +298,47 @@ git add package.json package-lock.json
 
 ### 6.3 Husky ne s'installe pas
 
-**Symptôme :** `fatal: not a git repository` pendant `npm ci`.
+**Symptôme :** `.git can't be found` ou hooks absents après `npm ci`.
 
-**Cause :** installation hors dépôt Git (archive, sous-répertoire).
+**Cause :** `ignore-scripts=true` empêche l'exécution de `prepare`, et l'installation peut se faire
+hors dépôt Git (archive, sous-répertoire).
 
-**Procédure :** initialiser Git ou installer avec `HUSKY=0` :
+**Procédure :**
 
 ```bash
-HUSKY=0 npm ci
+npm run setup     # installe les hooks
 ```
+
+Hors dépôt Git, cette étape est sans objet.
 
 ### 6.4 `npm run format:check` échoue
 
 ```bash
-npx prettier --write .        # corrige tout le dépôt
-npm run format:check          # vérification
+npx prettier --write .
+npm run format:check
 ```
 
-Ne jamais modifier `.prettierrc` pour contourner un échec sur un fichier isolé.
+Ne jamais modifier `.prettierrc` pour contourner un échec isolé.
 
-### 6.5 `gitleaks` signale un faux positif
+### 6.5 Gitleaks signale un faux positif
 
-1. Vérifier que la chaîne n'est **pas** un secret réel (historique Git inclus : `git log -S"<chaîne>"`).
-2. Si c'est un exemple documentaire, ajouter son chemin dans `[[allowlists]]` de `.gitleaks.toml`.
-3. Ne jamais ajouter d'`allowlist` sur une valeur réelle : révoquer la clé et la remplacer par une variable d'environnement.
+1. Vérifier que la chaîne n'est **pas** un secret réel (historique inclus : `git log -S"<chaîne>"`).
+2. Si c'est un exemple documentaire, ajouter le chemin dans `[[allowlists]]` de `.gitleaks.toml`.
+3. Ne jamais allowlister une valeur réelle : révoquer la clé, puis la remplacer par une variable
+   d'environnement.
 
-### 6.6 `npm start` échoue avec `Cannot find module '.../dist/index.js'`
+### 6.6 `npm start` : `Cannot find module '.../dist/index.js'`
 
 ```bash
 npm run build && npm start
 ```
 
-`npm start` ne compile pas : il exécute uniquement le build existant.
+`npm start` ne compile pas : il exécute le build existant.
 
-### 6.7 Erreur `ERR_MODULE_NOT_FOUND` sur un import `.js`
+### 6.7 `ERR_MODULE_NOT_FOUND` sur un import `.js`
 
-Le projet est en ESM (`"type": "module"`, `moduleResolution: NodeNext`) : **tous les imports relatifs doivent porter l'extension `.js`**, même depuis un fichier `.ts`.
+Le projet est en ESM (`"type": "module"`, `moduleResolution: NodeNext`) : **tous les imports
+relatifs portent l'extension `.js`**, même depuis un fichier `.ts`.
 
 ```ts
 import { logger } from './shared/logger.js';   // ✅
@@ -315,11 +347,89 @@ import { logger } from './shared/logger';      // ❌
 
 ### 6.8 CI rouge sur Node 24 uniquement
 
-Node 24 est une version de **compatibilité** ; un échec spécifique indique une API dépréciée ou un binaire natif manquant. Ouvrir une issue, ne pas retirer la matrice sans décision tracée dans le registre (ADR/RISQ).
+Node 24 est une version de **compatibilité**. Un échec spécifique indique une API dépréciée ou un
+comportement différent : ouvrir une issue, ne pas retirer la matrice sans décision tracée (ADR/RISQ).
+
+### 6.9 Windows : `EPERM: operation not permitted, rmdir ...node_modules\...`
+
+**Symptômes :**
+
+```
+npm warn cleanup Failed to remove some directories [...node_modules\zod\src] {
+npm warn cleanup   [Error: EPERM: operation not permitted, rmdir ...]
+```
+
+**Causes :** fichiers verrouillés par un processus (terminal, VS Code, watcher `tsx`,
+antivirus) ou synchronisation OneDrive d'un dossier sous `Downloads`.
+
+**Procédure :**
+
+```powershell
+# 1. Fermer les terminaux, VS Code, watchers
+Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# 2. Supprimer le dossier de dépendances
+Remove-Item -Recurse -Force node_modules -ErrorAction SilentlyContinue
+
+# 3. Si la suppression échoue encore : redémarrer, ou déplacer le projet hors de OneDrive
+#    Exemple : C:\dev\engineering-knowledge-tooling-system
+
+# 4. Réinstaller
+npm cache verify
+npm ci
+npm run setup
+```
+
+**Prévention :** travailler dans `C:\dev\...` (hors OneDrive) et exclure le dossier du scan
+temps réel de l'antivirus si les lenteurs persistent.
+
+### 6.10 Windows : `npm.ps1 cannot be loaded because running scripts is disabled`
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+Alternative immédiate, sans changer la politique système :
+
+```powershell
+npm.cmd ci
+```
 
 ---
 
-## 7. Sécurité
+## 7. Windows — séquence complète (PowerShell)
+
+```powershell
+# 1. Se placer dans un dossier non synchronisé
+cd C:\dev
+git clone https://github.com/Stane316/engineering-knowledge-tooling-system.git
+cd engineering-knowledge-tooling-system
+
+# 2. Installer (aucune compilation, aucun Visual Studio)
+npm ci
+
+# 3. Hooks + vérification de l'environnement
+npm run setup
+
+# 4. Vérifier
+npm run verify
+npm start
+```
+
+Sortie attendue à l'étape 3 :
+
+```
+OK   better-sqlite3 — SQLite 3.53.4 (binaire précompilé)
+OK   sqlite-vec — v0.1.9
+OK   Hooks Git — installés
+```
+
+Si `node-gyp` apparaît à l'étape 2 : `.npmrc` est absent (`git status`), le restaurer puis
+recommencer après `Remove-Item -Recurse -Force node_modules` (§6.1 et §6.9).
+
+---
+
+## 8. Sécurité
 
 | Règle | Application |
 |-------|-------------|
@@ -328,29 +438,29 @@ Node 24 est une version de **compatibilité** ; un échec spécifique indique un
 | Secrets CI | GitHub Secrets (jamais en clair dans les workflows) |
 | Historique | Scan complet `gitleaks git . --log-opts="--all"` en CI |
 | Révocation | Toute clé exposée est révoquée **avant** d'être retirée du code |
-| Dépendances | `npm ci` depuis le lockfile versionné ; `npm audit` avant ajout d'un paquet |
+| Dépendances | `npm ci` depuis le lockfile ; scripts de cycle de vie désactivés (`.npmrc`) |
 
 ---
 
-## 8. Procédure de récupération rapide
+## 9. Procédure de récupération rapide
 
 ```bash
-# Repartir d'un poste propre
 git clean -xdf          # ⚠️ supprime les fichiers non suivis (dont .env local)
 git checkout -- .
 npm ci
-npm run build
-npm test
+npm run setup
+npm run verify
 ```
 
 `git clean -xdf` détruit les fichiers ignorés : sauvegarder `.env` et `data/` avant exécution.
 
 ---
 
-## 9. Références
+## 10. Références
 
 - [README](../../README.md)
-- [Architecture](../../docs/blueprint/Docs/02-ARCHITECTURE-TECHNIQUE.md)
-- [Sécurité](../../docs/blueprint/Docs/05-SECURITE-ET-GESTION-DES-SECRETS.md)
-- [Guide Git](../../docs/blueprint/Docs/06-GUIDE-GIT-GITHUB.md)
-- [ADR et risques](../../docs/blueprint/Docs/08-REGISTRE-DECISIONS-ET-RISQUES.md)
+- [Data Layer](DATA_LAYER.md)
+- [Architecture](../blueprint/Docs/02-ARCHITECTURE-TECHNIQUE.md)
+- [Sécurité](../blueprint/Docs/05-SECURITE-ET-GESTION-DES-SECRETS.md)
+- [Guide Git](../blueprint/Docs/06-GUIDE-GIT-GITHUB.md)
+- [ADR et risques](../blueprint/Docs/08-REGISTRE-DECISIONS-ET-RISQUES.md)

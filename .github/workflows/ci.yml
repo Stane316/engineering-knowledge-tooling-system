@@ -34,6 +34,9 @@ jobs:
       - name: Installer les dépendances
         run: npm ci
 
+      - name: Vérifier l'environnement
+        run: npm run check:env
+
       - name: Lint
         run: npm run lint
 
