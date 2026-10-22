@@ -168,6 +168,10 @@ Règles :
 
 ## 5. Repository
 
+> Depuis le Sprint 3, l'usage courant passe par `KnowledgeManager`, qui ajoute validation métier,
+> erreurs typées et maintenance de l'index : voir [KNOWLEDGE_MANAGER.md](KNOWLEDGE_MANAGER.md).
+> Le repository reste utilisable directement (couche basse, sans règles de domaine).
+
 `ResourceRepository` reçoit la connexion par constructeur (aucun singleton, donc testable) :
 
 ```ts
@@ -225,7 +229,7 @@ tests/
 ## 8. Tests
 
 ```bash
-npm test                      # 68 tests (unitaires + intégration)
+npm test                      # 117 tests (unitaires + intégration)
 npm run coverage              # 100 % (seuils 80 %)
 ```
 
@@ -248,8 +252,8 @@ contrairement aux commandes `node -e "…"` multi-lignes.
 
 1. **Atomicité multi-fichiers.** SQLite garantit la durabilité transactionnelle entre bases
    attachées uniquement lorsque la base principale n'est **pas** en WAL. En WAL, un arrêt brutal
-   entre deux commits fichiers peut laisser l'index FTS en retard. Correctif prévu : commande
-   `ekts reindex` (Sprint 3-3).
+   entre deux commits fichiers peut laisser l'index FTS en retard. **Traité au Sprint 3** :
+   `npm run db:inspect` détecte l'écart, `npm run db:reindex` répare.
 2. **Embeddings périmés.** `update()` ne purgera pas l'entrée vectorielle : le recalcul appartient
    au Sprint 4 (génération d'embeddings). En attendant, un vecteur obsolète est inoffensif pour la
    recherche FTS mais fausse la recherche hybride.

@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 22 octobre 2026 — Sprint 2 (Data Layer SQLite)  
+**Dernière mise à jour :** 22 octobre 2026 — Sprint 3 (Knowledge Manager)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -38,11 +38,11 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 
 | Périmètre | Sprints | Documentation | Implémentation | Tests |
 |-----------|---------|---------------|----------------|-------|
-| **MVP-1** — Bibliothèque, recherche, CLI, MCP | 1 à 6 | ✅ 24 dossiers | 🟡 Sprints 1-2 terminés | ✅ Linux + Windows |
+| **MVP-1** — Bibliothèque, recherche, CLI, MCP | 1 à 6 | ✅ 24 dossiers | 🟡 Sprints 1-3 terminés | ✅ Linux + Windows |
 | **MVP-2** — Inspection navigateur | 7 à 12 | ✅ 24 dossiers | ⏳ | — |
 | **MVP-3** — Capitalisation projets | 13 à 18 | ⏳ non documentés | ⏳ | — |
 
-**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 et 2 au 22 octobre 2026 (67 tests, couverture 100 %).
+**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 3 au 22 octobre 2026 (117 tests, couverture 100 %).
 
 ---
 
@@ -58,10 +58,10 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 2 | 2-2 | Repository Resource + tests | ✅ Rédigée | ✅ `e0ac3b3` | ✅ 26 tests, 100 % |
 | Sprint 2 | 2-3 | Validation Zod + documentation | ✅ Rédigée | ✅ `e0ac3b3` | ✅ 17 tests, 100 % |
 | Sprint 2 | Dossier parent | Data Layer (SQLite) | ✅ Rédigée | ⏸️ En attente de validation | ✅ |
-| Sprint 3 | 3-1 | Knowledge Manager CRUD (add, get, list) | ✅ Rédigée | ⏳ | — |
-| Sprint 3 | 3-2 | Knowledge Manager CRUD suite (update, delete) + tests complets | ✅ Rédigée | ⏳ | — |
-| Sprint 3 | 3-3 | Indexation FTS automatique + documentation | ✅ Rédigée | ⏳ | — |
-| Sprint 3 | Dossier parent | Knowledge Manager (Semaine 5-6) | ✅ Rédigée | ⏳ | — |
+| Sprint 3 | 3-1 | Knowledge Manager CRUD (add, get, list) | ✅ Rédigée | ✅ `ce674d5` | ✅ 100 % |
+| Sprint 3 | 3-2 | Knowledge Manager CRUD suite (update, delete) + tests complets | ✅ Rédigée | ✅ `ce674d5` | ✅ 100 % |
+| Sprint 3 | 3-3 | Indexation FTS automatique + documentation | ✅ Rédigée | ✅ `ce674d5` | ✅ 100 % |
+| Sprint 3 | Dossier parent | Knowledge Manager (Semaine 5-6) | ✅ Rédigée | ⏸️ En attente de validation | ✅ |
 | Sprint 4 | 4-1 | Recherche FTS5 (BM25) + Vectorielle (sqlite-vec) | ✅ Rédigée | ⏳ | — |
 | Sprint 4 | 4-2 | Génération embeddings (OpenAI) + indexation vectorielle | ✅ Rédigée | ⏳ | — |
 | Sprint 4 | 4-3 | Fusion RRF + benchmarks + documentation | ✅ Rédigée | ⏳ | — |
@@ -115,16 +115,22 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Sprint 2-3 : validation Zod 4, `docs/guides/DATA_LAYER.md`, 67 tests, couverture 100 % | `344c18e` |
 | 22/10/2026 | Correctif installation : `.npmrc` (`ignore-scripts`), `npm run setup` / `check:env`, dépannage Windows | `721cbca` |
 | 22/10/2026 | Portabilité Windows : test de configuration indépendant des chemins POSIX, journaux ASCII, `npm run db:inspect`, CI étendue à `windows-latest` | `3f7bc98` |
+| 22/10/2026 | Sprint 3 : `KnowledgeManager` (CRUD validé, tags, stats), erreurs métier typées, `Indexer` de maintenance, `npm run db:reindex` | `ce674d5` |
+| 22/10/2026 | Correctif d'un test instable (comparaison d'horodatages à la milliseconde), détecté par la CI | `7f2ff24` |
 
 ---
 
 ## 5. Prochaines étapes
 
-1. **Sprint 2 terminé** — en attente de validation utilisateur (⏸️) avant le Sprint 3.
-2. **Sprint 3** — Knowledge Manager : CRUD complet (update, delete), indexation FTS automatique, commande `reindex`.
+1. **Sprint 3 terminé** — en attente de validation utilisateur (⏸️) avant le Sprint 4.
+2. **Sprint 4** — Search Engine : BM25 + embeddings `text-embedding-3-small`, fusion RRF (k=60), benchmarks.
 3. Mise à jour de ce registre à la fin de chaque sous-sprint (statut + commit).
-4. Validation utilisateur avant passage au Sprint 4.
+4. Validation utilisateur avant passage au Sprint 5.
 
 > **Écart technique tranché au Sprint 2** : FTS5 autonome (pas de table de contenu externe) et
 > connexion unique avec bases attachées — la conception initiale du blueprint était irréalisable.
 > Voir l'addendum de `SPRINT-02-01.md` et `docs/guides/DATA_LAYER.md` §3.2.
+>
+> **Écart tranché au Sprint 3** : l'indexation FTS reste dans le repository (transaction unique) ;
+> `Indexer` couvre la maintenance (`reindexAll`, `checkIntegrity`). Un indexeur appelé après coup
+> casserait l'atomicité et créerait des doublons de `rowid`. Voir `SPRINT-03-03.md`.

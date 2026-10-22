@@ -4,7 +4,7 @@
 
 > « Ne pas repartir de zéro : retrouver, comprendre, exécuter, vérifier et capitaliser sur ce qui a déjà été appris ou construit. »
 
-**Statut :** 🚧 Implémentation en cours — Sprint 2 terminé, en attente de validation
+**Statut :** 🚧 Implémentation en cours — Sprint 3 terminé, en attente de validation
 **Version :** 0.1.0
 **Licence :** MIT
 
@@ -94,22 +94,23 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 
 ## 5. Commandes
 
-| Commande                          | Rôle                                            |
-| --------------------------------- | ----------------------------------------------- |
-| `npm run dev`                     | Exécution en développement (`tsx watch`)        |
-| `npm run build`                   | Compilation dans `dist/`                        |
-| `npm start`                       | Exécution du build                              |
-| `npm run typecheck`               | Vérification TypeScript sans émission           |
-| `npm run lint` / `lint:fix`       | ESLint (flat config)                            |
-| `npm run format` / `format:check` | Prettier                                        |
-| `npm test` / `test:watch`         | Tests Vitest                                    |
-| `npm run coverage`                | Couverture avec seuils 80 %                     |
-| `npm run verify`                  | typecheck + lint + format + build + couverture  |
-| `npm run setup`                   | Hooks Git + vérification de l'environnement     |
-| `npm run check:env`               | Diagnostics (Node, SQLite, sqlite-vec, outils)  |
-| `npm run db:inspect`              | État des 3 bases (schémas, migrations, volumes) |
-| `npm run security:secrets`        | Scan Gitleaks des fichiers indexés              |
-| `npm run clean`                   | Supprime `dist/`                                |
+| Commande                          | Rôle                                           |
+| --------------------------------- | ---------------------------------------------- |
+| `npm run dev`                     | Exécution en développement (`tsx watch`)       |
+| `npm run build`                   | Compilation dans `dist/`                       |
+| `npm start`                       | Exécution du build                             |
+| `npm run typecheck`               | Vérification TypeScript sans émission          |
+| `npm run lint` / `lint:fix`       | ESLint (flat config)                           |
+| `npm run format` / `format:check` | Prettier                                       |
+| `npm test` / `test:watch`         | Tests Vitest                                   |
+| `npm run coverage`                | Couverture avec seuils 80 %                    |
+| `npm run verify`                  | typecheck + lint + format + build + couverture |
+| `npm run setup`                   | Hooks Git + vérification de l'environnement    |
+| `npm run check:env`               | Diagnostics (Node, SQLite, sqlite-vec, outils) |
+| `npm run db:inspect`              | État des 3 bases + cohérence de l'index        |
+| `npm run db:reindex`              | Reconstruit l'index plein texte                |
+| `npm run security:secrets`        | Scan Gitleaks des fichiers indexés             |
+| `npm run clean`                   | Supprime `dist/`                               |
 
 ## 6. Configuration
 

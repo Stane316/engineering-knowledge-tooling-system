@@ -1,6 +1,6 @@
 # Sprint 3-2 — Knowledge Manager CRUD suite (update, delete) + tests complets
 
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ TERMINÉ (22/10/2026)  
 **Durée :** 4 jours  
 **Objectif :** Implémenter les 2 dernières méthodes + tests complets  
 **Dépendance :** Sprint 3-1 ✅
@@ -460,3 +460,39 @@ git commit -m "test(business): add complete unit tests for Knowledge Manager"
 ---
 
 **Fin du document Sprint 3-2**
+
+---
+
+## Addendum d'implémentation — 22 octobre 2026
+
+**Statut : ✅ TERMINÉ.**
+
+### Écarts assumés par rapport au plan
+
+| Point du plan | Réalisation | Raison |
+|---------------|-------------|--------|
+| `updateResource(id, data: Partial<Resource>)` | `UpdateResourceData` (`z.input<UpdateResourceSchema>`) | `Partial<Resource>` autoriserait `id` et `createdAt` : la validation Zod les écarte explicitement. |
+| Double lecture (`getById` puis `repository.update`) | Validation, puis `repository.update`, puis contrôle du résultat | Une seule requête ; le cas « introuvable » reste couvert par le retour `null` du repository. |
+| `ResourceNotFoundError` levée après une vérification préalable | Conservée, mais sur la branche réellement atteignable | Supprime une branche morte (testée à 100 %). |
+| Tests basés sur des mocks | Tests d'**intégration** sur une base SQLite temporaire | Le plan mockait `repository.create` en `Promise`, impossible avec better-sqlite3 synchrone ; les tests sur base réelle vérifient aussi l'indexation. |
+| `deleteResource` idempotent | Lève `ResourceNotFoundError` si absente | Contrat explicite, cohérent avec la documentation. |
+
+### Fichiers produits
+
+| Fichier | Rôle |
+|---------|------|
+| `src/business/knowledge-manager.ts` | `updateResource`, `deleteResource`, `listTags`, `stats`, `reindex` |
+| `tests/integration/knowledge-manager.test.ts` | 24 tests (CRUD, validation, immuabilité, tags, statistiques) |
+
+### Règles métier tranchées
+
+- **Type immuable** : `updateResource` ignore `type`, `id` et `createdAt` même s'ils sont fournis.
+- **`null` = effacement** pour `url`, `content`, `embeddingModel` (distinct de « champ absent »).
+- **Tags normalisés** avant écriture (doublons casse-insensibles, espaces).
+
+### Vérifications
+
+```bash
+npm test          # 113 tests au terme de ce sous-sprint
+npm run coverage  # 100 %
+```

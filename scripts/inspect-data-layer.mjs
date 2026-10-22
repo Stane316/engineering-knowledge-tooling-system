@@ -23,6 +23,7 @@ if (!existsSync(compiledEntry)) {
 }
 
 const { openDatabase } = await import(pathToFileURL(compiledEntry).href);
+const { Indexer } = await import(pathToFileURL(join(root, 'dist', 'business', 'indexer.js')).href);
 
 const database = openDatabase();
 const { connection, paths } = database;
@@ -99,5 +100,16 @@ console.log(`  index FTS     ${single('SELECT count(*) AS total FROM fts.resourc
 console.log(
   `  vecteurs      ${single('SELECT count(*) AS total FROM vectors.resources_vectors').total}`,
 );
+
+const integrity = new Indexer(connection).checkIntegrity();
+
+console.log("\nCohérence de l'index");
+console.log(`  état          ${integrity.consistent ? 'cohérent' : 'DÉSYNCHRONISÉ'}`);
+console.log(`  manquantes    ${integrity.missing}`);
+console.log(`  orphelines    ${integrity.orphans}`);
+
+if (!integrity.consistent) {
+  console.log('\n  Réparer avec : npm run db:reindex');
+}
 
 database.close();
