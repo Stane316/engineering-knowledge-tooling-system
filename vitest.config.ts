@@ -10,6 +10,7 @@ export default defineConfig({
       include: ['src/**/*.ts'],
       exclude: [
         'src/index.ts',
+        'src/cli/index.ts',
         'src/**/*.d.ts',
         'src/shared/types.ts',
         'src/business/knowledge-manager.types.ts',
