@@ -52,7 +52,8 @@ ekts --help
 
 Prérequis : Node.js ≥ 22.12 et un `npm run build` à jour. Aucune clé n'est
 nécessaire pour `init`, `add` (indexation plein texte), `get`, `list`, `delete`,
-`status` et `search --mode fts`.
+`status` et `search --mode fts`. Le fichier `.env` du répertoire courant est
+chargé au démarrage (sans écraser les variables déjà définies).
 
 ---
 
