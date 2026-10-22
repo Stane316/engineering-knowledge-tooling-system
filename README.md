@@ -110,33 +110,37 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 | `npm run check:env`               | Diagnostics (Node, SQLite, sqlite-vec, outils)   |
 | `npm run db:inspect`              | État des 3 bases + cohérence de l'index          |
 | `npm run db:reindex`              | Reconstruit l'index plein texte                  |
-| `npm run providers`               | État des 13 fournisseurs d'API et chaîne d'appel |
+| `npm run providers`               | État des 14 fournisseurs d'API et chaîne d'appel |
 | `npm run security:secrets`        | Scan Gitleaks des fichiers indexés               |
 | `npm run clean`                   | Supprime `dist/`                                 |
 
 ## 6. Configuration
 
-| Variable                                                                  | Défaut                   | Rôle                                           |
-| ------------------------------------------------------------------------- | ------------------------ | ---------------------------------------------- |
-| `NODE_ENV`                                                                | `development`            | `development`, `test` ou `production`          |
-| `EKTS_DATA_DIR`                                                           | `./data`                 | Répertoire des bases SQLite (résolu en absolu) |
-| `LOG_LEVEL`                                                               | `info`                   | Niveau Pino (`trace`…`silent`)                 |
-| `OPENAI_API_KEY`                                                          | —                        | Embeddings OpenAI (une clé parmi d'autres)     |
-| `GEMINI_API_KEY`                                                          | —                        | Embeddings Gemini (palier gratuit)             |
-| `OPENROUTER_API_KEY`                                                      | —                        | Embeddings/chat (même espace qu'OpenAI)        |
-| `NOVITA_API_KEY`                                                          | —                        | Embeddings `baai/bge-m3` (gratuit)             |
-| `TAVILY_API_KEY` / `SERPER_API_KEY` / `SERPAPI_API_KEY`                   | —                        | Recherche web                                  |
-| `DEEPSEEK_API_KEY` / `ZAI_API_KEY` / `NVIDIA_API_KEY` / `STEPFUN_API_KEY` | —                        | Chat (Sprint 6)                                |
-| `E2B_API_KEY`                                                             | —                        | Bac à sable d'exécution (Sprint 8)             |
-| `EKTS_PROVIDER_POLICY`                                                    | `quality`                | `quality`, `free` ou `cost`                    |
-| `OPENAI_EMBEDDING_MODEL`                                                  | `text-embedding-3-small` | Modèle d'embedding (1536 dims)                 |
-| `EMBEDDING_DIMENSION`                                                     | `1536`                   | Doit correspondre au schéma `float[1536]`      |
+| Variable                                                                                      | Défaut                   | Rôle                                           |
+| --------------------------------------------------------------------------------------------- | ------------------------ | ---------------------------------------------- |
+| `NODE_ENV`                                                                                    | `development`            | `development`, `test` ou `production`          |
+| `EKTS_DATA_DIR`                                                                               | `./data`                 | Répertoire des bases SQLite (résolu en absolu) |
+| `LOG_LEVEL`                                                                                   | `info`                   | Niveau Pino (`trace`…`silent`)                 |
+| `OPENAI_API_KEY`                                                                              | —                        | Embeddings OpenAI (une clé parmi d'autres)     |
+| `GEMINI_API_KEY`                                                                              | —                        | Embeddings Gemini (palier gratuit)             |
+| `OPENROUTER_API_KEY`                                                                          | —                        | Embeddings/chat (même espace qu'OpenAI)        |
+| `NOVITA_API_KEY`                                                                              | —                        | Embeddings `baai/bge-m3` (gratuit)             |
+| `TAVILY_API_KEY` / `SERPER_API_KEY` / `SERPAPI_API_KEY`                                       | —                        | Recherche web                                  |
+| `SOFYA_API_KEY`                                                                               | —                        | Recherche + lecture d'URL en markdown          |
+| `DEEPSEEK_API_KEY` / `ZAI_API_KEY` / `NVIDIA_API_KEY` / `STEPFUN_API_KEY` / `MINIMAX_API_KEY` | —                        | Chat (Sprint 6)                                |
+| `EKTS_PROVIDERS_FILE`                                                                         | `providers.custom.json`  | Fournisseurs déclarés sans code                |
+| `E2B_API_KEY`                                                                                 | —                        | Bac à sable d'exécution (Sprint 8)             |
+| `EKTS_PROVIDER_POLICY`                                                                        | `quality`                | `quality`, `free` ou `cost`                    |
+| `OPENAI_EMBEDDING_MODEL`                                                                      | `text-embedding-3-small` | Modèle d'embedding (1536 dims)                 |
+| `EMBEDDING_DIMENSION`                                                                         | `1536`                   | Doit correspondre au schéma `float[1536]`      |
 
 Aucun secret n'est nécessaire pour installer, compiler ou lancer les tests (le benchmark utilise un
 fournisseur d'embeddings local). Une clé reste nécessaire pour indexer et rechercher en mode
 vectoriel réel : OpenAI, OpenRouter, Gemini ou Novita, au choix. Les clés passent exclusivement par
 `.env` (ignoré par Git et Gitleaks). Chaque fournisseur accepte jusqu'à huit clés suffixées `_2`
 à `_8`, et le repli entre fournisseurs est automatique à l'intérieur d'un même espace d'embedding.
+Un fournisseur absent du catalogue se déclare dans `providers.custom.json`
+(`providers.custom.example.json` fournit un modèle), sans modifier le code.
 Voir `docs/guides/PROVIDERS.md` et `docs/guides/SEARCH_ENGINE.md`.
 
 ## 7. Structure du dépôt

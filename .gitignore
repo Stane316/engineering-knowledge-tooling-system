@@ -16,6 +16,9 @@ dist-benchmark/
 build/
 coverage/
 
+# Fournisseurs déclarés par l'utilisateur (nomme des variables, jamais de secret)
+providers.custom.json
+
 # Données locales (racine uniquement — ne masque pas src/data/)
 /data/
 *.db

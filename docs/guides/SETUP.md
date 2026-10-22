@@ -180,9 +180,11 @@ echo $?              # bash / zsh
 | `OPENROUTER_API_KEY` | `sk-or-…` | — | Embeddings/chat OpenRouter (même espace qu'OpenAI) |
 | `NOVITA_API_KEY` | chaîne | — | Embeddings `baai/bge-m3` (gratuit) |
 | `TAVILY_API_KEY`, `SERPER_API_KEY`, `SERPAPI_API_KEY` | chaîne | — | Recherche web |
-| `DEEPSEEK_API_KEY`, `ZAI_API_KEY`, `NVIDIA_API_KEY`, `STEPFUN_API_KEY` | chaîne | — | Chat (Sprint 6) |
+| `SOFYA_API_KEY` | `ay_live_…` | — | Recherche (`/v1/search`) et lecture d'URL en markdown (`/v1/fetch`) |
+| `DEEPSEEK_API_KEY`, `ZAI_API_KEY`, `NVIDIA_API_KEY`, `STEPFUN_API_KEY`, `MINIMAX_API_KEY` | chaîne | — | Chat (Sprint 6) |
 | `E2B_API_KEY` | chaîne | — | Bac à sable (Sprint 8) |
 | `EKTS_PROVIDER_POLICY` | `quality`, `free`, `cost` | `quality` | Politique de sélection des fournisseurs |
+| `EKTS_PROVIDERS_FILE` | chemin | `providers.custom.json` | Fournisseurs déclarés par l'utilisateur (voir §4.6) |
 | `EKTS_EMBEDDING_SPACE` | `éditeur/modèle` | — | Espace d'embedding imposé (dépannage) |
 | `OPENAI_EMBEDDING_MODEL` | nom de modèle | `text-embedding-3-small` | Doit produire 1536 dimensions |
 | `EMBEDDING_DIMENSION` | entier | `1536` | Doit rester 1536 (schéma `float[1536]`) |
@@ -230,6 +232,24 @@ Les clés tournent à chaque appel réussi : deux comptes gratuits doublent le q
 disponible. Si une clé est refusée, la suivante est essayée dans le même appel.
 Limite : les clés d'un même fournisseur doivent donner accès **au même modèle**,
 sinon l'espace d'embedding devient ambigu.
+
+Le mécanisme s'applique à **tous** les fournisseurs, livrés ou déclarés :
+`ZAI_API_KEY`, `ZAI_API_KEY_2`, `ZAI_API_KEY_3`… fonctionnent sans configuration
+supplémentaire.
+
+### 4.6 Déclarer un fournisseur absent du catalogue
+
+Copiez le modèle versionné, puis adaptez-le :
+
+```powershell
+Copy-Item providers.custom.example.json providers.custom.json
+notepad providers.custom.json
+```
+
+Le fichier ne contient **jamais** de clé, seulement le nom de la variable qui la
+portera dans `.env`. Il est ignoré par Git. Validation au chargement : HTTPS
+obligatoire, protocole connu, pas d'en-tête `authorization`, identifiants
+uniques. Voir [`PROVIDERS.md`](PROVIDERS.md) §9.
 
 ### 4.5 Vérifier la configuration
 

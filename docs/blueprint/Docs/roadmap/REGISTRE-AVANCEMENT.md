@@ -42,7 +42,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | **MVP-2** — Inspection navigateur | 7 à 12 | ✅ 24 dossiers | ⏳ | — |
 | **MVP-3** — Capitalisation projets | 13 à 18 | ⏳ non documentés | ⏳ | — |
 
-**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 4.5 au 22 octobre 2026 (391 tests, couverture 100 %).
+**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 4.5 au 22 octobre 2026 (422 tests, couverture 100 %).
 
 > **Sprint 4.5** est un sprint hors plan, ajouté à la demande de l'utilisateur
 > (multiplication des clés d'API disponibles). Il ne décale aucun sprint
@@ -71,10 +71,11 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 4 | 4-2 | Génération embeddings (OpenAI) + indexation vectorielle | ✅ Rédigée | ✅ Livré | ✅ C4.2, C4.5, C4.16 |
 | Sprint 4 | 4-3 | Fusion RRF + benchmarks + documentation | ✅ Rédigée | ✅ Livré | ✅ C4.4, C4.6–C4.8 |
 | Sprint 4 | Dossier parent | Search Engine (Semaine 7-8) | ✅ Rédigée | ⏸️ En attente de validation | ✅ C4.1–C4.16 tracés |
-| Sprint 4.5 | 4.5-1 | Catalogue déclaratif (13 fournisseurs, 4 capacités) + trousseau multi-clés | ➕ Hors plan | ✅ `catalogue` | ✅ 27 tests |
+| Sprint 4.5 | 4.5-1 | Catalogue déclaratif (14 fournisseurs, 5 capacités) + trousseau multi-clés | ➕ Hors plan | ✅ `catalogue` | ✅ 27 tests |
 | Sprint 4.5 | 4.5-2 | `HttpClient`, disjoncteur, routage par capacité et par espace | ➕ Hors plan | ✅ `routing` | ✅ 43 tests |
 | Sprint 4.5 | 4.5-3 | Adaptateurs, `ProviderGateway` (rotation, repli, trace), espace d'embedding persistant | ➕ Hors plan | ✅ `gateway` | ✅ 65 tests |
-| Sprint 4.5 | 4.5-4 | `npm run providers`, `.env.example` complet, guide `PROVIDERS.md` | ➕ Hors plan | ✅ `scripts` | ✅ 391 tests, 100 % |
+| Sprint 4.5 | 4.5-4 | `npm run providers`, `.env.example` complet, guide `PROVIDERS.md` | ➕ Hors plan | ✅ `scripts` | ✅ 422 tests, 100 % |
+| Sprint 4.5 | 4.5-5 | Sofya (recherche + lecture markdown), MiniMax (chat), registre extensible `providers.custom.json` | ➕ Hors plan | ✅ `registry` | ✅ 31 tests dédiés |
 | Sprint 5 | 5-1 | Commandes de base (init, add, get) | ✅ Rédigée | ⏳ | — |
 | Sprint 5 | 5-2 | Commandes de recherche et gestion (search, list, delete) | ✅ Rédigée | ⏳ | — |
 | Sprint 5 | 5-3 | Commande status + tests intégration + documentation | ✅ Rédigée | ⏳ | — |
@@ -133,6 +134,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Sprint 4.5 : catalogue de 13 fournisseurs, trousseau multi-clés (`_2`…`_8`), `HttpClient` (timeout/reprises/`Retry-After`), disjoncteur, routage par capacité et par espace d'embedding | `sprint-4.5` |
 | 22/10/2026 | Sprint 4.5 : `ProviderGateway` (rotation, repli, trace), `GatewayEmbeddingProvider`, migration 002 `embedding-space`, `npm run providers`, `.env.example` complet | `sprint-4.5` |
 | 22/10/2026 | Sprint 4.5 : guide `PROVIDERS.md`, ADR-015 à ADR-017, risques R-4.5.1 à R-4.5.7 ; 391 tests, couverture 100 % | `sprint-4.5` |
+| 22/10/2026 | Sprint 4.5 : Sofya (`/v1/search`, `/v1/fetch`) et MiniMax (chat) vérifiés ; capacité `web-fetch` ; fournisseurs déclarables sans code (`providers.custom.json`), ADR-018 et risques R-4.5.8–R-4.5.9 | `registry` |
 
 ---
 

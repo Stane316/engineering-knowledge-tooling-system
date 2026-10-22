@@ -26,8 +26,10 @@ if (!existsSync(compiledEntry)) {
 
 const loadedEnv = loadEnvFile(join(root, '.env'));
 
-const { PROVIDERS, allCapabilities, usableProviders } = await import(
-  pathToFileURL(compiledEntry).href
+const catalog = await import(pathToFileURL(compiledEntry).href);
+const { PROVIDERS, allCapabilities, usableProviders } = catalog;
+const { loadCustomProviders, resolveProvidersFile } = await import(
+  pathToFileURL(join(root, 'dist', 'shared', 'providers', 'custom-providers.js')).href
 );
 const { loadKeyring, maskKey } = await import(
   pathToFileURL(join(root, 'dist', 'shared', 'providers', 'env.js')).href
@@ -36,8 +38,22 @@ const { planRoutes, availableSpaces } = await import(
   pathToFileURL(join(root, 'dist', 'business', 'providers', 'routing.js')).href
 );
 
-const keyring = loadKeyring(process.env);
-const capabilities = allCapabilities();
+// Fournisseurs déclarés par l'utilisateur : un fichier absent est normal.
+const providersFile = resolveProvidersFile({ env: process.env });
+let providers = PROVIDERS;
+let customCount = 0;
+
+try {
+  const custom = loadCustomProviders({ env: process.env });
+  customCount = custom.length;
+  providers = custom.length === 0 ? PROVIDERS : catalog.mergeProviders(custom, PROVIDERS);
+} catch (error) {
+  console.error(`\nDéclaration de fournisseurs invalide : ${error.message}\n`);
+  process.exit(1);
+}
+
+const keyring = loadKeyring(process.env, providers);
+const capabilities = allCapabilities(providers);
 const totalKeys = [...keyring.values()].reduce((sum, keys) => sum + keys.length, 0);
 
 const line = '='.repeat(78);
@@ -47,7 +63,12 @@ console.log(line);
 console.log('EKTS — fournisseurs d’API (Sprint 4.5)');
 console.log(line);
 console.log(`Fichier .env          : ${loadedEnv ? 'chargé' : 'absent ou vide'}`);
-console.log(`Fournisseurs connus   : ${PROVIDERS.length}`);
+console.log(
+  `Fournisseurs connus   : ${providers.length} (${PROVIDERS.length} livrés, ${customCount} déclarés)`,
+);
+console.log(
+  `Fichier fournisseurs  : ${customCount === 0 ? `${providersFile} (absent ou vide)` : providersFile}`,
+);
 console.log(`Fournisseurs avec clé : ${keyring.size}`);
 console.log(`Clés détectées        : ${totalKeys}`);
 console.log(`Capacités             : ${capabilities.join(', ')}`);
@@ -57,18 +78,18 @@ console.log(line);
 const pad = (text, width) => String(text).padEnd(width).slice(0, width);
 
 console.log(
-  `${pad('Fournisseur', 22)}${pad('Capacités', 30)}${pad('Clés', 6)}${pad('État', 13)}Clé (masquée)`,
+  `${pad('Fournisseur', 22)}${pad('Capacités', 38)}${pad('Clés', 6)}${pad('État', 13)}Clé (masquée)`,
 );
 console.log(dash);
 
-for (const provider of PROVIDERS) {
+for (const provider of providers) {
   const keys = keyring.get(provider.id) ?? [];
   const status =
     keys.length === 0 ? 'sans clé' : provider.status === 'unverified' ? 'non vérifié' : 'prêt';
   const masked = keys.length === 0 ? '—' : keys.map((key) => maskKey(key)).join(', ');
 
   console.log(
-    `${pad(provider.label, 22)}${pad(provider.capabilities.join(', ') || 'aucune', 30)}${pad(keys.length, 6)}${pad(status, 13)}${masked}`,
+    `${pad(provider.label, 22)}${pad(provider.capabilities.join(', ') || 'aucune', 38)}${pad(keys.length, 6)}${pad(status, 13)}${masked}`,
   );
 }
 
@@ -79,7 +100,7 @@ console.log(
 );
 console.log(dash);
 
-const spaces = availableSpaces(keyring);
+const spaces = availableSpaces(keyring, providers);
 
 if (spaces.length === 0) {
   console.log('  aucun : renseignez au moins une clé OPENAI / GEMINI / OPENROUTER / NOVITA');
@@ -108,6 +129,7 @@ for (const capability of capabilities) {
   const routes = planRoutes({
     capability,
     keyring,
+    providers,
     policy,
     ...(forcedSpace === undefined ? {} : { space: forcedSpace }),
   });
@@ -136,7 +158,7 @@ if (totalKeys === 0) {
   warnings.push('aucune clé détectée : copiez .env.example en .env et renseignez-en au moins une');
 }
 
-for (const provider of PROVIDERS) {
+for (const provider of providers) {
   if (provider.status === 'unverified' && (keyring.get(provider.id)?.length ?? 0) > 0) {
     warnings.push(
       `${provider.label} : protocole non confirmé — la clé est collectée mais aucun appel ne sera effectué`,
@@ -144,7 +166,7 @@ for (const provider of PROVIDERS) {
   }
 }
 
-for (const provider of usableProviders('embedding')) {
+for (const provider of usableProviders('embedding', providers)) {
   if (provider.embeddings.length === 0) {
     warnings.push(`${provider.id} : déclaré « embedding » sans modèle`);
   }

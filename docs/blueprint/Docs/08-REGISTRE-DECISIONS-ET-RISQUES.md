@@ -575,7 +575,8 @@ FTS avancés ne sont pas exposés (hors périmètre, à rouvrir si un besoin ré
 ### 2.2.2 Décisions d'implémentation du Sprint 4.5 — couche fournisseurs (22 octobre 2026)
 
 Le besoin exprimé est de tirer parti de **treize clés d'API hétérogènes** sans
-écrire treize chemins de code. Ces décisions fixent la forme de la réponse.
+écrire treize chemins de code, puis de pouvoir en brancher d'autres sans
+attendre une nouvelle version. Ces décisions fixent la forme de la réponse.
 
 #### ADR-015 — Registre déclaratif et routage par capacité
 
@@ -626,6 +627,25 @@ injecté, ce qui préserve la testabilité (les tests fournissent leur `env`).
 **Conséquences :** aucune dépendance `dotenv` ; un `.env` fautif ne bloque pas
 le démarrage ; la précédence est celle de Node (environnement > fichier).
 
+#### ADR-018 — Le registre des fournisseurs est extensible sans code
+
+**Statut :** ✅ APPLIQUÉ
+**Contexte :** le catalogue livré couvre les fournisseurs connus à la rédaction.
+L'utilisateur en obtient d'autres (Sofya, MiniMax, puis d'autres encore) et ne
+peut pas attendre une version du logiciel pour utiliser une clé qu'il possède
+déjà. Modifier `catalog.ts` à chaque ajout ferait de lui un développeur du projet.
+**Décision :** un fichier `providers.custom.json` (ignoré par Git, modèle
+versionné) déclare des fournisseurs : identifiant, capacité, protocole, URL de
+base et **nom** de la variable qui porte la clé. Il est validé au chargement
+(Zod) puis fusionné avec le catalogue par `mergeProviders()` : un identifiant
+connu est remplacé sur place, un identifiant nouveau est ajouté en fin de
+chaîne. Le registre obtenu est injecté dans `planRoutes()`, `loadKeyring()` et
+la passerelle, qui restent des fonctions pures testables.
+**Conséquences :** ajouter un fournisseur ne demande plus de code ; les
+garde-fous sont structurels (HTTPS obligatoire, protocole connu, en-tête
+`authorization` interdit, identifiants uniques) ; un fournisseur maison passe
+après les fournisseurs éprouvés, il ne prend jamais la priorité par accident.
+
 #### Risques nouveaux (Sprint 4.5)
 
 | ID | Risque | Impact | Probabilité | Mitigation |
@@ -637,6 +657,8 @@ le démarrage ; la précédence est celle de Node (environnement > fichier).
 | R-4.5.5 | Protocole d'un fournisseur mal modélisé → 400 systématique | Moyen | Faible | Protocole `unknown` explicite, fournisseur collecté mais exclu du routage ; vérification documentée par fournisseur (§2 de `PROVIDERS.md`) |
 | R-4.5.6 | Coût non maîtrisé sur les fournisseurs payants | Moyen | Moyenne | Politique `cost`/`free`, `npm run providers` affiche le palier, aucun appel de facturation automatisé |
 | R-4.5.7 | Dépendance à un agrégateur (OpenRouter) devenu point unique de bascule | Faible | Faible | Bascule indépendante par capacité ; OpenRouter n'est jamais le seul candidat d'un espace |
+| R-4.5.8 | Déclaration locale (`providers.custom.json`) invalide → clé présente mais inutilisée, sans explication | Moyen | Moyenne | Validation Zod bloquante au chargement, message avec champ fautif, `npm run providers` affiche le fichier et les fournisseurs retenus, test de non-régression sur `providers.custom.example.json` |
+| R-4.5.9 | Clé écrite en dur dans `providers.custom.json` puis versionnée | **Élevé** | Faible | Seul le nom de la variable est accepté, en-tête `authorization` refusé, fichier ignoré par Git, Gitleaks en pré-commit et CI |
 
 ---
 

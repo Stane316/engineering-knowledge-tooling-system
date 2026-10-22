@@ -1090,7 +1090,8 @@ Avant de commencer, vérifier :
 pas dans le plan initial ; il répond à un besoin apparu à l'usage : treize clés
 d'API (OpenAI, Gemini, DeepSeek, Z.ai, OpenRouter, NVIDIA, Novita, StepFun,
 Tavily, Serper, SerpApi, E2B, Sofya) étaient disponibles et le Sprint 4 n'en
-exploitait qu'une.
+exploitait qu'une. Une extension (4.5-5) a ensuite ajouté MiniMax et ouvert le
+registre aux fournisseurs que l'utilisateur obtiendra plus tard.
 
 ### 13.1 Pourquoi le Sprint 4 seul ne suffisait pas
 
@@ -1106,12 +1107,13 @@ projet fonctionnait, mais :
 
 | Livrable | Fichier | Rôle |
 |---|---|---|
-| Catalogue | `src/shared/providers/catalog.ts` | 13 fournisseurs, capacités, protocoles, paliers |
+| Catalogue | `src/shared/providers/catalog.ts` | 14 fournisseurs, capacités, protocoles, paliers |
+| Registre extensible | `src/shared/providers/custom-providers.ts` | `providers.custom.json` validé (Zod), fusion avec le catalogue |
 | Trousseau | `src/shared/providers/env.ts` | Clés `_2`…`_8`, masquage, rédaction |
 | Client HTTP | `src/business/providers/http.ts` | Timeout, reprises, `Retry-After`, erreurs typées |
 | Disjoncteur | `src/business/providers/health.ts` | 3 échecs → 60 s, doublé jusqu'à 10 min |
 | Routage | `src/business/providers/routing.ts` | Capacité → espace → politique → santé |
-| Adaptateurs | `src/business/providers/adapters.ts` | 6 protocoles, alignement 1536 |
+| Adaptateurs | `src/business/providers/adapters.ts` | 7 protocoles, alignement 1536 |
 | Passerelle | `src/business/providers/gateway.ts` | Rotation, repli, trace |
 | Embedding | `src/business/providers/embedding-provider.ts` | `EmbeddingProvider` adossé à la passerelle |
 | Migration | `src/data/migrations/002_embedding_space.ts` | Liaison de l'index à un espace |
@@ -1126,6 +1128,9 @@ projet fonctionnait, mais :
   entre deux modèles produisant des vecteurs incomparables.
 - **ADR-017** — `.env` chargé par `process.loadEnvFile` : aucune dépendance
   ajoutée, et `npm run providers` voit les clés comme le reste du projet.
+- **ADR-018** — le registre est extensible sans code : `providers.custom.json`
+  déclare un fournisseur (identifiant, capacité, protocole, **nom** de la
+  variable de clé) ; la clé reste dans `.env`, jamais dans le fichier.
 
 ### 13.4 Ce que le Sprint 4.5 ne fait pas
 
@@ -1133,13 +1138,17 @@ projet fonctionnait, mais :
 - Pas de comptage de tokens ni de coût.
 - Pas de fournisseur local (Ollama) : sans clé d'API, il demande une entrée
   `local` dans le catalogue (ADR-T01, différé au Sprint 5).
-- **Sofya** reste déclarée `unknown` : la clé est collectée, jamais utilisée.
+- **Sofya `extract` et `research`** ne sont pas exposés : ils synthétisent une
+  réponse par LLM (10 et 50 crédits) et relèvent du Sprint 6. La recherche
+  (`/v1/search`) et la lecture markdown (`/v1/fetch`) le sont.
+- **MiniMax** n'apporte que du chat : `embo-01` (1024 dimensions) relève de
+  l'ancienne API et n'est plus exposé en surface OpenAI.
 
 ### 13.5 Impact sur les sprints suivants
 
 | Sprint | Impact |
 |---|---|
-| Sprint 5 (CLI) | `status` peut afficher les fournisseurs configurés et l'espace actif sans nouveau code |
+| Sprint 5 (CLI) | `status` peut afficher les fournisseurs configurés et l'espace actif sans nouveau code ; `add --url` pourra s'appuyer sur `web-fetch` |
 | Sprint 6 (MCP) | Le chat multi-fournisseurs est disponible pour la synthèse RAG |
 | Sprint 7-8 (navigateur) | E2B est déjà déclaré pour le bac à sable |
 | Sprint 13+ (veille) | Tavily/Serper/SerpApi sont déjà déclarés pour la collecte |
