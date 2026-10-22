@@ -42,7 +42,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | **MVP-2** — Inspection navigateur | 7 à 12 | ✅ 24 dossiers | ⏳ | — |
 | **MVP-3** — Capitalisation projets | 13 à 18 | ⏳ non documentés | ⏳ | — |
 
-**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 3 au 22 octobre 2026 (117 tests, couverture 100 %).
+**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 3 au 22 octobre 2026 (119 tests, couverture 100 %).
 
 ---
 
@@ -58,9 +58,9 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 2 | 2-2 | Repository Resource + tests | ✅ Rédigée | ✅ `e0ac3b3` | ✅ 26 tests, 100 % |
 | Sprint 2 | 2-3 | Validation Zod + documentation | ✅ Rédigée | ✅ `e0ac3b3` | ✅ 17 tests, 100 % |
 | Sprint 2 | Dossier parent | Data Layer (SQLite) | ✅ Rédigée | ⏸️ En attente de validation | ✅ |
-| Sprint 3 | 3-1 | Knowledge Manager CRUD (add, get, list) | ✅ Rédigée | ✅ `ce674d5` | ✅ 100 % |
-| Sprint 3 | 3-2 | Knowledge Manager CRUD suite (update, delete) + tests complets | ✅ Rédigée | ✅ `ce674d5` | ✅ 100 % |
-| Sprint 3 | 3-3 | Indexation FTS automatique + documentation | ✅ Rédigée | ✅ `ce674d5` | ✅ 100 % |
+| Sprint 3 | 3-1 | Knowledge Manager CRUD (add, get, list) | ✅ Rédigée | ✅ `ce674d5` | ✅ 119 tests, 100 % |
+| Sprint 3 | 3-2 | Knowledge Manager CRUD suite (update, delete) + tests complets | ✅ Rédigée | ✅ `ce674d5` | ✅ C3.1–C3.15 tracés |
+| Sprint 3 | 3-3 | Indexation FTS automatique + documentation | ✅ Rédigée | ✅ `5df7e37` | ✅ 100 % |
 | Sprint 3 | Dossier parent | Knowledge Manager (Semaine 5-6) | ✅ Rédigée | ⏸️ En attente de validation | ✅ |
 | Sprint 4 | 4-1 | Recherche FTS5 (BM25) + Vectorielle (sqlite-vec) | ✅ Rédigée | ⏳ | — |
 | Sprint 4 | 4-2 | Génération embeddings (OpenAI) + indexation vectorielle | ✅ Rédigée | ⏳ | — |
@@ -117,6 +117,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Portabilité Windows : test de configuration indépendant des chemins POSIX, journaux ASCII, `npm run db:inspect`, CI étendue à `windows-latest` | `3f7bc98` |
 | 22/10/2026 | Sprint 3 : `KnowledgeManager` (CRUD validé, tags, stats), erreurs métier typées, `Indexer` de maintenance, `npm run db:reindex` | `ce674d5` |
 | 22/10/2026 | Correctif d'un test instable (comparaison d'horodatages à la milliseconde), détecté par la CI | `7f2ff24` |
+| 22/10/2026 | Audit de conformité Sprint 3 : contrat `IIndexer`, preuve du couplage faible, table de traçabilité C3.1–C3.15 | `5df7e37` |
 
 ---
 
