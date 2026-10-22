@@ -4,7 +4,7 @@
 **Parent :** SPRINT-02 (Data Layer)  
 **Durée prévue :** 4 jours  
 **Date de documentation :** 21 octobre 2026  
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ TERMINÉ (22/10/2026)  
 **Dépend de :** SPRINT-01 (Setup projet) ✅
 
 ---
@@ -572,3 +572,39 @@ npm test -- tests/data/database.test.ts > test-database.log 2>&1
 
 **Document rédigé le 21 octobre 2026 — PARTIE II du projet EKTS**  
 **Statut : ⏳ Sous-sprint 2-1 prêt pour exécution**
+
+---
+
+## Addendum d'implémentation — 22 octobre 2026
+
+**Statut : ✅ TERMINÉ** (commit `Sprint 2-1`).
+
+### Écarts assumés par rapport au plan
+
+| Point du plan | Réalisation | Raison |
+|---------------|-------------|--------|
+| `content='main.resources'` + triggers de synchronisation FTS | Table FTS5 **autonome**, synchronisée par `ResourceRepository` | Une table de contenu FTS5 ne peut pas résider dans un autre fichier (échec `rebuild` : `near ".": syntax error`) et SQLite interdit qu'un trigger écrive dans une base attachée (`qualified table names are not allowed on INSERT, UPDATE, DELETE statements within triggers`). Vérifié expérimentalement. |
+| 3 connexions séparées | **Une** connexion, `fts` et `vectors` attachées | Permet une transaction unique sur les trois fichiers ; les écritures restent cohérentes. |
+| `db.loadExtension('vec0')` | `sqliteVec.load(connection)` (`sqlite-vec` 0.1.9) | `loadExtension` attend un chemin de bibliothèque, pas un nom de module. |
+| `data/.gitkeep` | Aucun fichier (répertoire créé à la demande) | `data/` est entièrement ignoré par Git ; un `.gitkeep` imposerait de forcer l'ajout. |
+| Permissions `600` | Appliquées, **sans effet sur Windows** | Modèle POSIX indisponible ; le code sort tôt sur `win32`. |
+
+### Fichiers produits
+
+| Fichier | Rôle |
+|---------|------|
+| `src/data/database.ts` | `openDatabase`, `resolveDatabasePaths`, `applyPragmas`, `secureDatabaseFiles` |
+| `src/data/migrations/001_init.ts` | `createStructuredSchema`, `createFtsSchema`, `createVectorSchema` |
+| `src/data/migrations/index.ts` | Runner `runMigrations` + table `schema_migrations` |
+| `src/shared/constants.ts` | `EMBEDDING_DIMENSIONS`, noms de schémas et de tables |
+| `tests/integration/database.test.ts` | 15 tests (bases, WAL, schémas, permissions, migrations) |
+
+### Vérifications exécutées
+
+```bash
+npm test -- tests/integration/database.test.ts   # 15 tests OK
+npm run coverage                                  # 100 %
+```
+
+Contrôles manuels sur un répertoire temporaire : trois fichiers créés en `600`, `vec_version()`
+= `v0.1.9`, table `resources_fts` interrogeable, `PRAGMA user_version` = 1.

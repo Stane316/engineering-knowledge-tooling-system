@@ -5,7 +5,7 @@
 **Position dans la roadmap :** Sprint 2 de MVP-1  
 **Durée prévue :** 2 semaines (Semaine 3-4)  
 **Date de documentation :** 21 octobre 2026  
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ TERMINÉ (22/10/2026)  
 **Dépend de :** SPRINT-01 (Setup projet) ✅
 
 ---
@@ -919,4 +919,26 @@ Implémenter couche données SQLite (3 bases, FTS5, sqlite-vec, Repository, Zod)
 ---
 
 **Document rédigé le 21 octobre 2026 — PARTIE II du projet EKTS**  
-**Statut : ⏳ Dossier Sprint 2 prêt pour approbation**
+**Statut : ✅ Sprint 2 terminé — en attente de validation utilisateur**
+
+---
+
+## Addendum d'implémentation — 22 octobre 2026
+
+**Sprint 2 terminé.** Les trois sous-sprints (2-1 schémas, 2-2 repository, 2-3 validation et
+documentation) sont implémentés, testés et documentés.
+
+| Livrable | État |
+|----------|------|
+| 3 bases SQLite (WAL, permissions 600) | ✅ |
+| Migrations versionnées (`schema_migrations`, `user_version`) | ✅ |
+| FTS5 (`resources_fts`) | ✅ autonome, synchronisée par le repository |
+| `sqlite-vec` 0.1.9 (`resources_vectors`, `float[1536]`) | ✅ |
+| `ResourceRepository` (CRUD + filtres + pagination) | ✅ |
+| Validation Zod 4 | ✅ |
+| `docs/guides/DATA_LAYER.md` | ✅ |
+| Tests | 66 tests, couverture 100 % |
+
+Deux corrections de conception ont été nécessaires (détaillées dans l'addendum de SPRINT-02-01) :
+FTS5 **autonome** au lieu d'une table de contenu externe (impossible entre fichiers), et
+**une connexion unique** avec bases attachées au lieu d'un trigger multi-base (interdit par SQLite).

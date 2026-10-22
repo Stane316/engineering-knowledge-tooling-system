@@ -14,8 +14,8 @@ dist/
 build/
 coverage/
 
-# Données locales
-data/
+# Données locales (racine uniquement — ne masque pas src/data/)
+/data/
 *.db
 *.db-shm
 *.db-wal

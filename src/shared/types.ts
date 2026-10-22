@@ -1,18 +1,14 @@
-/** Types partagés EKTS — Sprint 1. */
+import type { Resource } from './validators.js';
 
-export type ResourceType = 'article' | 'video' | 'tutorial' | 'tool' | 'other';
+export type {
+  CreateResourceInput,
+  Resource,
+  ResourceFilters,
+  ResourceType,
+  UpdateResourceInput,
+} from './validators.js';
 
-export interface Resource {
-  id: string;
-  type: ResourceType;
-  title: string;
-  url?: string;
-  tags: string[];
-  metadata?: Record<string, unknown>;
-  createdAt: string;
-  updatedAt: string;
-}
-
+/** Origine d'un résultat de recherche (Sprint 4). */
 export type SearchSource = 'fts' | 'vector' | 'hybrid';
 
 export interface SearchResult {

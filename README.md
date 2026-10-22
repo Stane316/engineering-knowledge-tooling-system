@@ -4,7 +4,7 @@
 
 > « Ne pas repartir de zéro : retrouver, comprendre, exécuter, vérifier et capitaliser sur ce qui a déjà été appris ou construit. »
 
-**Statut :** 🚧 Implémentation démarrée — Sprint 1 terminé, en attente de validation
+**Statut :** 🚧 Implémentation en cours — Sprint 2 terminé, en attente de validation
 **Version :** 0.1.0
 **Licence :** MIT
 
@@ -111,7 +111,7 @@ Aucun secret n'est requis pour le Sprint 1. Les secrets futurs passent exclusive
 
 ```
 engineering-knowledge-tooling-system/
-├── src/                     # code source (Sprint 1 : squelette)
+├── src/                     # code source (données : src/data)
 ├── tests/                   # unit / integration / benchmark
 ├── migrations/              # migrations SQLite (Sprint 2)
 ├── docs/

@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 22 octobre 2026 — Sprint 1 (setup projet)  
+**Dernière mise à jour :** 22 octobre 2026 — Sprint 2 (Data Layer SQLite)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -38,11 +38,11 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 
 | Périmètre | Sprints | Documentation | Implémentation | Tests |
 |-----------|---------|---------------|----------------|-------|
-| **MVP-1** — Bibliothèque, recherche, CLI, MCP | 1 à 6 | ✅ 24 dossiers | 🟡 Sprint 1 terminé | ✅ |
+| **MVP-1** — Bibliothèque, recherche, CLI, MCP | 1 à 6 | ✅ 24 dossiers | 🟡 Sprints 1-2 terminés | ✅ |
 | **MVP-2** — Inspection navigateur | 7 à 12 | ✅ 24 dossiers | ⏳ | — |
 | **MVP-3** — Capitalisation projets | 13 à 18 | ⏳ non documentés | ⏳ | — |
 
-**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprint 1 (2 400+ lignes de code, tests et documentation) au 22 octobre 2026.
+**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 et 2 au 22 octobre 2026 (67 tests, couverture 100 %).
 
 ---
 
@@ -54,10 +54,10 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 1 | 1-2 | Structure dossiers + dépendances | ✅ Rédigée | ✅ `9c96f2a` | ✅ 8 tests, 100 % |
 | Sprint 1 | 1-3 | Gitleaks + README + CI | ✅ Rédigée | ✅ `d5b567c` | ✅ CI + hook |
 | Sprint 1 | Dossier parent | Setup projet | ✅ Rédigée | ⏸️ En attente de validation | ✅ |
-| Sprint 2 | 2-1 | Schémas SQLite (3 bases) | ✅ Rédigée | ⏳ | — |
-| Sprint 2 | 2-2 | Repository Resource + tests | ✅ Rédigée | ⏳ | — |
-| Sprint 2 | 2-3 | Validation Zod + documentation | ✅ Rédigée | ⏳ | — |
-| Sprint 2 | Dossier parent | Data Layer (SQLite) | ✅ Rédigée | ⏳ | — |
+| Sprint 2 | 2-1 | Schémas SQLite (3 bases) | ✅ Rédigée | ✅ `e0ac3b3` | ✅ 15 tests, 100 % |
+| Sprint 2 | 2-2 | Repository Resource + tests | ✅ Rédigée | ✅ `e0ac3b3` | ✅ 26 tests, 100 % |
+| Sprint 2 | 2-3 | Validation Zod + documentation | ✅ Rédigée | ✅ `e0ac3b3` | ✅ 17 tests, 100 % |
+| Sprint 2 | Dossier parent | Data Layer (SQLite) | ✅ Rédigée | ⏸️ En attente de validation | ✅ |
 | Sprint 3 | 3-1 | Knowledge Manager CRUD (add, get, list) | ✅ Rédigée | ⏳ | — |
 | Sprint 3 | 3-2 | Knowledge Manager CRUD suite (update, delete) + tests complets | ✅ Rédigée | ⏳ | — |
 | Sprint 3 | 3-3 | Indexation FTS automatique + documentation | ✅ Rédigée | ⏳ | — |
@@ -110,12 +110,19 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Sprint 1-2 : arborescence `src/`, dépendances runtime (better-sqlite3, commander, zod, pino), configuration et logger typés | `9c96f2a` |
 | 22/10/2026 | Sprint 1-3 : Gitleaks + hook pre-commit, CI GitHub Actions, `SETUP.md`, README définitif | `d5b567c` |
 | 22/10/2026 | CI verte (qualité Node 22.x et 24.x + détection de secrets) ; correction des chemins historiques dans l'allowlist Gitleaks | `896308e` |
+| 22/10/2026 | Sprint 2-1 : 3 bases SQLite (WAL, permissions 600), migrations versionnées, FTS5 autonome, `sqlite-vec` 0.1.9 | `e0ac3b3` |
+| 22/10/2026 | Sprint 2-2 : `ResourceRepository` (CRUD, filtres, pagination, indexation FTS transactionnelle) | `e0ac3b3` |
+| 22/10/2026 | Sprint 2-3 : validation Zod 4, `docs/guides/DATA_LAYER.md`, 67 tests, couverture 100 % | `344c18e` |
 
 ---
 
 ## 5. Prochaines étapes
 
-1. **Sprint 1 terminé** — en attente de validation utilisateur (⏸️) avant le Sprint 2.
-2. **Sprint 2** — Data Layer SQLite : schémas des 3 bases, repository `Resource`, validation Zod.
+1. **Sprint 2 terminé** — en attente de validation utilisateur (⏸️) avant le Sprint 3.
+2. **Sprint 3** — Knowledge Manager : CRUD complet (update, delete), indexation FTS automatique, commande `reindex`.
 3. Mise à jour de ce registre à la fin de chaque sous-sprint (statut + commit).
-4. Validation utilisateur avant passage au Sprint 3.
+4. Validation utilisateur avant passage au Sprint 4.
+
+> **Écart technique tranché au Sprint 2** : FTS5 autonome (pas de table de contenu externe) et
+> connexion unique avec bases attachées — la conception initiale du blueprint était irréalisable.
+> Voir l'addendum de `SPRINT-02-01.md` et `docs/guides/DATA_LAYER.md` §3.2.
