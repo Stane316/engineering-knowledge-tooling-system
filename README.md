@@ -108,6 +108,7 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 | `npm run verify`                  | typecheck + lint + format + build + couverture           |
 | `npm run setup`                   | Hooks Git + vérification de l'environnement              |
 | `npm run check:env`               | Diagnostics (Node, SQLite, sqlite-vec, outils)           |
+| `npm run doctor`                  | Contrôle dépôt, build, dépendances et fins de ligne      |
 | `npm run db:inspect`              | État des 3 bases + cohérence de l'index                  |
 | `npm run db:reindex`              | Reconstruit l'index plein texte                          |
 | `npm run providers`               | État des 14 fournisseurs d'API et chaîne d'appel         |

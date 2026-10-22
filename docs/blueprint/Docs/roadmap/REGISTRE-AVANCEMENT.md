@@ -137,6 +137,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Sprint 4.5 : Sofya (`/v1/search`, `/v1/fetch`) et MiniMax (chat) vérifiés ; capacité `web-fetch` ; fournisseurs déclarables sans code (`providers.custom.json`), ADR-018 et risques R-4.5.8–R-4.5.9 | `registry` |
 | 22/10/2026 | Sprint 5 : `program`, `runtime`, `services`, `command`, `output`, `options` ; commandes `init`, `add`, `get`, `search`, `list`, `delete`, `status` ; binaire `ekts` (`bin`) | `78232db` |
 | 22/10/2026 | Sprint 5 : 97 tests CLI (unités + intégration sur le binaire compilé), `src/cli/**` à 100 %, codes de sortie 0/1/2/3/4 vérifiés ; `docs/CLI.md`, ADR-019, risques R-5.1 à R-5.6 | `45db1ea` |
+| 22/10/2026 | Correctif d'outillage après un merge sans effet : `.gitattributes` (`eol=lf`) contre les CRLF Windows, `npm run doctor`, procédures `SETUP.md` §6.11 (renormalisation) et §6.12 (merge par SHA, « Already up to date ») ; risques R-5.7 et R-5.8 | `fix/checkout` |
 
 ---
 

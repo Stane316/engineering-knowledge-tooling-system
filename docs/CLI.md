@@ -55,6 +55,31 @@ nécessaire pour `init`, `add` (indexation plein texte), `get`, `list`, `delete`
 `status` et `search --mode fts`. Le fichier `.env` du répertoire courant est
 chargé au démarrage (sans écraser les variables déjà définies).
 
+### 2.1 Vérifier que le code est réellement présent
+
+Un `git merge` peut répondre « Already up to date » sans rien apporter : c'est
+le cas quand le pointeur local de la branche est antérieur au dernier push
+(voir [`SETUP.md` §6.12](guides/SETUP.md)). Deux commandes suffisent à lever le
+doute :
+
+```powershell
+npm run doctor
+Test-Path src\cli\program.ts
+```
+
+`npm run doctor` contrôle Node, npm, l'état Git, la présence du code du Sprint 5,
+la fraîcheur de `dist/`, les dépendances et les fins de ligne. Il affiche
+`[ERR] code Sprint 5 absent` si le merge n'a pas été appliqué.
+
+Pour fusionner la bonne version, viser le **commit** plutôt que le nom de branche :
+
+```powershell
+git fetch origin
+git rev-parse origin/arena/079e2f26-engineering-knowledge-tooling
+git switch develop
+git merge --no-ff 2863e44 -m "merge: Sprint 5 CLI"
+```
+
 ---
 
 ## 3. Commandes

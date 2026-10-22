@@ -395,10 +395,21 @@ Hors dépôt Git, cette étape est sans objet.
 
 ### 6.4 `npm run format:check` échoue
 
-```bash
-npx prettier --write .
-npm run format:check
-```
+**Deux causes possibles, à distinguer avant de corriger.**
+
+1. **Un fichier a réellement été modifié** (édition manuelle, merge partiel).
+   Prettier affiche alors quelques chemins, pas une centaine.
+
+   ```bash
+   npx prettier --write .
+   npm run format:check
+   ```
+
+2. **Toute la base de code est en CRLF** (symptôme Windows : plus de cent
+   fichiers listés). `core.autocrlf=true` convertit les fichiers au checkout,
+   alors que Prettier exige LF. Le dépôt contient désormais un `.gitattributes`
+   (`* text=auto eol=lf`), mais un clone **antérieur** conserve ses CRLF :
+   voir §6.11.
 
 Ne jamais modifier `.prettierrc` pour contourner un échec isolé.
 
@@ -479,6 +490,116 @@ npm.cmd ci
 
 ---
 
+### 6.11 Windows : `npm run format:check` liste une centaine de fichiers (CRLF)
+
+**Symptôme :**
+
+```
+[warn] src/cli/program.ts
+[warn] src/data/database.ts
+...
+[warn] Code style issues found in 104 files. Run Prettier with --write to fix.
+```
+
+**Cause :** Git pour Windows s'installe avec `core.autocrlf=true` : au checkout,
+chaque fichier texte est converti en CRLF. Prettier est configuré en
+`endOfLine: "lf"` (cohérent avec la CI, qui travaille en LF) et refuse donc ces
+fichiers. Le code n'est **pas** en cause.
+
+**Correctif structurel (déjà dans le dépôt) :** `.gitattributes` impose
+`* text=auto eol=lf`, indépendamment du réglage local de chaque poste.
+
+**Correctif ponctuel d'un clone existant** — à exécuter **une seule fois**, et
+seulement si `git status` est propre (sinon commiter ou remiser d'abord, la
+commande réécrit l'arbre de travail) :
+
+```powershell
+git config core.autocrlf false
+git rm --cached -r . --quiet
+git reset --hard
+npm run format:check
+```
+
+Sortie attendue : `All matched files use Prettier code style!`.
+
+> Alternative sans toucher à l'index : refaire un `git clone` neuf dans un autre
+> dossier. Plus lent, mais sans risque pour les modifications locales.
+
+Sur les postes suivants, conserver `git config --global core.autocrlf false`
+(ou `input`), qui est de toute façon la recommandation pour un projet
+TypeScript/Node.
+
+### 6.12 Après un merge : « Everything up-to-date » et `Cannot find module dist/cli/index.js`
+
+**Symptôme combiné, très fréquent :**
+
+```powershell
+git merge --no-ff arena/079e2f26-engineering-knowledge-tooling
+# Already up to date.
+git push origin develop
+# Everything up-to-date
+npm run cli -- list
+# Error: Cannot find module '...\dist\cli\index.js'
+npx vitest run tests/cli
+# No test files found
+```
+
+**Cause exacte :** le dépôt local n'avait pas récupéré la branche. Son
+pointeur `arena/...` désignait encore `d2e0d59`, déjà contenu dans `develop`
+(par le merge du Sprint 4.5). Fusionner un ancêtre est un no-op : Git répond
+« Already up to date », `develop` ne bouge pas, et le code du Sprint 5 reste
+absent. Les erreurs npm qui suivent ne sont que la conséquence de cette
+absence : `dist/cli/index.js` n'existe pas, `tests/cli/` non plus.
+
+**Diagnostic :**
+
+```powershell
+npm run doctor
+git fetch origin
+git log --oneline -1 origin/arena/079e2f26-engineering-knowledge-tooling
+```
+
+`npm run doctor` affiche `[ERR] code Sprint 5 absent` tant que le merge n'a pas
+été appliqué.
+
+**Correctif — fusionner explicitement le commit distant, pas un nom de branche :**
+
+```powershell
+cd C:\dev\engineering-knowledge-tooling-system
+git status                              # doit etre propre
+git fetch origin
+git rev-parse origin/arena/079e2f26-engineering-knowledge-tooling
+# attendu : 2863e443ffe4018fe17f62d2a2f94f848e162c59 (ou plus recent)
+git switch develop                      # ou : git switch -c develop --track origin/develop
+git pull --ff-only origin develop        # si refuse : git pull origin develop
+git merge --no-ff 2863e44 -m "merge: Sprint 5 CLI"
+git push origin develop
+```
+
+**Vérification (les trois doivent réussir) :**
+
+```powershell
+git log --oneline -3
+git rev-parse HEAD:src/cli/program.ts
+Test-Path src\cli\program.ts          # True
+Test-Path dist\cli\index.js           # True apres npm run build
+```
+
+Puis :
+
+```powershell
+npm ci
+npm run build
+npm run doctor
+npm run cli -- --help
+```
+
+> Si `git merge` répond de nouveau « Already up to date » **après** avoir vérifié
+> que `git rev-parse origin/arena/...` renvoie bien `2863e44`, c'est que le
+> commit est déjà dans `develop` : `git merge-base --is-ancestor 2863e44 HEAD`
+> et `echo $LASTEXITCODE` (0 = deja fusionne).
+
+
 ## 7. Windows — séquence complète (PowerShell)
 
 ```powershell
@@ -494,6 +615,7 @@ npm ci
 npm run setup
 
 # 4. Vérifier
+npm run doctor
 npm run verify
 npm start
 ```

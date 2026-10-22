@@ -1,0 +1,31 @@
+# Normalisation des fins de ligne.
+#
+# Pourquoi : sous Windows, Git est installé par défaut avec `core.autocrlf=true`,
+# qui convertit les fichiers texte en CRLF lors du checkout. Or Prettier est
+# configuré en `endOfLine: "lf"` : `npm run format:check` échouait alors sur
+# plus de cent fichiers, et `npm run verify` avec lui.
+#
+# `eol=lf` impose le LF au dépôt ET au checkout, quel que soit le réglage local.
+# Un clone existant doit être renormalisé une seule fois (voir SETUP.md §6.11).
+* text=auto eol=lf
+
+# Scripts shell : LF obligatoire pour rester exécutables.
+*.sh   text eol=lf
+# PowerShell : CRLF attendu par les outils Windows.
+*.ps1  text eol=crlf
+
+# Binaires : aucune conversion, aucune diff textuelle.
+*.db     binary
+*.sqlite binary
+*.sqlite3 binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.webp   binary
+*.pdf    binary
+*.woff   binary
+*.woff2  binary
+*.zip    binary
+*.gz     binary

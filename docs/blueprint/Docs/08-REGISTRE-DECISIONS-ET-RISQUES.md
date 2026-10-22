@@ -696,6 +696,8 @@ est un changement de contrat, à documenter dans `docs/CLI.md`.
 | R-5.4 | Point d'entrée `src/cli/index.ts` hors couverture | Faible | Faible | Fichier de trois lignes, testé de bout en bout par `tests/cli/cli.test.ts` sur le binaire compilé |
 | R-5.5 | Divergence CLI/MCP dans l'accès aux services (Sprint 6) | Faible | Moyenne | Services partagés (`openCliServices`, `createSearchEngine`), ADR-019 |
 | R-5.6 | Bases créées par erreur par une commande d'observation | Faible | Faible | `status` inspecte les fichiers avant toute ouverture (`migrate: false`, ouverture conditionnée aux trois fichiers) |
+| R-5.7 | Merge « Already up to date » sur un pointeur de branche obsolète → CLI absente, erreurs npm en cascade | Moyen | **Élevée** | `npm run doctor` (contrôle la présence du code), fusion par SHA, `git fetch origin` explicite, procédure et vérifications dans `SETUP.md` §6.12 |
+| R-5.8 | CRLF (`core.autocrlf=true`) face à Prettier LF → `npm run verify` rouge sur le poste alors que la CI est verte | Faible | **Élevée** | `.gitattributes` (`* text=auto eol=lf`), `endOfLine: "lf"` explicite, renormalisation documentée (`SETUP.md` §6.11) |
 
 ---
 
