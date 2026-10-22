@@ -1,0 +1,55 @@
+Service,Catégorie,Prix_Standard,Prix_Étudiant,Réduction,Durée,Vérification,Éligibilité_Bénin,URLs,Notes
+MATLAB,data,$86/an,$29/an,66%,1 an,Email institutionnel,✅ eligible,https://www.mathworks.com/academia/student_price-list.html,"Calcul scientifique, 66% de réduction"
+Wolfram|Alpha Pro,data,$5.99/mois,$49.99/an,30%,6 mois,Email institutionnel,✅ eligible,https://www.wolframalpha.com/pro/,"Moteur de calcul, 6 mois à tarif réduit"
+Framer,design,$15/mois,Gratuit,100%,Tant qu'étudiant,Email institutionnel,✅ eligible,https://www.framer.com/education/,"Design et prototypage interactif, gratuit pour étudiants"
+InVision,design,$15/mois,Gratuit,100%,Tant qu'étudiant,Email institutionnel,✅ eligible,https://www.invisionapp.com/designer-fund,"Prototypage, gratuit pour étudiants"
+Sketch,design,$10/mois,Gratuit,100%,1 an,Email institutionnel,✅ eligible,https://www.sketch.com/education/,"Design UI macOS, 1 an gratuit"
+Webflow,design,$14/mois,Gratuit,100%,Tant qu'étudiant,Email institutionnel,✅ eligible,https://webflow.com/education,"No-code web design, gratuit pour étudiants"
+CodeSandbox,dev,$15/mois,Gratuit,100%,Tant qu'étudiant,Email institutionnel,✅ eligible,https://codesandbox.io/education,"IDE cloud React/Vue, gratuit pour étudiants"
+GitHub Copilot,dev,$10/mois,Gratuit,100%,Tant qu'étudiant,GitHub Student Pack,✅ via GitHub Pack,https://github.com/features/copilot,"Assistant IA, gratuit via GitHub Student Pack"
+GitKraken,dev,$4.95/mois,Gratuit,100%,Tant qu'étudiant,Email institutionnel,✅ eligible,https://www.gitkraken.com/github-student-developer-pack,"Client Git, gratuit via GitHub Pack"
+Replit,dev,$19/mois,Gratuit,100%,Tant qu'étudiant,Email institutionnel,✅ eligible,https://replit.com/site/education,"IDE cloud, gratuit pour étudiants"
+Termius,dev,$4.25/mois,Gratuit,100%,1 an,Email institutionnel,✅ eligible,https://termius.com/education,"Client SSH, 1 an gratuit pour étudiants"
+Codecademy Pro,learning,$19.99/mois,Via institution,variable%,Variable,Email institutionnel,⚠️ check institution,https://www.codecademy.com/catalog/education,"Apprentissage programmation, via université"
+Lynda.com (LinkedIn Learning),learning,$29.99/mois,Via institution,100%,Variable,Email institutionnel,⚠️ check institution,https://www.linkedin.com/learning/,"Formations vidéo, via bibliothèque/université"
+Scratch,learning,Gratuit,Gratuit,100%,Illimité,Aucune,✅ eligible,https://scratch.mit.edu/,"Programmation visuelle, MIT, gratuit pour tous"
+AWS Educate,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,https://aws.amazon.com/education/awseducate/,Free tier available worldwide
+Adobe Creative Cloud,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,,"71% discount first year, available in Africa"
+Apple Music,other,$10.99/mois,$5.99/mois,45%,48 mois max,UNiDAYS/SheerID,❌ limited countries,https://www.apple.com/apple-music/student/,"Via UNiDAYS/SheerID, disponibilité limitée"
+Autodesk,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,,Educational access available worldwide
+Azure for Students,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,"https://azure.microsoft.com/en-us/free/students/, https://learn.microsoft.com/en-us/azure/education-hub/about-azure-for-students","18+ required, institutional email needed"
+Bitwarden,other,$10/an,Gratuit (via GitHub Pack),100%,1 an,GitHub Student Pack,✅ via GitHub Pack,https://bitwarden.com/,"Gestionnaire de mots de passe, via GitHub Pack"
+Blender,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,https://www.blender.org/support/,"Open source, free for everyone"
+Canva,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,⚠️ K-12 only,,"Free for K-12 via teacher invitation, universities need Canva Campus"
+ChatGPT,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,⚠️ free tier only,,"Student discount US only, free tier available globally"
+Claude,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,⚠️ no discount,,"No individual student discount, only via university partnership"
+Cursor,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,"https://cursor.com/pricing, https://cursor.com/students","Free tier available, student program ended"
+DataCamp,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ via GitHub Pack,,Access via GitHub Student Developer Pack
+Educative,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ via GitHub Pack,https://www.educative.io/pricing,Access via GitHub Student Developer Pack
+ElevenLabs,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,❌ not eligible,"https://elevenlabs.io/pricing, https://elevenlabs.io/students",Not available in Africa as of September 2026
+Figma Education,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,❓ unknown,"https://www.figma.com/education/, https://help.figma.com/hc/en-us/articles/360041061214-Figma-for-Education","Available in select regions, must verify during signup"
+Frontend Masters,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ via GitHub Pack,,Access via GitHub Student Developer Pack
+GitHub Education,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,"https://education.github.com/pack, https://docs.github.com/en/education/explore-the-benefits-of-teaching-and-learning-with-github-education/github-education-for-students/apply-to-github-education-as-a-student","No geographic restrictions, accepts documents if no institutional email"
+Google Colab,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,"https://colab.research.google.com/, https://colab.research.google.com/drive/16pBJQePbqkG3bDHz7QXK4kQl9XJX8YZQ",Free tier available worldwide
+Google Gemini,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,"https://gemini.google.com/students/, https://one.google.com/about/plans",27 African countries eligible including Benin (August 2026 expansion)
+Hugging Face,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,"https://huggingface.co/pricing, https://huggingface.co/docs/hub/en/academia-hub","Free tier available, no student-specific discount"
+JetBrains,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,"https://www.jetbrains.com/community/education/, https://www.jetbrains.com/academy/student-pack/",Accepts ISIC card or GitHub Student Pack
+Kaggle,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,"https://www.kaggle.com/, https://www.kaggle.com/docs","Free for everyone, not student-specific"
+LastPass,other,$3/mois,Gratuit,100%,1 an,Email institutionnel,✅ eligible,https://www.lastpass.com/,"Gestionnaire de mots de passe, 1 an gratuit"
+Microsoft 365,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,⚠️ check institution,https://www.microsoft.com/education/products/office,Requires university to have subscribed
+Mistral,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,"https://mistral.ai/pricing/, https://chat.mistral.ai/upgrade/student","European service, accepts institutional emails globally"
+Netlify,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,"https://www.netlify.com/pricing/, https://docs.netlify.com/pricing/overview/",Free tier available worldwide
+Notion Education,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,⚠️ check institution,"https://www.notion.com/product/notion-for-education, https://www.notion.com/help/notion-for-education",Universities in WHED database eligible
+Perplexity,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,,50% discount via SheerID verification
+Spotify Premium,other,$11.99/mois,$5.99/mois,50%,12 mois max,SheerID,❌ US/EU only,https://www.spotify.com/student/,"Via SheerID, non disponible au Bénin"
+Unity,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,,Student plan available via verification
+Vercel,other,Variable,Variable,Variable,Tant qu'étudiant,N/A,✅ eligible,"https://vercel.com/pricing, https://vercel.com/docs/pricing","Hobby plan free for everyone, no student discount"
+YouTube Premium,other,$13.99/mois,$7.99/mois,43%,12 mois max,SheerID,⚠️ check availability,https://www.youtube.com/premium,"Via SheerID, vérifier disponibilité Bénin"
+Grammarly,productivity,$12/mois,Via institution,variable%,Tant qu'étudiant,Email institutionnel,⚠️ check institution,https://www.grammarly.com/edu,"Correction grammaticale, via université"
+Lucidchart,productivity,$12/mois,Gratuit,100%,Tant qu'étudiant,Email institutionnel,✅ eligible,https://www.lucidchart.com/pages/education,"Diagrammes et organigrammes, gratuit pour étudiants"
+Miro,productivity,$10/mois,Gratuit,100%,Tant qu'étudiant,Email institutionnel,✅ eligible,https://miro.com/education/,"Tableau blanc collaboratif, gratuit pour étudiants"
+Office 365 A1,productivity,Institutionnel,Gratuit,100%,Tant qu'étudiant,Email institutionnel,⚠️ check institution,https://www.microsoft.com/education/products/office,"Via l'université, Word/Excel/PowerPoint web"
+Overleaf,productivity,$40/an,Via institution,100%,Variable,Email institutionnel,⚠️ check institution,https://www.overleaf.com/edu,"Éditeur LaTeX collaboratif, via université"
+Prezi,productivity,$15/mois,$5/mois,67%,Tant qu'étudiant,Email institutionnel,✅ eligible,https://prezi.com/pricing/,"Présentations interactives, 67% de réduction"
+ReadCube Papers,productivity,$2.99/mois,Gratuit,100%,Tant qu'étudiant,Email institutionnel,✅ eligible,https://www.readcube.com/,"Gestion de références bibliographiques, gratuit pour étudiants"
+Taskade,productivity,$9/mois,Gratuit,100%,Tant qu'étudiant,Email institutionnel,✅ eligible,https://www.taskade.com/pricing,"Gestion de projets et notes, gratuit pour étudiants"

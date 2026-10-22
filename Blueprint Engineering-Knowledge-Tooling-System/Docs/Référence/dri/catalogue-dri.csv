@@ -1,0 +1,178 @@
+Ressource,Nature,Tier,Famille,URL,Classe_licence,Licence_exacte,Recuperation,AI_readiness_0_5,Reutilisabilite_1_5,Techno,Preuves,Note
+shadcn/ui,N10,A,UI,https://ui.shadcn.com,permissive,MIT,R5,5,5,React/Tailwind,125158★ MIT pushed 2026-10-05 [API-gh],propriété du code + registries + MCP
+Magic UI,N08,A,UI,https://magicui.design,permissive,MIT (+freemium),R5,4,4,React/Tailwind/Motion,22475★ [API-gh]; 150+ composants [W],cohérence marketing
+Aceternity UI,N08,B,UI,https://ui.aceternity.com,freemium,gratuit + 199$ premium,R1,2,3,React/Tailwind/Motion,"330+ composants, 200+ gratuits [W]",impact visuel maximal
+React Bits,N08,A,UI,https://reactbits.dev,free commercial (conditions),MIT + Commons Clause,R1/R5,3,3,React/JS/CSS,213 composants [S]; Pro 129/249/349$ [S],variété effet texte/arrière-plan
+Animate UI,N10,B,UI,https://animate-ui.com,permissive,OSS,R5,4,4,React/Tailwind/Motion,580 items registry [W],composants animés registry
+Kokonut UI,N08,B,UI,https://kokonutui.com,permissive,gratuit,R1/R5,3,3,React/Tailwind,100+ composants [W],"SVG animés, surfaces IA"
+Kibo UI,N10,B,UI,https://kibo-ui.com,permissive,MIT,R5,4,4,React/Tailwind,[W],composants applicatifs avancés
+Origin UI,N10,B,UI,https://originui.com,permissive,gratuit,R5,4,4,React/Tailwind,[W],couverture large
+Motion Primitives,N08,B,UI,https://motion-primitives.com,permissive,gratuit,R1/R5,3,3,React/Motion,[W],primitives composables
+Cult UI,N08,B,UI,https://cult-ui.com,permissive,gratuit,R1,2,3,React/Tailwind,[W],effets en forme de contrôles
+Intent UI,N07,C,UI,https://intentui.com,permissive,OSS,R5,4,4,React/React Aria,153 composants [W],accessibilité react-aria
+JollyUI,N07,C,UI,https://jollyui.dev,permissive,OSS,R5,4,3,React/React Aria,[V],shadcn + react-aria
+HextaUI,N07,C,UI,https://hextaui.com,permissive,OSS,R5,4,3,React/Tailwind,[V],extensions shadcn
+ReUI,N07,C,UI,https://reui.io,permissive,OSS,R5,4,3,React/Base UI,54 composants [W],apps fonctionnelles
+8bitcn,N07,C,UI,https://8bitcn.com,permissive,OSS,R5,4,3,React/Tailwind,[W],style 8-bit rare
+brut-ui,N07,C,UI,https://registry.directory,permissive,OSS,R5,4,3,React/Tailwind,59 items [W],neo-brutaliste paramétrable ; URL propre à confirmer [?] (référencé sur registry.directory)
+000h,N08,C,UI,https://registry.directory,permissive,OSS,R5,4,3,React/Tailwind,173 composants [W],motion expressive
+MicroKit,N08,C,UI,https://registry.directory,permissive,OSS,R1,2,3,React/Tailwind/CSS,49 items [W],micro-interactions Tailwind + CSS pur
+loadercn,N08,C,UI,https://registry.directory,permissive,OSS,R5,4,3,React/CSS,[W],loaders CSS sans dépendance
+registry.directory,N04,C,Outils,https://registry.directory,unknown,index,R1,2,3,Web,[V],explorateur de l'écosystème shadcn
+shoogle.dev,N04,C,Outils,https://shoogle.dev/directory,unknown,index,R1,2,3,Web,418 registries [V],tri par fraîcheur/étoiles
+MUI Material,N05,A,UI,https://mui.com,permissive,MIT,R3,3,4,React,99130★ [API-gh],entreprise établie
+Ant Design,N05,B,UI,https://ant.design,permissive,MIT,R3,3,4,React,15539584 dl/mois [API-npm],densité data
+Mantine,N05,B,UI,https://mantine.dev,permissive,MIT,R3,3,4,React,[W],DX et hooks inclus
+Chakra UI,N05,B,UI,https://chakra-ui.com,permissive,MIT,R3,3,4,React,40677★ [API-gh],stylage par props
+HeroUI,N05,B,UI,https://www.heroui.com,permissive,Apache-2.0,R3,3,4,React/Tailwind,30869★ [API-gh],Tailwind natif
+daisyUI,N07,B,UI,https://daisyui.com,permissive,MIT,R3,3,4,CSS/Tailwind,42542★ [API-gh],classes sémantiques
+PrimeVue,N07,A,UI,https://primevue.org,permissive,MIT (+99$/an),R3,3,4,Vue,90+ composants [W],DataTable entreprise
+Vuetify,N07,B,UI,https://vuetifyjs.com,permissive,MIT,R3,3,4,Vue,~41K★ [API-gh],Material pour Vue
+Nuxt UI,N05,A,UI,https://ui.nuxt.com,permissive,MIT,R4,3,4,Nuxt/Tailwind,6985★; 125+ composants [API-gh/W],officiel Nuxt
+shadcn-svelte,N10,A,UI,https://shadcn-svelte.com,permissive,MIT,R5,4,4,Svelte/Bits UI,[W],port officieux Svelte
+shadcn-vue,N10,A,UI,https://shadcn-vue.com,permissive,MIT,R5,4,4,Vue/Reka UI,[W],port officieux Vue
+spartan/ui,N10,B,UI,https://spartan.ng,permissive,MIT,R5,4,3,Angular,[W],port Angular
+Base UI,N06,A,UI,https://base-ui.com,permissive,MIT,R3,3,4,React,[W],successeur headless actif
+Radix Primitives,N06,A,UI,https://www.radix-ui.com,permissive,MIT,R3,3,4,React,[W],maintenance ralentie 2026
+React Aria,N06,A,UI,https://react-spectrum.adobe.com/react-aria/,permissive,Apache-2.0,R3,3,4,React,[W],référence accessibilité
+Ark UI,N06,B,UI,https://ark-ui.com,permissive,MIT,R3,3,4,React/Vue/Svelte,5K★ [API-gh],machines Zag
+Bits UI,N06,B,UI,https://bits-ui.com,permissive,MIT,R3,3,4,Svelte 5,[W],base shadcn-svelte
+Reka UI,N06,B,UI,https://reka-ui.com,permissive,MIT,R3,3,4,Vue,[W],ex-Radix Vue
+Headless UI,N06,B,UI,https://headlessui.com,permissive,MIT,R3,3,3,React/Vue,28768★ [API-gh],équipe Tailwind
+Tabler,N11,A,Templates,https://tabler.io,permissive,MIT (à confirmer),R6/R7,2,4,Bootstrap 5,~40800★; 4590 icônes [W],meilleur design admin
+AdminLTE,N11,A,Templates,https://adminlte.io,permissive,MIT,R6/R7,2,4,Bootstrap 5,45K★ [W],communauté maximale
+Core UI,N11,B,Templates,https://coreui.io,permissive,MIT,R6/R7,2,4,Bootstrap+React/Vue/Angular,12K★ [W],parité multi-framework
+TailAdmin,N11,B,Templates,https://tailadmin.com,permissive,MIT/OSS,R6,2,4,Next/Tailwind,[W],Tailwind d'abord
+Gentelella,N11,C,Templates,https://github.com/ColorlibHQ/gentelella,permissive,MIT,R6,2,3,Vite/vanilla,21K★ [W],"sans framework, palette ⌘K"
+shadcn-admin,N11,B,Templates,https://github.com/satnaing/shadcn-admin,permissive,MIT,R6,3,4,Next/shadcn,15593★ pushed 2026-09-10 [API-gh],admin Next moderne
+create-t3-app,N12,A,Templates,https://create.t3.gg,permissive,MIT,R4,3,4,Next/tRPC/Prisma,29154★ [API-gh],starter typé de référence
+ixartz/SaaS-Boilerplate,N12,A,Templates,https://github.com/ixartz/SaaS-Boilerplate,permissive,MIT,R6,3,4,Next/Stripe/i18n,7K★ [API-gh],SaaS multi-tenant
+Vercel Templates,N11,A,Templates,https://vercel.com/templates,permissive,MIT selon modèle,R6,3,4,Next/varies,[V],catalogue officiel
+Vercel Chatbot,N12,A,Templates,https://github.com/vercel/chatbot,permissive?,Apache-2.0 rapporté,R6,4,4,Next/AI SDK/shadcn,20990★ [API-gh],app de chat complète
+GSAP,N14,A,Motion,https://gsap.com,free commercial,"propriétaire, gratuit",R3,3,4,JS vanilla,28826★ [API-gh]; 21.8M dl/mois [API-npm],"timelines, plugin 100% gratuits 2025+"
+Motion,N14,A,Motion,https://motion.dev,permissive,MIT,R3,3,5,React/Vue/JS,33842★ [API-gh],animations UI React
+Anime.js,N14,A,Motion,https://animejs.com,permissive,MIT,R3/CDN,2,4,JS,73369★ [API-gh],micro-animations légères
+Lenis,N14,A,Motion,https://lenis.darkroom.engineering,permissive,MIT,R3,2,4,JS/React,16173★ [API-gh],smooth scroll standard 2026
+React Spring,N14,B,Motion,https://react-spring.dev,permissive,MIT,R3,2,4,React,21.8M dl/mois [API-npm],physique et gestes
+Theatre.js,N14,C,Motion,https://www.theatrejs.com,permissive,Apache-2.0,R3,2,3,TS/three.js,[API-gh]; maintenance incertaine [W],éditeur de timeline
+Lottie-web,N14,A,Motion,https://github.com/airbnb/lottie-web,permissive,MIT,R3,2,4,JS,32145★ pushed 2025-09-01 [API-gh],lecture After Effects
+Rive,N14,A,Motion,https://rive.app,freemium,MIT runtime + plateforme,R3,2,3,WASM/éditeur,[W],state machines interactives
+pqoqubbw/icons,N17,C,Assets,https://icons.pqoqubbw.dev,permissive,MIT,R5,4,3,React/Motion,[W],icônes animées
+three.js,N15,A,3D,https://threejs.org,permissive,MIT,R3,3,4,JS/WebGL,116255★; 74.6M dl/mois [API-gh/npm],socle 3D web
+@react-three/fiber,N15,A,3D,https://docs.pmnd.rs,permissive,MIT,R3,3,4,React,32738★; 23.3M dl/mois [API-gh/npm],renderer React
+@react-three/drei,N15,A,3D,https://github.com/pmndrs/drei,permissive,MIT,R3,3,4,React,9915★; 16.8M dl/mois [API-gh/npm],helpers de scène
+Babylon.js,N15,A,3D,https://www.babylonjs.com,permissive,Apache-2.0,R3,3,4,TS/WebGL/WebGPU,26128★ [API-gh],moteur complet + inspector
+PlayCanvas,N15,B,3D,https://playcanvas.com,freemium,MIT (moteur),R3,2,3,JS,16986★ [API-gh],éditeur collaboratif
+Spline,N15,A,3D,https://spline.design,freemium,gratuit + payant,R11,1,3,Web/React export,[W],3D no-code designer
+model-viewer,N15,B,3D,https://modelviewer.dev,permissive,Apache-2.0,R10,3,4,Web Component,8261★ [API-gh],embed produit GLB
+PixiJS,N15,B,3D,https://pixijs.com,permissive,MIT,R3,3,4,JS/WebGL,48291★ [API-gh],2D haute performance
+Shadertoy,N02,A,3D,https://www.shadertoy.com,unknown,licences par auteur,Web,1,1,GLSL,[V⚠ 403],apprentissage shaders
+The Book of Shaders,N26,A,3D,https://thebookofshaders.com,permissive,libre,Web,1,1,GLSL,[V],référence pédagogique
+p5.js,N15,A,3D,https://p5js.org,copyleft,LGPL-2.1,R3/CDN,2,3,JS,24083★ [API-gh],creative coding accessible
+Poly Haven,N17,A,Assets,https://polyhaven.com,permissive,CC0,R12/R8,3,5,3D/HDRI/textures,"2300+ assets, API sans clé [W]","sans attribution, commercial"
+ambientCG,N17,A,Assets,https://ambientcg.com,permissive,CC0,R12/R8,3,5,PBR/HDRIs,2000+ matériaux [W],plus grande banque CC0
+Kenney,N17,A,Assets,https://kenney.nl,permissive,CC0,R12,2,5,3D/2D jeu,game-ready [W],style cohérent
+Quaternius,N17,A,Assets,https://quaternius.com,permissive,CC0,R12,2,5,3D low-poly,[W],personnages stylisés
+Mixamo,N17,A,Assets,https://www.mixamo.com,unknown,gratuit [?],R12,1,4,Animations,[W],rigs et animations
+Sketchfab,N28,B,Assets,https://sketchfab.com,freemium,mixte par modèle,R12,1,3,3D,[W],variété maximale
+BlenderKit,N28,B,Assets,https://www.blenderkit.com,freemium,Royalty-Free/CC0,R11,2,4,Blender,45000+ gratuits [W],dans Blender
+Icosa Gallery,N17,C,Assets,https://icosa.gallery,permissive,CC-BY/CC0,R8/R12,3,4,3D low-poly,[W],archive Google Poly
+Lucide,N17,A,Assets,https://lucide.dev,permissive,ISC,R3,3,5,SVG/React,24867★; 446M dl/mois [API-gh/npm],défaut shadcn
+Tabler Icons,N17,A,Assets,https://tabler.io/icons,permissive,MIT,R3,3,5,SVG,21910★ [API-gh],volume + cohérence
+Phosphor Icons,N17,A,Assets,https://phosphoricons.com,permissive,MIT,R3,3,5,SVG,6 graisses [W],"une famille, 6 styles"
+Iconify,N17,A,Assets,https://iconify.design,permissive,MIT,R8/R3,4,4,API/SVG,150+ sets [W],une API pour tout
+Simple Icons,N17,A,Assets,https://simpleicons.org,permissive,CC0,R3,3,4,SVG,25968★ [API-gh],logos de marques
+Fontshare,N17,A,Assets,https://www.fontshare.com,permissive,free commercial,R12,2,4,Fonts,qualité premium gratuite [W],"Satoshi, Cabinet Grotesk..."
+Google Fonts,N17,A,Assets,https://fonts.google.com,permissive,OFL,R8/R12,3,5,Fonts,[W],couverture maximale
+unDraw,N17,A,Assets,https://undraw.co,free commercial (conditions),"sans attribution, pas de revente/IA",R12,1,4,Illustrations,[W],licence la plus permissive du marché illu
+Open Peeps / Open Doodles / Humaaans,N17,C,Assets,https://www.openpeeps.com,permissive,CC0,R12,1,4,Illustrations,[W],"composables, CC0"
+Storyset,N17,B,Assets,https://storyset.com,freemium,gratuit avec attribution,R12,1,3,Illustrations,"5 styles, éditeur [W]",variété
+DrawKit,N17,C,Assets,https://www.drawkit.com,freemium,packs gratuits,R12,1,3,Illustrations/Lottie/3D,Lottie gratuits rares [W],motion + 3D
+Pexels,N17,A,Assets,https://www.pexels.com,permissive,CC0,R12,1,4,Photos,[V⚠ 403],photos libres
+Unsplash,N17,A,Assets,https://unsplash.com,free commercial (conditions),Unsplash License,R12,1,4,Photos,[V⚠ 401],qualité élevée
+Recharts,N16,A,Data,https://recharts.org,permissive,MIT,R3,3,4,React/SVG,243M dl/mois [API-npm],défaut React + charts shadcn
+ECharts,N16,A,Data,https://echarts.apache.org,permissive,Apache-2.0,R3,3,4,JS/Canvas,67453★; 21.9M dl/mois [API-gh/npm],volume + cartes
+D3,N16,A,Data,https://d3js.org,permissive,ISC,R3,2,3,JS/SVG,113806★ [API-gh],contrôle total
+Nivo,N16,B,Data,https://nivo.rocks,permissive,MIT,R3,3,4,React,14106★ [API-gh],25+ types
+visx,N16,B,Data,https://airbnb.io/visx,permissive,MIT,R3,3,3,React/D3,21075★ [API-gh],primitives custom
+Chart.js,N16,B,Data,https://www.chartjs.org,permissive,MIT,R3,3,4,Canvas,52.5M dl/mois [API-npm],"simple, performant"
+bklit,N10,A,Data,https://bklit.com,permissive,MIT + Studio,R5,4,4,React/visx/Motion,"56 items registry, 17 charts [S]",charts shadcn signature
+TanStack Table,N16,A,Data,https://tanstack.com/table,permissive,MIT,R3,4,4,React/Vue/Svelte/Solid,28473★ [API-gh],headless table
+AG Grid,N16,B,Data,https://www.ag-grid.com,freemium,MIT + Enterprise,R3,3,4,React/Vue/Angular/JS,13.8M dl/mois [API-npm],grille entreprise
+MapLibre GL,N16,A,Data,https://maplibre.org,permissive,BSD-3,R3,3,4,JS,[V],carto OSS sans clé
+Protomaps,N16,C,Data,https://protomaps.com,permissive,OSS,R8/R12,3,4,tuiles,[V],tuiles auto-hébergeables
+deck.gl,N16,A,Data,https://deck.gl,permissive,MIT,R3,3,4,WebGL/React,14627★ [API-gh],data massive
+Datawrapper,N13,A,Data,https://www.datawrapper.de,freemium,gratuit + payant,Web,1,3,sans code,[W],publication éditoriale
+Observable,N13,A,Data,https://observablehq.com,freemium,gratuit + payant [?],Web,1,3,JS/notebooks,[W],exploration et D3 moderne
+Vite,N19,A,Outils dev,https://vite.dev,permissive,MIT,R3/R4,3,5,JS,83175★; 773M dl/mois [API-gh/npm],build standard
+TypeScript,N19,A,Outils dev,https://www.typescriptlang.org,permissive,Apache-2.0,R3,3,5,TS,1.21 Md dl/mois [API-npm],contrat universel
+Biome,N19,B,Outils dev,https://biomejs.dev,permissive,Apache-2.0,R4,3,4,Rust,25900★ [API-gh],lint+format
+Vitest,N19,A,Outils dev,https://vitest.dev,permissive,MIT,R3/R4,3,5,JS,17183★; 454M dl/mois [API-gh/npm],tests unitaires
+Playwright,N19,A,Outils dev,https://playwright.dev,permissive,Apache-2.0,R3/R13,5,5,TS,97130★; 418M dl/mois [API-gh/npm],E2E + MCP officiel
+Storybook,N19,A,Outils dev,https://storybook.js.org,permissive,MIT,R4,3,4,React/Vue/...,91201★ [API-gh],atelier composants
+Zod,N18,A,Outils dev,https://zod.dev,permissive,MIT,R3,4,5,TS,1.26 Md dl/mois [API-npm],schémas = contrats
+Drizzle ORM,N18,A,Backend,https://orm.drizzle.team,permissive,Apache-2.0,R3,4,4,TS/SQL,35959★; 100M dl/mois [API-gh/npm],SQL typé
+Hono,N18,A,Backend,https://hono.dev,permissive,MIT,R3,3,4,TS/edge,32415★; 278M dl/mois [API-gh/npm],serveurs edge
+Supabase,N18,A,Backend,https://supabase.com,permissive,Apache-2.0 (cœur),R9/R14,4,4,Postgres,111128★; pause 7j sur gratuit [API-gh/W],BaaS de référence
+PocketBase,N18,A,Backend,https://pocketbase.io,permissive,MIT,R14,3,4,Go/SQLite,61287★ [API-gh],"souveraineté, 1 binaire"
+Appwrite,N18,B,Backend,https://appwrite.io,permissive,BSD-3,R9/R14,3,4,multi,57575★ [API-gh],75K MAU gratuits
+Convex,N18,B,Backend,https://www.convex.dev,commercial,propriétaire,R9,3,3,TS,[W],"réactif, lock-in DB"
+Better Auth,N18,A,Backend,https://www.better-auth.com,permissive,MIT,R3,3,4,TS,30172★ [API-gh],auth OSS
+Stripe,N18,A,Backend,https://stripe.com,commercial,propriétaire,R9,3,4,API/SDK,[W],paiement standard
+Resend,N18,A,Backend,https://resend.com,commercial,propriétaire,R9,4,4,API,react-email 19808★ [API-gh],e-mails + React Email
+Meilisearch,N18,A,Backend,https://www.meilisearch.com,permissive,MIT,R3/R14,3,4,Rust,[V],recherche self-host
+Pagefind,N18,C,Backend,https://pagefind.app,permissive,MIT,R3,4,4,Rust/WASM,[V],recherche statique sans serveur
+PostHog,N18,B,Backend,https://posthog.com,permissive,MIT (OSS),R3/R14,3,4,multi,[V],analytics produit
+Umami,N18,B,Backend,https://umami.is,permissive,MIT,R14,3,4,Node,[V],analytics web
+Sentry,N18,B,Backend,https://sentry.io,freemium,propriétaire,R9,3,4,multi,[V],monitoring
+Coolify,N19,A,Backend,https://coolify.io,permissive,Apache-2.0,R14,3,4,Docker,35K★+; cloud 89.99$ [W],PaaS self-host
+Dokploy,N19,A,Backend,https://dokploy.com,permissive,Apache-2.0 (cœur),R14,3,4,Docker/Traefik,[V] [W],PaaS self-host simple
+Astro,N19,A,Contenu,https://astro.build,unknown,NOASSERTION,R6,4,4,JS,63064★ [API-gh],sites de contenu
+Starlight,N11,A,Contenu,https://starlight.astro.build,permissive,MIT,R6,4,4,Astro,9366★ [API-gh],docs produit
+Payload,N18,A,Contenu,https://payloadcms.com,permissive,MIT,R6/R3,4,4,Next/TS,45096★ [API-gh],CMS code-first
+Medusa,N18,B,Contenu,https://medusajs.com,unknown,NOASSERTION,R6,3,4,Node/TS,36604★ [API-gh],commerce headless
+Saleor,N18,B,Contenu,https://saleor.io,permissive,BSD-3,R6,3,4,Python/GraphQL,23410★ [API-gh],commerce Python
+Expo,N18,A,Mobile,https://expo.dev,permissive,MIT,R3,3,4,React Native,39.8M dl/mois [API-npm],mobile cross-platform
+Flutter,N18,B,Mobile,https://flutter.dev,permissive,BSD-3,R3,3,4,Dart,179K★ [API-gh],natifs performants
+Tauri,N18,B,Desktop,https://tauri.app,permissive,MIT/Apache,R3,3,4,Rust,[API-gh],desktop léger
+Electron,N18,B,Desktop,https://www.electronjs.org,permissive,MIT,R3,3,4,Node,123K★ [API-gh],desktop mature
+vite-plugin-pwa,N19,A,Mobile,https://vite-pwa-org.netlify.app,permissive,MIT,R3,3,4,Vite/Workbox,19.9M dl/mois [API-npm],PWA
+Lighthouse CI,N19,A,Qualité,https://github.com/GoogleChrome/lighthouse-ci,permissive,Apache-2.0,R3/R4,4,4,Node,7105★ [API-gh],budgets perf/a11y/SEO
+axe-core,N19,A,Qualité,https://www.deque.com/axe,copyleft,MPL-2.0,R3,4,5,JS,301M dl/mois; 7600★ [API-npm/gh],tests a11y
+Satori,N13,B,Qualité,https://github.com/vercel/satori,copyleft,MPL-2.0,R3,4,4,TS/WASM,14014★ [API-gh],images OG depuis JSX
+roadmap.sh,N26,A,Apprentissage,https://roadmap.sh,unknown,NOASSERTION,Web,3,4,Web,368957★ [API-gh],orientation
+MDN Web Docs,N26,A,Apprentissage,https://developer.mozilla.org,permissive,CC-BY-SA (contenu),Web,3,5,Web,[W],référence,
+javascript.info,N26,A,Apprentissage,https://javascript.info,permissive,libre,Web,3,5,JS,[W],cours JS progressif
+freeCodeCamp,N26,A,Apprentissage,https://www.freecodecamp.org,permissive,free,Web,3,4,Web,[W],cursus gratuit complet
+Frontend Masters,N26,A,Apprentissage,https://frontendmasters.com,commercial,39$/mois,Payant,2,3,Web,[W],ateliers experts
+Three.js Journey,N26,A,Apprentissage,https://threejs-journey.com,commercial,95$ unique,Payant,2,3,3D,93h [W],référence 3D
+AI Elements,N20,A,IA,https://ai-sdk.dev/elements,permissive,Apache-2.0 rapporté,R5,4,4,React/shadcn,[W],primitives IA officielles
+assistant-ui,N20,A,IA,https://www.assistant-ui.com,permissive,MIT,R3,3,4,React,12410★ [API-gh],chat + runtime
+CopilotKit,N20,A,IA,https://www.copilotkit.ai,permissive,MIT,R3,3,4,React,37765★ [API-gh],copilotes in-app
+prompt-kit,N20,B,IA,https://prompt-kit.com,permissive,MIT,R1/R5,4,4,React/shadcn,[W],briques chat
+Vercel AI SDK,N18,A,IA,https://ai-sdk.dev,unknown,NOASSERTION (dépôt),R3,4,4,TS,27128★ [API-gh],abstraction modèles
+Context7,N22,A,IA,https://context7.com,permissive,MIT,R13,5,4,MCP,62716★ [API-gh],docs à jour via MCP
+Playwright MCP,N22,A,IA,https://github.com/microsoft/playwright-mcp,permissive,Apache-2.0,R13,5,4,MCP,37836★ [API-gh],navigation réelle
+Chrome DevTools MCP,N22,A,IA,https://github.com/ChromeDevTools/chrome-devtools-mcp,permissive,Apache-2.0,R13,5,4,MCP,53002★ [API-gh],console/network/perf
+Figma Dev Mode MCP,N22,A,IA,https://www.figma.com,commercial,propriétaire (siège payant),R13,4,4,MCP local,[W],design→code précis
+Firecrawl,N18,copyleft,IA,https://www.firecrawl.dev,copyleft,AGPL-3.0,R3/R13,4,4,API/MCP,188876★ [API-gh],crawl web pour agents
+MCP Registry officiel,N04,A,IA,https://registry.modelcontextprotocol.io,permissive,OSS (registre gratuit),R13,5,3,MCP,[W],source canonique des serveurs
+punkpeye/awesome-mcp-servers,N03,A,IA,https://github.com/punkpeye/awesome-mcp-servers,permissive,MIT,R1,4,3,MCP,95845★ [API-gh],liste de référence MCP
+anthropics/skills,N23,A,IA,https://github.com/anthropics/skills,unknown,dépôt sans SPDX,R15,5,4,Skills,179777★ [API-gh],Skills officielles
+SkillsMP,N04,B,IA,https://skillsmp.com,unknown,index,R15,3,3,Skills,1.2M+ indexés (revendiqué) [W],plus grand catalogue
+agent-skills.cc,N04,C,IA,https://agent-skills.cc,unknown,index,R15,3,3,Skills,63000+ / 1000+ curatés [W],curation par filtres
+Agensi,N28,C,IA,https://agensi.io,commercial,payant (Pro 9$/mois),R15,3,3,Skills,scan sécurité 8 points [W],seul catalogue scanné
+Ollama,N25,A,IA,https://ollama.com,permissive,MIT,R14,4,4,Go,182254★ [API-gh],LLM local
+Langfuse,N25,A,IA,https://langfuse.com,permissive,MIT/OSS [?],R14/R9,5,4,TS,[V],observabilité IA
+n8n,N25,A,IA,https://n8n.io,unknown,NOASSERTION (fair-code),R14,4,4,Node,206724★ [API-gh],automatisation
+Dify,N25,A,IA,https://dify.ai,unknown,NOASSERTION,R14,4,4,Python/TS,157894★ [API-gh],LLMOps
+v0,N24,A,IA,https://v0.app,freemium,5$ crédits/mois,Web,4,2,React/Next,[W],UI React de qualité
+Bolt.new,N24,A,IA,https://bolt.new,freemium,1M tokens/mois,Web,4,2,multi-framework,[W],full-stack in-browser
+Lovable,N24,A,IA,https://lovable.dev,freemium,5 crédits/jour,Web,4,2,React,[W],design-first non-dev
+dyad,N24,C,IA,https://dyad.sh,permissive,OSS self-host,R6/R14,4,3,Electron,[W],builder auto-hébergé
+Claude Code,N24,A,IA,https://claude.com/product/claude-code,commercial,20-200$/mois,R4,5,5,CLI,[W],agent de code leader SWE-bench
+OpenCode,N24,A,IA,https://opencode.ai,permissive,OSS (BYOK),R4,5,4,CLI,~180K★ revendiqués [?] [W],agent open source
+Aider,N24,B,IA,https://aider.chat,permissive,Apache-2.0,R4,4,4,CLI,47K★; dormant selon une source [?] [W],git-natif
+Cline,N24,B,IA,https://cline.bot,permissive,Apache-2.0,R4,4,4,VS Code,[W],agent dans l'IDE
+Cursor,N24,A,IA,https://cursor.com,commercial,gratuit→20$/mois,R4,5,5,IDE,[W],IDE IA natif
+OpenRouter,N18,A,IA,https://openrouter.ai,commercial,pay-per-use,R9,4,4,API,[V],multi-modèles
