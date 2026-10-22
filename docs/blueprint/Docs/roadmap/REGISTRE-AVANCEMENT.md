@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 22 octobre 2026 — Sprint 4 (Search Engine)  
+**Dernière mise à jour :** 22 octobre 2026 — Sprint 5 (CLI)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -42,7 +42,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | **MVP-2** — Inspection navigateur | 7 à 12 | ✅ 24 dossiers | ⏳ | — |
 | **MVP-3** — Capitalisation projets | 13 à 18 | ⏳ non documentés | ⏳ | — |
 
-**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 4.5 au 22 octobre 2026 (425 tests, couverture 100 %).
+**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 5 au 22 octobre 2026 (522 tests, couverture 100 %).
 
 > **Sprint 4.5** est un sprint hors plan, ajouté à la demande de l'utilisateur
 > (multiplication des clés d'API disponibles). Il ne décale aucun sprint
@@ -76,10 +76,10 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 4.5 | 4.5-3 | Adaptateurs, `ProviderGateway` (rotation, repli, trace), espace d'embedding persistant | ➕ Hors plan | ✅ `gateway` | ✅ 65 tests |
 | Sprint 4.5 | 4.5-4 | `npm run providers`, `.env.example` complet, guide `PROVIDERS.md` | ➕ Hors plan | ✅ `scripts` | ✅ 422 tests, 100 % |
 | Sprint 4.5 | 4.5-5 | Sofya (recherche + lecture markdown), MiniMax (chat), registre extensible `providers.custom.json` | ➕ Hors plan | ✅ `registry` | ✅ 34 tests ajoutés |
-| Sprint 5 | 5-1 | Commandes de base (init, add, get) | ✅ Rédigée | ⏳ | — |
-| Sprint 5 | 5-2 | Commandes de recherche et gestion (search, list, delete) | ✅ Rédigée | ⏳ | — |
-| Sprint 5 | 5-3 | Commande status + tests intégration + documentation | ✅ Rédigée | ⏳ | — |
-| Sprint 5 | Dossier parent | CLI (Semaine 9-10) | ✅ Rédigée | ⏳ | — |
+| Sprint 5 | 5-1 | Commandes de base (init, add, get) | ✅ Rédigée | ✅ `src/cli/commands` | ✅ tests unitaires |
+| Sprint 5 | 5-2 | Commandes de recherche et gestion (search, list, delete) | ✅ Rédigée | ✅ `src/cli/commands` | ✅ tests unitaires |
+| Sprint 5 | 5-3 | Commande status + tests intégration + documentation | ✅ Rédigée | ✅ `src/cli`, `docs/CLI.md` | ✅ 97 tests CLI, 100 % |
+| Sprint 5 | Dossier parent | CLI (Semaine 9-10) | ✅ Rédigée | ✅ Livré | ✅ C5.1–C5.19 |
 | Sprint 6 | 6-1 | Setup MCP Server + stdio transport | ✅ Rédigée | ⏳ | — |
 | Sprint 6 | 6-2 | Implémentation des 4 outils MCP | ✅ Rédigée | ⏳ | — |
 | Sprint 6 | 6-3 | Tests compatibilité agents + documentation | ✅ Rédigée | ⏳ | — |
@@ -135,17 +135,18 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Sprint 4.5 : `ProviderGateway` (rotation, repli, trace), `GatewayEmbeddingProvider`, migration 002 `embedding-space`, `npm run providers`, `.env.example` complet | `sprint-4.5` |
 | 22/10/2026 | Sprint 4.5 : guide `PROVIDERS.md`, ADR-015 à ADR-017, risques R-4.5.1 à R-4.5.7 ; 391 tests, couverture 100 % | `sprint-4.5` |
 | 22/10/2026 | Sprint 4.5 : Sofya (`/v1/search`, `/v1/fetch`) et MiniMax (chat) vérifiés ; capacité `web-fetch` ; fournisseurs déclarables sans code (`providers.custom.json`), ADR-018 et risques R-4.5.8–R-4.5.9 | `registry` |
+| 22/10/2026 | Sprint 5 : `program`, `runtime`, `services`, `command`, `output`, `options` ; commandes `init`, `add`, `get`, `search`, `list`, `delete`, `status` ; binaire `ekts` (`bin`) | `78232db` |
+| 22/10/2026 | Sprint 5 : 97 tests CLI (unités + intégration sur le binaire compilé), `src/cli/**` à 100 %, codes de sortie 0/1/2/3/4 vérifiés ; `docs/CLI.md`, ADR-019, risques R-5.1 à R-5.6 | `45db1ea` |
 
 ---
 
 ## 5. Prochaines étapes
 
-1. **Sprint 4.5 terminé** — en attente de validation utilisateur (⏸️) avant le Sprint 5.
-2. **Sprint 5** — CLI (Commander.js) : `init`, `add`, `search`, `get`, `list`, `delete`, `status`.
-   La couche fournisseurs (Sprint 4.5) est disponible pour la commande `status` : nombre de
-   fournisseurs configurés, espace d'embedding actif, chaîne d'appel résolue.
+1. **Sprint 5 terminé** — CLI livrée (7 commandes, sorties JSON/humain, 522 tests, 100 %).
+2. **Sprint 6** — serveur MCP : en attente du **feu vert explicite de l'utilisateur**.
+   Aucun fichier du Sprint 6 n'est créé avant cet accord.
 3. Mise à jour de ce registre à la fin de chaque sous-sprint (statut + commit).
-4. Validation utilisateur avant passage au Sprint 6.
+4. Après validation utilisateur du Sprint 5, ouvrir le dossier `SPRINT-06.md`.
 
 > **Écart technique tranché au Sprint 2** : FTS5 autonome (pas de table de contenu externe) et
 > connexion unique avec bases attachées — la conception initiale du blueprint était irréalisable.

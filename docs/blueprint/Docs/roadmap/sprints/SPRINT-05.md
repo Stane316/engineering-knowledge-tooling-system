@@ -1,6 +1,6 @@
 # Sprint 5 — CLI (Semaine 9-10)
 
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (22 octobre 2026)  
 **Durée :** 2 semaines (10 jours ouvrables)  
 **Objectif :** Implémenter l'interface CLI (Commander.js) avec 7 commandes  
 **MVP :** MVP-1 (Knowledge Management Tool)
@@ -955,6 +955,61 @@ Avant de commencer, vérifier :
 - 🎯 4 outils (search_knowledge, get_resource, list_resources, validate_resource)
 - 🎯 Compatible Claude Code, Cursor, Copilot
 - 🎯 Tests d'intégration avec agents IA
+
+---
+
+## 13. Livraison — 22 octobre 2026
+
+### 13.1 Fichiers livrés
+
+| Fichier | Rôle |
+|---|---|
+| `src/cli/index.ts` | Point d'entrée `bin` (3 lignes, hors couverture) |
+| `src/cli/program.ts` | Assemblage Commander, `runCli`, codes de sortie |
+| `src/cli/runtime.ts` | Sorties, TTY, horloge, confirmation, ouverture des services |
+| `src/cli/services.ts` | Une connexion, trois schémas ; manager (FTS + vecteurs) ; moteur |
+| `src/cli/command.ts` | `--json`/`--no-colors`, `execute`, `CommandFailure` |
+| `src/cli/output.ts` | Palette `chalk`, tableaux ASCII, troncature, tailles |
+| `src/cli/options.ts` | `--tags`, `--limit`, `--offset` |
+| `src/cli/commands/*.ts` | `init`, `add`, `get`, `search`, `list`, `delete`, `status` |
+| `tests/cli/*.test.ts` | 6 fichiers unitaires + intégration binaire |
+| `docs/CLI.md` | Guide complet (commandes, JSON, codes, dépannage) |
+
+### 13.2 Résultats mesurés
+
+- **522 tests** (425 avant le sprint + 97 CLI), **couverture 100 %** sur
+  `src/**` (lignes, branches, fonctions), dont `src/cli/**` intégralement.
+- `npm run build` puis exécution réelle du binaire : parcours
+  `init → add → get → list → search → status → delete` validé, codes
+  `0/1/2/3/4` vérifiés.
+- Aucune nouvelle dépendance de rendu : `chalk` pour les couleurs,
+  `commander` pour l'analyse ; tableaux rendus en interne.
+- Commits : `78232db` (socle et commandes), `45db1ea` (tests), puis le commit
+  de documentation du sprint.
+
+### 13.3 Écarts assumés
+
+Les écarts E5-1 à E5-10 sont détaillés dans [`docs/CLI.md` §8](../../../../CLI.md) :
+`EKTS_DATA_DIR` au lieu de `EKTS_DB_PATH`, connexion unique au lieu de trois,
+API réelles du Sprint 4, tableaux internes au lieu de `cli-table3`, Commander 15,
+codes retournés au lieu de `process.exit`, repli FTS de `add`, `--json` accepté
+avant et après la commande, `status` non destructif, `delete` refusé sans
+terminal.
+
+### 13.4 Décisions et risques
+
+- **ADR-019** — CLI Commander.js, deux formats de sortie, cinq codes.
+  (Le renvoi du blueprint à « ADR-003 » est erroné : l'ADR-003 traite de
+  Playwright.)
+- **R-5.1 à R-5.6** — dérive du JSON, suppression en script, repli silencieux,
+  point d'entrée hors couverture, divergence CLI/MCP, création de bases par
+  `status`.
+
+### 13.5 Point d'arrêt
+
+Le sprint est terminé. **Aucune ligne du Sprint 6 (serveur MCP) n'est écrite** :
+la suite attend le feu vert explicite de l'utilisateur.
+
 
 ---
 

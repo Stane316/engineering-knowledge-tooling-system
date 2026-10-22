@@ -646,6 +646,32 @@ garde-fous sont structurels (HTTPS obligatoire, protocole connu, en-tête
 `authorization` interdit, identifiants uniques) ; un fournisseur maison passe
 après les fournisseurs éprouvés, il ne prend jamais la priorité par accident.
 
+#### ADR-019 — CLI Commander.js, deux formats de sortie et cinq codes
+
+**Statut :** ✅ APPLIQUÉ
+**Contexte :** le Sprint 5 expose la couche métier à l'utilisateur et aux
+scripts. Il faut un analyseur d'arguments robuste, une sortie lisible et une
+sortie machine stable, sans dupliquer la logique du Knowledge Manager ni du
+moteur de recherche.
+**Décision :** Commander.js 15 pour l'analyse, sept modules de commande
+(`init`, `add`, `get`, `search`, `list`, `delete`, `status`), une couche
+`runtime` injectable (sorties, horloge, confirmation, ouverture des services) et
+deux formats : humain par défaut, JSON avec `--json`. Les tableaux sont rendus
+par un formateur ASCII interne (aucune dépendance), les couleurs par `chalk`
+(désactivées hors TTY, avec `--no-colors`, `NO_COLOR` ou `TERM=dumb`). Les codes
+de sortie sont fixés : 0 succès, 1 exécution, 2 arguments, 3 introuvable,
+4 validation. `exitOverride()` et le retour de code (jamais `process.exit`)
+rendent les commandes testables en mémoire ; le binaire compilé est en plus
+couvert par un test d'intégration.
+**Conséquences :** la CLI ne fait que composer les services existants ; le
+serveur MCP du Sprint 6 réutilisera `openCliServices`/`createSearchEngine`
+plutôt que de réimplémenter l'accès aux données ; toute évolution du format JSON
+est un changement de contrat, à documenter dans `docs/CLI.md`.
+
+> Le blueprint (`SPRINT-05.md` §5.1) renvoie à « ADR-003 (Commander.js) », mais
+> l'ADR-003 du présent registre traite de Playwright. La décision CLI est donc
+> consignée ici.
+
 #### Risques nouveaux (Sprint 4.5)
 
 | ID | Risque | Impact | Probabilité | Mitigation |
@@ -659,6 +685,17 @@ après les fournisseurs éprouvés, il ne prend jamais la priorité par accident
 | R-4.5.7 | Dépendance à un agrégateur (OpenRouter) devenu point unique de bascule | Faible | Faible | Bascule indépendante par capacité ; OpenRouter n'est jamais le seul candidat d'un espace |
 | R-4.5.8 | Déclaration locale (`providers.custom.json`) invalide → clé présente mais inutilisée, sans explication | Moyen | Moyenne | Validation Zod bloquante au chargement, message avec champ fautif, `npm run providers` affiche le fichier et les fournisseurs retenus, test de non-régression sur `providers.custom.example.json` |
 | R-4.5.9 | Clé écrite en dur dans `providers.custom.json` puis versionnée | **Élevé** | Faible | Seul le nom de la variable est accepté, en-tête `authorization` refusé, fichier ignoré par Git, Gitleaks en pré-commit et CI |
+
+#### Risques nouveaux (Sprint 5)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-5.1 | Dérive du format `--json` → scripts cassés sans avertissement | Moyen | Moyenne | Formes documentées dans `docs/CLI.md` §3, test d'intégration qui analyse réellement la sortie JSON |
+| R-5.2 | Suppression accidentelle en script (stdin fermé) | **Élevé** | Faible | Confirmation refusée sans terminal, `--yes` obligatoire, test dédié (`cancelled: true`) |
+| R-5.3 | Repli silencieux de l'hybride vers le lexical → classement trompeur | Moyen | Faible | `hybrid`/`vector` exigent les embeddings et échouent avec un message explicite ; `--mode fts` est un choix conscient |
+| R-5.4 | Point d'entrée `src/cli/index.ts` hors couverture | Faible | Faible | Fichier de trois lignes, testé de bout en bout par `tests/cli/cli.test.ts` sur le binaire compilé |
+| R-5.5 | Divergence CLI/MCP dans l'accès aux services (Sprint 6) | Faible | Moyenne | Services partagés (`openCliServices`, `createSearchEngine`), ADR-019 |
+| R-5.6 | Bases créées par erreur par une commande d'observation | Faible | Faible | `status` inspecte les fichiers avant toute ouverture (`migrate: false`, ouverture conditionnée aux trois fichiers) |
 
 ---
 

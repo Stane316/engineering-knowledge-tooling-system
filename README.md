@@ -94,25 +94,41 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 
 ## 5. Commandes
 
-| Commande                          | Rôle                                             |
-| --------------------------------- | ------------------------------------------------ |
-| `npm run dev`                     | Exécution en développement (`tsx watch`)         |
-| `npm run build`                   | Compilation dans `dist/`                         |
-| `npm start`                       | Exécution du build                               |
-| `npm run typecheck`               | Vérification TypeScript sans émission            |
-| `npm run lint` / `lint:fix`       | ESLint (flat config)                             |
-| `npm run format` / `format:check` | Prettier                                         |
-| `npm test` / `test:watch`         | Tests Vitest                                     |
-| `npm run coverage`                | Couverture (atteint 100 %)                       |
-| `npm run test:benchmark`          | Benchmark recherche (Recall@5, p95, 100K docs)   |
-| `npm run verify`                  | typecheck + lint + format + build + couverture   |
-| `npm run setup`                   | Hooks Git + vérification de l'environnement      |
-| `npm run check:env`               | Diagnostics (Node, SQLite, sqlite-vec, outils)   |
-| `npm run db:inspect`              | État des 3 bases + cohérence de l'index          |
-| `npm run db:reindex`              | Reconstruit l'index plein texte                  |
-| `npm run providers`               | État des 14 fournisseurs d'API et chaîne d'appel |
-| `npm run security:secrets`        | Scan Gitleaks des fichiers indexés               |
-| `npm run clean`                   | Supprime `dist/`                                 |
+| Commande                          | Rôle                                                     |
+| --------------------------------- | -------------------------------------------------------- |
+| `npm run dev`                     | Exécution en développement (`tsx watch`)                 |
+| `npm run build`                   | Compilation dans `dist/`                                 |
+| `npm start`                       | Exécution du build                                       |
+| `npm run typecheck`               | Vérification TypeScript sans émission                    |
+| `npm run lint` / `lint:fix`       | ESLint (flat config)                                     |
+| `npm run format` / `format:check` | Prettier                                                 |
+| `npm test` / `test:watch`         | Tests Vitest                                             |
+| `npm run coverage`                | Couverture (atteint 100 %)                               |
+| `npm run test:benchmark`          | Benchmark recherche (Recall@5, p95, 100K docs)           |
+| `npm run verify`                  | typecheck + lint + format + build + couverture           |
+| `npm run setup`                   | Hooks Git + vérification de l'environnement              |
+| `npm run check:env`               | Diagnostics (Node, SQLite, sqlite-vec, outils)           |
+| `npm run db:inspect`              | État des 3 bases + cohérence de l'index                  |
+| `npm run db:reindex`              | Reconstruit l'index plein texte                          |
+| `npm run providers`               | État des 14 fournisseurs d'API et chaîne d'appel         |
+| `npm run cli -- <args>`           | Interface CLI `ekts` (voir [`docs/CLI.md`](docs/CLI.md)) |
+| `npm run security:secrets`        | Scan Gitleaks des fichiers indexés                       |
+| `npm run clean`                   | Supprime `dist/`                                         |
+
+### CLI `ekts`
+
+```powershell
+npm run build
+npm run cli -- init
+npm run cli -- add --type article --title "Introduction à SQLite" --tags "sqlite,base" --content "SQLite est une base légère."
+npm run cli -- search "sqlite" --mode fts
+npm run cli -- list --json
+```
+
+Sept commandes (`init`, `add`, `get`, `search`, `list`, `delete`, `status`),
+deux formats de sortie (`--json` ou humain), cinq codes de sortie documentés.
+`npm link` expose la commande `ekts` globalement. Guide complet :
+[`docs/CLI.md`](docs/CLI.md).
 
 ## 6. Configuration
 
@@ -183,6 +199,7 @@ engineering-knowledge-tooling-system/
 | [`docs/audit/ETAT-DES-LIEUX-2026-10-21.md`](docs/audit/ETAT-DES-LIEUX-2026-10-21.md)                                         | Audit de démarrage                                   |
 | [`docs/guides/SEARCH_ENGINE.md`](docs/guides/SEARCH_ENGINE.md)                                                               | Moteur de recherche (Sprint 4)                       |
 | [`docs/guides/PROVIDERS.md`](docs/guides/PROVIDERS.md)                                                                       | Fournisseurs, routage, rotation de clés (Sprint 4.5) |
+| [`docs/CLI.md`](docs/CLI.md)                                                                                                 | Interface en ligne de commande (Sprint 5)            |
 | [`AGENTS.md`](AGENTS.md)                                                                                                     | Règles de travail des agents                         |
 
 ## 10. Licence
