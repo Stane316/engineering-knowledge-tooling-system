@@ -1,7 +1,17 @@
 import { CommanderError } from 'commander';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { EmbeddingsService } from '../../src/business/embeddings.js';
 import { exitCodeFor, runCli } from '../../src/cli/program.js';
+import { FakeEmbeddingProvider } from '../helpers/fake-embeddings.js';
+
+/** Espace d'embedding distinct de celui du runtime principal. */
+const OTHER_SPACE = {
+  space: 'baai/bge-m3',
+  provider: 'novita',
+  model: 'baai/bge-m3',
+  dimensions: 1536,
+};
 import { openDatabase } from '../../src/data/database.js';
 import {
   EmbeddingsError,
@@ -121,14 +131,81 @@ describe('CLI — programme', () => {
       expect(json<{ id: string }>(runtime).id).toBe(created.id);
     });
 
-    it('retombe sur le seul index plein texte sans clé OpenAI', async () => {
+    it('retombe sur le seul index plein texte sans fournisseur', async () => {
       vi.stubEnv('OPENAI_API_KEY', '');
-      const offline = createTestRuntime(dataDir);
+      vi.stubEnv('EKTS_OFFLINE', '');
+      const withoutKeys = createTestRuntime(dataDir);
 
       expect(
-        await run(offline, 'add', '--type', 'article', '--title', 'Hors ligne', '--json'),
+        await run(withoutKeys, 'add', '--type', 'article', '--title', 'Hors ligne', '--json'),
       ).toBe(0);
-      expect(json<{ vectorIndexed: boolean }>(offline).vectorIndexed).toBe(false);
+      expect(json<{ vectorIndexed: boolean }>(withoutKeys).vectorIndexed).toBe(false);
+    });
+
+    it('explique l’absence de vecteurs à l’écran', async () => {
+      vi.stubEnv('OPENAI_API_KEY', '');
+      vi.stubEnv('EKTS_OFFLINE', '');
+      const withoutKeys = createTestRuntime(dataDir);
+
+      expect(await run(withoutKeys, 'add', '--type', 'article', '--title', 'Sans clé')).toBe(0);
+      expect(withoutKeys.output.stdout).toContain('plein texte seul');
+      expect(withoutKeys.output.stdout).toContain('aucun fournisseur d’embeddings configuré');
+    });
+
+    it('ne perd pas la ressource quand les crédits d’embeddings sont épuisés', async () => {
+      const provider = new FakeEmbeddingProvider();
+      provider.failOn = 'crédits';
+      const exhausted = createTestRuntime(dataDir, {
+        embeddings: new EmbeddingsService({ provider }),
+      });
+
+      const code = await run(
+        exhausted,
+        'add',
+        '--type',
+        'article',
+        '--title',
+        'Crédits épuisés',
+        '--content',
+        'crédits à zéro',
+      );
+
+      expect(code).toBe(0);
+      expect(exhausted.output.stdout).toContain('Ressource créée');
+      expect(exhausted.output.stdout).toContain('plein texte seul');
+      expect(exhausted.output.stdout).toContain('vecteurs indisponibles');
+      expect(exhausted.output.stderr).toBe('');
+
+      exhausted.output.stdout = '';
+      expect(await run(exhausted, 'search', 'crédits', '--mode', 'fts')).toBe(0);
+      expect(exhausted.output.stdout).toContain('Crédits épuisés');
+    });
+
+    it('expose la raison de l’échec vectoriel en JSON', async () => {
+      const provider = new FakeEmbeddingProvider();
+      provider.failOn = 'quota';
+      const exhausted = createTestRuntime(dataDir, {
+        embeddings: new EmbeddingsService({ provider }),
+      });
+
+      expect(
+        await run(
+          exhausted,
+          'add',
+          '--type',
+          'article',
+          '--title',
+          'Quota',
+          '--content',
+          'quota',
+          '--json',
+        ),
+      ).toBe(0);
+
+      const created = json<{ vectorIndexed: boolean; vectorWarning?: string }>(exhausted);
+
+      expect(created.vectorIndexed).toBe(false);
+      expect(created.vectorWarning).toContain('panne simulée');
     });
 
     it('affiche une ressource sans URL ni contenu', async () => {
@@ -257,17 +334,20 @@ describe('CLI — programme', () => {
 
     it('refuse l’hybride sans configuration d’embeddings', async () => {
       vi.stubEnv('OPENAI_API_KEY', '');
-      const offline = createTestRuntime(dataDir);
+      vi.stubEnv('EKTS_OFFLINE', '');
+      const withoutKeys = createTestRuntime(dataDir);
 
-      expect(await run(offline, 'search', 'sqlite')).toBe(1);
-      expect(offline.output.stderr).toContain('OPENAI_API_KEY absente');
+      expect(await run(withoutKeys, 'search', 'sqlite')).toBe(1);
+      expect(withoutKeys.output.stderr).toContain('Aucun fournisseur disponible');
+      expect(withoutKeys.output.stderr).toContain('OPENAI_API_KEY');
     });
 
     it('reste utilisable en mode fts sans clé', async () => {
       vi.stubEnv('OPENAI_API_KEY', '');
-      const offline = createTestRuntime(dataDir);
+      vi.stubEnv('EKTS_OFFLINE', '');
+      const withoutKeys = createTestRuntime(dataDir);
 
-      expect(await run(offline, 'search', 'sqlite', '--mode', 'fts')).toBe(0);
+      expect(await run(withoutKeys, 'search', 'sqlite', '--mode', 'fts')).toBe(0);
     });
   });
 
@@ -401,6 +481,127 @@ describe('CLI — programme', () => {
 
     it('renvoie 3 pour un identifiant inconnu', async () => {
       expect(await run(runtime, 'delete', 'inconnu', '--yes')).toBe(3);
+    });
+  });
+
+  describe('reindex', () => {
+    it('explique que rien n’a été fait sans --vectors', async () => {
+      expect(await run(runtime, 'reindex')).toBe(0);
+      expect(runtime.output.stdout).toContain('précisez --vectors');
+    });
+
+    it('réindexe les vecteurs dans l’espace courant', async () => {
+      await run(
+        runtime,
+        'add',
+        '--type',
+        'article',
+        '--title',
+        'Un',
+        '--content',
+        'texte',
+        '--json',
+      );
+      runtime.output.stdout = '';
+
+      expect(await run(runtime, 'reindex', '--vectors', '--json')).toBe(0);
+
+      const payload = json<{ vectors: { space: string; resources: number; switched: boolean } }>(
+        runtime,
+      );
+
+      expect(payload.vectors.space).toBe('openai/fake-hash-1536');
+      expect(payload.vectors.resources).toBe(1);
+      expect(payload.vectors.switched).toBe(false);
+    });
+
+    it('affiche un bilan lisible', async () => {
+      await run(
+        runtime,
+        'add',
+        '--type',
+        'article',
+        '--title',
+        'Un',
+        '--content',
+        'texte',
+        '--json',
+      );
+      runtime.output.stdout = '';
+
+      expect(await run(runtime, 'reindex', '--vectors')).toBe(0);
+      expect(runtime.output.stdout).toContain('Réindexation vectorielle');
+      expect(runtime.output.stdout).toContain('Index vectoriel à jour.');
+    });
+
+    it('signale les ressources restées sans vecteur', async () => {
+      const provider = new FakeEmbeddingProvider();
+      await run(
+        runtime,
+        'add',
+        '--type',
+        'article',
+        '--title',
+        'Un',
+        '--content',
+        'texte',
+        '--json',
+      );
+      runtime.output.stdout = '';
+
+      provider.failOn = 'texte';
+      const broken = createTestRuntime(dataDir, {
+        embeddings: new EmbeddingsService({ provider }),
+      });
+
+      expect(await run(broken, 'reindex', '--vectors')).toBe(0);
+      expect(broken.output.stdout).toContain('sans vecteur');
+    });
+
+    it('refuse de changer d’espace sans --force', async () => {
+      await run(
+        runtime,
+        'add',
+        '--type',
+        'article',
+        '--title',
+        'Un',
+        '--content',
+        'texte',
+        '--json',
+      );
+      runtime.output.stdout = '';
+
+      const other = createTestRuntime(dataDir, {
+        embeddings: fakeEmbeddings(),
+        embeddingSpace: OTHER_SPACE,
+      });
+
+      expect(await run(other, 'reindex', '--vectors')).toBe(1);
+      expect(other.output.stderr).toContain("Espace d'embedding incompatible");
+    });
+
+    it('bascule d’espace avec --force', async () => {
+      await run(
+        runtime,
+        'add',
+        '--type',
+        'article',
+        '--title',
+        'Un',
+        '--content',
+        'texte',
+        '--json',
+      );
+      runtime.output.stdout = '';
+
+      const other = createTestRuntime(dataDir, {
+        embeddings: fakeEmbeddings(),
+        embeddingSpace: OTHER_SPACE,
+      });
+
+      expect(await run(other, 'reindex', '--vectors', '--force')).toBe(0);
+      expect(other.output.stdout).toContain('Espace changé');
     });
   });
 

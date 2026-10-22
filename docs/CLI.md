@@ -129,11 +129,21 @@ Réponse JSON :
 
 ### 3.2 `ekts add`
 
-Ajoute une ressource et l'indexe. L'indexation **plein texte est
-systématique** ; l'indexation vectorielle est tentée si `OPENAI_API_KEY` est
-configurée. Sans clé, la ressource est créée et le rapport l'indique
-(`vectorIndexed: false`) : aucune donnée n'est perdue, une réindexation
-ultérieure complétera les vecteurs.
+Ajoute une ressource et l'indexe.
+
+- **Plein texte** : toujours, sans réseau. Si cette étape échoue, l'ajout échoue.
+- **Vecteurs** : tenté avec le premier fournisseur d'embeddings disponible
+  (OpenAI, Gemini, OpenRouter, Novita — rotation de clés et repli automatiques).
+  Un quota épuisé (`429`), une panne réseau ou l'absence totale de fournisseur
+  **ne font pas échouer l'ajout** : la ressource est créée, cherchable en plein
+  texte, et le rapport l'expose.
+
+```json
+{ "id": "…", "title": "…", "vectorIndexed": false, "vectorWarning": "… 429 …" }
+```
+
+En mode humain, l'avertissement s'affiche sous l'indexation. Pour obtenir les
+vecteurs ensuite : `ekts reindex --vectors`.
 
 | Option | Rôle |
 | --- | --- |
@@ -278,6 +288,45 @@ Réponse JSON :
 }
 ```
 
+### 3.8 `ekts reindex`
+
+Recalcule l'index vectoriel avec le fournisseur d'embeddings **actuellement
+configuré**. Utile après un changement de fournisseur (OpenAI → Gemini) ou une
+interruption réseau.
+
+| Option | Rôle |
+| --- | --- |
+| `--vectors` | Réindexe tous les vecteurs (appels réseau, coût réel) |
+| `--force` | Purge l'index d'un autre espace d'embedding avant de réindexer |
+
+```powershell
+npx --no-install ekts reindex --vectors
+npx --no-install ekts reindex --vectors --force
+```
+
+**Pourquoi `--force` est-il exigé pour changer de fournisseur ?** Deux modèles
+d'embedding produisent des vecteurs incomparables : mélanger les espaces
+détruirait silencieusement le rappel. La commande refuse donc la bascule, puis
+ne la fait qu'une fois la purge explicitement autorisée. Les ressources et
+l'index plein texte ne sont **jamais** touchés : seuls les vecteurs, qui en
+dérivent, sont recalculés.
+
+Réponse JSON :
+
+```json
+{
+  "vectors": {
+    "resources": 42,
+    "space": "google/gemini-embedding-001",
+    "switched": true,
+    "removed": 42,
+    "report": { "indexed": 42, "skipped": 0, "failed": 0, "durationMs": 1834 }
+  }
+}
+```
+
+> L'index **plein texte** se reconstruit sans réseau avec `npm run db:reindex`.
+
 ---
 
 ## 4. Options globales
@@ -323,6 +372,9 @@ d'erreur part sur **stderr**, jamais sur stdout.
 | `OPENAI_API_KEY` | — | Embeddings : active `add` vectoriel et `search` hybride/vectoriel |
 | `OPENAI_EMBEDDING_MODEL` | `text-embedding-3-small` | Modèle (1536 dimensions) |
 | `EKTS_PROVIDERS_FILE` | `providers.custom.json` | Fournisseurs déclarés sans code (Sprint 4.5) |
+| `EKTS_EMBEDDING_SPACE` | premier disponible | Espace imposé (`openai/…`, `baai/bge-m3`, …) |
+| `EKTS_PROVIDER_POLICY` | `quality` | `quality`, `free` ou `cost` |
+| `EKTS_OFFLINE` | — | `1` : aucun appel réseau, embeddings désactivés |
 | `NO_COLOR` | — | Désactive les couleurs |
 | `TERM` | — | `dumb` désactive les couleurs |
 
@@ -385,7 +437,9 @@ node dist/cli/index.js search "sqlite" --mode fts --json | jq '.count'
 
 | Symptôme | Cause probable | Solution |
 | --- | --- | --- |
-| `Erreur : OPENAI_API_KEY absente` | Recherche hybride ou vectorielle sans clé | Renseigner `.env`, ou utiliser `--mode fts` |
+| `Erreur : Aucun fournisseur disponible pour « embedding »` | Aucune clé d'embeddings (OpenAI, Gemini, OpenRouter, Novita) | Renseigner une clé dans `.env`, ou `--mode fts` |
+| `429 You have no credits remaining` | Compte OpenAI sans crédit | `add` **réussit quand même** (plein texte) avec `vectorWarning` ; pour les vecteurs, utiliser Gemini (palier gratuit) puis `ekts reindex --vectors --force` |
+| `Espace d'embedding incompatible` | L'index contient les vecteurs d'un autre modèle | `ekts reindex --vectors --force` |
 | `Erreur : EmbeddingSpaceMismatchError` | L'index contient des vecteurs d'un autre modèle | Rétablir l'ancien modèle ou réindexer (`npm run db:reindex`, puis réindexation vectorielle) |
 | `spawn ekts ENOENT` | `npm link` non exécuté | Utiliser `node dist\cli\index.js` ou `npm run cli -- …` |
 | Caractères illisibles | Console non UTF-8 | `chcp 65001`, ou `--no-colors` (les tableaux sont ASCII) |

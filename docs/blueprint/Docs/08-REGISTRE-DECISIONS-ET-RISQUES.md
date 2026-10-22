@@ -672,6 +672,36 @@ est un changement de contrat, à documenter dans `docs/CLI.md`.
 > l'ADR-003 du présent registre traite de Playwright. La décision CLI est donc
 > consignée ici.
 
+#### ADR-020 — L'indexation vectorielle est best-effort, l'espace reste verrouillé
+
+**Statut :** ✅ APPLIQUÉ
+**Contexte :** un `add` sur un compte sans crédit renvoyait `429 You have no
+credits remaining` et **échouait entièrement**, alors que la ressource n'avait
+aucun besoin du fournisseur d'embeddings pour être utile. Par ailleurs, la CLI
+n'utilisait pas la passerelle multi-fournisseurs du Sprint 4.5 : une seule clé
+OpenAI décidait de tout, sans repli vers Gemini, OpenRouter ou Novita.
+
+**Décision :**
+1. `add` indexe toujours en plein texte (échec = échec de la commande) et tente
+   les vecteurs sans jamais faire échouer l'ajout : `vectorIndexed: false` plus
+   `vectorWarning` exposent la cause. Bénéfice : aucune perte de saisie.
+2. Les embeddings sont résolus par la **passerelle** (`createProviderGateway` →
+   `resolveEmbeddingSpace` → `GatewayEmbeddingProvider`) : la première clé
+   disponible parmi OpenAI, Gemini, OpenRouter et Novita suffit, avec rotation
+   et repli dans un même espace.
+3. Un seul espace par index : changer de fournisseur exige une commande
+   explicite, `ekts reindex --vectors --force`, qui purge les vecteurs de
+   l'ancien espace puis recalcule tout. Sans `--force`, la commande refuse.
+4. `EKTS_OFFLINE=1` coupe tout appel réseau (CI, poste sans crédit, tests
+   d'intégration déterministes).
+
+**Conséquences :** la CLI ne dépend plus d'un fournisseur unique ; une panne de
+quota devient un avertissement au lieu d'une perte de données ; le changement de
+fournisseur est une opération documentée et non un effet de bord silencieux.
+**Anthropic n'expose aucun modèle d'embedding** (partenariat Voyage AI) : une
+clé Anthropic apporte du chat, jamais des vecteurs. Le découpage des rôles est
+donc structurel, pas seulement conventionnel.
+
 #### Risques nouveaux (Sprint 4.5)
 
 | ID | Risque | Impact | Probabilité | Mitigation |
@@ -698,6 +728,10 @@ est un changement de contrat, à documenter dans `docs/CLI.md`.
 | R-5.6 | Bases créées par erreur par une commande d'observation | Faible | Faible | `status` inspecte les fichiers avant toute ouverture (`migrate: false`, ouverture conditionnée aux trois fichiers) |
 | R-5.7 | Merge « Already up to date » sur un pointeur de branche obsolète → CLI absente, erreurs npm en cascade | Moyen | **Élevée** | `npm run doctor` (contrôle la présence du code), fusion par SHA, `git fetch origin` explicite, procédure et vérifications dans `SETUP.md` §6.12 |
 | R-5.8 | CRLF (`core.autocrlf=true`) face à Prettier LF → `npm run verify` rouge sur le poste alors que la CI est verte | Faible | **Élevée** | `.gitattributes` (`* text=auto eol=lf`), `endOfLine: "lf"` explicite, renormalisation documentée (`SETUP.md` §6.11) |
+| R-5.9 | Quota d'embeddings épuisé (429) → ressource perdue | **Élevé** | Moyenne | Indexation vectorielle best-effort, `vectorWarning` explicite, `ekts reindex --vectors` pour rattraper (ADR-020) |
+| R-5.10 | Dépendance à un fournisseur unique pour les vecteurs | Moyen | Moyenne | Résolution par la passerelle : OpenAI, Gemini, OpenRouter, Novita ; `EKTS_EMBEDDING_SPACE` pour épingler un espace |
+| R-5.11 | Bascule silencieuse d'espace lors d'un changement de clé | **Élevé** | Faible | Purge interdite sans `--force`, `EmbeddingSpaceMismatchError`, maintenance testée (6 tests) |
+| R-5.12 | Confusion Anthropic = fournisseur d'embeddings | Faible | Moyenne | `.env.example` et `CLI.md` explicitent le découpage des rôles ; échec explicite listant les quatre fournisseurs possibles |
 
 ---
 

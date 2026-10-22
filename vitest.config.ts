@@ -4,6 +4,12 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],
+    // Les runners Windows partagés sont lents et sous charge : le délai par
+    // défaut de 5 s produit des échecs sans rapport avec le code (mesuré sur
+    // `vector-repository` et sur les tests qui lancent un processus Node).
+    // Un vrai blocage reste détecté, simplement plus tard.
+    testTimeout: 20_000,
+    hookTimeout: 30_000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],

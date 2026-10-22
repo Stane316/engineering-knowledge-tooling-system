@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { createDataDir, removeDataDir } from './helpers.js';
 
@@ -12,11 +12,6 @@ import { createDataDir, removeDataDir } from './helpers.js';
  * `dist` est reconstruit s'il est absent (ex. `npm test` seul), puis réutilisé
  * tel quel : `npm run verify` compile déjà avant la couverture.
  */
-
-// Chaque test lance un processus Node complet : sous Windows, le démarrage
-// d'un processus et la compilation conditionnelle de `dist` dépassent le délai
-// par défaut de 5 s (CI windows-latest, Node 22).
-vi.setConfig({ testTimeout: 30_000, hookTimeout: 60_000 });
 
 const ROOT = process.cwd();
 const CLI = join(ROOT, 'dist', 'cli', 'index.js');
@@ -35,7 +30,10 @@ function cli(...args: string[]): RunResult {
   try {
     const stdout = execFileSync(process.execPath, [CLI, ...args], {
       encoding: 'utf8',
-      env: { ...process.env, EKTS_DATA_DIR: dataDir },
+      // `EKTS_OFFLINE` rend le test déterministe et gratuit : sans lui, une clé
+      // présente dans le `.env` du poste déclencherait un appel réel (et un
+      // échec si le compte n'a plus de crédits).
+      env: { ...process.env, EKTS_DATA_DIR: dataDir, EKTS_OFFLINE: '1' },
     });
 
     return { status: 0, stdout, stderr: '' };
@@ -111,6 +109,7 @@ describe('CLI compilée (intégration)', () => {
 
     const resource = JSON.parse(added.stdout) as { id: string; vectorIndexed: boolean };
 
+    // Hors ligne : la ressource est créée et indexée en plein texte seulement.
     expect(resource.vectorIndexed).toBe(false);
 
     const read = cli('get', resource.id, '--json');

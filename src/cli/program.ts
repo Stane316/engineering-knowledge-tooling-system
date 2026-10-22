@@ -8,6 +8,7 @@ import { registerDelete } from './commands/delete.js';
 import { registerGet } from './commands/get.js';
 import { registerInit } from './commands/init.js';
 import { registerList } from './commands/list.js';
+import { registerReindex } from './commands/reindex.js';
 import { registerSearch } from './commands/search.js';
 import { registerStatus } from './commands/status.js';
 import { createPalette } from './output.js';
@@ -55,6 +56,7 @@ export function createProgram(runtime: CliRuntime): Command {
   registerList(program, runtime);
   registerDelete(program, runtime);
   registerStatus(program, runtime);
+  registerReindex(program, runtime);
 
   return program;
 }

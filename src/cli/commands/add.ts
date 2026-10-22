@@ -3,6 +3,7 @@ import type { Command } from 'commander';
 import type { AddResourceInput } from '../../business/knowledge-manager.types.js';
 import type { Resource, ResourceType } from '../../shared/validators.js';
 import { execute, withOutputFlags } from '../command.js';
+import { truncate } from '../output.js';
 import { parseTags } from '../options.js';
 import type { Palette } from '../output.js';
 import type { CliRuntime } from '../runtime.js';
@@ -20,16 +21,21 @@ export interface AddReport {
   resource: Resource;
   /** Un vecteur a-t-il été calculé et stocké ? */
   vectorIndexed: boolean;
+  /** Raison de l'absence de vecteur (quota, réseau, embeddings absents). */
+  vectorWarning?: string;
 }
 
 /**
  * Ajoute une ressource.
  *
  * L'indexation plein texte est systématique (elle ne dépend d'aucun service
- * réseau). L'indexation vectorielle est **best-effort** : sans
- * `OPENAI_API_KEY`, la ressource est tout de même créée et indexée en FTS, et
- * le rapport l'indique (`vectorIndexed: false`) au lieu d'échouer. Une
- * réindexation ultérieure peut compléter les vecteurs.
+ * réseau) et **fait foi** : si elle échoue, l'ajout échoue.
+ *
+ * L'indexation vectorielle est réellement **best-effort** : un quota épuisé
+ * (HTTP 429), une panne réseau ou l'absence de fournisseur ne détruisent pas
+ * l'ajout. La ressource reste créée et cherchable en plein texte, et le rapport
+ * expose `vectorIndexed: false` avec la raison (`vectorWarning`) — jamais un
+ * échec silencieux ni une perte de données.
  */
 export async function collectAdd(runtime: CliRuntime, options: AddCliOptions): Promise<AddReport> {
   const services = runtime.openServices({ dataDir: runtime.dataDir, embeddingsMode: 'auto' });
@@ -46,8 +52,13 @@ export async function collectAdd(runtime: CliRuntime, options: AddCliOptions): P
     };
 
     const resource = await services.manager.addResource(input);
+    const outcome = services.vectorIndexer?.outcome(resource.id);
 
-    return { resource, vectorIndexed: services.embeddings !== undefined };
+    return {
+      resource,
+      vectorIndexed: outcome?.indexed ?? false,
+      ...(outcome?.message === undefined ? {} : { vectorWarning: outcome.message }),
+    };
   } finally {
     services.close();
   }
@@ -75,8 +86,18 @@ function renderAdd(report: AddReport, palette: Palette): string {
   }
 
   lines.push(
-    `  indexation  ${report.vectorIndexed ? 'plein texte + vecteurs' : 'plein texte seul (embeddings indisponibles)'}`,
+    `  indexation  ${report.vectorIndexed ? 'plein texte + vecteurs' : 'plein texte seul'}`,
   );
+
+  if (!report.vectorIndexed) {
+    lines.push(
+      report.vectorWarning === undefined
+        ? palette.dim('              aucun fournisseur d’embeddings configuré')
+        : palette.warning(
+            `              vecteurs indisponibles : ${truncate(report.vectorWarning, 160)}`,
+          ),
+    );
+  }
 
   return lines.join('\n');
 }
@@ -98,7 +119,11 @@ export function registerAdd(program: Command, runtime: CliRuntime): void {
 
       return {
         human: renderAdd(report, palette),
-        json: { ...report.resource, vectorIndexed: report.vectorIndexed },
+        json: {
+          ...report.resource,
+          vectorIndexed: report.vectorIndexed,
+          ...(report.vectorWarning === undefined ? {} : { vectorWarning: report.vectorWarning }),
+        },
       };
     });
   });

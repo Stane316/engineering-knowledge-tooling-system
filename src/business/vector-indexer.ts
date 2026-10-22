@@ -87,6 +87,14 @@ export class VectorIndexer implements IVectorIndexer {
     this.space = options.space;
   }
 
+  /**
+   * Espace d'embedding servi, source unique de vérité pour la maintenance.
+   * Absent quand l'indexer a été construit sans espace (tests unitaires).
+   */
+  get embeddingSpace(): EmbeddingSpace | undefined {
+    return this.space;
+  }
+
   async indexResource(resource: Resource): Promise<void> {
     const text = buildEmbeddingText(resource);
 

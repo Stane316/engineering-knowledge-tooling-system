@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { EmbeddingsService } from '../../src/business/embeddings.js';
+import type { EmbeddingSpace } from '../../src/business/vector-indexer.js';
 import type { IEmbeddingsService } from '../../src/business/embeddings.js';
 import {
   openCliServices,
@@ -24,6 +25,7 @@ export interface TestRuntime extends CliRuntime {
 
 export interface TestRuntimeOptions {
   embeddings?: IEmbeddingsService;
+  embeddingSpace?: EmbeddingSpace;
   color?: boolean;
   confirm?: (question: string) => Promise<boolean>;
   now?: () => number;
@@ -40,9 +42,27 @@ export function createDataDir(): string {
   return mkdtempSync(join(tmpdir(), 'ekts-cli-'));
 }
 
-/** Supprime un répertoire de données (idempotent). */
+/**
+ * Supprime un répertoire de données (idempotent).
+ *
+ * Sous Windows, SQLite peut conserver brièvement un verrou sur un fichier :
+ * `EBUSY` au `unlink`. Quelques tentatives suffisent ; au-delà, l'échec est
+ * volontairement ignoré — un répertoire temporaire résiduel ne fait pas
+ * échouer un test, contrairement à une connexion oubliée.
+ */
 export function removeDataDir(dataDir: string): void {
-  rmSync(dataDir, { recursive: true, force: true });
+  const attempts = 5;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      rmSync(dataDir, { recursive: true, force: true });
+      return;
+    } catch {
+      if (attempt === attempts) {
+        return;
+      }
+    }
+  }
 }
 
 /**
@@ -71,6 +91,9 @@ export function createTestRuntime(dataDir: string, options: TestRuntimeOptions =
         openCliServices({
           ...servicesOptions,
           ...(options.embeddings === undefined ? {} : { embeddings: options.embeddings }),
+          ...(options.embeddingSpace === undefined
+            ? {}
+            : { embeddingSpace: options.embeddingSpace }),
         })),
   });
 
