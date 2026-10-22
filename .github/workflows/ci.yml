@@ -74,4 +74,29 @@ jobs:
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
 
       - name: Scanner l'historique Git
-        run: gitleaks git . --log-opts="--all" --config .gitleaks.toml --verbose --redact
+        run: |
+          set +e
+          output=$(gitleaks git . --log-opts="--all" --config .gitleaks.toml \
+            --report-format json --report-path .gitleaks-report.json \
+            --redact --exit-code 7 2>&1)
+          status=$?
+          set -e
+
+          if [ "$status" -eq 0 ]; then
+            echo "Aucun secret détecté dans l'historique."
+            exit 0
+          fi
+
+          if [ -s .gitleaks-report.json ] && [ "$(jq 'length' .gitleaks-report.json)" -gt 0 ]; then
+            count=$(jq 'length' .gitleaks-report.json)
+            echo "::error::$count secret(s) potentiel(s) détecté(s) — valeur masquée, voir le fichier et la règle."
+            jq -r '.[:20][] | "::error file=\(.File),line=\(.StartLine),title=\(.RuleID)::Secret potentiel détecté (valeur masquée par --redact)"' .gitleaks-report.json
+          else
+            echo "::error::Gitleaks a échoué sans rapport exploitable (erreur de configuration ou d'exécution)."
+          fi
+
+          echo "$output" | tail -15 | while IFS= read -r line; do
+            [ -n "$line" ] && echo "::error::$line"
+          done
+
+          exit 1

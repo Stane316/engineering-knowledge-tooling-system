@@ -28,8 +28,8 @@ paths = [
 ]
 
 [[allowlists]]
-description = "Exemples de secrets volontairement présents dans les dossiers de sprint"
+description = "Exemples de secrets factices dans la documentation de sprint (chemins actuels et historiques)"
 paths = [
-  '''docs/blueprint/Docs/roadmap/sprints/SPRINT-01-03\.md''',
-  '''docs/blueprint/Docs/roadmap/sprints/SPRINT-04(\.md|-0[23]\.md)''',
+  '''(docs/blueprint/)?Docs/roadmap/sprints/SPRINT-01-03\.md''',
+  '''(docs/blueprint/)?Docs/roadmap/sprints/SPRINT-04(\.md|-0[0-9]\.md)''',
 ]
