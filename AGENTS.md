@@ -79,7 +79,33 @@ npm run format:check   # Prettier
 - Aucune donnée utilisateur réelle dans les tests : utiliser `tests/fixtures/`.
 - Les identifiants de test ne doivent jamais ressembler à de vraies clés (préférer `sk-EXAMPLE-...`).
 
-## 8. Documentation de référence
+## 8. Workflow de récupération (branche `develop`)
+
+`develop` est la **branche d'intégration** du développement ; `main` reste stable et ne reçoit que des états explicitement validés.
+
+1. **L'agent ne fusionne jamais lui-même.** Il pousse son travail sur sa branche (`arena/…`, `agent/…` ou `sprint/…`) et fournit les commandes de récupération.
+2. **L'utilisateur fusionne en local** dans `develop`, avec un commit de fusion explicite (`--no-ff`), puis pousse `develop`.
+3. **Aucune pull request**, aucune fusion automatique.
+4. **Après fusion** : `npm ci` (jamais `npm install`, sauf ajout ou mise à jour volontaire d'une dépendance), puis `npm run build` et `npm test`.
+5. **Un nouveau sprint ne démarre qu'après un feu vert explicite de l'utilisateur.**
+
+```bash
+# Côté utilisateur, après que l'agent a poussé sa branche
+git fetch origin
+git switch develop                        # ou : git switch -c develop --track origin/develop
+git pull --ff-only origin develop
+git merge --no-ff origin/<branche-agent> -m "merge: <sprint> — <résumé>"
+git push origin develop
+
+# Vérification après fusion
+npm ci
+npm run build
+npm test
+```
+
+En cas de conflit, résoudre manuellement, puis `git add <fichiers>` et `git commit` (le message de fusion est déjà préparé). Ne jamais utiliser `git reset --hard` ni `git push --force`.
+
+## 9. Documentation de référence
 
 - Audit de démarrage : `docs/audit/ETAT-DES-LIEUX-2026-10-21.md`
 - Blueprint : `docs/blueprint/`
