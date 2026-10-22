@@ -27,6 +27,7 @@
     "setup": "husky && node scripts/check-env.mjs",
     "check:env": "node scripts/check-env.mjs",
     "db:inspect": "node scripts/inspect-data-layer.mjs",
+    "db:reindex": "node scripts/reindex.mjs",
     "prepare": "husky"
   },
   "devDependencies": {
