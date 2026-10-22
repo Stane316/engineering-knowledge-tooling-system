@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { createDataDir, removeDataDir } from './helpers.js';
 
@@ -12,6 +12,11 @@ import { createDataDir, removeDataDir } from './helpers.js';
  * `dist` est reconstruit s'il est absent (ex. `npm test` seul), puis réutilisé
  * tel quel : `npm run verify` compile déjà avant la couverture.
  */
+
+// Chaque test lance un processus Node complet : sous Windows, le démarrage
+// d'un processus et la compilation conditionnelle de `dist` dépassent le délai
+// par défaut de 5 s (CI windows-latest, Node 22).
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 60_000 });
 
 const ROOT = process.cwd();
 const CLI = join(ROOT, 'dist', 'cli', 'index.js');
