@@ -50,11 +50,16 @@ export function readProviderKeys(
  * Construit le trousseau à partir de l'environnement.
  *
  * @param env - Variables d'environnement (défaut : `process.env`).
+ * @param providers - Registre à interroger (défaut : catalogue livré) ;
+ *   permet de prendre en compte les fournisseurs de `providers.custom.json`.
  */
-export function loadKeyring(env: NodeJS.ProcessEnv = process.env): Keyring {
+export function loadKeyring(
+  env: NodeJS.ProcessEnv = process.env,
+  providers: readonly ProviderDescriptor[] = PROVIDERS,
+): Keyring {
   const keyring = new Map<ProviderId, readonly string[]>();
 
-  for (const provider of PROVIDERS) {
+  for (const provider of providers) {
     const keys = readProviderKeys(provider, env);
 
     if (keys.length > 0) {
