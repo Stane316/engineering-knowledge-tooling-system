@@ -600,6 +600,72 @@ npm run cli -- --help
 > et `echo $LASTEXITCODE` (0 = deja fusionne).
 
 
+### 6.13 `npm run verify` échoue sur les tests d'embeddings, alors que la CI est verte
+
+**Symptôme :** la suite échoue **uniquement sur le poste**, toujours sur les mêmes
+scénarios « aucun fournisseur configuré » :
+
+```
+FAIL tests/cli/services.test.ts > tolere une configuration d'embeddings absente en mode auto
+FAIL tests/cli/services.test.ts > propage l'erreur en mode required sans cle
+FAIL tests/cli/services.test.ts > liste les fournisseurs d'embedding disponibles...
+FAIL tests/cli/services.test.ts > applique le mode auto par defaut
+FAIL tests/cli/program.test.ts > retombe sur le seul index plein texte sans fournisseur
+FAIL tests/cli/program.test.ts > explique l'absence de vecteurs a l'ecran
+FAIL tests/cli/program.test.ts > refuse l'hybride sans configuration d'embeddings
+```
+
+**Cause :** les tests simulaient l'absence de configuration avec
+`vi.stubEnv('OPENAI_API_KEY', '')`. Or `openCliServices` construisait la
+passerelle sans environnement ; celle-ci chargeait alors le `.env` du répertoire
+courant. Avec un `.env` réel (Gemini, OpenRouter, Novita…), les embeddings
+étaient **toujours** résolus : l'absence n'existait plus. La CI, sans `.env`,
+était verte. Correctif appliqué : environnement injecté (ADR-021).
+
+**Diagnostic :** vérifier que la branche contient le correctif, puis constater
+que le résultat ne dépend plus du `.env`.
+
+```powershell
+cd C:\dev\engineering-knowledge-tooling-system
+git fetch origin
+git log --oneline -1 origin/arena/079e2f26-engineering-knowledge-tooling
+Select-String -Path src\cli\services.ts -Pattern "readonly env"
+Select-String -Path tests\cli\helpers.ts -Pattern "options.env"
+```
+
+Les deux `Select-String` doivent renvoyer une ligne.
+
+**Correctif :**
+
+```powershell
+cd C:\dev\engineering-knowledge-tooling-system
+git status                              # doit etre propre
+git fetch origin
+git rev-parse origin/arena/079e2f26-engineering-knowledge-tooling
+git switch develop
+git pull --ff-only origin develop
+# fusionner le SHA affiche par rev-parse ci-dessus :
+git merge --no-ff <sha> -m "merge: tests hermetiques"
+npm ci
+npm run verify
+```
+
+**Vérification — la suite doit passer avec *et* sans `.env` :**
+
+```powershell
+npm run verify
+Rename-Item .env .env.desactive
+npm run verify
+Rename-Item .env.desactive .env
+```
+
+Résultat attendu dans les deux cas : `Test Files 39 passed`, `Tests 549 passed`,
+`All files | 100 | 100 | 100 | 100`.
+
+> Les commandes ci-dessus supposent PowerShell 5.1 : pas de `&&`, pas de
+> `2>/dev/null`. Si `Rename-Item` échoue parce que `.env.desactive` existe déjà,
+> supprimer d'abord ce fichier : `Remove-Item .env.desactive`.
+
 ## 7. Windows — séquence complète (PowerShell)
 
 ```powershell

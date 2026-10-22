@@ -74,9 +74,9 @@ describe('services CLI', () => {
   });
 
   it('tolère une configuration d’embeddings absente en mode auto', () => {
-    vi.stubEnv('OPENAI_API_KEY', '');
-
-    const services = openCliServices({ dataDir, embeddingsMode: 'auto' });
+    // `env: {}` coupe toute lecture du disque : le `.env` du poste, qui
+    // contient de vraies clés, ne peut plus fournir un fournisseur.
+    const services = openCliServices({ dataDir, embeddingsMode: 'auto', env: {} });
 
     try {
       expect(services.embeddings).toBeUndefined();
@@ -86,9 +86,11 @@ describe('services CLI', () => {
   });
 
   it('crée le service OpenAI en mode auto quand la clé est présente', () => {
-    vi.stubEnv('OPENAI_API_KEY', 'sk-cli-test');
-
-    const services = openCliServices({ dataDir, embeddingsMode: 'auto' });
+    const services = openCliServices({
+      dataDir,
+      embeddingsMode: 'auto',
+      env: { OPENAI_API_KEY: 'sk-cli-test' },
+    });
 
     try {
       expect(services.embeddings).toBeInstanceOf(EmbeddingsService);
@@ -98,17 +100,17 @@ describe('services CLI', () => {
   });
 
   it('propage l’erreur en mode required sans clé', () => {
-    vi.stubEnv('OPENAI_API_KEY', '');
-
-    expect(() => openCliServices({ dataDir, embeddingsMode: 'required' })).toThrow(
+    expect(() => openCliServices({ dataDir, embeddingsMode: 'required', env: {} })).toThrow(
       NoProviderAvailableError,
     );
   });
 
   it('ignore une configuration de fournisseurs invalide en mode auto', () => {
-    vi.stubEnv('EKTS_PROVIDER_POLICY', 'tarif-maison');
-
-    const services = openCliServices({ dataDir, embeddingsMode: 'auto' });
+    const services = openCliServices({
+      dataDir,
+      embeddingsMode: 'auto',
+      env: { EKTS_PROVIDER_POLICY: 'tarif-maison' },
+    });
 
     try {
       expect(services.embeddings).toBeUndefined();
@@ -118,27 +120,25 @@ describe('services CLI', () => {
   });
 
   it('signale une configuration de fournisseurs invalide en mode required', () => {
-    vi.stubEnv('EKTS_PROVIDER_POLICY', 'tarif-maison');
-
-    expect(() => openCliServices({ dataDir, embeddingsMode: 'required' })).toThrow(
-      /EKTS_PROVIDER_POLICY invalide/,
-    );
+    expect(() =>
+      openCliServices({
+        dataDir,
+        embeddingsMode: 'required',
+        env: { EKTS_PROVIDER_POLICY: 'tarif-maison' },
+      }),
+    ).toThrow(/EKTS_PROVIDER_POLICY invalide/);
   });
 
   it('liste les fournisseurs d’embedding disponibles dans le message d’erreur', () => {
-    vi.stubEnv('OPENAI_API_KEY', '');
-
-    expect(() => openCliServices({ dataDir, embeddingsMode: 'required' })).toThrow(
+    expect(() => openCliServices({ dataDir, embeddingsMode: 'required', env: {} })).toThrow(
       /openai: clé absente \(OPENAI_API_KEY\).*gemini.*novita/,
     );
   });
 
   it('respecte le mode hors ligne', () => {
-    vi.stubEnv('EKTS_OFFLINE', '1');
-    vi.stubEnv('OPENAI_API_KEY', 'sk-cli-test');
-
-    const auto = openCliServices({ dataDir, embeddingsMode: 'auto' });
-    const disabled = openCliServices({ dataDir, embeddingsMode: 'disabled' });
+    const env = { EKTS_OFFLINE: '1', OPENAI_API_KEY: 'sk-cli-test' };
+    const auto = openCliServices({ dataDir, embeddingsMode: 'auto', env });
+    const disabled = openCliServices({ dataDir, embeddingsMode: 'disabled', env });
 
     try {
       expect(auto.embeddings).toBeUndefined();
@@ -150,9 +150,9 @@ describe('services CLI', () => {
   });
 
   it('refuse les embeddings en mode required quand le mode hors ligne est actif', () => {
-    vi.stubEnv('EKTS_OFFLINE', 'yes');
-
-    expect(() => openCliServices({ dataDir, embeddingsMode: 'required' })).toThrow(/EKTS_OFFLINE/);
+    expect(() =>
+      openCliServices({ dataDir, embeddingsMode: 'required', env: { EKTS_OFFLINE: 'yes' } }),
+    ).toThrow(/EKTS_OFFLINE/);
   });
 
   it('ne considère pas une valeur vide comme hors ligne', () => {
@@ -221,12 +221,23 @@ describe('services CLI', () => {
   });
 
   it('applique le mode auto par défaut', () => {
-    vi.stubEnv('OPENAI_API_KEY', '');
-
-    const services = openCliServices({ dataDir });
+    const services = openCliServices({ dataDir, env: {} });
 
     try {
       expect(services.embeddings).toBeUndefined();
+    } finally {
+      services.close();
+    }
+  });
+
+  it('suit la configuration du disque quand aucun environnement n’est injecté', () => {
+    // Chemin de production : sans `env`, la passerelle relit `.env` et
+    // `providers.custom.json`. Le test ne présuppose aucune clé — le poste peut
+    // en avoir, la CI non — et vérifie seulement l'invariant exposé.
+    const services = openCliServices({ dataDir, embeddingsMode: 'auto' });
+
+    try {
+      expect(services.embeddings === undefined).toBe(services.embeddingSpace === undefined);
     } finally {
       services.close();
     }
@@ -270,10 +281,12 @@ describe('services CLI', () => {
       embedBatch: (texts: readonly string[]) => provider.embed(texts),
     };
 
-    vi.stubEnv('OPENAI_EMBEDDING_MODEL', 'modele-maison');
-    expect(embeddingSpace(service).model).toBe('modele-maison');
-
-    vi.stubEnv('OPENAI_EMBEDDING_MODEL', '');
-    expect(embeddingSpace(service).model).toBe('text-embedding-3-small');
+    expect(embeddingSpace(service, { OPENAI_EMBEDDING_MODEL: 'modele-maison' }).model).toBe(
+      'modele-maison',
+    );
+    expect(embeddingSpace(service, { OPENAI_EMBEDDING_MODEL: '' }).model).toBe(
+      'text-embedding-3-small',
+    );
+    expect(embeddingSpace(service, {}).model).toBe('text-embedding-3-small');
   });
 });

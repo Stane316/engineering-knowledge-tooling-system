@@ -132,8 +132,8 @@ describe('CLI — programme', () => {
     });
 
     it('retombe sur le seul index plein texte sans fournisseur', async () => {
-      vi.stubEnv('OPENAI_API_KEY', '');
-      vi.stubEnv('EKTS_OFFLINE', '');
+      // Runtime hermétique : `env` vide par défaut, donc aucune clé — même si
+      // le `.env` du poste en contient seize.
       const withoutKeys = createTestRuntime(dataDir);
 
       expect(
@@ -143,8 +143,8 @@ describe('CLI — programme', () => {
     });
 
     it('explique l’absence de vecteurs à l’écran', async () => {
-      vi.stubEnv('OPENAI_API_KEY', '');
-      vi.stubEnv('EKTS_OFFLINE', '');
+      // Runtime hermétique : `env` vide par défaut, donc aucune clé — même si
+      // le `.env` du poste en contient seize.
       const withoutKeys = createTestRuntime(dataDir);
 
       expect(await run(withoutKeys, 'add', '--type', 'article', '--title', 'Sans clé')).toBe(0);
@@ -333,8 +333,8 @@ describe('CLI — programme', () => {
     });
 
     it('refuse l’hybride sans configuration d’embeddings', async () => {
-      vi.stubEnv('OPENAI_API_KEY', '');
-      vi.stubEnv('EKTS_OFFLINE', '');
+      // Runtime hermétique : `env` vide par défaut, donc aucune clé — même si
+      // le `.env` du poste en contient seize.
       const withoutKeys = createTestRuntime(dataDir);
 
       expect(await run(withoutKeys, 'search', 'sqlite')).toBe(1);
@@ -343,8 +343,8 @@ describe('CLI — programme', () => {
     });
 
     it('reste utilisable en mode fts sans clé', async () => {
-      vi.stubEnv('OPENAI_API_KEY', '');
-      vi.stubEnv('EKTS_OFFLINE', '');
+      // Runtime hermétique : `env` vide par défaut, donc aucune clé — même si
+      // le `.env` du poste en contient seize.
       const withoutKeys = createTestRuntime(dataDir);
 
       expect(await run(withoutKeys, 'search', 'sqlite', '--mode', 'fts')).toBe(0);
