@@ -52,7 +52,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 |--------|-------------|-------|---------------|----------------|-------|
 | Sprint 1 | 1-1 | Initialisation TypeScript + outils qualité | ✅ Rédigée | ✅ `363b7b8` | ✅ 3 tests, 100 % |
 | Sprint 1 | 1-2 | Structure dossiers + dépendances | ✅ Rédigée | ✅ `9c96f2a` | ✅ 8 tests, 100 % |
-| Sprint 1 | 1-3 | Gitleaks + README + CI | ✅ Rédigée | ✅ `Sprint 1-3` | ✅ CI + hook |
+| Sprint 1 | 1-3 | Gitleaks + README + CI | ✅ Rédigée | ✅ `d5b567c` | ✅ CI + hook |
 | Sprint 1 | Dossier parent | Setup projet | ✅ Rédigée | ⏸️ En attente de validation | ✅ |
 | Sprint 2 | 2-1 | Schémas SQLite (3 bases) | ✅ Rédigée | ⏳ | — |
 | Sprint 2 | 2-2 | Repository Resource + tests | ✅ Rédigée | ⏳ | — |
@@ -108,7 +108,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 21/10/2026 | Création du registre ; 48 dossiers normalisés en `⏳ NON COMMENCÉ` (documentation ✅) | `Sprint 0` |
 | 22/10/2026 | Sprint 1-1 : TypeScript 5.9, ESLint 10 (flat config), Prettier 3, Vitest 5 + couverture v8 | `363b7b8` |
 | 22/10/2026 | Sprint 1-2 : arborescence `src/`, dépendances runtime (better-sqlite3, commander, zod, pino), configuration et logger typés | `9c96f2a` |
-| 22/10/2026 | Sprint 1-3 : Gitleaks + hook pre-commit, CI GitHub Actions, `SETUP.md`, README définitif | `Sprint 1-3` |
+| 22/10/2026 | Sprint 1-3 : Gitleaks + hook pre-commit, CI GitHub Actions, `SETUP.md`, README définitif | `d5b567c` |
 
 ---
 
