@@ -182,8 +182,14 @@ ajoute axe-core (WCAG 2.2 AA), cinq heuristiques de Nielsen et une analyse de
 contenu (volume, temps de lecture, lisibilité). `Inspector.inspect({ url, level })`
 referme toujours la session et écrit un rapport JSON sérialisable. Les budgets
 sont mesurés et signalés (`withinBudget`), et toute analyse indisponible est
-consignée dans `warnings` plutôt que remplacée par un score inventé. Guide :
-[`docs/INSPECTOR.md`](docs/INSPECTOR.md).
+consignée dans `warnings` plutôt que remplacée par un score inventé.
+
+```powershell
+npm run build
+npm run inspect -- https://exemple.fr L3 --save
+```
+
+Guide : [`docs/INSPECTOR.md`](docs/INSPECTOR.md).
 
 ## 6. Configuration
 

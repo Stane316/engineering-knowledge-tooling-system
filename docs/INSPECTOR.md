@@ -183,7 +183,33 @@ console.log(reportPath);
 | `pdf` | `false` | Impression PDF (Chromium seulement) |
 | `strict` | `false` | Échoue au premier outil indisponible |
 
-### 5.3 Rapport
+### 5.3 Ligne de commande
+
+Le script `scripts/inspect.mjs` (script npm `inspect`) sert à **mesurer les
+budgets sur le poste réel**, là où les binaires sont installés.
+
+```powershell
+npm run build                      # le script consomme dist/
+npm run inspect -- https://exemple.fr          # L1 par défaut
+npm run inspect -- https://exemple.fr L2
+npm run inspect -- https://exemple.fr L3 --save --dir artifacts/inspections/demo
+```
+
+Sortie attendue (extrait) :
+
+```text
+Inspection L2 — https://exemple.fr
+Durée          : 11.82 s (budget 30 s) ✅
+Accessibilité  : arbre ARIA 412 nœuds, 3 violation(s)
+Lighthouse     : performance 92/100, SEO 80/100
+Core Web Vitals: LCP 1832 ms · INP 121 ms · CLS 0.054 · TTFB 211 ms
+```
+
+Codes de sortie : `0` succès, `1` inspection impossible, `2` usage incorrect.
+Le script n'ajoute aucune logique : il traduit les arguments et appelle
+`Inspector`.
+
+### 5.4 Rapport
 
 ```jsonc
 {

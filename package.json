@@ -38,7 +38,8 @@
     "mcp": "node dist/mcp/server.js",
     "test:e2e": "playwright test",
     "browsers:install": "playwright install chromium firefox webkit",
-    "doctor:browsers": "node scripts/browser-doctor.mjs"
+    "doctor:browsers": "node scripts/browser-doctor.mjs",
+    "inspect": "node scripts/inspect.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
