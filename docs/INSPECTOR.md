@@ -369,8 +369,18 @@ Le dépassement **n'interrompt pas** l'inspection : `withinBudget: false` le
 signale pour que l'appelant décide (réduire le niveau, augmenter le délai,
 optimiser). Un site lent n'est pas une erreur ; le taire en serait une.
 
-Ordres de grandeur mesurés sur le poste (Chromium, réseau domestique) :
-L1 ≈ 1,5 s, L2 ≈ 12 s (dont ≈ 10 s de Lighthouse), L3 ≈ 14 s.
+Mesures relevées sur le poste de validation (Windows 11, Node 24.14.0,
+Chromium 1248, réseau domestique, page `https://example.com`) :
+
+| Niveau | Durée mesurée | Budget | Reste |
+| --- | --- | --- | --- |
+| L1 | **4,38 s** | 10 s | 56 % |
+| L2 | **14,30 s** | 30 s | 52 % |
+| L3 | **13,65 s** | 60 s | 77 % |
+
+L3 est parfois plus rapide que L2 : Lighthouse domine les deux et sa durée varie
+d'un passage à l'autre. Les budgets restent largement tenus ; ils ne sont pas
+des coupures, et un dépassement s'affiche sans interrompre l'inspection.
 
 ---
 
@@ -382,13 +392,21 @@ L1 ≈ 1,5 s, L2 ≈ 12 s (dont ≈ 10 s de Lighthouse), L3 ≈ 14 s.
 | `tests/browser/inspection/level-2.test.ts` | 21 | héritage, Lighthouse, SEO |
 | `tests/browser/inspection/level-3.test.ts` | 23 | axe, UX, contenu, lisibilité |
 | `tests/browser/inspection/inspector.test.ts` | 20 | cycle de vie, artefacts, erreurs |
-| `tests/browser/lighthouse.test.ts` | 19 | conversion du rapport, port, options, émulation |
+| `tests/browser/lighthouse.test.ts` | 20 | conversion du rapport, port, options, émulation |
 | `tests/browser/axe.test.ts` | 19 | score, tri, tags, erreurs |
-| **Total Sprint 8** | **121** | |
+| **Total Sprint 8** | **122** | |
 
 Aucun test n'ouvre de navigateur : les doublures (`tests/browser/helpers.ts`,
 `tests/browser/inspection/fixtures.ts`) reproduisent les méthodes appelées. Les
 tests e2e réels restent ceux du Sprint 7 (`tests/browser/e2e/basic.spec.ts`).
+
+**Règle : aucun test unitaire ne touche le réseau.** Un premier essai vérifiait
+qu'un port CDP fermé produisait un refus rapide ; il mesurait en réalité la
+latence d'échec du système — 1,5 s sous Linux, plus de 28 s sous Windows avec
+antivirus — et échouait alors que le code était correct. Les invariants
+d'émulation se vérifient désormais hors I/O, en comparant le préréglage réel du
+paquet à notre repli. Seuls les tests explicitement conditionnels
+(`EKTS_BROWSER_ONLINE=1`) sortent sur le réseau.
 
 ```powershell
 npm run test:browser

@@ -16,6 +16,7 @@ import {
   extractSeoIssues,
   findFreePort,
   LighthouseAnalyzer,
+  loadLighthouse,
   type LighthouseRunner,
 } from '../../src/browser/lighthouse.js';
 import { createLighthouseRunner as fakeRunner, lighthouseReport } from './inspection/fixtures.js';
@@ -266,19 +267,51 @@ describe('createLighthouseRunner — cohérence d’émulation', () => {
 });
 
 describe('createLighthouseRunner — module réel', () => {
-  it(
-    'accepte le préréglage desktop du paquet installé (aucune incohérence d’émulation)',
-    { timeout: 20_000 },
-    async () => {
-      // Le port est fermé : Lighthouse échoue à s'y connecter. Ce qui compte
-      // ici est *avant* la connexion — la validation des réglages. Avec un
-      // `formFactor` desktop et l'émulation mobile par défaut, Lighthouse lève
-      // « Screen emulation mobile setting … does not match formFactor ».
-      const runner = createLighthouseRunner();
+  // Aucun appel réseau ici, volontairement. Un premier essai interrogeait un
+  // port CDP fermé en attendant un refus rapide : il mesurait la latence
+  // d'échec du système (1,5 s sous Linux, plus de 28 s sous Windows avec
+  // antivirus) et non notre code. Les invariants se vérifient sans I/O.
 
-      await expect(runner.run({ url: 'https://example.com', port: 65_531 })).rejects.not.toThrow(
-        /Screen emulation/,
-      );
-    },
-  );
+  it('expose un préréglage desktop cohérent (formFactor et émulation accordés)', async () => {
+    const module = await loadLighthouse();
+    const settings = desktopSettings(module);
+
+    expect(settings.formFactor).toBe('desktop');
+    expect(settings.screenEmulation.mobile).toBe(false);
+  });
+
+  it('notre émulation de repli reproduit exactement celle du paquet', async () => {
+    const module = await loadLighthouse();
+    const settings = desktopSettings(module);
+
+    // Si Lighthouse change ses métriques desktop, ce test casse : le repli
+    // `DESKTOP_EMULATION` doit être mis à jour dans le même commit.
+    expect(DESKTOP_EMULATION).toEqual(settings.screenEmulation);
+  });
 });
+
+/** Réglages du préréglage desktop du module chargé, typés pour le test. */
+function desktopSettings(module: Awaited<ReturnType<typeof loadLighthouse>>): {
+  formFactor: string;
+  screenEmulation: { mobile: boolean } & Record<string, unknown>;
+} {
+  const config = module.desktopConfig as
+    | {
+        settings?: {
+          formFactor?: string;
+          screenEmulation?: { mobile?: boolean } & Record<string, unknown>;
+        };
+      }
+    | undefined;
+
+  const settings = config?.settings;
+
+  if (settings?.formFactor === undefined || settings.screenEmulation?.mobile === undefined) {
+    throw new Error('le préréglage desktop de Lighthouse est absent ou incomplet');
+  }
+
+  return {
+    formFactor: settings.formFactor,
+    screenEmulation: settings.screenEmulation as { mobile: boolean } & Record<string, unknown>,
+  };
+}

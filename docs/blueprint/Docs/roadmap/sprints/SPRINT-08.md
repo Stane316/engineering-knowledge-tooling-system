@@ -4,7 +4,8 @@
 **Objectif :** Implémenter les 3 niveaux d'inspection (L1-L3) avec intégration Lighthouse et axe-core  
 **MVP :** MVP-2 (Inspection Navigateur)
 **Statut :** ✅ LIVRÉ (23 octobre 2026)
-**Bilan de livraison :** `src/browser/inspection/` (types, snapshot, L1, L2, L3, SEO, UX, contenu, inspecteur), `src/browser/lighthouse.ts`, `src/browser/axe.ts`, `docs/INSPECTOR.md` ; **121 cas** unitaires (L1 19, L2 21, L3 23, inspecteur 20, Lighthouse 19, axe 19) ; L1/L2/L3 en Chromium, dégradation explicite hors Chromium ; écarts E8-1 à E8-13 dans `docs/INSPECTOR.md` §12 (ADR-026, ADR-027).
+**Bilan de livraison :** `src/browser/inspection/` (types, snapshot, L1, L2, L3, SEO, UX, contenu, inspecteur), `src/browser/lighthouse.ts`, `src/browser/axe.ts`, `docs/INSPECTOR.md` ; **122 cas** unitaires (L1 19, L2 21, L3 23, inspecteur 20, Lighthouse 20, axe 19) ; L1/L2/L3 en Chromium, dégradation explicite hors Chromium ; écarts E8-1 à E8-13 dans `docs/INSPECTOR.md` §12 (ADR-026, ADR-027).
+**Validation sur le poste (23 octobre 2026) :** L1 4,38 s / L2 14,30 s / L3 13,65 s — budgets tenus ; Lighthouse opérationnel (performance 100/100, SEO 80/100, LCP 227 ms, INP 39 ms, CLS 0,004, TTFB 83 ms) ; axe-core 73/100 ; `npm run test:e2e` 12/12 sur les trois moteurs.
 
 ---
 
