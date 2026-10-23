@@ -61,6 +61,31 @@ jobs:
           path: coverage/
           retention-days: 7
 
+  dependencies:
+    name: Vulnérabilités des dépendances de production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      # Seules les dépendances de PRODUCTION bloquent la CI. La chaîne de
+      # développement de Lighthouse traîne des avis (extract-zip, basic-ftp,
+      # proxy-agent, @opentelemetry/*) qui n'ont pas de correctif compatible
+      # avec le plancher Node du projet : ils sont triés dans
+      # docs/INSPECTOR.md §11.1 et suivis par le risque R-8.10.
+      - name: Audit des dépendances de production
+        run: npm run audit:prod:ci
+
   benchmark:
     name: Benchmark recherche (100K documents)
     runs-on: ubuntu-latest
