@@ -25,6 +25,11 @@ providers.custom.json
 *.db-shm
 *.db-wal
 
+# Artefacts navigateur (captures, traces, PDF) et rapports Playwright
+/test-results/
+/playwright-report/
+/artifacts/
+
 # Logs
 logs/
 *.log
