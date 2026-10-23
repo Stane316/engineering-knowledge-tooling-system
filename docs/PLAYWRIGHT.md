@@ -158,7 +158,7 @@ await navigator.stop();
 | Méthode | Rôle | Erreur si… |
 | --- | --- | --- |
 | `start(kind?, options?)` | Ouvre navigateur, contexte et page | session déjà ouverte (`BROWSER_ALREADY_STARTED`), binaire absent (`BROWSER_UNAVAILABLE`) |
-| `stop()` | Ferme page → contexte → navigateur, borne à 10 s, force l'arrêt si besoin | **jamais** : un nettoyage ne lève pas (voir §6.2) |
+| `stop()` | Ferme page → contexte → navigateur (10 s par étape), force l'arrêt si besoin | **jamais** : un nettoyage ne lève pas (voir §6.2) |
 | `goto(options)` | Ouvre une URL | réseau, DNS, certificat, délai (`NAVIGATION_FAILED`) |
 | `screenshot(options)` | Écrit une image | capture ou écriture impossible (`ARTIFACT_FAILED`) |
 | `startTrace()` / `stopTrace()` | Enregistre une trace | trace déjà en cours / absente (`TRACE_*`) |
@@ -199,9 +199,10 @@ Windows :
 2. **L'ordre compte.** `page.close()` → `context.close()` → `browser.close()`.
    Fermer le navigateur d'abord laisse Playwright attendre ses pages ; sous
    Windows, sur une machine chargée, ce chemin dépassait les 10 s.
-3. **Un moteur mort ne répond pas.** Après le délai (`closeTimeoutMs`, 10 s par
-   défaut), le processus est tué via `browser.process()?.kill('SIGKILL')` ;
-   sinon il survit, retient des fichiers et bloque la relance.
+3. **Un moteur mort ne répond pas.** Chaque étape est bornée par
+   `closeTimeoutMs` (10 s par défaut) ; si le navigateur ne rend pas la main, le
+   processus est tué via `browser.process()?.kill('SIGKILL')`, sinon il survit,
+   retient des fichiers et bloque la relance.
 
 ### 6.3 Lancement avec préférences Firefox
 
@@ -374,7 +375,7 @@ paient pas son initialisation.
 
 ```powershell
 npm run doctor:browsers   # ouvre une page dans chaque moteur, explique chaque échec
-npm run test:browser      # 180 tests, sans navigateur
+npm run test:browser      # unitaires + intégration (180 sans navigateur)
 npm run test:e2e          # 12 tests (4 × 3 moteurs) — après browsers:install
 npm run coverage          # suite complète
 ```
