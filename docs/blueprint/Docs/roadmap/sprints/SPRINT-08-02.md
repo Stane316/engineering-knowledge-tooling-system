@@ -4,7 +4,7 @@
 **Objectif :** Intégrer Lighthouse et implémenter l'inspection L2 (standard)  
 **Dépendance :** Sprint 8-1 (Types + L1) ✅
 **Statut :** ✅ LIVRÉ (23 octobre 2026)
-**Bilan de livraison :** `src/browser/lighthouse.ts` (port CDP réservé, conversion du rapport, exécutant injectable), `inspection/seo.ts`, `inspection/level-2.ts` ; **40 tests** (`lighthouse.test.ts` 19, `level-2.test.ts` 21). Écarts E8-2 à E8-5 : Lighthouse 12.8.2, types locaux, INP prioritaire, `server-response-time`.
+**Bilan de livraison :** `src/browser/lighthouse.ts` (port CDP réservé, conversion du rapport, exécutant injectable), `inspection/seo.ts`, `inspection/level-2.ts` ; **41 tests** (`lighthouse.test.ts` 20, `level-2.test.ts` 21). Écarts E8-2 à E8-5 : Lighthouse 12.8.2, types locaux, INP prioritaire, `server-response-time`.
 
 ---
 
