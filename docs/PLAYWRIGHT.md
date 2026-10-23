@@ -418,6 +418,7 @@ sont marqués « skipped », jamais « passed » à tort.
 | `Aucune trace en cours` | `stopTrace` sans `startTrace` | appeler `startTrace` d'abord |
 | `EBUSY` sous Windows | fichier ouvert par un autre processus | fermer le lecteur PDF/visionneuse, relancer |
 | Tests d'intégration tous « skipped » | pas de binaires | `npm run browsers:install` |
+| `expected 'D:\…' to be '\…'` (Windows) | attente composée avec `join` sur une racine sans lettre de lecteur | composer l'attente avec `resolve('/tmp/artefacts')` : `resolveArtifactPath` renvoie toujours un chemin absolu |
 
 ---
 
