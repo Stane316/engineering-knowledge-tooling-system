@@ -25,6 +25,26 @@ const ROOT = process.cwd();
 const SERVER = join(ROOT, 'dist', 'mcp', 'server.js');
 const TSC = join(ROOT, 'node_modules', 'typescript', 'bin', 'tsc');
 
+/**
+ * Délai accordé au binaire pour répondre.
+ *
+ * 5 s suffisaient sur Linux, pas sur un poste Windows où l'antivirus analyse
+ * chaque démarrage de processus : le binaire restait silencieux plus longtemps
+ * que le délai alors qu'il fonctionnait. La valeur est donc large par défaut et
+ * réglable par `EKTS_MCP_TIMEOUT_MS` pour les machines très lentes.
+ */
+const RESPONSE_TIMEOUT_MS = readTimeout();
+
+/** Lit le délai dans l'environnement, avec un plancher d'une seconde. */
+function readTimeout(): number {
+  const parsed = Number(process.env['EKTS_MCP_TIMEOUT_MS']);
+
+  return Number.isFinite(parsed) && parsed >= 1_000 ? parsed : 20_000;
+}
+
+/** Délai de fermeture avant arrêt forcé du processus. */
+const CLOSE_TIMEOUT_MS = 10_000;
+
 interface JsonRpcResponse {
   jsonrpc: string;
   id?: number;
@@ -91,8 +111,8 @@ class StdioClient {
 
     const response = new Promise<JsonRpcResponse>((resolve, reject) => {
       const timer = setTimeout(() => {
-        reject(new Error(`Pas de réponse à ${method} après 5 s`));
-      }, 5_000);
+        reject(new Error(`Pas de réponse à ${method} après ${String(RESPONSE_TIMEOUT_MS)} ms`));
+      }, RESPONSE_TIMEOUT_MS);
       timer.unref();
 
       this.pending.set(id, (message) => {
@@ -135,7 +155,7 @@ class StdioClient {
     return JSON.parse(result.content[0]?.text ?? '{}') as Record<string, unknown>;
   }
 
-  /** Ferme stdin et attend la sortie du processus (idempotent). */
+  /** Ferme stdin et attend la sortie du processus (idempotent, borné). */
   async close(): Promise<number | null> {
     if (this.child.exitCode !== null) {
       return this.child.exitCode;
@@ -144,10 +164,29 @@ class StdioClient {
     this.child.stdin.end();
 
     return new Promise<number | null>((resolve) => {
+      const timer = setTimeout(() => {
+        // Un serveur qui ne se termine pas est un défaut, pas une attente
+        // légitime : on libère le processus et on laisse le code nul parler.
+        this.child.kill('SIGKILL');
+        resolve(null);
+      }, CLOSE_TIMEOUT_MS);
+      timer.unref();
+
       this.child.once('exit', (code) => {
+        clearTimeout(timer);
         resolve(code);
       });
     });
+  }
+
+  /** Erreur lisible quand le serveur ne répond pas : sortie, code, journal. */
+  diagnostics(): string {
+    const stderr = this.stderrLines.slice(-5).join(' | ');
+
+    return [
+      `code=${String(this.child.exitCode)}`,
+      stderr === '' ? 'stderr vide' : `stderr=${stderr}`,
+    ].join(', ');
   }
 }
 
@@ -157,6 +196,8 @@ describe('binaire MCP (intégration stdio)', () => {
   let firstResourceId: string;
 
   beforeAll(async () => {
+    // Le binaire est construit ici si besoin : sans lui, rien de ce fichier
+    // n'a de sens et un échec explicite vaut mieux qu'un saut silencieux.
     if (!existsSync(SERVER)) {
       execFileSync(process.execPath, [TSC, '-p', 'tsconfig.build.json'], { stdio: 'inherit' });
     }
@@ -183,11 +224,21 @@ describe('binaire MCP (intégration stdio)', () => {
       MCP_LOG_LEVEL: 'debug',
     });
 
-    await client.initialize();
+    try {
+      await client.initialize();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+
+      throw new Error(
+        `Le serveur MCP n'a pas répondu (${client.diagnostics()}). ` +
+          `Augmentez EKTS_MCP_TIMEOUT_MS si la machine est lente. Cause : ${message}`,
+        { cause: error },
+      );
+    }
   });
 
   afterAll(async () => {
-    await client.close();
+    await client?.close();
     removeDataDir(dataDir);
   });
 

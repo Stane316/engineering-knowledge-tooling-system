@@ -942,6 +942,20 @@ l'audit :
 réservés à Chromium. La version ne peut pas être montée sans relever `engines`
 et `.nvmrc` : c'est un choix explicite, consigné ici.
 
+**Addendum (23 octobre 2026, essai sur le poste).** Deux constats :
+
+1. **Émulation.** Passer `formFactor: 'desktop'` seul fait échouer Lighthouse
+   avant toute navigation (« Screen emulation mobile setting (true) does not
+   match formFactor setting (desktop) ») : `formFactor` ne pilote pas
+   l'émulation. Le runner passe désormais le préréglage `desktopConfig` du
+   paquet ; à défaut, il aligne explicitement `screenEmulation` sur
+   `formFactor`. Un test vérifie l'invariant `screenEmulation.mobile ===
+   (formFactor === 'mobile')`.
+2. **Audit.** `npm audit` signale 27 avis dans la chaîne Lighthouse (dont
+   `extract-zip`, `basic-ftp`, `proxy-agent`). Ils sont **de développement**, et
+   les paquets concernés ne servent qu'au lancement/téléchargement d'un Chrome —
+   que l'inspecteur ne fait pas. `npm run audit:prod` répond 0. Risque R-8.10.
+
 #### ADR-027 — axe-core 4.14.0 avec score pondéré par gravité, en complément de l'arbre ARIA
 
 **Statut :** ✅ APPLIQUÉ (Sprint 8)
@@ -984,6 +998,7 @@ jamais un score de 100 trompeur.
 | R-8.7 | Une CSP bloque l'injection d'axe-core → accessibilité non mesurée | Moyen | Moyenne | Erreur traduite en `InspectionError` (`stage: 'axe'`), dégradation explicite, `strict` pour l'exiger |
 | R-8.8 | Un DOM exotique fait échouer l'expression de photographie | Faible | Moyenne | Normalisation champ par champ + `EMPTY_SNAPSHOT`, 5 tests de valeurs hostiles, aucune hypothèse de forme |
 | R-8.9 | Le rapport conserve le texte visible d'une page authentifiée | **Élevé** | Faible | Texte borné à 20 000 caractères, avertissement `docs/INSPECTOR.md` §11, aucun en-tête d'authentification journalisé |
+| R-8.10 | La chaîne Lighthouse (dev) traîne 27 avis `npm audit`, non corrigeables sans Lighthouse 13 | Faible | **Réalisée** | Dépendance de développement uniquement, `npm run audit:prod` à 0 vulnérabilité, Lighthouse se connecte au Chromium déjà lancé (aucun téléchargement, ni FTP, ni proxy) ; montée conditionnée au relèvement du plancher Node (ADR-026, `docs/INSPECTOR.md` §11.1) |
 
 ---
 
