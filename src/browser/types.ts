@@ -55,6 +55,16 @@ export interface LaunchOptions {
    * Ignoré par Chromium et WebKit, qui n'ont pas ce réglage.
    */
   readonly sandbox?: boolean;
+  /**
+   * Options du contexte créé après le lancement.
+   *
+   * Le viewport et le user-agent s'appliquent au contexte, pas au processus :
+   * les placer ici évite d'ouvrir un second navigateur pour changer de gabarit.
+   */
+  readonly context?: {
+    readonly viewport?: { readonly width: number; readonly height: number };
+    readonly userAgent?: string;
+  };
 }
 
 /** Informations sur une session ouverte. */
@@ -341,6 +351,7 @@ export interface BrowserContextLike {
 export interface BrowserLike {
   newContext(options?: {
     viewport?: { width: number; height: number };
+    userAgent?: string;
   }): Promise<BrowserContextLike>;
   version?(): string;
   close(): Promise<void>;

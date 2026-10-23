@@ -25,7 +25,8 @@ export type BrowserErrorCode =
   | 'ARTIFACT_FAILED'
   | 'ARTIFACT_PATH_ESCAPE'
   | 'URL_NOT_ALLOWED'
-  | 'PRIVATE_NETWORK_BLOCKED';
+  | 'PRIVATE_NETWORK_BLOCKED'
+  | 'INSPECTION_FAILED';
 
 /** Base commune : message français, code stable, cause préservée. */
 export class BrowserError extends Error {
@@ -146,5 +147,26 @@ export class UrlNotAllowedError extends BrowserError {
     code: 'URL_NOT_ALLOWED' | 'PRIVATE_NETWORK_BLOCKED' = 'URL_NOT_ALLOWED',
   ) {
     super(`URL refusée « ${url} » : ${detail}`, code);
+  }
+}
+
+/** Étape d'une inspection, utilisée pour situer une erreur. */
+export type InspectionStage =
+  'navigate' | 'screenshot' | 'accessibility' | 'snapshot' | 'lighthouse' | 'axe' | 'artifacts';
+
+/**
+ * Échec d'une étape d'inspection.
+ *
+ * Le niveau est porté par le message de l'appelant ; l'erreur, elle, situe
+ * l'étape : c'est ce qui distingue « Lighthouse n'est pas installé » d'une
+ * navigation refusée, alors que les deux remontent le même code.
+ */
+export class InspectionError extends BrowserError {
+  constructor(
+    readonly stage: InspectionStage,
+    detail: string,
+    options?: { cause?: unknown },
+  ) {
+    super(`Inspection (${stage}) : ${detail}`, 'INSPECTION_FAILED', options);
   }
 }
