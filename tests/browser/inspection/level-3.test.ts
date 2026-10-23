@@ -5,6 +5,8 @@
  * formule change, ces tests doivent changer explicitement, pas dériver.
  */
 
+import { join } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import { AxeAnalyzer } from '../../../src/browser/axe.js';
@@ -45,7 +47,7 @@ function makeContext(
       userAgent: undefined,
       timeout: 30_000,
       browserKind: 'chromium',
-      outputDir: '/tmp/ekts-inspection',
+      outputDir: join('artifacts', 'inspections', 'tests'),
       screenshot: true,
       trace: false,
       pdf: false,

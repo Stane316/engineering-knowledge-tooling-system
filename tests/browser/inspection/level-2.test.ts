@@ -6,6 +6,8 @@
  * inversement.
  */
 
+import { join } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import { LighthouseAnalyzer } from '../../../src/browser/lighthouse.js';
@@ -43,7 +45,7 @@ function makeContext(
         userAgent: undefined,
         timeout: 30_000,
         browserKind: 'chromium',
-        outputDir: '/tmp/ekts-inspection',
+        outputDir: join('artifacts', 'inspections', 'tests'),
         screenshot: true,
         trace: false,
         pdf: false,

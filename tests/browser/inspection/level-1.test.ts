@@ -6,6 +6,8 @@
  * échoue, et ce qui lève en mode strict. Aucun navigateur n'est lancé.
  */
 
+import { join } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -16,6 +18,9 @@ import {
 import { EMPTY_SNAPSHOT, normaliseSnapshot } from '../../../src/browser/inspection/snapshot.js';
 import type { InspectionContext } from '../../../src/browser/inspection/types.js';
 import { createLevelSession, SNAPSHOT } from './fixtures.js';
+
+/** Dossier de sortie neutre : jamais écrit, la session étant factice. */
+const OUTPUT_DIR = join('artifacts', 'inspections', 'tests', 'l1');
 
 /** Construit un contexte d'inspection à l'horloge fixe. */
 function makeContext(
@@ -35,7 +40,7 @@ function makeContext(
       userAgent: undefined,
       timeout: 30_000,
       browserKind: 'chromium',
-      outputDir: '/tmp/ekts-inspection',
+      outputDir: OUTPUT_DIR,
       screenshot: true,
       trace: false,
       pdf: false,
@@ -101,12 +106,12 @@ describe('inspectLevelOne — résultat nominal', () => {
   });
 
   it('écrit la capture dans le dossier de sortie', async () => {
-    const { context, calls } = makeContext({ outputDir: '/tmp/ekts-capture' });
+    const { context, calls } = makeContext({ outputDir: join(OUTPUT_DIR, 'capture') });
     const { result } = await inspectLevelOne(context);
 
-    expect(result.artifacts.screenshot).toBe('/tmp/ekts-capture/screenshot.png');
+    expect(result.artifacts.screenshot).toBe(join(OUTPUT_DIR, 'capture', 'screenshot.png'));
     expect(calls.screenshot).toHaveBeenCalledWith({
-      path: '/tmp/ekts-capture/screenshot.png',
+      path: join(OUTPUT_DIR, 'capture', 'screenshot.png'),
       fullPage: true,
     });
   });
