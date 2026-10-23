@@ -151,7 +151,7 @@ describe('Navigator — cycle de vie', () => {
     expect(navigator.getKind()).toBeNull();
   });
 
-  it('laisse remonter un échec de fermeture', async () => {
+  it('ne transforme pas une fermeture en échec quand le moteur est déjà mort', async () => {
     const browser = createFakeBrowser();
     Object.defineProperty(browser, 'close', {
       value: async () => {
@@ -161,7 +161,56 @@ describe('Navigator — cycle de vie', () => {
     const navigator = new Navigator({ launcher: createFakeLauncher({ browser }) });
     await navigator.start();
 
-    await expect(navigator.stop()).rejects.toThrow(/processus déjà terminé/);
+    // Un arrêt de moteur est un cas nominal du nettoyage : `stop()` ne doit
+    // jamais faire échouer un `afterAll` dont les tests sont verts.
+    await expect(navigator.stop()).resolves.toBeUndefined();
+    expect(browser.calls.kill).toHaveBeenCalled();
+  });
+
+  it('ferme la page puis le contexte puis le navigateur', async () => {
+    const page = createFakePage();
+    const context = createFakeContext({ page });
+    const browser = createFakeBrowser({ context });
+    const navigator = new Navigator({ launcher: createFakeLauncher({ browser }) });
+    await navigator.start();
+
+    await navigator.stop();
+
+    expect(page.calls.close).toHaveBeenCalledTimes(1);
+    expect(context.calls.close).toHaveBeenCalledTimes(1);
+    expect(browser.calls.close).toHaveBeenCalledTimes(1);
+    expect(page.calls.close.mock.invocationCallOrder[0]).toBeLessThan(
+      context.calls.close.mock.invocationCallOrder[0]!,
+    );
+    expect(context.calls.close.mock.invocationCallOrder[0]).toBeLessThan(
+      browser.calls.close.mock.invocationCallOrder[0]!,
+    );
+  });
+
+  it('ignore une page déjà fermée', async () => {
+    const page = createFakePage();
+    page.calls.close.mockRejectedValueOnce(
+      new Error('Target page, context or browser has been closed'),
+    );
+    const navigator = new Navigator({
+      launcher: createFakeLauncher({
+        browser: createFakeBrowser({ context: createFakeContext({ page }) }),
+      }),
+    });
+    await navigator.start();
+
+    await expect(navigator.stop()).resolves.toBeUndefined();
+    expect(page.calls.close).toHaveBeenCalled();
+  });
+
+  it('tolère une page déjà détachée du navigateur', async () => {
+    const navigator = new Navigator({ launcher: createFakeLauncher() });
+    await navigator.start();
+    // État inatteignable par l'API publique, mais possible si un futur appel
+    // libère la page sans fermer le navigateur : `stop()` doit rester total.
+    (navigator as unknown as { page: unknown }).page = null;
+
+    await expect(navigator.stop()).resolves.toBeUndefined();
   });
 
   it('stop est idempotent', async () => {
@@ -170,7 +219,7 @@ describe('Navigator — cycle de vie', () => {
     await expect(navigator.stop()).resolves.toBeUndefined();
   });
 
-  it('borne la fermeture d’un navigateur bloqué', async () => {
+  it('borne la fermeture d’un navigateur bloqué et tue le processus', async () => {
     const browser = createFakeBrowser();
     Object.defineProperty(browser, 'close', { value: () => new Promise(() => undefined) });
     const navigator = new Navigator({
@@ -179,7 +228,21 @@ describe('Navigator — cycle de vie', () => {
     });
     await navigator.start();
 
-    await expect(navigator.stop()).rejects.toThrow(/Fermeture du navigateur expirée/);
+    await expect(navigator.stop()).resolves.toBeUndefined();
+    expect(browser.calls.kill).toHaveBeenCalledWith('SIGKILL');
+  });
+
+  it('se ferme sans processus natif exposé', async () => {
+    const browser = createFakeBrowser();
+    delete (browser as { process?: unknown }).process;
+    Object.defineProperty(browser, 'close', { value: () => new Promise(() => undefined) });
+    const navigator = new Navigator({
+      launcher: createFakeLauncher({ browser }),
+      closeTimeoutMs: 5,
+    });
+    await navigator.start();
+
+    await expect(navigator.stop()).resolves.toBeUndefined();
   });
 
   it('signale une session absente', () => {
@@ -200,6 +263,28 @@ describe('Navigator — cycle de vie', () => {
 
     await expect(navigator.start()).rejects.toThrow(BrowserLaunchError);
     expect(browser.calls.close).toHaveBeenCalledOnce();
+  });
+
+  it('oriente vers le diagnostic quand le moteur plante à la création de page', async () => {
+    const browser = createFakeBrowser();
+    Object.defineProperty(browser, 'newContext', {
+      value: async () => {
+        throw new Error('browserContext.newPage: Target crashed');
+      },
+    });
+    // Moteur planté : `close()` ne répond plus, seul le délai puis `kill()` libère.
+    Object.defineProperty(browser, 'close', { value: () => new Promise(() => undefined) });
+    const navigator = new Navigator({
+      launcher: createFakeLauncher({ browser }),
+      closeTimeoutMs: 5,
+    });
+
+    const error = await navigator.start('firefox').catch((reason: unknown) => reason);
+
+    expect(error).toBeInstanceOf(BrowserLaunchError);
+    expect((error as Error).message).toContain('Target crashed');
+    expect((error as Error).message).toContain('npm run doctor:browsers');
+    expect(browser.calls.kill).toHaveBeenCalledWith('SIGKILL');
   });
 
   it('nomme la commande d’installation quand le binaire manque', async () => {
@@ -731,6 +816,24 @@ describe('createPlaywrightLauncher', () => {
     await launcher.launch('webkit');
 
     expect(launch).toHaveBeenCalledWith({ headless: true, timeout: 30_000 });
+  });
+
+  it('transmet les préférences Firefox sans toucher aux autres moteurs', async () => {
+    const browser = createFakeBrowser();
+    const launch = vi.fn(async () => browser);
+    const launcher = createPlaywrightLauncher({
+      chromium: { executablePath: () => '/x', launch },
+      firefox: { executablePath: () => '/x', launch },
+      webkit: { executablePath: () => '/x', launch },
+    });
+
+    await launcher.launch('firefox', { firefoxUserPrefs: { 'security.sandbox.content.level': 0 } });
+
+    expect(launch).toHaveBeenCalledWith({
+      headless: true,
+      timeout: 30_000,
+      firefoxUserPrefs: { 'security.sandbox.content.level': 0 },
+    });
   });
 
   it('charge Playwright à la demande (moteur réellement mocké)', async () => {

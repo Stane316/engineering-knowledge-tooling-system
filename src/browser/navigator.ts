@@ -113,6 +113,9 @@ export function createPlaywrightLauncher(module?: PlaywrightModule): BrowserLaun
         headless: options.headless ?? true,
         timeout: options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
         ...(options.args === undefined ? {} : { args: [...options.args] }),
+        ...(options.firefoxUserPrefs === undefined
+          ? {}
+          : { firefoxUserPrefs: { ...options.firefoxUserPrefs } }),
       });
 
       // Frontière assumée : les types complets de Playwright (`Browser`,
@@ -235,8 +238,17 @@ export class Navigator {
       this.headless = options.headless ?? true;
       this.startedAt = this.now();
     } catch (error) {
-      await browser.close().catch(() => undefined);
-      throw new BrowserLaunchError(kind, describeError(error), { cause: error });
+      // Le moteur a démarré mais la page n'a pas pu être créée : il faut
+      // libérer le processus. La fermeture est bornée, car un moteur qui vient
+      // de planter ne répond plus et retiendrait `start()` indéfiniment.
+      const closeTimeoutMs = this.dependencies.closeTimeoutMs ?? CLOSE_TIMEOUT_MS;
+
+      await withTimeout(browser.close(), closeTimeoutMs, 'Fermeture du navigateur').catch(() => {
+        browser.process?.()?.kill('SIGKILL');
+      });
+      throw new BrowserLaunchError(kind, `${describeError(error)}${crashHint(error)}`, {
+        cause: error,
+      });
     }
 
     return {
@@ -250,10 +262,21 @@ export class Navigator {
   /**
    * Ferme la session. Sans effet si le navigateur n'est pas démarré.
    *
-   * La fermeture est bornée dans le temps : un navigateur bloqué ne doit pas
-   * retenir le processus appelant indéfiniment.
+   * **La fermeture ne lève jamais.** Trois raisons :
+   *
+   * 1. `stop()` est un nettoyage : une erreur ici masquerait celle qui a
+   *    provoqué l'arrêt, et ferait échouer un `afterAll` dont les tests sont
+   *    déjà verts ;
+   * 2. l'ordre compte : page, puis contexte, puis navigateur. Fermer le
+   *    navigateur d'abord laisse Playwright attendre des pages encore
+   *    ouvertes, ce qui dépasse le délai sur une machine chargée ;
+   * 3. un moteur planté ne répond plus du tout : après le délai, le processus
+   *    est tué (`browser.process().kill()`), sinon il resterait en vie et
+   *    retiendrait ses fichiers sous Windows.
    */
   async stop(): Promise<void> {
+    const page = this.page;
+    const context = this.context;
     const browser = this.browser;
 
     this.browser = null;
@@ -266,11 +289,16 @@ export class Navigator {
       return;
     }
 
-    await withTimeout(
-      browser.close(),
-      this.dependencies.closeTimeoutMs ?? CLOSE_TIMEOUT_MS,
-      'Fermeture du navigateur',
-    );
+    const timeoutMs = this.dependencies.closeTimeoutMs ?? CLOSE_TIMEOUT_MS;
+
+    await closeQuietly(page, timeoutMs);
+    await closeQuietly(context, timeoutMs);
+
+    try {
+      await withTimeout(browser.close(), timeoutMs, 'Fermeture du navigateur');
+    } catch {
+      browser.process?.()?.kill('SIGKILL');
+    }
   }
 
   /**
@@ -513,7 +541,7 @@ export class Navigator {
       return new BrowserUnavailableError(kind, executablePath, { cause: error });
     }
 
-    return new BrowserLaunchError(kind, detail, { cause: error });
+    return new BrowserLaunchError(kind, `${detail}${crashHint(error)}`, { cause: error });
   }
 }
 
@@ -561,6 +589,31 @@ function describeError(error: unknown): string {
 }
 
 /**
+ * Conseil ajouté aux messages de plantage du moteur.
+ *
+ * Playwright signale un processus mort par « Target crashed » ou « Target
+ * closed », sans jamais dire pourquoi : binaire incomplet, antivirus qui tue le
+ * processus de contenu, bac à sable incompatible. Le message renvoie donc vers
+ * la commande qui tranche entre ces causes.
+ */
+function crashHint(error: unknown): string {
+  const detail = describeError(error);
+
+  if (
+    !/target crashed|target closed|browser has been closed|browser has disconnected/i.test(detail)
+  ) {
+    return '';
+  }
+
+  return (
+    ' — le processus du moteur a planté. Lancez « npm run doctor:browsers » :' +
+    ' il distingue un binaire incomplet (« npx playwright install --force <moteur> »),' +
+    ' un antivirus trop zélé et un bac à sable incompatible' +
+    " (« firefoxUserPrefs: { 'security.sandbox.content.level': 0 } »)."
+  );
+}
+
+/**
  * Reconnaît l'erreur « binaire absent » de Playwright.
  *
  * Le message dépend de la plateforme (« Executable doesn't exist at … »,
@@ -570,6 +623,28 @@ function isMissingExecutable(detail: string): boolean {
   return /executable doesn'?t exist|missing dependencies|please run the following command/i.test(
     detail,
   );
+}
+
+/**
+ * Ferme une page ou un contexte sans jamais échouer.
+ *
+ * Un moteur planté lève « Target page, context or browser has been closed » sur
+ * chaque fermeture : c'est attendu pendant un nettoyage et ne doit pas
+ * interrompre la fermeture du navigateur.
+ */
+async function closeQuietly(
+  target: { close(): Promise<void> } | null,
+  timeoutMs: number,
+): Promise<void> {
+  if (target === null) {
+    return;
+  }
+
+  try {
+    await withTimeout(target.close(), timeoutMs, 'Fermeture de la page');
+  } catch {
+    // Déjà fermée ou moteur mort : rien à récupérer.
+  }
 }
 
 /** Borne une promesse : au-delà du délai, l'erreur remonte mais n'est pas fatale. */

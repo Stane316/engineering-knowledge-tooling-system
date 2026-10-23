@@ -7,8 +7,7 @@
  * reproduisent uniquement les méthodes réellement appelées par le code.
  */
 
-import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -186,18 +185,25 @@ export function createFakePage(options: FakePageOptions = {}): FakePage {
   return page;
 }
 
+/** Contexte factice exposant son espion de fermeture. */
+export interface FakeContext extends BrowserContextLike {
+  readonly calls: { close: ReturnType<typeof vi.fn> };
+}
+
 /** Contexte factice ; `tracing.stop` écrit un vrai fichier quand un chemin est fourni. */
 export function createFakeContext(
   options: { page?: FakePage; writeTrace?: boolean } = {},
-): BrowserContextLike & {
+): FakeContext & {
   readonly tracing: TracingLike;
 } {
   const page = options.page ?? createFakePage();
   const writeTrace = options.writeTrace ?? true;
+  const calls = { close: vi.fn(async () => undefined) };
 
   return {
+    calls,
     newPage: async () => page,
-    close: async () => undefined,
+    close: calls.close,
     tracing: {
       start: vi.fn(async () => undefined),
       stop: vi.fn(async (params?: { path?: string }) => {
@@ -210,7 +216,11 @@ export function createFakeContext(
 }
 
 export interface FakeBrowser extends BrowserLike {
-  readonly calls: { close: ReturnType<typeof vi.fn>; newContext: ReturnType<typeof vi.fn> };
+  readonly calls: {
+    close: ReturnType<typeof vi.fn>;
+    newContext: ReturnType<typeof vi.fn>;
+    kill: ReturnType<typeof vi.fn>;
+  };
 }
 
 /** Navigateur factice. */
@@ -218,12 +228,17 @@ export function createFakeBrowser(
   options: { context?: BrowserContextLike; version?: string | null } = {},
 ): FakeBrowser {
   const context = options.context ?? createFakeContext();
-  const calls = { close: vi.fn(async () => undefined), newContext: vi.fn(async () => context) };
+  const calls = {
+    close: vi.fn(async () => undefined),
+    newContext: vi.fn(async () => context),
+    kill: vi.fn(() => true),
+  };
 
   const browser: FakeBrowser = {
     calls,
     newContext: calls.newContext,
     close: calls.close,
+    process: () => ({ kill: calls.kill }),
     version: options.version === null ? undefined : () => options.version ?? '1.0.0-fake',
   } as FakeBrowser;
 
@@ -364,17 +379,7 @@ export function existingExecutablePath(): string {
   return path;
 }
 
-/** Indique si un binaire Playwright est présent sans lever d'exception. */
-export function browserExecutable(kind: BrowserKind): string | null {
-  try {
-    // `playwright` est la bibliothèque utilisée par `src/browser` ; elle est
-    // installée avec `@playwright/test` (même version).
-    const require = createRequire(import.meta.url);
-    const module = require('playwright') as Record<BrowserKind, { executablePath(): string }>;
-    const path = module[kind].executablePath();
-
-    return existsSync(path) ? path : null;
-  } catch {
-    return null;
-  }
-}
+// La sonde est isolée dans `engine-health.ts` : elle ne dépend pas de Vitest,
+// ce qui permet au même diagnostic de servir à `npm run test:e2e`.
+export { browserExecutable, engineHealth, probeEngines } from './engine-health.js';
+export type { EngineHealth } from './engine-health.js';
