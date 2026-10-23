@@ -16,10 +16,12 @@ import {
 import {
   checkBrowserAvailability,
   createPlaywrightLauncher,
+  FIREFOX_UNSANDBOXED_PREFS,
   loadPlaywright,
   Navigator,
+  SANDBOX_ENV,
 } from '../../src/browser/navigator.js';
-import type { BrowserContextLike } from '../../src/browser/types.js';
+import type { BrowserContextLike, BrowserKind, BrowserLauncher } from '../../src/browser/types.js';
 import {
   createFakeBrowser,
   createFakeContext,
@@ -82,6 +84,7 @@ describe('Navigator — cycle de vie', () => {
       version: '140.0.0',
       headless: true,
       startedAt: '2026-10-23T10:00:00.000Z',
+      sandboxDisabled: false,
     });
     expect(navigator.isStarted()).toBe(true);
     expect(navigator.getKind()).toBe('firefox');
@@ -319,6 +322,202 @@ describe('Navigator — cycle de vie', () => {
     });
 
     await expect(navigator.start()).rejects.toThrow(/option inconnue/);
+  });
+});
+
+describe('Navigator — bac à sable Firefox', () => {
+  /** Navigateur dont la création de page échoue comme un processus mort. */
+  function crashingBrowser(): ReturnType<typeof createFakeBrowser> {
+    const browser = createFakeBrowser();
+    Object.defineProperty(browser, 'newContext', {
+      value: async () => {
+        throw new Error('browserContext.newPage: Target crashed');
+      },
+    });
+
+    return browser;
+  }
+
+  /** Lanceur qui renvoie ses navigateurs dans l'ordre, puis le dernier. */
+  function sequenceLauncher(
+    browsers: ReturnType<typeof createFakeBrowser>[],
+  ): BrowserLauncher & { launch: ReturnType<typeof vi.fn> } {
+    const queue = [...browsers];
+    const launch = vi.fn(async (_kind: BrowserKind, _options?: unknown) => {
+      return queue.length > 1 ? queue.shift()! : queue[0]!;
+    });
+    const executablePath = vi.fn(async () => '/chemin/fake/firefox');
+
+    return { launch, executablePath };
+  }
+
+  it('rejoue le lancement sans bac à sable quand Firefox plante', async () => {
+    const launcher = sequenceLauncher([crashingBrowser(), createFakeBrowser()]);
+    const navigator = new Navigator({ launcher, env: {} });
+
+    const info = await navigator.start('firefox');
+
+    expect(info.sandboxDisabled).toBe(true);
+    expect(launcher.launch).toHaveBeenCalledTimes(2);
+    expect(launcher.launch.mock.calls[0]?.[1]).not.toHaveProperty('firefoxUserPrefs');
+    expect(launcher.launch.mock.calls[1]?.[1]).toMatchObject({
+      firefoxUserPrefs: FIREFOX_UNSANDBOXED_PREFS,
+      env: { MOZ_DISABLE_CONTENT_SANDBOX: '1' },
+    });
+  });
+
+  it('ne rejoue pas un moteur qui n’a pas de bac à sable', async () => {
+    const launcher = sequenceLauncher([crashingBrowser(), createFakeBrowser()]);
+    const navigator = new Navigator({ launcher, env: {} });
+
+    await expect(navigator.start('chromium')).rejects.toThrow(BrowserLaunchError);
+    expect(launcher.launch).toHaveBeenCalledTimes(1);
+  });
+
+  it('respecte le mode « on » : un plantage reste un échec', async () => {
+    const launcher = sequenceLauncher([crashingBrowser(), createFakeBrowser()]);
+    const navigator = new Navigator({ launcher, sandbox: 'on' });
+
+    await expect(navigator.start('firefox')).rejects.toThrow(/Target crashed/);
+    expect(launcher.launch).toHaveBeenCalledTimes(1);
+  });
+
+  it('démarre directement sans bac à sable en mode « off »', async () => {
+    const launcher = sequenceLauncher([createFakeBrowser()]);
+    const navigator = new Navigator({ launcher, sandbox: 'off' });
+
+    const info = await navigator.start('firefox');
+
+    expect(info.sandboxDisabled).toBe(true);
+    expect(launcher.launch).toHaveBeenCalledTimes(1);
+    expect(launcher.launch.mock.calls[0]?.[1]).toMatchObject({
+      firefoxUserPrefs: FIREFOX_UNSANDBOXED_PREFS,
+    });
+  });
+
+  it('accepte la demande explicite de l’appelant', async () => {
+    const launcher = sequenceLauncher([createFakeBrowser()]);
+    const navigator = new Navigator({ launcher, sandbox: 'on' });
+
+    const info = await navigator.start('firefox', { sandbox: false });
+
+    expect(info.sandboxDisabled).toBe(true);
+    expect(launcher.launch).toHaveBeenCalledTimes(1);
+  });
+
+  it('accepte une demande explicite de bac à sable', async () => {
+    const launcher = sequenceLauncher([crashingBrowser(), createFakeBrowser()]);
+    const navigator = new Navigator({ launcher, env: { [SANDBOX_ENV]: 'off' } });
+
+    await expect(navigator.start('firefox', { sandbox: true })).rejects.toThrow(/Target crashed/);
+    expect(launcher.launch).toHaveBeenCalledTimes(1);
+  });
+
+  it('ne rejoue pas un échec qui n’est pas un plantage', async () => {
+    const launcher = {
+      launch: vi.fn(async () => {
+        throw new Error('option de lancement inconnue');
+      }),
+      executablePath: vi.fn(async () => '/chemin/fake/firefox'),
+    };
+    const navigator = new Navigator({ launcher });
+
+    await expect(navigator.start('firefox')).rejects.toThrow(/option de lancement inconnue/);
+    expect(launcher.launch).toHaveBeenCalledTimes(1);
+  });
+
+  it('n’applique pas les préférences Firefox aux autres moteurs', async () => {
+    const launcher = sequenceLauncher([createFakeBrowser()]);
+    const navigator = new Navigator({ launcher, sandbox: 'off' });
+
+    const info = await navigator.start('webkit');
+
+    expect(info.sandboxDisabled).toBe(false);
+    expect(launcher.launch.mock.calls[0]?.[1]).not.toHaveProperty('firefoxUserPrefs');
+  });
+
+  it('échoue quand le repli échoue aussi', async () => {
+    const launcher = sequenceLauncher([crashingBrowser(), crashingBrowser()]);
+    const navigator = new Navigator({ launcher, env: {} });
+
+    await expect(navigator.start('firefox')).rejects.toThrow(/doctor:browsers/);
+    expect(launcher.launch).toHaveBeenCalledTimes(2);
+  });
+
+  it('conserve les préférences et l’environnement de l’appelant', async () => {
+    const launcher = sequenceLauncher([createFakeBrowser()]);
+    const navigator = new Navigator({ launcher, sandbox: 'off' });
+
+    await navigator.start('firefox', {
+      firefoxUserPrefs: { 'browser.startup.homepage': 'about:blank' },
+      env: { EKTS_TEST: '1' },
+    });
+
+    expect(launcher.launch.mock.calls[0]?.[1]).toMatchObject({
+      firefoxUserPrefs: { ...FIREFOX_UNSANDBOXED_PREFS, 'browser.startup.homepage': 'about:blank' },
+      env: { EKTS_TEST: '1', MOZ_DISABLE_CONTENT_SANDBOX: '1' },
+    });
+  });
+
+  it.each([
+    ['off', 'off'],
+    ['0', 'off'],
+    ['false', 'off'],
+    ['OFF', 'off'],
+    ['on', 'on'],
+    ['1', 'on'],
+    ['true', 'on'],
+    ['auto', 'auto'],
+    ['n’importe quoi', 'auto'],
+    [undefined, 'auto'],
+  ])('lit « %s » comme « %s »', async (value, expected) => {
+    const launcher = sequenceLauncher([createFakeBrowser(), createFakeBrowser()]);
+    const navigator = new Navigator({
+      launcher,
+      env: value === undefined ? {} : { [SANDBOX_ENV]: value },
+    });
+
+    await navigator.start('firefox');
+
+    const first = launcher.launch.mock.calls[0]?.[1] as { firefoxUserPrefs?: unknown };
+    expect(first.firefoxUserPrefs === undefined).toBe(expected !== 'off');
+    expect(launcher.launch).toHaveBeenCalledTimes(1);
+  });
+
+  it('lit la variable d’environnement du processus par défaut', async () => {
+    const launcher = sequenceLauncher([createFakeBrowser()]);
+    const previous = process.env[SANDBOX_ENV];
+    process.env[SANDBOX_ENV] = 'off';
+
+    try {
+      const info = await new Navigator({ launcher }).start('firefox');
+
+      expect(info.sandboxDisabled).toBe(true);
+    } finally {
+      if (previous === undefined) {
+        delete process.env[SANDBOX_ENV];
+      } else {
+        process.env[SANDBOX_ENV] = previous;
+      }
+    }
+  });
+
+  it('nettoie les variables d’environnement indéfinies', async () => {
+    const launcher = sequenceLauncher([createFakeBrowser()]);
+    const navigator = new Navigator({
+      launcher,
+      sandbox: 'off',
+      env: { EKTS_DEFINIE: 'oui', EKTS_ABSENTE: undefined },
+    });
+
+    await navigator.start('firefox');
+
+    expect(launcher.launch.mock.calls[0]?.[1]).toMatchObject({
+      env: { EKTS_DEFINIE: 'oui', MOZ_DISABLE_CONTENT_SANDBOX: '1' },
+    });
+    expect(
+      (launcher.launch.mock.calls[0]?.[1] as { env: Record<string, string> }).env,
+    ).not.toHaveProperty('EKTS_ABSENTE');
   });
 });
 
@@ -833,6 +1032,26 @@ describe('createPlaywrightLauncher', () => {
       headless: true,
       timeout: 30_000,
       firefoxUserPrefs: { 'security.sandbox.content.level': 0 },
+    });
+  });
+
+  it('transmet l’environnement au moteur', async () => {
+    const browser = createFakeBrowser();
+    const launch = vi.fn(async () => browser);
+    const launcher = createPlaywrightLauncher({
+      chromium: { executablePath: () => '/x', launch },
+      firefox: { executablePath: () => '/x', launch },
+      webkit: { executablePath: () => '/x', launch },
+    });
+
+    await launcher.launch('firefox', {
+      env: { MOZ_DISABLE_CONTENT_SANDBOX: '1', ABSENTE: undefined },
+    });
+
+    expect(launch).toHaveBeenCalledWith({
+      headless: true,
+      timeout: 30_000,
+      env: { MOZ_DISABLE_CONTENT_SANDBOX: '1' },
     });
   });
 
