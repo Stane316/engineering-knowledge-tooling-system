@@ -114,6 +114,9 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 | `npm run providers`               | État des 14 fournisseurs d'API et chaîne d'appel         |
 | `npm run cli -- <args>`           | Interface CLI `ekts` (voir [`docs/CLI.md`](docs/CLI.md)) |
 | `npm run mcp`                     | Serveur MCP stdio (voir [`docs/MCP.md`](docs/MCP.md))    |
+| `npm run test:browser`            | Tests du module navigateur, sans binaire Playwright      |
+| `npm run test:e2e`                | Tests Playwright sur les 3 moteurs (après installation)  |
+| `npm run browsers:install`        | Télécharge Chromium, Firefox et WebKit (~760 Mo)         |
 | `npm run security:secrets`        | Scan Gitleaks des fichiers indexés                       |
 | `npm run clean`                   | Supprime `dist/`                                         |
 
@@ -152,6 +155,21 @@ Quatre outils en lecture seule : `search_knowledge`, `get_resource`,
 (`MCP_LOG_LEVEL`), `stdout` restant réservé au protocole. Compatibilité et
 limites : [`MCP-COMPATIBILITY.md`](MCP-COMPATIBILITY.md).
 
+### Inspection navigateur
+
+```powershell
+npm run browsers:install           # une seule fois : ~760 Mo
+npm run test:e2e                   # 12 tests sur Chromium, Firefox et WebKit
+```
+
+`src/browser/` ouvre une page, la capture, enregistre une trace, l'imprime en
+PDF et extrait son accessibility tree. Un serveur MCP dédié expose ces
+opérations à un agent (`browser_navigate`, `browser_screenshot`,
+`browser_accessibility`, `browser_pdf`, `browser_close`), avec deux garde-fous :
+http/https uniquement et écritures confinées dans le dossier d'artefacts. Guide
+complet, y compris les écarts avec le dossier de sprint :
+[`docs/PLAYWRIGHT.md`](docs/PLAYWRIGHT.md).
+
 ## 6. Configuration
 
 | Variable                                                                                      | Défaut                   | Rôle                                             |
@@ -186,7 +204,7 @@ Voir `docs/guides/PROVIDERS.md` et `docs/guides/SEARCH_ENGINE.md`.
 
 ```
 engineering-knowledge-tooling-system/
-├── src/                     # code source (src/data, src/business, src/cli, src/mcp)
+├── src/                     # code source (src/data, src/business, src/cli, src/mcp, src/browser)
 ├── tests/                   # unit / integration / benchmark
 ├── migrations/              # migrations SQLite (Sprint 2)
 ├── docs/

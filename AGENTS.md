@@ -67,6 +67,8 @@ npm run db:reindex     # reconstruction de l'index FTS
 npm run test:benchmark # benchmark recherche (C4.6, C4.7, C4.8)
 npm run providers      # état des clés d'API et chaîne d'appel (après npm run build)
 npm run mcp            # serveur MCP stdio (après npm run build)
+npm run test:browser   # module navigateur, sans binaire Playwright
+npm run test:e2e       # Playwright Test, 3 moteurs (après npm run browsers:install)
 ```
 
 **Serveur MCP (`src/mcp/`)** : `stdout` est le canal JSON-RPC, donc **aucun**
@@ -76,6 +78,15 @@ npm run mcp            # serveur MCP stdio (après npm run build)
 objets Zod (`src/mcp/schemas/tool-schemas.ts`) : ne pas écrire de JSON Schema à
 la main, il est dérivé. Toute modification d'outil exige un test dans
 `tests/mcp/` et, si le contrat change, une mise à jour de `docs/MCP.md`.
+
+**Module navigateur (`src/browser/`)** : `Navigator` reçoit son lanceur
+(`BrowserLauncher`) ; ne jamais appeler `playwright` directement dans une
+méthode métier, sinon les tests exigent un binaire. `src/browser` n'est importé
+ni par la CLI ni par le serveur MCP de connaissances : Playwright reste chargé
+à la demande (`import('playwright')`). Les chemins d'artefacts passent
+obligatoirement par `resolveArtifactPath` (confinement) et les URL par
+`assertNavigableUrl` (http/https, hôtes privés refusés). Toute évolution du
+contrat se répercute dans `docs/PLAYWRIGHT.md` §12.
 
 Variables lues à l'exécution : `EKTS_DATA_DIR`, `LOG_LEVEL`, `NODE_ENV` (base) ; `OPENAI_API_KEY`,
 `OPENAI_EMBEDDING_MODEL`, `EMBEDDING_DIMENSION` (Sprint 4). `.env` est ignoré par Git et Gitleaks ;
