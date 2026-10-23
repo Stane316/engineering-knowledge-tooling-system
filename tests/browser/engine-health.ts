@@ -11,18 +11,46 @@ import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
+import { FIREFOX_UNSANDBOXED_PREFS } from '../../src/browser/navigator.js';
 import type { BrowserKind, BrowserLike } from '../../src/browser/types.js';
 
 /** Résultat d'une sonde de moteur : utilisable, ou raison de l'indisponibilité. */
 export interface EngineHealth {
-  /** `true` si un navigateur a réellement ouvert une page. */
+  /** `true` si un navigateur a réellement ouvert une page (avec ou sans bac à sable). */
   readonly ok: boolean;
-  /** Première ligne de l'erreur, ou `null` quand le moteur fonctionne. */
+  /**
+   * Première ligne de l'erreur d'origine, ou `null` si le moteur a fonctionné
+   * du premier coup. Renseigné aussi quand le repli réussit : la cause reste
+   * utile à afficher.
+   */
   readonly reason: string | null;
+  /** `true` quand seul le lancement sans bac à sable fonctionne. */
+  readonly sandboxDisabled: boolean;
+}
+
+/** Options de lancement passées au moteur pendant la sonde. */
+interface ProbeLaunchOptions {
+  headless: boolean;
+  timeout: number;
+  firefoxUserPrefs?: Record<string, string | number | boolean>;
+  env?: Record<string, string>;
 }
 
 /** Délai au-delà duquel une sonde est déclarée en échec (30 s). */
 const PROBE_TIMEOUT_MS = 30_000;
+
+/** Copie les variables d'environnement définies (Playwright n'accepte pas `undefined`). */
+function definedEnv(): Record<string, string> {
+  const result: Record<string, string> = {};
+
+  for (const [key, value] of Object.entries(process.env)) {
+    if (value !== undefined) {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
 
 function firstLine(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error);
@@ -42,30 +70,30 @@ function firstLine(error: unknown): string {
  */
 async function probeEngine(kind: BrowserKind): Promise<EngineHealth> {
   if (browserExecutable(kind) === null) {
-    return { ok: false, reason: 'binaire Playwright absent' };
+    return { ok: false, reason: 'binaire Playwright absent', sandboxDisabled: false };
   }
 
   // Objet conteneur : TypeScript ne suit pas les affectations faites dans une
   // fonction imbriquée (`open`), et conclurait que `browser` reste `null`.
   const state: { browser: BrowserLike | null } = { browser: null };
 
-  try {
-    const require = createRequire(import.meta.url);
-    const module = require('playwright') as Record<
-      BrowserKind,
-      { launch(options: { headless: boolean; timeout: number }): Promise<BrowserLike> }
-    >;
+  const require = createRequire(join(process.cwd(), 'package.json'));
+  const module = require('playwright') as Record<
+    BrowserKind,
+    { launch(options: ProbeLaunchOptions): Promise<BrowserLike> }
+  >;
+
+  const attempt = async (options: ProbeLaunchOptions): Promise<void> => {
+    let timer: NodeJS.Timeout | undefined;
 
     const open = async (): Promise<void> => {
-      const launched = await module[kind].launch({ headless: true, timeout: 20_000 });
+      const launched = await module[kind].launch(options);
       state.browser = launched;
       const context = await launched.newContext();
       const page = await context.newPage();
       await page.close();
       await context.close();
     };
-
-    let timer: NodeJS.Timeout | undefined;
 
     try {
       await Promise.race([
@@ -79,13 +107,37 @@ async function probeEngine(kind: BrowserKind): Promise<EngineHealth> {
       ]);
     } finally {
       clearTimeout(timer);
+      await state.browser?.close().catch(() => undefined);
+      state.browser = null;
+    }
+  };
+
+  const base: ProbeLaunchOptions = { headless: true, timeout: 20_000 };
+
+  try {
+    await attempt(base);
+
+    return { ok: true, reason: null, sandboxDisabled: false };
+  } catch (error) {
+    const reason = firstLine(error);
+
+    // Même repli que `Navigator` : le bac à sable du processus de contenu est
+    // la cause la plus fréquente d'un « Target crashed » sous Windows.
+    if (kind !== 'firefox') {
+      return { ok: false, reason, sandboxDisabled: false };
     }
 
-    return { ok: true, reason: null };
-  } catch (error) {
-    return { ok: false, reason: firstLine(error) };
-  } finally {
-    await state.browser?.close().catch(() => undefined);
+    try {
+      await attempt({
+        ...base,
+        firefoxUserPrefs: { ...FIREFOX_UNSANDBOXED_PREFS },
+        env: { ...definedEnv(), MOZ_DISABLE_CONTENT_SANDBOX: '1' },
+      });
+
+      return { ok: true, reason, sandboxDisabled: true };
+    } catch {
+      return { ok: false, reason, sandboxDisabled: false };
+    }
   }
 }
 
