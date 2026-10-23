@@ -1,5 +1,7 @@
-import { expect, test } from '@playwright/test';
+import { expect, test as base } from '@playwright/test';
+import type { Browser, BrowserType } from '@playwright/test';
 
+import { FIREFOX_UNSANDBOXED_PREFS } from '../../../src/browser/navigator.js';
 import type { BrowserKind } from '../../../src/browser/types.js';
 import { engineHealth } from '../engine-health.js';
 
@@ -11,26 +13,50 @@ import { engineHealth } from '../engine-health.js';
  * d'aucun site public : la page est injectée avec `setContent`, ce qui rend le
  * résultat identique hors ligne et sur un poste connecté.
  *
- * **Moteur qui plante.** Un moteur peut être installé et mourir au premier
- * `newPage` (« Target crashed ») : Playwright échoue alors dans la fixture
- * `page`, avant tout test. Le `beforeEach` sonde donc le moteur avant la
- * création de la page. Si la sonde échoue, les tests sont **sautés** avec la
- * raison affichée ; `EKTS_BROWSER_STRICT=1` rétablit l'échec pour une CI qui
- * doit refuser tout saut.
+ * **Moteur qui plante à l'ouverture d'une page.** Sous Windows, Firefox démarre
+ * puis son processus de contenu meurt (`browserContext.newPage: Target
+ * crashed`) tant que le bac à sable est actif. La fixture `browser` ci-dessous
+ * sonde le moteur, puis lance exactement comme `Navigator` : sans bac à sable
+ * quand la sonde l'exige, et pas du tout quand le moteur est inutilisable (le
+ * test est alors **sauté** avec sa raison). `EKTS_BROWSER_STRICT=1` rétablit
+ * l'échec pour une CI qui doit refuser tout saut.
  */
 
 const STRICT = process.env['EKTS_BROWSER_STRICT'] === '1';
 
-test.beforeEach(async ({ browserName }) => {
-  const health = await engineHealth(browserName as BrowserKind);
+const test = base.extend({
+  browser: async ({ playwright, browserName }, use) => {
+    const kind = browserName as BrowserKind;
+    const health = await engineHealth(kind);
 
-  if (!health.ok && !STRICT) {
-    test.skip(
-      true,
-      `moteur ${browserName} inutilisable : ${health.reason ?? 'raison inconnue'}. ` +
-        'Diagnostic : « npm run doctor:browsers ».',
+    if (!health.ok) {
+      if (STRICT) {
+        throw new Error(
+          `moteur ${browserName} inutilisable : ${health.reason ?? 'raison inconnue'}`,
+        );
+      }
+
+      base.skip(
+        true,
+        `moteur ${browserName} inutilisable : ${health.reason ?? 'raison inconnue'}. ` +
+          'Diagnostic : « npm run doctor:browsers ».',
+      );
+    }
+
+    const type = (playwright as unknown as Record<BrowserKind, BrowserType>)[kind];
+    const browser: Browser = await type.launch(
+      health.sandboxDisabled
+        ? {
+            firefoxUserPrefs: { ...FIREFOX_UNSANDBOXED_PREFS },
+            env: { ...process.env, MOZ_DISABLE_CONTENT_SANDBOX: '1' } as Record<string, string>,
+          }
+        : {},
     );
-  }
+
+    await use(browser);
+
+    await browser.close();
+  },
 });
 
 const PAGE = `<!doctype html>

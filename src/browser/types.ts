@@ -39,6 +39,22 @@ export interface LaunchOptions {
    * `{ 'security.sandbox.content.level': 0 }`.
    */
   readonly firefoxUserPrefs?: Readonly<Record<string, string | number | boolean>>;
+  /**
+   * Variables d'environnement du processus du moteur.
+   *
+   * Playwright **remplace** l'environnement par cet objet ; c'est à l'appelant
+   * de partir de `process.env`. `Navigator` s'en charge pour le mode
+   * compatibilité.
+   */
+  readonly env?: Readonly<Record<string, string | undefined>>;
+  /**
+   * Bac à sable du processus de contenu.
+   *
+   * `false` force le mode compatibilité pour **Firefox** (préférences +
+   * `MOZ_DISABLE_CONTENT_SANDBOX`), sans attendre un premier plantage.
+   * Ignoré par Chromium et WebKit, qui n'ont pas ce réglage.
+   */
+  readonly sandbox?: boolean;
 }
 
 /** Informations sur une session ouverte. */
@@ -47,6 +63,13 @@ export interface BrowserSessionInfo {
   readonly version: string;
   readonly headless: boolean;
   readonly startedAt: string;
+  /**
+   * `true` quand Firefox a dû démarrer sans bac à sable pour fonctionner.
+   *
+   * Le fait est exposé, pas silencieux : un appelant peut le journaliser, et
+   * `docs/PLAYWRIGHT.md` §14.1 explique quoi corriger sur le poste.
+   */
+  readonly sandboxDisabled: boolean;
 }
 
 /** Options de navigation. */
@@ -338,6 +361,7 @@ export interface BrowserTypeLike {
     timeout?: number;
     args?: string[];
     firefoxUserPrefs?: Record<string, string | number | boolean>;
+    env?: Record<string, string>;
   }): Promise<BrowserLike>;
 }
 

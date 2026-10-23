@@ -820,6 +820,24 @@ corrections tirées de l'exécution réelle :
    rejoue le lancement Firefox sans bac à sable. Les préférences
    (`firefoxUserPrefs`) sont exposées par `LaunchOptions`.
 
+**Addendum 2 (23 octobre 2026, diagnostic sur le poste de validation).** Le
+diagnostic a conclu : Firefox 157 s'ouvre **uniquement** sans bac à sable
+(`firefox — sans bac à sable — page ouverte`), le binaire et le runtime C++
+étant sains. Le repli n'est donc plus une procédure manuelle :
+
+- `Navigator.start('firefox')` rejoue **une fois** le lancement avec
+  `firefoxUserPrefs['security.sandbox.content.level'] = 0` et
+  `MOZ_DISABLE_CONTENT_SANDBOX=1`, puis expose `sandboxDisabled: true` ;
+- politique `EKTS_BROWSER_SANDBOX` = `auto` (défaut) | `on` (aucun repli) |
+  `off` (démarrage direct sans bac à sable) ;
+- les tests d'intégration et e2e appliquent la même politique via
+  `tests/browser/engine-health.ts`, sinon ils échoueraient là où l'application
+  fonctionne.
+
+Compromis assumé : sans bac à sable, l'isolation du navigateur diminue. C'est
+acceptable pour un poste de développement qui inspecte des pages de confiance,
+et documenté comme tel (`docs/PLAYWRIGHT.md` §6.3 et §14.1).
+
 **Conséquences :** 174 tests ajoutés, `src/browser/**` à 100 % de couverture,
 suite complète à 823 tests. Le code ne dépend d'aucune API dépréciée ni du
 réseau. Coût : trois critères (C7.1, C7.7, C7.14-C7.15) ne peuvent être validés
@@ -883,6 +901,7 @@ pas joignable depuis l'environnement d'intégration continue.
 | R-7.7 | Les tests e2e ne font pas partie de `npm run verify` | Faible | Moyenne | Script dédié `test:e2e`, section 11 de la doc, checklist de fin de sprint |
 | R-7.8 | Un moteur installé plante au premier `newPage` (« Target crashed ») et masque les autres | Moyen | **Réalisée** | Sonde `engine-health.ts` + saut explicite nommant la raison ; `EKTS_BROWSER_STRICT=1` pour interdire le saut ; `npm run doctor:browsers` distingue les quatre causes (`docs/PLAYWRIGHT.md` §14.1) |
 | R-7.9 | `stop()` bloqué (moteur mort) fait échouer un `afterAll` vert | Moyen | **Réalisée** | Fermeture ordonnée et bornée, `browser.process().kill('SIGKILL')` en dernier recours, contrat « `stop()` ne lève jamais » testé |
+| R-7.10 | Le repli sans bac à sable réduit l'isolation du navigateur | Moyen | **Réalisée** | Repli réservé à Firefox, annoncé (`sandboxDisabled`), débrayable (`EKTS_BROWSER_SANDBOX=on`), journalisé par le diagnostic ; à corriger côté poste avant usage sur des pages non fiables (`docs/PLAYWRIGHT.md` §14.1) |
 
 ---
 

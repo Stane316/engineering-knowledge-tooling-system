@@ -165,7 +165,10 @@ npm run test:e2e                   # 12 tests sur Chromium, Firefox et WebKit
 ```
 
 `src/browser/` ouvre une page, la capture, enregistre une trace, l'imprime en
-PDF et extrait son accessibility tree. Un serveur MCP dédié expose ces
+PDF et extrait son accessibility tree. Sous Windows, si Firefox meurt à
+l'ouverture d'une page (`Target crashed`), le module relance automatiquement le
+moteur sans bac à sable et l'expose (`sandboxDisabled`) ; `EKTS_BROWSER_SANDBOX`
+vaut `auto` (défaut), `on` ou `off`. Un serveur MCP dédié expose ces
 opérations à un agent (`browser_navigate`, `browser_screenshot`,
 `browser_accessibility`, `browser_pdf`, `browser_close`), avec deux garde-fous :
 http/https uniquement et écritures confinées dans le dossier d'artefacts. Guide

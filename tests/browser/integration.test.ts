@@ -110,10 +110,11 @@ afterAll(async () => {
 
 describe('tests d’intégration Playwright', () => {
   it('rapporte l’état des trois moteurs', () => {
-    // Rend visible, dans le rapport, pourquoi un moteur est sauté : `reason`
-    // vaut `null` si et seulement si le moteur a réellement ouvert une page.
+    // Rend visible, dans le rapport, pourquoi un moteur est sauté : une raison
+    // n'existe que si le premier essai a échoué.
     for (const kind of BROWSER_KINDS) {
-      expect(HEALTH[kind].reason === null).toBe(HEALTH[kind].ok);
+      expect(HEALTH[kind].reason !== null || !HEALTH[kind].sandboxDisabled).toBe(true);
+      expect(HEALTH[kind].ok || HEALTH[kind].reason !== null).toBe(true);
     }
   });
 });

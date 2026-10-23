@@ -204,17 +204,47 @@ Windows :
    processus est tué via `browser.process()?.kill('SIGKILL')`, sinon il survit,
    retient des fichiers et bloque la relance.
 
-### 6.3 Lancement avec préférences Firefox
+### 6.3 Mode compatibilité Firefox (bac à sable)
 
-```ts
-await navigator.start('firefox', {
-  firefoxUserPrefs: { 'security.sandbox.content.level': 0 },
-});
+Sous Windows, Firefox peut démarrer puis mourir dès qu'on lui demande une page :
+
+```
+BrowserLaunchError: Lancement de « firefox » impossible : browserContext.newPage: Target crashed
 ```
 
-Ces préférences sont transmises telles quelles à `firefox.launch()` et ignorées
-par Chromium et WebKit. Elles servent aux postes où le bac à sable du processus
-de contenu est incompatible (voir §14.1).
+Ce n'est pas un défaut du projet : le **processus de contenu** de Firefox ne
+survit pas au bac à sable de ce poste. `Navigator` le détecte et relance une
+seule fois, sans bac à sable, en exposant le fait :
+
+```ts
+const info = await navigator.start('firefox');
+// { kind: 'firefox', sandboxDisabled: true, … }  ← le repli a servi
+```
+
+Le repli applique **deux réglages** (le premier suffit à Playwright, le second
+couvre les versions où le bac à sable du contenu est piloté par
+l'environnement) :
+
+```ts
+firefoxUserPrefs: { 'security.sandbox.content.level': 0 }
+env: { …process.env, MOZ_DISABLE_CONTENT_SANDBOX: '1' }
+```
+
+| Politique | Variable | Effet |
+| --- | --- | --- |
+| `auto` (défaut) | `$env:EKTS_BROWSER_SANDBOX = "auto"` | essai normal, repli si Firefox plante |
+| `on` | `$env:EKTS_BROWSER_SANDBOX = "on"` | aucun repli : un plantage échoue |
+| `off` | `$env:EKTS_BROWSER_SANDBOX = "off"` | Firefox démarre directement sans bac à sable |
+
+```ts
+// Par appel, prioritaire sur la variable d'environnement :
+await navigator.start('firefox', { sandbox: false });
+```
+
+Le repli ne vaut que pour **Firefox** : Chromium et WebKit n'exposent pas ce
+réglage, et un plantage y reste une erreur. Les tests d'intégration et les e2e
+appliquent la même politique (via `tests/browser/engine-health.ts`), sinon
+`npm test` et `npm run test:e2e` échoueraient là où l'application fonctionne.
 
 ---
 
@@ -375,7 +405,7 @@ paient pas son initialisation.
 
 ```powershell
 npm run doctor:browsers   # ouvre une page dans chaque moteur, explique chaque échec
-npm run test:browser      # unitaires + intégration (180 sans navigateur)
+npm run test:browser      # unitaires + intégration (203 sans navigateur)
 npm run test:e2e          # 12 tests (4 × 3 moteurs) — après browsers:install
 npm run coverage          # suite complète
 ```
@@ -384,11 +414,13 @@ npm run coverage          # suite complète
 
 Avant de lancer la suite, chaque moteur est sondé une fois
 (`tests/browser/engine-health.ts`) : présence du binaire **et** ouverture
-réelle d'une page. Un moteur qui ouvre une page est testé ; un moteur qui plante
-est ignoré, avec sa raison dans le nom de la suite :
+réelle d'une page. Trois issues possibles, toutes visibles dans le nom de la
+suite :
 
 ```
-moteur firefox — ignoré : browserContext.newPage: Target crashed
+moteur chromium                                   ← sain
+moteur firefox — sans bac à sable (Target crashed) ← repli §6.3 appliqué
+moteur firefox — ignoré : binaire Playwright absent ← réellement inutilisable
 ```
 
 Pourquoi ce choix : sans sonde, l'échec se produit dans le `beforeAll`, Vitest
@@ -434,6 +466,7 @@ Remove-Item Env:\EKTS_BROWSER_ONLINE
 | E7-10 | `@playwright/test` seul | `src/browser` importe `playwright` | `playwright` est la dépendance de `@playwright/test` (même version, même tarball) ; c'est elle qui expose les moteurs |
 | E7-11 | Aucune politique pour un moteur cassé | Sonde + saut explicite, mode strict | Un moteur installé peut planter au premier `newPage` ; sans sonde, la suite entière échoue et masque les autres moteurs (§11.1) |
 | E7-12 | Fermeture = `browser.close()` | Page, contexte, puis navigateur ; arrêt forcé après délai | `stop()` qui lève transforme un `afterAll` vert en « Failed Suite » (§6.2) |
+| E7-13 | Lancement Firefox par défaut | Repli automatique sans bac à sable, signalé par `sandboxDisabled` | Sur le poste de validation, le processus de contenu meurt sous bac à sable ; le repli est explicite et débrayable (`EKTS_BROWSER_SANDBOX`) (§6.3) |
 
 ---
 
@@ -441,7 +474,7 @@ Remove-Item Env:\EKTS_BROWSER_ONLINE
 
 | # | Critère | Validé par | État |
 | --- | --- | --- | --- |
-| C7.1 | Playwright installé avec 3 moteurs | `npm run doctor:browsers` (ouverture réelle d'une page) + `npm run test:e2e` | ⏳ poste (CDN indisponible en CI) |
+| C7.1 | Playwright installé avec 3 moteurs | `npm run doctor:browsers` (ouverture réelle) + `npm run test:e2e` | ✅ 3 moteurs, Firefox en mode compatibilité |
 | C7.2 | Configuration fonctionnelle | `npx playwright test --list` → 12 tests | ✅ |
 | C7.3 | « Playwright MCP » fonctionne | `tests/browser/playwright-mcp.test.ts` (53 tests, transport mémoire) | ✅ |
 | C7.4 | Navigation basique | `Navigator.goto` + intégration locale | ✅ (local) |
@@ -489,17 +522,16 @@ sont marqués « skipped », jamais « passed » à tort.
 
 **Symptôme.** Chromium et WebKit passent, Firefox échoue. `npm test` rapporte
 `FAIL tests/browser/integration.test.ts > moteur firefox`, `npm run test:e2e`
-échoue sur 3 tests Firefox, toujours avec la même ligne :
+échoue sur 3 tests Firefox, toujours avec :
 
 ```
 BrowserLaunchError: Lancement de « firefox » impossible : browserContext.newPage: Target crashed
 ```
 
-**Ce que dit ce message.** Le navigateur a démarré (le lancement aurait sinon
-échoué avant), mais le **processus de contenu** est mort au moment de créer la
-page. Aucune page n'a été chargée : ni le HTML, ni le réseau, ni le code du
-projet ne sont en cause. Playwright ne transmet pas la raison ; il faut la
-chercher côté poste.
+**Ce que dit ce message.** Le navigateur a démarré, mais le **processus de
+contenu** est mort au moment de créer la page. Ni le HTML, ni le réseau, ni le
+code du projet ne sont en cause. Playwright ne transmet pas la raison : elle est
+côté poste.
 
 **Diagnostic.**
 
@@ -507,37 +539,63 @@ chercher côté poste.
 npm run doctor:browsers
 ```
 
-Le script ouvre une page dans chaque moteur, puis, pour un moteur en échec,
-exécute le binaire lui-même (`--version`, rendu `--headless`) et rejoue le
-lancement sans bac à sable. Il écrit `artifacts/browser-doctor.json` et sort
-avec le code 1. Quatre causes possibles, dans l'ordre de fréquence :
+Le script ouvre une page par moteur puis, en cas d'échec, exécute le binaire
+lui-même (`--version`, rendu `--headless`), rejoue Firefox sans bac à sable et
+capture le journal du moteur (`DEBUG=pw:browser`). Il conclut par **une** cause
+et les actions correspondantes, et écrit `artifacts/browser-doctor.json`.
 
-| Constat du diagnostic | Cause | Remède |
-| --- | --- | --- |
-| le binaire ne répond pas à `--version` | installation incomplète (téléchargement interrompu) | `npx playwright install --force firefox` |
-| `--version` échoue avec une erreur de DLL | runtime C++ absent | installer *Microsoft Visual C++ Redistributable 2015-2022 x64* |
-| le rendu hors Playwright échoue aussi | antivirus ou stratégie Windows | exclure `%LOCALAPPDATA%\ms-playwright` de l'antivirus et de la *Protection contre les exploits* |
-| « sans bac à sable : page ouverte » | bac à sable incompatible | `firefoxUserPrefs: { 'security.sandbox.content.level': 0 }` (§6.3) |
+Exemple de verdict observé sur un poste Windows 11 (octobre 2026) :
 
-**Réparation type.**
+```
+FAIL firefox — browserContext.newPage: Target crashed
+     journal du moteur (DEBUG=pw:browser) :
+       [ERROR shell_windows::taskbar::shortcut] Error matching shortcut: …
+       Message: EmptyDatabaseError: "main/nimbus-desktop-experiments" …
+OK   firefox — « --version » — Mozilla Firefox 157.0 (code 0)
+OK   firefox — sans bac à sable — page ouverte
+
+firefox — browserContext.newPage: Target crashed
+  cause identifiée : bac à sable du processus de contenu
+  → aucune action n'est nécessaire : Navigator détecte ce cas et relance Firefox sans bac à sable
+```
+
+**Interprétation.** `--version` répond, le binaire est donc intact ; le rendu
+direct échoue, mais le même binaire ouvre une page dès que le bac à sable est
+désactivé. La cause est le bac à sable, et **le projet sait fonctionner dans cet
+état** : `Navigator` applique le repli (§6.3), les tests aussi. Aucune action
+n'est requise pour le sprint 8.
+
+**Si vous voulez malgré tout corriger le poste** (recommandé à terme, car le
+repli réduit l'isolation du navigateur) :
 
 ```powershell
-npx playwright install --force firefox
+npx playwright install --force firefox     # élimine un binaire incomplet
+```
+
+puis, dans *Sécurité Windows → Protection contre les exploits → Paramètres du
+programme*, ajouter `firefox.exe` et désactiver les mitigations qui le
+concernent ; vérifier aussi que l'antivirus n'intercepte pas
+`%LOCALAPPDATA%\ms-playwright`. Relancer `npm run doctor:browsers` : la ligne
+« sans bac à sable » doit devenir inutile (`OK firefox — page ouverte`).
+
+**Les autres causes possibles**, que le diagnostic distingue :
+
+| Constat | Cause | Remède |
+| --- | --- | --- |
+| le binaire ne répond pas à `--version` | installation incomplète | `npx playwright install --force firefox` |
+| `--version` échoue sur une DLL | runtime C++ absent | *Microsoft Visual C++ Redistributable 2015-2022 x64* |
+| « sans bac à sable » échoue aussi | antivirus, stratégie, TEMP | exclusions, puis §14 |
+
+**Contrôle final.**
+
+```powershell
 npm run doctor:browsers
 npm run test:browser
+npm run test:e2e
 ```
 
-Puis, si le diagnostic désigne le bac à sable, dans le test ou le script
-concerné :
-
-```ts
-await navigator.start('firefox', {
-  firefoxUserPrefs: { 'security.sandbox.content.level': 0 },
-});
-```
-
-**Après réparation.** `npm run test:e2e` doit afficher 12 tests passés, et
-`npm test` ne doit plus ignorer que les tests conditionnels du réseau.
+Attendu : `doctor` à 0 si les trois moteurs s'ouvrent (avec ou sans repli),
+`test:browser` sans « ignoré », et `test:e2e` à **12 tests passés**.
 
 ---
 

@@ -74,6 +74,45 @@ export const DEFAULT_PDF_MARGIN = {
 const CLOSE_TIMEOUT_MS = 10_000;
 
 /**
+ * Préférences Firefox qui neutralisent le bac à sable du processus de contenu.
+ *
+ * Constaté sur Windows 11 : le processus de contenu meurt à la création de la
+ * page (`browserContext.newPage: Target crashed`) alors que le binaire Firefox
+ * fonctionne. Le moteur démarre normalement dès que ce réglage est désactivé
+ * (`docs/PLAYWRIGHT.md` §14.1).
+ */
+export const FIREFOX_UNSANDBOXED_PREFS = {
+  'security.sandbox.content.level': 0,
+} as const;
+
+/** Variable lue par Firefox pour désactiver le bac à sable du contenu. */
+const CONTENT_SANDBOX_ENV = 'MOZ_DISABLE_CONTENT_SANDBOX';
+
+/** Variable d'environnement qui pilote le mode (`auto`, `on`, `off`). */
+export const SANDBOX_ENV = 'EKTS_BROWSER_SANDBOX';
+
+/**
+ * Politique du bac à sable.
+ *
+ * - `auto` (défaut) : démarrage normal, puis repli documenté si Firefox plante ;
+ * - `on` : jamais de repli — un plantage échoue, comme avant ;
+ * - `off` : démarrer Firefox directement sans bac à sable.
+ */
+export type SandboxMode = 'auto' | 'on' | 'off';
+
+/** Motifs par lesquels Playwright signale un processus de moteur mort. */
+const CRASH_PATTERN =
+  /target crashed|target closed|browser has been closed|browser has disconnected/i;
+
+/** Session ouverte par `openSession`, avant affectation à l'instance. */
+interface OpenedSession {
+  browser: BrowserLike;
+  context: BrowserContextLike;
+  page: PageLike;
+  sandboxDisabled: boolean;
+}
+
+/**
  * Charge Playwright à la demande.
  *
  * L'import est dynamique : un processus qui n'inspecte aucune page (CLI,
@@ -116,6 +155,7 @@ export function createPlaywrightLauncher(module?: PlaywrightModule): BrowserLaun
         ...(options.firefoxUserPrefs === undefined
           ? {}
           : { firefoxUserPrefs: { ...options.firefoxUserPrefs } }),
+        ...(options.env === undefined ? {} : { env: definedEntries(options.env) }),
       });
 
       // Frontière assumée : les types complets de Playwright (`Browser`,
@@ -153,6 +193,10 @@ export interface NavigatorDependencies {
   readonly now?: () => number;
   /** Délai maximal de fermeture du navigateur (défaut : 10 s). */
   readonly closeTimeoutMs?: number;
+  /** Politique du bac à sable (défaut : `EKTS_BROWSER_SANDBOX` ou `auto`). */
+  readonly sandbox?: SandboxMode;
+  /** Environnement injectable (tests hermétiques). */
+  readonly env?: Readonly<Record<string, string | undefined>>;
 }
 
 /**
@@ -217,10 +261,64 @@ export class Navigator {
     }
 
     const launcher = this.launcher();
+    const mode = this.sandboxMode(options.sandbox);
+    let session: OpenedSession;
+
+    try {
+      session = await this.openSession(kind, launcher, options, mode === 'off');
+    } catch (error) {
+      // Repli documenté : sur Windows, Firefox démarre puis son processus de
+      // contenu meurt à la création de la page, alors que le même binaire
+      // fonctionne sans bac à sable. Un seul nouvel essai, jamais silencieux :
+      // `sandboxDisabled` et le message le disent.
+      if (kind !== 'firefox' || mode !== 'auto' || !isCrash(error)) {
+        throw error;
+      }
+
+      session = await this.openSession(kind, launcher, options, true);
+    }
+
+    this.browser = session.browser;
+    this.context = session.context;
+    this.page = session.page;
+    this.kind = kind;
+    this.headless = options.headless ?? true;
+    this.startedAt = this.now();
+
+    return {
+      kind,
+      version: session.browser.version?.() ?? 'inconnue',
+      headless: this.headless,
+      startedAt: new Date(this.startedAt).toISOString(),
+      sandboxDisabled: session.sandboxDisabled,
+    };
+  }
+
+  /**
+   * Ouvre navigateur, contexte et page, en traduisant les erreurs.
+   *
+   * @param unsandboxed - Applique les préférences Firefox qui désactivent le
+   *   bac à sable du contenu (sans effet sur les autres moteurs).
+   */
+  private async openSession(
+    kind: BrowserKind,
+    launcher: BrowserLauncher,
+    options: LaunchOptions,
+    unsandboxed: boolean,
+  ): Promise<OpenedSession> {
+    const compatible = unsandboxed && kind === 'firefox';
+    const launchOptions = compatible
+      ? {
+          ...options,
+          firefoxUserPrefs: { ...options.firefoxUserPrefs, ...FIREFOX_UNSANDBOXED_PREFS },
+          env: { ...(options.env ?? this.environment()), [CONTENT_SANDBOX_ENV]: '1' },
+        }
+      : options;
+
     let browser: BrowserLike;
 
     try {
-      browser = await launcher.launch(kind, options);
+      browser = await launcher.launch(kind, launchOptions);
     } catch (error) {
       throw await this.launchError(kind, launcher, error);
     }
@@ -231,12 +329,7 @@ export class Navigator {
       context.setDefaultNavigationTimeout?.(DEFAULT_TIMEOUT_MS);
       const page = await context.newPage();
 
-      this.browser = browser;
-      this.context = context;
-      this.page = page;
-      this.kind = kind;
-      this.headless = options.headless ?? true;
-      this.startedAt = this.now();
+      return { browser, context, page, sandboxDisabled: compatible };
     } catch (error) {
       // Le moteur a démarré mais la page n'a pas pu être créée : il faut
       // libérer le processus. La fermeture est bornée, car un moteur qui vient
@@ -250,13 +343,32 @@ export class Navigator {
         cause: error,
       });
     }
+  }
 
-    return {
-      kind,
-      version: browser.version?.() ?? 'inconnue',
-      headless: this.headless,
-      startedAt: new Date(this.startedAt).toISOString(),
-    };
+  /** Environnement effectif (injectable pour les tests). */
+  private environment(): Record<string, string> {
+    return definedEntries(this.dependencies.env ?? process.env);
+  }
+
+  /**
+   * Résout la politique du bac à sable.
+   *
+   * Priorité : option explicite (`options.sandbox`), puis dépendance injectée,
+   * puis variable d'environnement, puis `auto`.
+   */
+  private sandboxMode(requested: boolean | undefined): SandboxMode {
+    if (requested === false) {
+      return 'off';
+    }
+
+    if (requested === true) {
+      return 'on';
+    }
+
+    const configured =
+      this.dependencies.sandbox ?? this.dependencies.env?.[SANDBOX_ENV] ?? process.env[SANDBOX_ENV];
+
+    return parseSandboxMode(configured);
   }
 
   /**
@@ -623,6 +735,51 @@ function isMissingExecutable(detail: string): boolean {
   return /executable doesn'?t exist|missing dependencies|please run the following command/i.test(
     detail,
   );
+}
+
+/**
+ * Copie les variables d'environnement définies.
+ *
+ * `process.env` autorise `undefined` ; Playwright, non. Filtrer évite de
+ * transmettre des clés absentes, que le moteur interpréterait comme vides.
+ */
+function definedEntries(
+  source: Readonly<Record<string, string | undefined>>,
+): Record<string, string> {
+  const result: Record<string, string> = {};
+
+  for (const [key, value] of Object.entries(source)) {
+    if (value !== undefined) {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
+
+/** Normalise la valeur de `EKTS_BROWSER_SANDBOX`. */
+function parseSandboxMode(value: string | undefined): SandboxMode {
+  const normalised = (value ?? '').trim().toLowerCase();
+
+  if (normalised === 'off' || normalised === '0' || normalised === 'false') {
+    return 'off';
+  }
+
+  if (normalised === 'on' || normalised === '1' || normalised === 'true') {
+    return 'on';
+  }
+
+  return 'auto';
+}
+
+/**
+ * Indique si l'erreur traduite vient d'un processus de moteur mort.
+ *
+ * Seul `BrowserLaunchError` peut porter ce message : les erreurs de lancement
+ * sont traduites par `openSession` avant d'arriver ici.
+ */
+function isCrash(error: unknown): boolean {
+  return error instanceof BrowserLaunchError && CRASH_PATTERN.test(error.message);
 }
 
 /**
