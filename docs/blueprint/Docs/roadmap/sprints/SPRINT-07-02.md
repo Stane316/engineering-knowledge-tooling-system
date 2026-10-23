@@ -1,11 +1,13 @@
 # Sprint 7-2 — Playwright MCP + Navigation basique
 
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (23 octobre 2026)  
 **Durée :** 4 jours  
 **Objectif :** Intégrer Playwright MCP et implémenter la navigation basique  
 **Dépendance :** Sprint 7-1 (Installation Playwright) ✅
 
 ---
+
+**Bilan :** `Navigator` (goto, capture, trace, PDF) avec lanceur injectable et `createBrowserMcpServer` (5 outils, politique d'URL et confinement des artefacts) ; 51 + 49 tests unitaires, 100 % de couverture.
 
 ## 1. Contexte
 

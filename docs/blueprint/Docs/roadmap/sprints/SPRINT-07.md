@@ -1,11 +1,13 @@
 # Sprint 7 — Playwright Setup (Semaine 13-14)
 
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (23 octobre 2026)  
 **Durée :** 2 semaines (10 jours ouvrables)  
 **Objectif :** Intégrer Playwright et Playwright MCP pour l'inspection navigateur  
 **MVP :** MVP-2 (Inspection Navigateur)
 
 ---
+
+**Bilan de livraison :** `src/browser/` (types, erreurs, médias, `Navigator`, accessibilité, serveur MCP navigateur), `playwright.config.ts`, 174 tests dont 15 d'intégration conditionnels et 12 e2e ; écarts E7-1 à E7-10 dans `docs/PLAYWRIGHT.md` §12 (ADR-023).
 
 ## Table des matières
 

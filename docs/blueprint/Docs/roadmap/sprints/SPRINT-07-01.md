@@ -1,11 +1,13 @@
 # Sprint 7-1 — Installation Playwright + Configuration
 
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (23 octobre 2026)  
 **Durée :** 3 jours  
 **Objectif :** Installer Playwright et configurer l'environnement  
 **Dépendance :** Sprint 6 (MCP Server) ✅
 
 ---
+
+**Bilan :** `@playwright/test` 1.64.1 installé, `playwright.config.ts` (3 projets, `*.spec.ts`), `src/browser/types.ts` et `errors.ts` livrés ; les binaires sont installés à la demande (`npm run browsers:install`), le CDN n'étant pas joignable en intégration continue.
 
 ## 1. Contexte
 
