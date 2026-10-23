@@ -117,6 +117,7 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 | `npm run test:browser`            | Tests du module navigateur, sans binaire Playwright      |
 | `npm run test:e2e`                | Tests Playwright sur les 3 moteurs (après installation)  |
 | `npm run browsers:install`        | Télécharge Chromium, Firefox et WebKit (~760 Mo)         |
+| `npm run doctor:browsers`         | Ouvre une page dans chaque moteur et explique les échecs |
 | `npm run security:secrets`        | Scan Gitleaks des fichiers indexés                       |
 | `npm run clean`                   | Supprime `dist/`                                         |
 
@@ -159,6 +160,7 @@ limites : [`MCP-COMPATIBILITY.md`](MCP-COMPATIBILITY.md).
 
 ```powershell
 npm run browsers:install           # une seule fois : ~760 Mo
+npm run doctor:browsers            # chaque moteur ouvre réellement une page
 npm run test:e2e                   # 12 tests sur Chromium, Firefox et WebKit
 ```
 

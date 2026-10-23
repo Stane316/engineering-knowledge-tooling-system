@@ -69,6 +69,7 @@ npm run providers      # état des clés d'API et chaîne d'appel (après npm ru
 npm run mcp            # serveur MCP stdio (après npm run build)
 npm run test:browser   # module navigateur, sans binaire Playwright
 npm run test:e2e       # Playwright Test, 3 moteurs (après npm run browsers:install)
+npm run doctor:browsers # ouvre une page dans chaque moteur, explique les échecs
 ```
 
 **Serveur MCP (`src/mcp/`)** : `stdout` est le canal JSON-RPC, donc **aucun**
@@ -85,8 +86,12 @@ méthode métier, sinon les tests exigent un binaire. `src/browser` n'est import
 ni par la CLI ni par le serveur MCP de connaissances : Playwright reste chargé
 à la demande (`import('playwright')`). Les chemins d'artefacts passent
 obligatoirement par `resolveArtifactPath` (confinement) et les URL par
-`assertNavigableUrl` (http/https, hôtes privés refusés). Toute évolution du
-contrat se répercute dans `docs/PLAYWRIGHT.md` §12.
+`assertNavigableUrl` (http/https, hôtes privés refusés). `Navigator.stop()` ne
+lève jamais : il ferme page, contexte puis navigateur, et tue le processus après
+le délai imparti. Les tests d'intégration sondent chaque moteur
+(`tests/browser/engine-health.ts`) et **ignorent explicitement** un moteur qui
+plante, avec sa raison ; `EKTS_BROWSER_STRICT=1` rétablit l'échec. Toute
+évolution du contrat se répercute dans `docs/PLAYWRIGHT.md` §12.
 
 Variables lues à l'exécution : `EKTS_DATA_DIR`, `LOG_LEVEL`, `NODE_ENV` (base) ; `OPENAI_API_KEY`,
 `OPENAI_EMBEDDING_MODEL`, `EMBEDDING_DIMENSION` (Sprint 4). `.env` est ignoré par Git et Gitleaks ;
