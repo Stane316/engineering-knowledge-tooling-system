@@ -21,8 +21,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { Accessibility } from '../../src/browser/accessibility.js';
 import { Navigator } from '../../src/browser/navigator.js';
-import type { BrowserKind } from '../../src/browser/types.js';
-import { browserExecutable, tempDir } from './helpers.js';
+import { BROWSER_KINDS, type BrowserKind } from '../../src/browser/types.js';
+import { browserExecutable, probeEngines, tempDir } from './helpers.js';
 
 /** Page de référence : structure correcte + cinq défauts d'accessibilité. */
 const FIXTURE_HTML = `<!doctype html>
@@ -53,8 +53,32 @@ const AVAILABLE: Record<BrowserKind, boolean> = {
   webkit: browserExecutable('webkit') !== null,
 };
 
-const INSTALL_HINT =
-  'Aucun binaire Playwright : lancez « npx playwright install chromium firefox webkit » pour activer ces tests.';
+/**
+ * Sonde exécutée à la collecte : présence du binaire **et** ouverture réelle
+ * d'une page.
+ *
+ * Un moteur installé peut planter au premier `newPage` (« Target crashed »).
+ * Sans sonde, le `beforeAll` échoue, Vitest déclare la suite en échec et les
+ * tests des autres moteurs deviennent illisibles. La sonde transforme ce cas en
+ * « moteur ignoré », avec la raison dans le nom de la suite.
+ *
+ * `EKTS_BROWSER_STRICT=1` rétablit l'échec : utile pour une CI qui possède des
+ * binaires sains et doit refuser tout saut silencieux.
+ */
+const STRICT = process.env['EKTS_BROWSER_STRICT'] === '1';
+const HEALTH = await probeEngines();
+
+function usable(kind: BrowserKind): boolean {
+  return STRICT ? AVAILABLE[kind] : HEALTH[kind].ok;
+}
+
+function engineSuiteName(kind: BrowserKind): string {
+  const health = HEALTH[kind];
+
+  return health.ok
+    ? `moteur ${kind}`
+    : `moteur ${kind} — ignoré : ${health.reason ?? 'indisponible'}`;
+}
 
 let server: Server;
 let baseUrl = '';
@@ -85,14 +109,17 @@ afterAll(async () => {
 });
 
 describe('tests d’intégration Playwright', () => {
-  it('documente l’absence de binaires', () => {
-    // Ce test ne sert qu'à rendre le message visible dans le rapport.
-    expect(typeof INSTALL_HINT).toBe('string');
+  it('rapporte l’état des trois moteurs', () => {
+    // Rend visible, dans le rapport, pourquoi un moteur est sauté : `reason`
+    // vaut `null` si et seulement si le moteur a réellement ouvert une page.
+    for (const kind of BROWSER_KINDS) {
+      expect(HEALTH[kind].reason === null).toBe(HEALTH[kind].ok);
+    }
   });
 });
 
-for (const kind of ['chromium', 'firefox', 'webkit'] as const) {
-  describe.skipIf(!AVAILABLE[kind])(`moteur ${kind}`, () => {
+for (const kind of BROWSER_KINDS) {
+  describe.skipIf(!usable(kind))(engineSuiteName(kind), () => {
     let navigator: Navigator;
 
     beforeAll(async () => {
@@ -158,7 +185,7 @@ for (const kind of ['chromium', 'firefox', 'webkit'] as const) {
   });
 }
 
-describe.skipIf(!AVAILABLE.chromium)('chromium — impressions', () => {
+describe.skipIf(!usable('chromium'))('chromium — impressions', () => {
   let navigator: Navigator;
 
   beforeAll(async () => {
@@ -191,7 +218,7 @@ describe.skipIf(!AVAILABLE.chromium)('chromium — impressions', () => {
   });
 });
 
-describe.skipIf(process.env['EKTS_BROWSER_ONLINE'] !== '1' || !AVAILABLE.chromium)(
+describe.skipIf(process.env['EKTS_BROWSER_ONLINE'] !== '1' || !usable('chromium'))(
   'réseau public (EKTS_BROWSER_ONLINE=1)',
   () => {
     it('ouvre example.com', async () => {
