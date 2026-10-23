@@ -31,6 +31,14 @@ export interface LaunchOptions {
   readonly timeoutMs?: number;
   /** Arguments supplémentaires passés au moteur. */
   readonly args?: readonly string[];
+  /**
+   * Préférences Firefox (`about:config`), ignorées par les autres moteurs.
+   *
+   * Sert aux environnements où le bac à sable du processus de contenu fait
+   * planter le moteur (`Target crashed`) :
+   * `{ 'security.sandbox.content.level': 0 }`.
+   */
+  readonly firefoxUserPrefs?: Readonly<Record<string, string | number | boolean>>;
 }
 
 /** Informations sur une session ouverte. */
@@ -313,12 +321,24 @@ export interface BrowserLike {
   }): Promise<BrowserContextLike>;
   version?(): string;
   close(): Promise<void>;
+  /**
+   * Processus natif du moteur, quand Playwright l'expose.
+   *
+   * Utilisé en dernier recours par `Navigator.stop()` : un moteur bloqué ne
+   * répond plus à `close()`, et seul un arrêt forcé libère le processus.
+   */
+  process?(): { kill(signal?: string): boolean } | null;
 }
 
 /** Moteur Playwright (chromium, firefox, webkit). */
 export interface BrowserTypeLike {
   executablePath(): string;
-  launch(options?: { headless?: boolean; timeout?: number; args?: string[] }): Promise<BrowserLike>;
+  launch(options?: {
+    headless?: boolean;
+    timeout?: number;
+    args?: string[];
+    firefoxUserPrefs?: Record<string, string | number | boolean>;
+  }): Promise<BrowserLike>;
 }
 
 /** Module `playwright` réduit à ses trois moteurs. */

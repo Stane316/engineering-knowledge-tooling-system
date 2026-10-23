@@ -158,7 +158,7 @@ await navigator.stop();
 | Méthode | Rôle | Erreur si… |
 | --- | --- | --- |
 | `start(kind?, options?)` | Ouvre navigateur, contexte et page | session déjà ouverte (`BROWSER_ALREADY_STARTED`), binaire absent (`BROWSER_UNAVAILABLE`) |
-| `stop()` | Ferme tout, borne la fermeture à 10 s | — (idempotent) |
+| `stop()` | Ferme page → contexte → navigateur (10 s par étape), force l'arrêt si besoin | **jamais** : un nettoyage ne lève pas (voir §6.2) |
 | `goto(options)` | Ouvre une URL | réseau, DNS, certificat, délai (`NAVIGATION_FAILED`) |
 | `screenshot(options)` | Écrit une image | capture ou écriture impossible (`ARTIFACT_FAILED`) |
 | `startTrace()` / `stopTrace()` | Enregistre une trace | trace déjà en cours / absente (`TRACE_*`) |
@@ -182,6 +182,39 @@ import { checkBrowserAvailability } from './src/browser/navigator.js';
 const { installed, executablePath } = await checkBrowserAvailability('firefox');
 // installed: false → message d'installation déjà prêt dans BrowserUnavailableError
 ```
+
+`installed` ne regarde que la **présence du binaire** : un moteur installé peut
+mourir à l'ouverture de la première page. Pour ce cas, `npm run
+doctor:browsers` (§14.1) ouvre réellement une page.
+
+### 6.2 Pourquoi `stop()` ne lève jamais
+
+La signature est `Promise<void>` et l'appel se termine toujours, même quand le
+moteur a planté. Trois raisons, apprises d'un `npm run verify` rouge sur
+Windows :
+
+1. **Un nettoyage ne doit pas masquer la cause.** Un `afterAll` qui échoue
+   transforme un fichier de tests verts en « Failed Suite » : le vrai message
+   (`Target crashed`) disparaît derrière `Fermeture du navigateur expirée`.
+2. **L'ordre compte.** `page.close()` → `context.close()` → `browser.close()`.
+   Fermer le navigateur d'abord laisse Playwright attendre ses pages ; sous
+   Windows, sur une machine chargée, ce chemin dépassait les 10 s.
+3. **Un moteur mort ne répond pas.** Chaque étape est bornée par
+   `closeTimeoutMs` (10 s par défaut) ; si le navigateur ne rend pas la main, le
+   processus est tué via `browser.process()?.kill('SIGKILL')`, sinon il survit,
+   retient des fichiers et bloque la relance.
+
+### 6.3 Lancement avec préférences Firefox
+
+```ts
+await navigator.start('firefox', {
+  firefoxUserPrefs: { 'security.sandbox.content.level': 0 },
+});
+```
+
+Ces préférences sont transmises telles quelles à `firefox.launch()` et ignorées
+par Chromium et WebKit. Elles servent aux postes où le bac à sable du processus
+de contenu est incompatible (voir §14.1).
 
 ---
 
@@ -341,10 +374,37 @@ paient pas son initialisation.
 | Bout en bout | `tests/browser/e2e/basic.spec.ts` | `npm run test:e2e` | oui, 3 moteurs |
 
 ```powershell
-npm run test:browser      # 174 tests, sans navigateur
+npm run doctor:browsers   # ouvre une page dans chaque moteur, explique chaque échec
+npm run test:browser      # unitaires + intégration (180 sans navigateur)
 npm run test:e2e          # 12 tests (4 × 3 moteurs) — après browsers:install
 npm run coverage          # suite complète
 ```
+
+### 11.1 Sonde d'état et mode strict
+
+Avant de lancer la suite, chaque moteur est sondé une fois
+(`tests/browser/engine-health.ts`) : présence du binaire **et** ouverture
+réelle d'une page. Un moteur qui ouvre une page est testé ; un moteur qui plante
+est ignoré, avec sa raison dans le nom de la suite :
+
+```
+moteur firefox — ignoré : browserContext.newPage: Target crashed
+```
+
+Pourquoi ce choix : sans sonde, l'échec se produit dans le `beforeAll`, Vitest
+déclare le fichier en « Failed Suite » et les résultats des deux autres moteurs
+deviennent illisibles. Le saut est **explicite**, jamais un test vert à tort :
+`npm run doctor:browsers` sort en erreur et nomme la cause.
+
+```powershell
+$env:EKTS_BROWSER_STRICT = "1"   # un moteur cassé fait échouer la suite
+npm test
+Remove-Item Env:\EKTS_BROWSER_STRICT
+```
+
+Le mode strict est celui d'une CI qui possède des binaires sains : elle ne doit
+accepter aucun saut. En local, le mode tolérant permet de travailler sur les
+deux autres moteurs pendant qu'on répare le troisième.
 
 Les tests d'intégration utilisent une page servie sur `127.0.0.1` : ils sont
 déterministes et fonctionnent hors ligne. Le seul test qui sort sur Internet
@@ -372,6 +432,8 @@ Remove-Item Env:\EKTS_BROWSER_ONLINE
 | E7-8 | « Playwright MCP » implicite | `createBrowserMcpServer` (5 outils) | Le dossier ne décrit pas la surface MCP ; elle est définie ici et isolée de `src/mcp/` |
 | E7-9 | `pages` d'un PDF estimé par la taille | Comptage des objets `/Type /Page` | Une estimation `taille / 50 000` est fausse dès la deuxième page |
 | E7-10 | `@playwright/test` seul | `src/browser` importe `playwright` | `playwright` est la dépendance de `@playwright/test` (même version, même tarball) ; c'est elle qui expose les moteurs |
+| E7-11 | Aucune politique pour un moteur cassé | Sonde + saut explicite, mode strict | Un moteur installé peut planter au premier `newPage` ; sans sonde, la suite entière échoue et masque les autres moteurs (§11.1) |
+| E7-12 | Fermeture = `browser.close()` | Page, contexte, puis navigateur ; arrêt forcé après délai | `stop()` qui lève transforme un `afterAll` vert en « Failed Suite » (§6.2) |
 
 ---
 
@@ -379,7 +441,7 @@ Remove-Item Env:\EKTS_BROWSER_ONLINE
 
 | # | Critère | Validé par | État |
 | --- | --- | --- | --- |
-| C7.1 | Playwright installé avec 3 moteurs | `npx playwright install --list` + `npm run test:e2e` | ⏳ poste (CDN indisponible en CI) |
+| C7.1 | Playwright installé avec 3 moteurs | `npm run doctor:browsers` (ouverture réelle d'une page) + `npm run test:e2e` | ⏳ poste (CDN indisponible en CI) |
 | C7.2 | Configuration fonctionnelle | `npx playwright test --list` → 12 tests | ✅ |
 | C7.3 | « Playwright MCP » fonctionne | `tests/browser/playwright-mcp.test.ts` (53 tests, transport mémoire) | ✅ |
 | C7.4 | Navigation basique | `Navigator.goto` + intégration locale | ✅ (local) |
@@ -395,7 +457,7 @@ Remove-Item Env:\EKTS_BROWSER_ONLINE
 | C7.14 | Navigation < 3 s | test d'intégration local | ✅ poste |
 | C7.15 | Capture < 1 s | test d'intégration local | ✅ poste |
 | C7.16 | JSDoc et lisibilité | revue, JSDoc sur les fonctions publiques | ✅ |
-| C7.17 | Gestion d'erreurs | `tests/browser/navigator.test.ts` (erreurs, délais, artefacts) | ✅ |
+| C7.17 | Gestion d'erreurs | `tests/browser/navigator.test.ts` (erreurs, délais, artefacts, arrêt forcé) | ✅ |
 
 « ✅ poste » signifie : le code est en place et testé, mais la validation
 matérielle exige les binaires Playwright sur un poste connecté au CDN.
@@ -419,6 +481,63 @@ sont marqués « skipped », jamais « passed » à tort.
 | `EBUSY` sous Windows | fichier ouvert par un autre processus | fermer le lecteur PDF/visionneuse, relancer |
 | Tests d'intégration tous « skipped » | pas de binaires | `npm run browsers:install` |
 | `expected 'D:\…' to be '\…'` (Windows) | attente composée avec `join` sur une racine sans lettre de lecteur | composer l'attente avec `resolve('/tmp/artefacts')` : `resolveArtifactPath` renvoie toujours un chemin absolu |
+| `browserContext.newPage: Target crashed` | processus de contenu mort (binaire incomplet, antivirus, bac à sable) | `npm run doctor:browsers`, puis §14.1 |
+| `moteur firefox — ignoré : …` | sonde en échec : le moteur ne s'ouvre pas sur ce poste | réparer avec §14.1 ; `EKTS_BROWSER_STRICT=1` pour exiger l'échec |
+| `Fermeture du navigateur expirée` (ancien comportement) | `close()` bloqué | corrigé : `stop()` ferme page et contexte d'abord, puis tue le processus (§6.2) |
+
+### 14.1 Moteur qui plante à l'ouverture d'une page (« Target crashed »)
+
+**Symptôme.** Chromium et WebKit passent, Firefox échoue. `npm test` rapporte
+`FAIL tests/browser/integration.test.ts > moteur firefox`, `npm run test:e2e`
+échoue sur 3 tests Firefox, toujours avec la même ligne :
+
+```
+BrowserLaunchError: Lancement de « firefox » impossible : browserContext.newPage: Target crashed
+```
+
+**Ce que dit ce message.** Le navigateur a démarré (le lancement aurait sinon
+échoué avant), mais le **processus de contenu** est mort au moment de créer la
+page. Aucune page n'a été chargée : ni le HTML, ni le réseau, ni le code du
+projet ne sont en cause. Playwright ne transmet pas la raison ; il faut la
+chercher côté poste.
+
+**Diagnostic.**
+
+```powershell
+npm run doctor:browsers
+```
+
+Le script ouvre une page dans chaque moteur, puis, pour un moteur en échec,
+exécute le binaire lui-même (`--version`, rendu `--headless`) et rejoue le
+lancement sans bac à sable. Il écrit `artifacts/browser-doctor.json` et sort
+avec le code 1. Quatre causes possibles, dans l'ordre de fréquence :
+
+| Constat du diagnostic | Cause | Remède |
+| --- | --- | --- |
+| le binaire ne répond pas à `--version` | installation incomplète (téléchargement interrompu) | `npx playwright install --force firefox` |
+| `--version` échoue avec une erreur de DLL | runtime C++ absent | installer *Microsoft Visual C++ Redistributable 2015-2022 x64* |
+| le rendu hors Playwright échoue aussi | antivirus ou stratégie Windows | exclure `%LOCALAPPDATA%\ms-playwright` de l'antivirus et de la *Protection contre les exploits* |
+| « sans bac à sable : page ouverte » | bac à sable incompatible | `firefoxUserPrefs: { 'security.sandbox.content.level': 0 }` (§6.3) |
+
+**Réparation type.**
+
+```powershell
+npx playwright install --force firefox
+npm run doctor:browsers
+npm run test:browser
+```
+
+Puis, si le diagnostic désigne le bac à sable, dans le test ou le script
+concerné :
+
+```ts
+await navigator.start('firefox', {
+  firefoxUserPrefs: { 'security.sandbox.content.level': 0 },
+});
+```
+
+**Après réparation.** `npm run test:e2e` doit afficher 12 tests passés, et
+`npm test` ne doit plus ignorer que les tests conditionnels du réseau.
 
 ---
 

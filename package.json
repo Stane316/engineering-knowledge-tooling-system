@@ -37,7 +37,8 @@
     "cli": "node dist/cli/index.js",
     "mcp": "node dist/mcp/server.js",
     "test:e2e": "playwright test",
-    "browsers:install": "playwright install chromium firefox webkit"
+    "browsers:install": "playwright install chromium firefox webkit",
+    "doctor:browsers": "node scripts/browser-doctor.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

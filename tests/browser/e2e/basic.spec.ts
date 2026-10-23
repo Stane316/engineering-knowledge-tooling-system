@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test';
 
+import type { BrowserKind } from '../../../src/browser/types.js';
+import { engineHealth } from '../engine-health.js';
+
 /**
  * Vérification de bout en bout du socle Playwright (C7.1, C7.2).
  *
@@ -7,7 +10,28 @@ import { expect, test } from '@playwright/test';
  * sur chacun des trois projets `chromium`, `firefox` et `webkit`. Il ne dépend
  * d'aucun site public : la page est injectée avec `setContent`, ce qui rend le
  * résultat identique hors ligne et sur un poste connecté.
+ *
+ * **Moteur qui plante.** Un moteur peut être installé et mourir au premier
+ * `newPage` (« Target crashed ») : Playwright échoue alors dans la fixture
+ * `page`, avant tout test. Le `beforeEach` sonde donc le moteur avant la
+ * création de la page. Si la sonde échoue, les tests sont **sautés** avec la
+ * raison affichée ; `EKTS_BROWSER_STRICT=1` rétablit l'échec pour une CI qui
+ * doit refuser tout saut.
  */
+
+const STRICT = process.env['EKTS_BROWSER_STRICT'] === '1';
+
+test.beforeEach(async ({ browserName }) => {
+  const health = await engineHealth(browserName as BrowserKind);
+
+  if (!health.ok && !STRICT) {
+    test.skip(
+      true,
+      `moteur ${browserName} inutilisable : ${health.reason ?? 'raison inconnue'}. ` +
+        'Diagnostic : « npm run doctor:browsers ».',
+    );
+  }
+});
 
 const PAGE = `<!doctype html>
 <html lang="fr">

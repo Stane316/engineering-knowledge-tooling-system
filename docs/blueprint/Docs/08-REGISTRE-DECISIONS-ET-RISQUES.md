@@ -805,6 +805,21 @@ l'arrêt) ; les tests visent `https://example.com`, donc le réseau. Par ailleur
 6. Playwright Test et Vitest cohabitent : `*.spec.ts` sous `tests/browser/e2e/`
    pour Playwright (3 projets), `*.test.ts` pour Vitest.
 
+**Addendum (23 octobre 2026, après essai sur un poste Windows).** Trois
+corrections tirées de l'exécution réelle :
+
+1. `Navigator.stop()` **ne lève plus**. Il ferme dans l'ordre page → contexte →
+   navigateur, borne chaque étape, puis tue le processus si `browser.close()`
+   ne répond pas. Un `afterAll` qui échoue transformait un fichier de tests
+   verts en « Failed Suite » (`Fermeture du navigateur expirée après 10000 ms`).
+2. Les tests d'intégration **sondent** chaque moteur (`engine-health.ts`) avant
+   de l'utiliser. Un moteur qui plante à `newPage` est ignoré avec sa raison,
+   au lieu de faire échouer la suite ; `EKTS_BROWSER_STRICT=1` rétablit l'échec.
+3. `npm run doctor:browsers` distingue les quatre causes d'un « Target
+   crashed » (binaire incomplet, runtime C++ absent, antivirus, bac à sable) et
+   rejoue le lancement Firefox sans bac à sable. Les préférences
+   (`firefoxUserPrefs`) sont exposées par `LaunchOptions`.
+
 **Conséquences :** 174 tests ajoutés, `src/browser/**` à 100 % de couverture,
 suite complète à 823 tests. Le code ne dépend d'aucune API dépréciée ni du
 réseau. Coût : trois critères (C7.1, C7.7, C7.14-C7.15) ne peuvent être validés
@@ -866,6 +881,8 @@ pas joignable depuis l'environnement d'intégration continue.
 | R-7.5 | Décalage entre la version de Playwright et les binaires installés | Faible | Moyenne | `BrowserUnavailableError` donne la commande exacte ; `npx playwright install --force` documenté |
 | R-7.6 | Injection de consignes par la page inspectée (contenu renvoyé à l'agent) | Moyen | Moyenne | Outils en lecture seule, aucune exécution de code arbitraire fournie par l'agent, `browser_accessibility` borné en profondeur et en nœuds |
 | R-7.7 | Les tests e2e ne font pas partie de `npm run verify` | Faible | Moyenne | Script dédié `test:e2e`, section 11 de la doc, checklist de fin de sprint |
+| R-7.8 | Un moteur installé plante au premier `newPage` (« Target crashed ») et masque les autres | Moyen | **Réalisée** | Sonde `engine-health.ts` + saut explicite nommant la raison ; `EKTS_BROWSER_STRICT=1` pour interdire le saut ; `npm run doctor:browsers` distingue les quatre causes (`docs/PLAYWRIGHT.md` §14.1) |
+| R-7.9 | `stop()` bloqué (moteur mort) fait échouer un `afterAll` vert | Moyen | **Réalisée** | Fermeture ordonnée et bornée, `browser.process().kill('SIGKILL')` en dernier recours, contrat « `stop()` ne lève jamais » testé |
 
 ---
 
