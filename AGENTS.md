@@ -88,7 +88,10 @@ ni par la CLI ni par le serveur MCP de connaissances : Playwright reste chargé
 obligatoirement par `resolveArtifactPath` (confinement) et les URL par
 `assertNavigableUrl` (http/https, hôtes privés refusés). `Navigator.stop()` ne
 lève jamais : il ferme page, contexte puis navigateur, et tue le processus après
-le délai imparti. Les tests d'intégration sondent chaque moteur
+le délai imparti. `Navigator.start('firefox')` rejoue une fois le lancement sans
+bac à sable quand le processus de contenu meurt (`sandboxDisabled: true`) :
+c'est la seule exception tolérée à « une erreur de lancement est une erreur »,
+et elle est pilotable par `EKTS_BROWSER_SANDBOX`. Les tests d'intégration sondent chaque moteur
 (`tests/browser/engine-health.ts`) et **ignorent explicitement** un moteur qui
 plante, avec sa raison ; `EKTS_BROWSER_STRICT=1` rétablit l'échec. Toute
 évolution du contrat se répercute dans `docs/PLAYWRIGHT.md` §12.

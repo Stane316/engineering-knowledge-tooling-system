@@ -7,7 +7,7 @@
 
 ---
 
-**Bilan de livraison :** `src/browser/` (types, erreurs, médias, `Navigator`, accessibilité, serveur MCP navigateur), `playwright.config.ts`, 189 cas (174 verts, 15 d'intégration conditionnels) et 12 e2e ; écarts E7-1 à E7-10 dans `docs/PLAYWRIGHT.md` §12 (ADR-023).
+**Bilan de livraison :** `src/browser/` (types, erreurs, médias, `Navigator`, accessibilité, serveur MCP navigateur), `playwright.config.ts`, 218 cas (203 verts, 15 d'intégration conditionnels) et 12 e2e ; écarts E7-1 à E7-13 dans `docs/PLAYWRIGHT.md` §12 (ADR-023).
 
 ## Table des matières
 
