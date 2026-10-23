@@ -1,4 +1,4 @@
-import { join, sep } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
@@ -437,7 +437,9 @@ describe('politique d’URL', () => {
 });
 
 describe('confinement des artefacts', () => {
-  const directory = '/tmp/artefacts';
+  // `resolve` fige aussi la racine de lecteur sous Windows : le chemin rendu
+  // par `resolveArtifactPath` est toujours absolu, pas seulement enraciné.
+  const directory = resolve('/tmp/artefacts');
 
   it('nomme le fichier quand aucun chemin n’est fourni', () => {
     expect(resolveArtifactPath(directory, undefined, 'capture.png')).toBe(
