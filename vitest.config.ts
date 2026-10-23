@@ -19,6 +19,7 @@ export default defineConfig({
         'src/cli/index.ts',
         'src/**/*.d.ts',
         'src/shared/types.ts',
+        'src/browser/types.ts',
         'src/business/knowledge-manager.types.ts',
         'src/business/search-engine.types.ts',
         'src/shared/providers/types.ts',
