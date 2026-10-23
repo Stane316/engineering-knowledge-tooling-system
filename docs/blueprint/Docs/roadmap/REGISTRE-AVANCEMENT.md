@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 22 octobre 2026 — Sprint 5 (CLI)  
+**Dernière mise à jour :** 23 octobre 2026 — Sprint 7 (Playwright)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -141,16 +141,19 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Correctif d'outillage après un merge sans effet : `.gitattributes` (`eol=lf`) contre les CRLF Windows, `npm run doctor`, procédures `SETUP.md` §6.11 (renormalisation) et §6.12 (merge par SHA, « Already up to date ») ; risques R-5.7 et R-5.8 | `fix/checkout` |
 
 | 23/10/2026 | Correctif « `verify` rouge sur le poste » : `openCliServices` et `createRuntime` acceptent un environnement injecté, `createTestRuntime` hermétique (`{}`), `isOffline`/`embeddingSpace` alignés ; 549 tests, couverture 100 %, vert avec et sans `.env` ; ADR-021, risque R-5.13, dépannage `SETUP.md` §6.13 | `fix/tests-hermetiques` |
+| 23/10/2026 | Sprint 7 : module navigateur `src/browser/` (Playwright 1.64, 3 moteurs), `Navigator` (goto, capture, trace, PDF), accessibility tree via `ariaSnapshotJSON` (l'API `accessibility.snapshot` a été supprimée), 6 règles de violation, serveur MCP navigateur (5 outils) avec politique http/https + confinement des artefacts ; `src/browser/**` à 100 %, 174 tests, suite à 823 tests ; ADR-023, risques R-7.1 à R-7.7, `docs/PLAYWRIGHT.md`, `playwright.config.ts` | `sprint-7` |
 | 23/10/2026 | Sprint 6 : serveur MCP `src/mcp/` (SDK 1.32.1, transport stdio), 4 outils en lecture seule (`search_knowledge`, `get_resource`, `list_resources`, `validate_resource`), journal JSON sur stderr, codes `-32000`/`-32001`/`-32602`/`-32603` ; 99 tests MCP dont 8 sur le binaire, `src/mcp/**` à 100 %, suite à 649 tests ; ADR-022, risques R-6.1 à R-6.7, `docs/MCP.md`, `docs/MCP-EXAMPLES.md`, `.mcp.json`, `MCP-COMPATIBILITY.md` | `sprint-6` |
 ---
 
 ## 5. Prochaines étapes
 
-1. **Sprint 6 terminé** — serveur MCP livré (4 outils, transport stdio, 649 tests au total, 100 %).
-2. **Sprint 7** — Playwright / inspection navigateur : en attente du **feu vert explicite
-   de l'utilisateur**. Aucun fichier du Sprint 7 n'est créé avant cet accord.
-3. Validation manuelle restante : Claude Code et Cursor sur le poste
-   (`MCP-COMPATIBILITY.md` §3) — la compatibilité protocolaire est déjà testée.
+1. **Sprint 7 terminé** — module navigateur livré (823 tests au total, `src/browser/**` à 100 %).
+2. **Sprint 8** — 4 niveaux d'inspection : en attente du **feu vert explicite de
+   l'utilisateur**. Aucun fichier du Sprint 8 n'est créé avant cet accord.
+3. Validation manuelle restante (poste Windows connecté) :
+   `npm run browsers:install` puis `npm run test:e2e` (12 tests, 3 moteurs) et
+   `npm test` pour activer les 15 tests d'intégration ; Claude Code et Cursor
+   pour `MCP-COMPATIBILITY.md` §3.
 4. Mise à jour de ce registre à la fin de chaque sous-sprint (statut + commit).
 
 > **Écart technique tranché au Sprint 2** : FTS5 autonome (pas de table de contenu externe) et

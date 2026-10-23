@@ -1,11 +1,13 @@
 # Sprint 7-3 — Accessibility Tree + Tests + Documentation
 
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (23 octobre 2026)  
 **Durée :** 3 jours  
 **Objectif :** Extraire l'accessibility tree, tester et documenter  
 **Dépendance :** Sprint 7-2 (Playwright MCP + Navigation) ✅
 
 ---
+
+**Bilan :** `Accessibility` fondée sur `ariaSnapshotJSON` (l'API `accessibility.snapshot` du dossier a été supprimée de Playwright), 6 règles de violation, 45 tests ; tests d'intégration hors ligne sur `127.0.0.1` (15 cas conditionnels) et documentation `docs/PLAYWRIGHT.md`.
 
 ## 1. Contexte
 

@@ -772,6 +772,45 @@ utilisable), et ne peut pas corrompre la base. Coût : les messages de validatio
 du SDK restent en anglais, et la compatibilité avec Claude Code/Cursor doit être
 constatée sur un poste disposant de ces agents (aucun n'est installable en CI).
 
+#### ADR-023 — Le navigateur est un module pur, l'arbre ARIA remplace l'API supprimée
+
+**Statut :** ✅ APPLIQUÉ
+**Contexte :** le dossier Sprint 7 repose sur trois appuis qui n'existent plus.
+`page.accessibility.snapshot()` a été **supprimée** de Playwright (absente de la
+1.64) ; `context.tracing.start({ path })` n'écrit rien (le chemin n'est lu qu'à
+l'arrêt) ; les tests visent `https://example.com`, donc le réseau. Par ailleurs,
+« Playwright MCP » n'était décrit par aucune surface d'outils.
+
+**Décision :**
+1. Playwright 1.64 avec `@playwright/test` ; les binaires (Chromium, Firefox,
+   WebKit) sont installés à la demande (`npm run browsers:install`, ~760 Mo) et
+   ne le sont pas par `npm ci`.
+2. L'accessibility tree provient de `page.ariaSnapshotJSON()` (rôles, noms,
+   niveaux, états, URL), normalisé en `AccessibilityNode` — contrat stable du
+   projet. Les violations (`image-alt`, `button-name`, `link-name`,
+   `form-label`, `heading-order`, `document-title`) se calculent **sur l'arbre**,
+   sans DOM ni sélecteur ; axe-core reste prévu au Sprint 9.
+3. `Navigator` reçoit un `BrowserLauncher` injectable ; `playwright` est importé
+   dynamiquement. Les tests unitaires s'exécutent sans binaire, et la CLI comme
+   le serveur MCP de connaissances ne chargent jamais Playwright.
+4. La surface MCP du navigateur est un serveur distinct (`createBrowserMcpServer`,
+   cinq outils), qui ne modifie pas `src/mcp/`. Deux politiques l'encadrent :
+   http/https seulement, hôtes privés refusés par défaut (`allowPrivateHosts`),
+   et écritures confinées dans `artifactsDir` (`resolveArtifactPath` rejette
+   chemins absolus, `..` et caractère nul).
+5. Les tests d'intégration utilisent une page servie sur `127.0.0.1` : ils sont
+   hors ligne et déterministes. Ils s'activent d'eux-mêmes quand un binaire est
+   présent, sinon ils sont marqués « skipped ». `example.com` reste un test
+   facultatif (`EKTS_BROWSER_ONLINE=1`).
+6. Playwright Test et Vitest cohabitent : `*.spec.ts` sous `tests/browser/e2e/`
+   pour Playwright (3 projets), `*.test.ts` pour Vitest.
+
+**Conséquences :** 174 tests ajoutés, `src/browser/**` à 100 % de couverture,
+suite complète à 823 tests. Le code ne dépend d'aucune API dépréciée ni du
+réseau. Coût : trois critères (C7.1, C7.7, C7.14-C7.15) ne peuvent être validés
+que sur un poste disposant des binaires, puisque le CDN de téléchargement n'est
+pas joignable depuis l'environnement d'intégration continue.
+
 #### Risques nouveaux (Sprint 4.5)
 
 | ID | Risque | Impact | Probabilité | Mitigation |
@@ -815,6 +854,18 @@ constatée sur un poste disposant de ces agents (aucun n'est installable en CI).
 | R-6.5 | Réponses trop volumineuses (tokens de l'agent) | Faible | Moyenne | `limit` borné (10 par défaut, 100 en recherche, 1000 en liste), pagination non exposée en MVP-1 |
 | R-6.6 | Injection de consignes via le contenu d'une ressource renvoyée à l'agent | Moyen | Faible | Outils en lecture seule, aucune exécution ; l'agent doit traiter le contenu comme une donnée (rappel dans `docs/MCP.md` §10) |
 | R-6.7 | Le dossier cite un protocole inexistant (`2026-07-28`) et des API fictives | Faible | **Élevée** | Écarts tracés E6-1 à E6-7 dans `docs/MCP.md` §12 ; version négociée par le SDK, jamais codée en dur |
+
+#### Risques nouveaux (Sprint 7)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-7.1 | Binaires Playwright non installables en CI → intégration jamais exécutée hors poste | Moyen | **Élevée** | Tests unitaires à 100 % de couverture, intégration conditionnelle explicite (jamais « passée » à tort), `npx playwright test --list` vérifié, checklist `docs/PLAYWRIGHT.md` §13 |
+| R-7.2 | Un agent atteint le réseau interne (SSRF) via `browser_navigate` | **Élevé** | Moyenne | http/https seulement, hôtes privés refusés par défaut, `allowPrivateHosts` explicite, 19 cas testés dans `isPrivateHost` |
+| R-7.3 | Écriture arbitraire sur le disque via un chemin d'artefact | **Élevé** | Faible | `resolveArtifactPath` confine dans `artifactsDir`, rejette absolu, `..` et caractère nul ; aucun repli silencieux |
+| R-7.4 | API Playwright mouvante (suppression d'`accessibility.snapshot`) | Moyen | **Élevée** | Sous-ensemble structurel (`PageLike`…) et un seul point de contact (`createPlaywrightLauncher`) ; écart E7-1 documenté |
+| R-7.5 | Décalage entre la version de Playwright et les binaires installés | Faible | Moyenne | `BrowserUnavailableError` donne la commande exacte ; `npx playwright install --force` documenté |
+| R-7.6 | Injection de consignes par la page inspectée (contenu renvoyé à l'agent) | Moyen | Moyenne | Outils en lecture seule, aucune exécution de code arbitraire fournie par l'agent, `browser_accessibility` borné en profondeur et en nœuds |
+| R-7.7 | Les tests e2e ne font pas partie de `npm run verify` | Faible | Moyenne | Script dédié `test:e2e`, section 11 de la doc, checklist de fin de sprint |
 
 ---
 
@@ -1313,6 +1364,7 @@ Pricing outils IA change (augmentation, suppression free tier).
 | ADR-020 (indexation best-effort) | R-5.9, R-5.11 |
 | ADR-021 (environnement injecté) | R-5.13 |
 | ADR-022 (serveur MCP, SDK officiel) | R-6.1 à R-6.7 |
+| ADR-023 (navigateur, arbre ARIA) | R-7.1 à R-7.7 |
 
 ### 4.2 Risques non couverts
 
