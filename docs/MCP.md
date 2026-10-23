@@ -328,7 +328,7 @@ Sous Claude Code, les logs du serveur sont visibles via `claude mcp logs ekts`
 | E6-1 | Protocole « 2026-07-28 » | `2025-11-25` (négocié par le SDK) | Cette version n'existe pas dans le SDK 1.32.1 ; l'annoncer ferait échouer le handshake |
 | E6-2 | Champs `created_at`, `updated_at`, `embedding_model` | `createdAt`, `updatedAt`, `embeddingModel` | Le domaine utilise le camelCase depuis le Sprint 2 |
 | E6-3 | `get_resource` → `resource: null` | Erreur `-32000` | Un agent traite `null` comme un bug d'affichage |
-| E6-4 | `createKnowledgeManager()` / `createSearchEngine()` sans argument | `openMcpServices` (services partagés, ADR-019) | Une seule connexion SQLite, pas de duplication du câblage |
+| E6-4 | `createKnowledgeManager()` / `createSearchEngine()` sans argument | `openMcpServices` (services partagés, ADR-022) | Une seule connexion SQLite, pas de duplication du câblage |
 | E6-5 | `StdioTransport` maison | `McpServer` + `StdioServerTransport` du SDK | Le SDK officiel gère le handshake et le JSON-RPC |
 | E6-6 | Erreurs JSON-RPC au niveau `tools/call` | `isError: true` + code dans le texte | Comportement du SDK et recommandation MCP : un agent affiche le contenu d'erreur |
 | E6-7 | `z.url()` acceptait `ftp://` | http/https imposés | Le message promettait déjà ce contrôle (correctif annexe) |
