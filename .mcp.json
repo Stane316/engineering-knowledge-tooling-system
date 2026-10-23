@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ekts": {
+      "command": "node",
+      "args": ["dist/mcp/server.js"],
+      "env": {
+        "MCP_LOG_LEVEL": "info"
+      }
+    }
+  }
+}

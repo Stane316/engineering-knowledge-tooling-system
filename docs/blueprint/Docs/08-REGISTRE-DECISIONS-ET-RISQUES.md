@@ -735,6 +735,43 @@ branches de production (chargement du disque) ne sont couvertes que par un test
 de fumée volontairement neutre. Le contrat de la passerelle (ADR-017) est
 conservé : sans `env`, `.env` et le registre local sont lus.
 
+#### ADR-022 — Le serveur MCP s'appuie sur le SDK officiel et partage les services de la CLI
+
+**Statut :** ✅ APPLIQUÉ
+**Contexte :** le dossier Sprint 6 décrit un transport JSON-RPC écrit à la main
+(`StdioTransport`) et des fabriques `createKnowledgeManager()` /
+`createSearchEngine()` sans argument, qui n'existent pas dans le code. Il annonce
+aussi le protocole « MCP 2026-07-28 », absent du SDK 1.32.1 (dernière version
+publiée, ADR-011) et des versions supportées `2024-10-07` à `2025-11-25`. Une
+implémentation littérale aurait donc dupliqué le câblage des services, réinventé
+le handshake et échoué au premier `initialize`.
+
+**Décision :**
+1. Utiliser `@modelcontextprotocol/sdk@^1.32.1` : `McpServer` +
+   `StdioServerTransport`. Le SDK gère le handshake, la négociation de version,
+   `tools/list`, `tools/call` et la sérialisation JSON-RPC.
+2. Partager les services avec la CLI via `openMcpServices`, qui réutilise
+   `openCliServices` (ADR-019) : une seule connexion SQLite par processus, le
+   même espace d'embedding, aucun second câblage à maintenir.
+3. Les schémas d'entrée sont des objets **Zod** (`src/mcp/schemas/tool-schemas.ts`) ;
+   le JSON Schema de `tools/list` en est dérivé, jamais écrit à la main.
+4. Quatre outils **en lecture seule** en MVP-1 ; aucune création, mise à jour ni
+   suppression exposée à un agent.
+5. Erreurs : correspondance explicite `ResourceNotFoundError → -32000`,
+   `ValidationError → -32001`, `SearchError → -32602`, indisponibilité
+   d'embeddings → `-32603`. Comme le SDK transforme toute erreur d'outil en
+   `isError: true`, le code est porté par le texte JSON.
+6. Journalisation JSON Lines **exclusivement sur `stderr`** : `stdout` est le
+   canal du protocole.
+7. La version de protocole est celle que le SDK négocie (`2025-11-25`), jamais
+   une constante inventée.
+
+**Conséquences :** 99 tests MCP (dont 8 sur le binaire compilé), `src/mcp/**` à
+100 %, suite complète à 649 tests. Le serveur démarre sans clé d'API (`fts`
+utilisable), et ne peut pas corrompre la base. Coût : les messages de validation
+du SDK restent en anglais, et la compatibilité avec Claude Code/Cursor doit être
+constatée sur un poste disposant de ces agents (aucun n'est installable en CI).
+
 #### Risques nouveaux (Sprint 4.5)
 
 | ID | Risque | Impact | Probabilité | Mitigation |
@@ -764,8 +801,20 @@ conservé : sans `env`, `.env` et le registre local sont lus.
 | R-5.9 | Quota d'embeddings épuisé (429) → ressource perdue | **Élevé** | Moyenne | Indexation vectorielle best-effort, `vectorWarning` explicite, `ekts reindex --vectors` pour rattraper (ADR-020) |
 | R-5.10 | Dépendance à un fournisseur unique pour les vecteurs | Moyen | Moyenne | Résolution par la passerelle : OpenAI, Gemini, OpenRouter, Novita ; `EKTS_EMBEDDING_SPACE` pour épingler un espace |
 | R-5.11 | Bascule silencieuse d'espace lors d'un changement de clé | **Élevé** | Faible | Purge interdite sans `--force`, `EmbeddingSpaceMismatchError`, maintenance testée (6 tests) |
-| R-5.13 | Tests dépendants du `.env` du poste (verts en CI, rouges localement) | Moyen | **Élevée** | `env` injecté dans `openCliServices`/`createRuntime`, `createTestRuntime` hermétique par défaut, chemin de production couvert sans hypothèse sur les clés (ADR-021) |
 | R-5.12 | Confusion Anthropic = fournisseur d'embeddings | Faible | Moyenne | `.env.example` et `CLI.md` explicitent le découpage des rôles ; échec explicite listant les quatre fournisseurs possibles |
+| R-5.13 | Tests dépendants du `.env` du poste (verts en CI, rouges localement) | Moyen | **Élevée** | `env` injecté dans `openCliServices`/`createRuntime`, `createTestRuntime` hermétique par défaut, chemin de production couvert sans hypothèse sur les clés (ADR-021) |
+
+#### Risques nouveaux (Sprint 6)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-6.1 | Une écriture parasite sur `stdout` corrompt le protocole et fait rejeter le serveur | **Élevé** | Faible | Journal réservé à `stderr`, test du binaire qui analyse chaque ligne de `stdout` comme du JSON-RPC |
+| R-6.2 | Incompatibilité avec un agent Tier 1 non détectée avant livraison | Moyen | Moyenne | Compatibilité protocolaire testée avec le client SDK ; procédure manuelle Claude Code/Cursor et rapport honnête (`MCP-COMPATIBILITY.md`) |
+| R-6.3 | Accès concurrent CLI/MCP à SQLite (verrous, `EBUSY`, WAL non consolidé) | Moyen | Faible | Une connexion par processus, WAL, arrêt propre sur SIGINT/SIGTERM, fermeture bornée dans le temps |
+| R-6.4 | Divergence entre le schéma Zod et le JSON Schema annoncé à l'agent | Moyen | Faible | JSON Schema dérivé par le SDK et par `z.toJSONSchema` ; test de contrat sur `tools/list` |
+| R-6.5 | Réponses trop volumineuses (tokens de l'agent) | Faible | Moyenne | `limit` borné (10 par défaut, 100 en recherche, 1000 en liste), pagination non exposée en MVP-1 |
+| R-6.6 | Injection de consignes via le contenu d'une ressource renvoyée à l'agent | Moyen | Faible | Outils en lecture seule, aucune exécution ; l'agent doit traiter le contenu comme une donnée (rappel dans `docs/MCP.md` §10) |
+| R-6.7 | Le dossier cite un protocole inexistant (`2026-07-28`) et des API fictives | Faible | **Élevée** | Écarts tracés E6-1 à E6-7 dans `docs/MCP.md` §12 ; version négociée par le SDK, jamais codée en dur |
 
 ---
 
@@ -1260,6 +1309,10 @@ Pricing outils IA change (augmentation, suppression free tier).
 | ADR-007 (4 niveaux sécurité) | RISQ-S01, RISQ-S02, RISQ-S03 |
 | ADR-008 (Outils IA) | RISQ-F01, RISQ-F02 |
 | ADR-011 (Baseline technique) | RISQ-T05 (dérive des versions) |
+| ADR-019 (CLI, `openCliServices` réutilisé par le MCP) | R-5.5, R-6.3 |
+| ADR-020 (indexation best-effort) | R-5.9, R-5.11 |
+| ADR-021 (environnement injecté) | R-5.13 |
+| ADR-022 (serveur MCP, SDK officiel) | R-6.1 à R-6.7 |
 
 ### 4.2 Risques non couverts
 

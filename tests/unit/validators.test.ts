@@ -57,6 +57,17 @@ describe('CreateResourceSchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('impose http ou https pour les URL', () => {
+    expect(
+      CreateResourceSchema.safeParse({ type: 'article', title: 'Test', url: 'ftp://exemple.fr' })
+        .success,
+    ).toBe(false);
+    expect(
+      CreateResourceSchema.safeParse({ type: 'article', title: 'Test', url: 'https://exemple.fr' })
+        .success,
+    ).toBe(true);
+  });
+
   it('rejette un tag vide', () => {
     expect(
       CreateResourceSchema.safeParse({ type: 'article', title: 'Test', tags: [''] }).success,

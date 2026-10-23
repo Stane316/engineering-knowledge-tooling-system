@@ -113,6 +113,7 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 | `npm run db:reindex`              | Reconstruit l'index plein texte                          |
 | `npm run providers`               | État des 14 fournisseurs d'API et chaîne d'appel         |
 | `npm run cli -- <args>`           | Interface CLI `ekts` (voir [`docs/CLI.md`](docs/CLI.md)) |
+| `npm run mcp`                     | Serveur MCP stdio (voir [`docs/MCP.md`](docs/MCP.md))    |
 | `npm run security:secrets`        | Scan Gitleaks des fichiers indexés                       |
 | `npm run clean`                   | Supprime `dist/`                                         |
 
@@ -137,25 +138,40 @@ deux formats de sortie (`--json` ou humain), cinq codes de sortie documentés.
 `npm link` expose la commande `ekts` globalement. Guide complet :
 [`docs/CLI.md`](docs/CLI.md).
 
+### Serveur MCP
+
+```powershell
+npm run build
+npm run mcp                        # transport stdio, JSON-RPC 2.0
+```
+
+Quatre outils en lecture seule : `search_knowledge`, `get_resource`,
+`list_resources`, `validate_resource`. Claude Code détecte le serveur via le
+`.mcp.json` du dépôt ; Cursor et GitHub Copilot se configurent dans
+[`docs/MCP.md`](docs/MCP.md) §4. Les journaux sont écrits en JSON sur `stderr`
+(`MCP_LOG_LEVEL`), `stdout` restant réservé au protocole. Compatibilité et
+limites : [`MCP-COMPATIBILITY.md`](MCP-COMPATIBILITY.md).
+
 ## 6. Configuration
 
-| Variable                                                                                      | Défaut                   | Rôle                                           |
-| --------------------------------------------------------------------------------------------- | ------------------------ | ---------------------------------------------- |
-| `NODE_ENV`                                                                                    | `development`            | `development`, `test` ou `production`          |
-| `EKTS_DATA_DIR`                                                                               | `./data`                 | Répertoire des bases SQLite (résolu en absolu) |
-| `LOG_LEVEL`                                                                                   | `info`                   | Niveau Pino (`trace`…`silent`)                 |
-| `OPENAI_API_KEY`                                                                              | —                        | Embeddings OpenAI (une clé parmi d'autres)     |
-| `GEMINI_API_KEY`                                                                              | —                        | Embeddings Gemini (palier gratuit)             |
-| `OPENROUTER_API_KEY`                                                                          | —                        | Embeddings/chat (même espace qu'OpenAI)        |
-| `NOVITA_API_KEY`                                                                              | —                        | Embeddings `baai/bge-m3` (gratuit)             |
-| `TAVILY_API_KEY` / `SERPER_API_KEY` / `SERPAPI_API_KEY`                                       | —                        | Recherche web                                  |
-| `SOFYA_API_KEY`                                                                               | —                        | Recherche + lecture d'URL en markdown          |
-| `DEEPSEEK_API_KEY` / `ZAI_API_KEY` / `NVIDIA_API_KEY` / `STEPFUN_API_KEY` / `MINIMAX_API_KEY` | —                        | Chat (Sprint 6)                                |
-| `EKTS_PROVIDERS_FILE`                                                                         | `providers.custom.json`  | Fournisseurs déclarés sans code                |
-| `E2B_API_KEY`                                                                                 | —                        | Bac à sable d'exécution (Sprint 8)             |
-| `EKTS_PROVIDER_POLICY`                                                                        | `quality`                | `quality`, `free` ou `cost`                    |
-| `OPENAI_EMBEDDING_MODEL`                                                                      | `text-embedding-3-small` | Modèle d'embedding (1536 dims)                 |
-| `EMBEDDING_DIMENSION`                                                                         | `1536`                   | Doit correspondre au schéma `float[1536]`      |
+| Variable                                                                                      | Défaut                   | Rôle                                             |
+| --------------------------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------ |
+| `NODE_ENV`                                                                                    | `development`            | `development`, `test` ou `production`            |
+| `EKTS_DATA_DIR`                                                                               | `./data`                 | Répertoire des bases SQLite (résolu en absolu)   |
+| `LOG_LEVEL`                                                                                   | `info`                   | Niveau Pino (`trace`…`silent`)                   |
+| `OPENAI_API_KEY`                                                                              | —                        | Embeddings OpenAI (une clé parmi d'autres)       |
+| `GEMINI_API_KEY`                                                                              | —                        | Embeddings Gemini (palier gratuit)               |
+| `OPENROUTER_API_KEY`                                                                          | —                        | Embeddings/chat (même espace qu'OpenAI)          |
+| `NOVITA_API_KEY`                                                                              | —                        | Embeddings `baai/bge-m3` (gratuit)               |
+| `TAVILY_API_KEY` / `SERPER_API_KEY` / `SERPAPI_API_KEY`                                       | —                        | Recherche web                                    |
+| `SOFYA_API_KEY`                                                                               | —                        | Recherche + lecture d'URL en markdown            |
+| `DEEPSEEK_API_KEY` / `ZAI_API_KEY` / `NVIDIA_API_KEY` / `STEPFUN_API_KEY` / `MINIMAX_API_KEY` | —                        | Chat (Sprint 6)                                  |
+| `EKTS_PROVIDERS_FILE`                                                                         | `providers.custom.json`  | Fournisseurs déclarés sans code                  |
+| `E2B_API_KEY`                                                                                 | —                        | Bac à sable d'exécution (Sprint 8)               |
+| `EKTS_PROVIDER_POLICY`                                                                        | `quality`                | `quality`, `free` ou `cost`                      |
+| `OPENAI_EMBEDDING_MODEL`                                                                      | `text-embedding-3-small` | Modèle d'embedding (1536 dims)                   |
+| `MCP_LOG_LEVEL`                                                                               | `info`                   | Journal MCP (`debug`, `info`, `error`, `silent`) |
+| `EMBEDDING_DIMENSION`                                                                         | `1536`                   | Doit correspondre au schéma `float[1536]`        |
 
 Aucun secret n'est nécessaire pour installer, compiler ou lancer les tests (le benchmark utilise un
 fournisseur d'embeddings local). Une clé reste nécessaire pour indexer et rechercher en mode
@@ -170,7 +186,7 @@ Voir `docs/guides/PROVIDERS.md` et `docs/guides/SEARCH_ENGINE.md`.
 
 ```
 engineering-knowledge-tooling-system/
-├── src/                     # code source (données : src/data)
+├── src/                     # code source (src/data, src/business, src/cli, src/mcp)
 ├── tests/                   # unit / integration / benchmark
 ├── migrations/              # migrations SQLite (Sprint 2)
 ├── docs/

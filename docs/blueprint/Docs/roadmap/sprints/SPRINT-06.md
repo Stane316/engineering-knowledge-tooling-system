@@ -2,8 +2,9 @@
 
 **Version :** 1.0  
 **Date création :** 2026-10-21  
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (23 octobre 2026)  
 **Addendum du 21 octobre 2026 :** le SDK MCP n'existe qu'en ligne 1.x (dernière version : **1.32.1**) ; la cible « v2 » est remplacée par `^1.32` et suivie en veille (ADR-011, ADR-V04).
+**Bilan de livraison :** 4 outils exposés via `McpServer` + `StdioServerTransport`, protocole négocié `2025-11-25` (la version « 2026-07-28 » du dossier n'existe pas), 99 tests MCP, écarts E6-1 à E6-7 documentés dans `docs/MCP.md` §12 (ADR-022).
 
 ---
 

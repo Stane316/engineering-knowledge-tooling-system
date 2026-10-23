@@ -16,7 +16,12 @@ const TitleSchema = z
   .min(1, 'Le titre est obligatoire')
   .max(500, 'Le titre ne peut pas dépasser 500 caractères');
 
-const UrlSchema = z.url('URL invalide (http:// ou https:// attendu)');
+// `z.url()` accepte n'importe quel schéma (`ftp://`, `mailto:`) : le message
+// promet http/https, la validation doit donc l'imposer (ADR-022).
+const UrlSchema = z.url({
+  protocol: /^https?$/,
+  error: 'URL invalide (http:// ou https:// attendu)',
+});
 
 const TagsSchema = z
   .array(z.string().trim().min(1, 'Un tag ne peut pas être vide').max(64))

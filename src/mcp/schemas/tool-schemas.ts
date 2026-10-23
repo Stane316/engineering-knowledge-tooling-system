@@ -1,0 +1,153 @@
+import { z } from 'zod';
+
+import { ResourceTypeSchema } from '../../shared/validators.js';
+
+/**
+ * Schémas d'entrée des quatre outils MCP.
+ *
+ * **Source unique de vérité : Zod.** Le SDK MCP convertit directement ces
+ * objets en JSON Schema pour `tools/list`, ce qui évite de maintenir deux
+ * définitions qui divergeraient. Les constantes `*Schema` ci-dessous exposent
+ * la conversion officielle (`z.toJSONSchema`) pour la documentation et les
+ * tests de contrat.
+ */
+
+/** Nombre maximal de résultats renvoyés par `search_knowledge`. */
+export const MAX_SEARCH_LIMIT = 100;
+
+/** Nombre maximal de ressources renvoyées par `list_resources`. */
+export const MAX_LIST_LIMIT = 1000;
+
+/** Mode de recherche exposé aux agents. */
+export const SearchModeSchema = z.enum(['hybrid', 'fts', 'vector']);
+
+/** Entrée de `search_knowledge`. */
+export const SearchKnowledgeInput = z.object({
+  query: z
+    .string()
+    .trim()
+    .min(1, 'la requête est obligatoire')
+    .max(2000, 'la requête ne peut pas dépasser 2000 caractères'),
+  limit: z
+    .number()
+    .int('la limite doit être un entier')
+    .min(1, 'la limite doit être supérieure ou égale à 1')
+    .max(MAX_SEARCH_LIMIT, `la limite ne peut pas dépasser ${String(MAX_SEARCH_LIMIT)}`)
+    .default(10),
+  mode: SearchModeSchema.default('hybrid'),
+  type: ResourceTypeSchema.optional(),
+  tags: z.array(z.string().trim().min(1)).max(50).optional(),
+});
+
+/** Entrée de `get_resource`. */
+export const GetResourceInput = z.object({
+  id: z
+    .string()
+    .trim()
+    .min(1, 'l’identifiant est obligatoire')
+    .max(100, 'l’identifiant ne peut pas dépasser 100 caractères'),
+});
+
+/** Entrée de `list_resources`. */
+export const ListResourcesInput = z.object({
+  type: ResourceTypeSchema.optional(),
+  tags: z.array(z.string().trim().min(1)).max(50).optional(),
+  limit: z
+    .number()
+    .int('la limite doit être un entier')
+    .min(1, 'la limite doit être supérieure ou égale à 1')
+    .max(MAX_LIST_LIMIT, `la limite ne peut pas dépasser ${String(MAX_LIST_LIMIT)}`)
+    .optional(),
+});
+
+/**
+ * Entrée de `validate_resource`.
+ *
+ * `data` est volontairement `unknown` : l'outil doit pouvoir dire *pourquoi*
+ * une donnée est invalide, donc accepter n'importe quelle forme. En Zod 4,
+ * `z.unknown()` rend la clé obligatoire, ce qui est le comportement voulu.
+ */
+export const ValidateResourceInput = z.object({
+  data: z.unknown(),
+});
+
+/** Sortie de `search_knowledge`. */
+export const SearchKnowledgeOutput = z.object({
+  query: z.string(),
+  mode: SearchModeSchema,
+  count: z.number().int().nonnegative(),
+  results: z.array(
+    z.object({
+      resource: z.record(z.string(), z.unknown()),
+      score: z.number(),
+      source: z.enum(['fts', 'vector', 'hybrid']),
+      highlight: z.string().optional(),
+    }),
+  ),
+});
+
+/** Sortie de `get_resource`. */
+export const GetResourceOutput = z.object({
+  resource: z.record(z.string(), z.unknown()),
+});
+
+/** Sortie de `list_resources`. */
+export const ListResourcesOutput = z.object({
+  count: z.number().int().nonnegative(),
+  resources: z.array(z.record(z.string(), z.unknown())),
+});
+
+/** Sortie de `validate_resource`. */
+export const ValidateResourceOutput = z.object({
+  valid: z.boolean(),
+  errors: z.array(z.string()).optional(),
+});
+
+/** Type JSON Schema exposé par `tools/list`. */
+export type ToolJsonSchema = Record<string, unknown>;
+
+/** Convertit un schéma Zod en JSON Schema d'entrée. */
+function toJsonSchema(schema: z.ZodType): ToolJsonSchema {
+  return z.toJSONSchema(schema, { io: 'input', unrepresentable: 'any' }) as ToolJsonSchema;
+}
+
+/** JSON Schema de `search_knowledge`. */
+export const searchKnowledgeSchema: ToolJsonSchema = toJsonSchema(SearchKnowledgeInput);
+
+/** JSON Schema de `get_resource`. */
+export const getResourceSchema: ToolJsonSchema = toJsonSchema(GetResourceInput);
+
+/** JSON Schema de `list_resources`. */
+export const listResourcesSchema: ToolJsonSchema = toJsonSchema(ListResourcesInput);
+
+/** JSON Schema de `validate_resource`. */
+export const validateResourceSchema: ToolJsonSchema = toJsonSchema(ValidateResourceInput);
+
+/** Descriptions affichées aux agents dans `tools/list`. */
+export const TOOL_DESCRIPTIONS = {
+  search_knowledge:
+    'Recherche des ressources de la base de connaissances EKTS. Modes : « hybrid » (BM25 + vecteurs, fusion RRF), « fts » (plein texte seul, sans réseau), « vector » (sémantique seul). Renvoie les ressources avec leur score et leur origine.',
+  get_resource:
+    'Renvoie une ressource complète (métadonnées, contenu, dates) à partir de son identifiant UUID. Échoue avec le code -32000 si la ressource n’existe pas.',
+  list_resources:
+    'Liste les ressources, éventuellement filtrées par type et par tags (tous les tags demandés doivent être présents), avec une limite optionnelle.',
+  validate_resource:
+    'Valide la forme d’une ressource avant création, sans rien écrire : type, titre, URL, tags, métadonnées et contenu. Renvoie { valid, errors? }.',
+} as const;
+
+/** Noms des outils, dans l'ordre de `tools/list`. */
+export const TOOL_NAMES = [
+  'search_knowledge',
+  'get_resource',
+  'list_resources',
+  'validate_resource',
+] as const;
+
+/** Nom d'un outil MCP. */
+export type ToolName = (typeof TOOL_NAMES)[number];
+
+/** Entrées typées après validation Zod. */
+export type SearchKnowledgeParams = z.output<typeof SearchKnowledgeInput>;
+export type GetResourceParams = z.output<typeof GetResourceInput>;
+export type ListResourcesParams = z.output<typeof ListResourcesInput>;
+export type ValidateResourceParams = z.output<typeof ValidateResourceInput>;

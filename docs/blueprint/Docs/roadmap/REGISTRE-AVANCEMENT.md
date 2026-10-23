@@ -141,15 +141,17 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 22/10/2026 | Correctif d'outillage après un merge sans effet : `.gitattributes` (`eol=lf`) contre les CRLF Windows, `npm run doctor`, procédures `SETUP.md` §6.11 (renormalisation) et §6.12 (merge par SHA, « Already up to date ») ; risques R-5.7 et R-5.8 | `fix/checkout` |
 
 | 23/10/2026 | Correctif « `verify` rouge sur le poste » : `openCliServices` et `createRuntime` acceptent un environnement injecté, `createTestRuntime` hermétique (`{}`), `isOffline`/`embeddingSpace` alignés ; 549 tests, couverture 100 %, vert avec et sans `.env` ; ADR-021, risque R-5.13, dépannage `SETUP.md` §6.13 | `fix/tests-hermetiques` |
+| 23/10/2026 | Sprint 6 : serveur MCP `src/mcp/` (SDK 1.32.1, transport stdio), 4 outils en lecture seule (`search_knowledge`, `get_resource`, `list_resources`, `validate_resource`), journal JSON sur stderr, codes `-32000`/`-32001`/`-32602`/`-32603` ; 99 tests MCP dont 8 sur le binaire, `src/mcp/**` à 100 %, suite à 649 tests ; ADR-022, risques R-6.1 à R-6.7, `docs/MCP.md`, `docs/MCP-EXAMPLES.md`, `.mcp.json`, `MCP-COMPATIBILITY.md` | `sprint-6` |
 ---
 
 ## 5. Prochaines étapes
 
-1. **Sprint 5 terminé** — CLI livrée (7 commandes, sorties JSON/humain, 522 tests, 100 %).
-2. **Sprint 6** — serveur MCP : en attente du **feu vert explicite de l'utilisateur**.
-   Aucun fichier du Sprint 6 n'est créé avant cet accord.
-3. Mise à jour de ce registre à la fin de chaque sous-sprint (statut + commit).
-4. Après validation utilisateur du Sprint 5, ouvrir le dossier `SPRINT-06.md`.
+1. **Sprint 6 terminé** — serveur MCP livré (4 outils, transport stdio, 649 tests au total, 100 %).
+2. **Sprint 7** — Playwright / inspection navigateur : en attente du **feu vert explicite
+   de l'utilisateur**. Aucun fichier du Sprint 7 n'est créé avant cet accord.
+3. Validation manuelle restante : Claude Code et Cursor sur le poste
+   (`MCP-COMPATIBILITY.md` §3) — la compatibilité protocolaire est déjà testée.
+4. Mise à jour de ce registre à la fin de chaque sous-sprint (statut + commit).
 
 > **Écart technique tranché au Sprint 2** : FTS5 autonome (pas de table de contenu externe) et
 > connexion unique avec bases attachées — la conception initiale du blueprint était irréalisable.
