@@ -196,41 +196,76 @@ function reportTempPath(temporary) {
   }
 }
 
-function explainFailure(engine, executable, binary, rendering, sandboxRetry, runtime) {
-  const hints = [];
-
+/**
+ * Nomme la cause dominante, dans l'ordre où les preuves sont fiables.
+ *
+ * L'ordre compte : un bac à sable qui fonctionne une fois désactivé explique
+ * à lui seul le plantage, même si le rendu direct ou l'antivirus pourraient
+ * aussi l'expliquer. On ne propose donc pas trois pistes quand une seule est
+ * démontrée.
+ */
+function diagnose({ binary, rendering, sandboxRetry, runtime }) {
   if (binary !== null && binary.versionExitCode !== 0) {
-    hints.push(
-      `le binaire ne répond même pas à « --version » (code ${binary.versionExitCode}). ` +
-        'Réinstallez-le : « npx playwright install --force ' +
-        engine +
-        ' », puis installez le redistribuable Microsoft Visual C++ 2015-2022 x64.',
-    );
-  }
-
-  if (rendering !== null && !rendering.wroteScreenshot) {
-    hints.push(
-      'le rendu hors Playwright échoue aussi : la cause est le moteur ou le poste, pas le code du projet',
-    );
+    return {
+      cause: 'runtime moteur incomplet (binaire ou DLL C++ manquant)',
+      verified: true,
+    };
   }
 
   if (sandboxRetry === 'ok') {
-    hints.push(
-      "le moteur fonctionne sans bac à sable : ajoutez « firefoxUserPrefs: { 'security.sandbox.content.level': 0 } » au lancement",
-    );
+    return { cause: 'bac à sable du processus de contenu', verified: true };
+  }
+
+  if (rendering !== null && !rendering.wroteScreenshot) {
+    return {
+      cause: 'moteur ou poste (le rendu hors Playwright échoue aussi)',
+      verified: true,
+    };
   }
 
   if (runtime !== null && runtime.missing.length > 0) {
-    hints.push(`runtime C++ absent de Windows (${runtime.missing.join(', ')})`);
+    return { cause: `runtime C++ absent (${runtime.missing.join(', ')})`, verified: true };
   }
 
-  hints.push(
-    'excluez « ' +
-      (executable ? dirname(executable) : 'le dossier des navigateurs') +
-      ' » de l’antivirus et de la Protection contre les exploits (Windows)',
-  );
+  return {
+    cause: 'environnement Windows (antivirus, Protection contre les exploits, TEMP)',
+    verified: false,
+  };
+}
 
-  return hints;
+/** Actions concrètes, classées selon la cause retenue. */
+function hintsFor(engine, executable, diagnosis) {
+  const exclude = `excluez « ${
+    executable ? dirname(executable) : 'le dossier des navigateurs'
+  } » de l’antivirus et de la Protection contre les exploits (Windows)`;
+
+  if (diagnosis.cause.startsWith('bac à sable')) {
+    return [
+      'aucune action n’est nécessaire : « Navigator » détecte ce cas et relance Firefox sans bac à sable (sandboxDisabled: true), et les tests e2e font de même',
+      'pour le forcer sans attendre un plantage : $env:EKTS_BROWSER_SANDBOX = "off"',
+      'pour l’interdire et échouer à la place : $env:EKTS_BROWSER_SANDBOX = "on"',
+      `si vous préférez corriger le poste : ${exclude}, puis vérifiez la stratégie « Protection contre les exploits » (désactiver les mitigations pour firefox.exe)`,
+    ];
+  }
+
+  if (diagnosis.cause.startsWith('runtime moteur')) {
+    return [
+      `réinstallez le moteur : « npx playwright install --force ${engine} »`,
+      'installez « Microsoft Visual C++ Redistributable 2015-2022 x64 », puis redémarrez',
+      exclude,
+    ];
+  }
+
+  if (diagnosis.cause.startsWith('moteur ou poste')) {
+    return [`réinstallez le moteur : « npx playwright install --force ${engine} »`, exclude];
+  }
+
+  return [
+    exclude,
+    'installez « Microsoft Visual C++ Redistributable 2015-2022 x64 » si le diagnostic ne trouve rien de mieux',
+    'vérifiez TEMP : chemin local, ASCII, hors OneDrive',
+    'réinstallez le moteur : « npx playwright install --force ' + engine + ' »',
+  ];
 }
 
 async function checkEngine(playwright, engine) {
@@ -240,6 +275,7 @@ async function checkEngine(playwright, engine) {
 
   if (!existsSync(executable)) {
     result.reason = 'binaire absent';
+    result.diagnosis = { cause: 'binaire non téléchargé', verified: true };
     result.hints = [`npx playwright install ${engine}`];
     line(false, engine, `binaire absent (chemin attendu : ${executable})`);
 
@@ -303,14 +339,10 @@ async function checkEngine(playwright, engine) {
       result.sandboxRetry = sandboxRetry;
     }
 
-    result.hints = explainFailure(
-      engine,
-      executable,
-      binary,
-      rendering,
-      sandboxRetry,
-      checkRuntime(),
-    );
+    const diagnosis = diagnose({ binary, rendering, sandboxRetry, runtime: checkRuntime() });
+
+    result.diagnosis = diagnosis;
+    result.hints = hintsFor(engine, executable, diagnosis);
     result.diagnostics = { binary, rendering, sandboxRetry };
   }
 
@@ -364,20 +396,25 @@ if (failures.length === 0) {
   console.log('Les trois moteurs ouvrent une page. « npm run test:e2e » peut tourner.');
 } else {
   for (const failure of failures) {
-    console.log(`${failure.engine} : ${failure.reason}`);
+    const diagnosis = failure.diagnosis ?? { cause: failure.reason, verified: false };
+
+    console.log(`${failure.engine} — ${failure.reason}`);
+    console.log(
+      `  cause ${diagnosis.verified === true ? 'identifiée' : 'probable'} : ${String(diagnosis.cause)}`,
+    );
+
     for (const hint of failure.hints) {
       console.log(`  → ${hint}`);
     }
+
     console.log('');
   }
 
-  console.log('Ordre de réparation conseillé :');
-  console.log(`  1. npx playwright install --force ${failures.map((f) => f.engine).join(' ')}`);
-  console.log(
-    '  2. exclure le dossier des navigateurs de l’antivirus et de la Protection contre les exploits',
-  );
-  console.log('  3. vérifier TEMP (chemin local, ASCII, hors OneDrive)');
-  console.log('  4. relancer : npm run doctor:browsers');
+  if (failures.every((failure) => failure.sandboxRetry === 'ok')) {
+    console.log('Le projet sait fonctionner dans cet état : relancez « npm run test:e2e ».');
+  } else {
+    console.log('Après réparation, relancez : npm run doctor:browsers');
+  }
 }
 
 if (notes.length > 0) {
