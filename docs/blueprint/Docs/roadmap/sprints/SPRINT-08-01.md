@@ -3,7 +3,8 @@
 **Durée :** 3 jours  
 **Objectif :** Définir les types d'inspection et implémenter l'inspection L1 (rapide)  
 **Dépendance :** Sprint 7 (Playwright Setup) ✅
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (23 octobre 2026)
+**Bilan de livraison :** `inspection/types.ts` (niveaux, budgets, contrats sérialisables), `inspection/snapshot.ts` (photographie du DOM en une évaluation, normalisée), `inspection/level-1.ts` ; **19 tests** (`tests/browser/inspection/level-1.test.ts`). Écart E8-7 : `LaunchOptions.context` ajouté pour viewport et user-agent.
 
 ---
 

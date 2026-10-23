@@ -3,7 +3,8 @@
 **Durée :** 3 jours  
 **Objectif :** Intégrer axe-core, implémenter l'inspection L3 (approfondie), tester et documenter  
 **Dépendance :** Sprint 8-2 (Lighthouse + L2) ✅
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (23 octobre 2026)
+**Bilan de livraison :** `src/browser/axe.ts` (WCAG 2.2 AA, score pondéré), `inspection/ux.ts`, `inspection/content.ts`, `inspection/level-3.ts`, `inspection/inspector.ts` ; **62 tests** (`axe.test.ts` 19, `level-3.test.ts` 23, `inspector.test.ts` 20) ; `docs/INSPECTOR.md`. Couverture `src/browser/` : 98,9 %. Écart E8-11 : e2e non exécutés dans le bac à sable (binaires absents).
 
 ---
 
