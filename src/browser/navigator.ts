@@ -324,7 +324,7 @@ export class Navigator {
     }
 
     try {
-      const context = await browser.newContext();
+      const context = await browser.newContext(options.context);
       context.setDefaultTimeout?.(DEFAULT_TIMEOUT_MS);
       context.setDefaultNavigationTimeout?.(DEFAULT_TIMEOUT_MS);
       const page = await context.newPage();

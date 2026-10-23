@@ -110,8 +110,8 @@ ekts-vectors.db  → Index vectoriel (sqlite-vec embeddings)
 
 | Technologie | Version | Rôle | Statut | Justification |
 |-------------|---------|------|--------|---------------|
-| **Lighthouse** | 11+ | Performance/SEO | ✅ VALIDÉ | Standard industrie, intégré Playwright |
-| **axe-core** | 4.10+ | Accessibilité | ✅ VALIDÉ | WCAG 2.2 AA, standard industrie |
+| **Lighthouse** | 12.8.2 (épinglée) | Performance/SEO | ✅ VALIDÉ | Standard industrie ; 13.x écartée (Node ≥ 22.19 vs `engines` ≥ 22.12) — ADR-026 |
+| **axe-core** | 4.14.0 (`@axe-core/playwright`) | Accessibilité | ✅ VALIDÉ | WCAG 2.2 AA, standard industrie ; complète l'arbre ARIA — ADR-027 |
 
 ### 2.6 Sécurité
 

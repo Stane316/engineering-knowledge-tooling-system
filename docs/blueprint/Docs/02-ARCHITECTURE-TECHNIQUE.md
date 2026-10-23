@@ -284,8 +284,8 @@ score_rrf(d) = Σ 1/(k + rank_i(d))
 #### 4.2.3 Browser Inspector
 
 **Rôle :** Inspection automatisée de sites web  
-**Statut :** 🟡 Prévu dans MVP-2 (Sprint 7-10)  
-**Technologie :** Playwright + Playwright MCP  
+**Statut :** 🟢 L1-L3 implémentés (Sprint 8, 23 octobre 2026) — L4 reporté après MVP-2  
+**Technologie :** Playwright 1.64.1 + Lighthouse 12.8.2 + axe-core 4.14.0  
 **Responsabilités :**
 - Navigation et captures (screenshots, traces)
 - Extraction accessibility tree
@@ -300,6 +300,11 @@ score_rrf(d) = Σ 1/(k + rank_i(d))
 | L2 (Standard) | L1 + Lighthouse + SEO | < 30s |
 | L3 (Approfondie) | L2 + UX + contenu | < 60s |
 | L4 (Crawling) | L3 + multi-pages | MVP-2 exclu |
+
+**Implémentation :** `src/browser/inspection/inspector.ts` (`Inspector.inspect(url, level)`),
+documentée dans `docs/INSPECTOR.md`. Les budgets sont **mesurés et signalés**
+(`withinBudget`), jamais imposés par une coupure silencieuse ; Lighthouse exige
+Chromium (ADR-026) et axe-core complète l'arbre ARIA (ADR-027).
 
 **5 dimensions d'analyse :**
 1. Performance (Lighthouse)

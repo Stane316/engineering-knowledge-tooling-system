@@ -100,6 +100,7 @@ export interface FakePageOptions {
   readonly screenshotError?: unknown;
   readonly pdfError?: unknown;
   readonly ariaSnapshotError?: unknown;
+  readonly evaluateError?: unknown;
 }
 
 /** Page Playwright factice, pilotée par options. */
@@ -174,6 +175,10 @@ export function createFakePage(options: FakePageOptions = {}): FakePage {
     },
     evaluate: async <T = unknown>(expression: string): Promise<T> => {
       calls.evaluate(expression);
+
+      if (options.evaluateError !== undefined) {
+        throw options.evaluateError;
+      }
 
       return (options.evaluate ?? true) as T;
     },

@@ -175,6 +175,22 @@ http/https uniquement et écritures confinées dans le dossier d'artefacts. Guid
 complet, y compris les écarts avec le dossier de sprint :
 [`docs/PLAYWRIGHT.md`](docs/PLAYWRIGHT.md).
 
+L'inspecteur (`src/browser/inspection/`) ajoute trois niveaux emboîtés :
+**L1** (< 10 s) capture, arbre ARIA et métadonnées ; **L2** (< 30 s) y ajoute
+Lighthouse (Core Web Vitals) et une analyse SEO du DOM ; **L3** (< 60 s) y
+ajoute axe-core (WCAG 2.2 AA), cinq heuristiques de Nielsen et une analyse de
+contenu (volume, temps de lecture, lisibilité). `Inspector.inspect({ url, level })`
+referme toujours la session et écrit un rapport JSON sérialisable. Les budgets
+sont mesurés et signalés (`withinBudget`), et toute analyse indisponible est
+consignée dans `warnings` plutôt que remplacée par un score inventé.
+
+```powershell
+npm run build
+npm run inspect -- https://exemple.fr L3 --save
+```
+
+Guide : [`docs/INSPECTOR.md`](docs/INSPECTOR.md).
+
 ## 6. Configuration
 
 | Variable                                                                                      | Défaut                   | Rôle                                             |
@@ -246,6 +262,8 @@ engineering-knowledge-tooling-system/
 | [`docs/guides/SEARCH_ENGINE.md`](docs/guides/SEARCH_ENGINE.md)                                                               | Moteur de recherche (Sprint 4)                       |
 | [`docs/guides/PROVIDERS.md`](docs/guides/PROVIDERS.md)                                                                       | Fournisseurs, routage, rotation de clés (Sprint 4.5) |
 | [`docs/CLI.md`](docs/CLI.md)                                                                                                 | Interface en ligne de commande (Sprint 5)            |
+| [`docs/PLAYWRIGHT.md`](docs/PLAYWRIGHT.md)                                                                                   | Socle navigateur, bac à sable, dépannage (Sprint 7)  |
+| [`docs/INSPECTOR.md`](docs/INSPECTOR.md)                                                                                     | Inspecteur L1-L3, scores, écarts (Sprint 8)          |
 | [`AGENTS.md`](AGENTS.md)                                                                                                     | Règles de travail des agents                         |
 
 ## 10. Licence

@@ -38,9 +38,11 @@
     "mcp": "node dist/mcp/server.js",
     "test:e2e": "playwright test",
     "browsers:install": "playwright install chromium firefox webkit",
-    "doctor:browsers": "node scripts/browser-doctor.mjs"
+    "doctor:browsers": "node scripts/browser-doctor.mjs",
+    "inspect": "node scripts/inspect.mjs"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.64.1",
     "@types/better-sqlite3": "^9.6.0",
@@ -49,6 +51,7 @@
     "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
+    "lighthouse": "^12.8.2",
     "prettier": "^3.9.10",
     "tsx": "^4.23.15",
     "typescript": "~5.9.3",

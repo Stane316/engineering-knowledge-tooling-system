@@ -905,6 +905,88 @@ pas joignable depuis l'environnement d'intégration continue.
 
 ---
 
+#### ADR-026 — Lighthouse 12.8.2 piloté par port CDP, derrière un contrat local
+
+**Statut :** ✅ APPLIQUÉ (Sprint 8)
+**Contexte :** le plan du Sprint 8 prévoit Lighthouse 11+ (`lighthouse`,
+`onlyCategories: ['performance', 'seo']`). Trois contraintes sont apparues à
+l'audit :
+
+1. Lighthouse **13.5** exige Node ≥ 22.19, alors que `engines` fixe ≥ 22.12.0
+   (`.nvmrc` 22) : monter la version casserait le plancher du projet ;
+2. le paquet ne publie **ni `types` ni `exports`** : `import('lighthouse')`
+   échoue en `TS2307` sous `NodeNext` ;
+3. Lighthouse ne pilote pas Playwright : il se connecte à **Chrome par le
+   protocole de débogage**, donc sur un port déjà ouvert.
+
+**Décision :**
+1. Version **épinglée `12.8.2`** (compatible Node ≥ 18.16), déclarée en
+   `devDependencies` — la CLI et le serveur MCP de connaissances ne la chargent
+   jamais.
+2. Déclaration de types **minimale et locale**
+   (`src/browser/lighthouse-module.d.ts`) : seul
+   `lighthouse(url, flags, config?) → { lhr }` est décrit, jamais les types
+   internes (instables d'une version à l'autre).
+3. `findFreePort()` réserve un port libre sur `127.0.0.1`, `Inspector` lance
+   Chromium avec `--remote-debugging-port=<port>`, et `LighthouseAnalyzer`
+   transmet `{ port, output: 'json', logLevel: 'error', onlyCategories }`.
+4. Le rapport est **converti** vers nos types (`LighthouseAnalysis`), jamais
+   exposé brut : une montée de version ne change qu'un fichier.
+5. INP est lu en priorité, `max-potential-fid` en repli ; le TTFB provient de
+   l'audit `server-response-time`. Ces noms sont ceux de Lighthouse 12 (écarts
+   E8-4 et E8-5).
+6. L'exécutant est **injectable** (`LighthouseRunner`) : les tests reproduisent
+   un rapport réel sans navigateur.
+
+**Conséquences :** 17 tests dédiés, chargement paresseux du paquet, L2/L3
+réservés à Chromium. La version ne peut pas être montée sans relever `engines`
+et `.nvmrc` : c'est un choix explicite, consigné ici.
+
+#### ADR-027 — axe-core 4.14.0 avec score pondéré par gravité, en complément de l'arbre ARIA
+
+**Statut :** ✅ APPLIQUÉ (Sprint 8)
+**Contexte :** le Sprint 7 calcule des violations **sur l'arbre ARIA** (nom
+accessible, hiérarchie de titres). Cette analyse ne voit ni le contraste réel,
+ni les `aria-*` invalides, ni l'ordre de tabulation : elle ne peut pas prétendre
+couvrir WCAG 2.2 AA. Le plan du Sprint 8 prévoit axe-core avec
+`withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa'])`.
+
+**Décision :**
+1. `@axe-core/playwright` **4.14.0**, exécuté sur la page déjà chargée ; tags du
+   plan **plus** `wcag22a` et `best-practice` (une page conforme AA reste
+   médiocre sans landmarks ni hiérarchie).
+2. Score **explicable** : `100 − Σ (poids × nœuds fautifs)`, poids
+   `minor 1 · moderate 3 · serious 5 · critical 10`, plancher zéro.
+3. Une gravité absente compte comme `minor` et un nœud manquant comme un :
+   aucune violation n'est silencieusement ignorée.
+4. Les deux mesures **cohabitent** dans le rapport (`accessibility` pour
+   l'arbre, `axe` pour axe-core) : elles ne sont pas fusionnées, car elles ne
+   mesurent pas la même chose.
+5. L'exécutant est injectable (`AxeRunner`) ; le module n'est chargé qu'au
+   niveau L3.
+
+**Conséquences :** 19 tests dédiés, aucun navigateur requis. Une CSP qui bloque
+l'injection produit un `warning` explicite (ou une erreur en mode `strict`),
+jamais un score de 100 trompeur.
+
+---
+
+#### Risques nouveaux (Sprint 8)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-8.1 | L2/L3 partiels sur Firefox et WebKit (Lighthouse exige Chromium) → rapport faussement complet | Moyen | **Élevée** | `lighthouse: null` + `warnings` nommant le moteur ; `strict: true` transforme la dégradation en erreur (écart E8-6) |
+| R-8.2 | Collision de port CDP avec un autre processus | Faible | Faible | `findFreePort()` réserve un port avant le lancement, jamais de port codé en dur ; deux tests dédiés |
+| R-8.3 | Déclaration de types locale divergente de l'API réelle de Lighthouse | Moyen | Faible | Contrat réduit à `lighthouse(url, flags) → { lhr }`, conversion centralisée dans `lighthouse.ts`, test d'un rapport complet |
+| R-8.4 | Une montée de Lighthouse casse le plancher Node (`engines` ≥ 22.12) | Moyen | Moyenne | Version épinglée, ADR-026, note dans `docs/INSPECTOR.md` §10 ; montée = relever `engines` et `.nvmrc` ensemble |
+| R-8.5 | Les notes maison (SEO, UX, contenu) sont prises pour des mesures normées | Moyen | Moyenne | Formules publiées (`docs/INSPECTOR.md` §7), champs distincts de Lighthouse et axe, aucun score global agrégé |
+| R-8.6 | Le budget d'un niveau est lu comme une coupure alors qu'il informe | Faible | Moyenne | `withinBudget` + `budget` dans chaque rapport, dépassement jamais masqué, aucun `AbortController` caché |
+| R-8.7 | Une CSP bloque l'injection d'axe-core → accessibilité non mesurée | Moyen | Moyenne | Erreur traduite en `InspectionError` (`stage: 'axe'`), dégradation explicite, `strict` pour l'exiger |
+| R-8.8 | Un DOM exotique fait échouer l'expression de photographie | Faible | Moyenne | Normalisation champ par champ + `EMPTY_SNAPSHOT`, 5 tests de valeurs hostiles, aucune hypothèse de forme |
+| R-8.9 | Le rapport conserve le texte visible d'une page authentifiée | **Élevé** | Faible | Texte borné à 20 000 caractères, avertissement `docs/INSPECTOR.md` §11, aucun en-tête d'authentification journalisé |
+
+---
+
 ### 2.3 Décisions à vérifier
 
 | ID | Sujet | Information | Date vérification | Statut |
@@ -1401,6 +1483,8 @@ Pricing outils IA change (augmentation, suppression free tier).
 | ADR-021 (environnement injecté) | R-5.13 |
 | ADR-022 (serveur MCP, SDK officiel) | R-6.1 à R-6.7 |
 | ADR-023 (navigateur, arbre ARIA) | R-7.1 à R-7.7 |
+| ADR-026 (Lighthouse 12.8.2, port CDP) | R-8.1 à R-8.4 |
+| ADR-027 (axe-core, score pondéré) | R-8.5 à R-8.8 |
 
 ### 4.2 Risques non couverts
 
