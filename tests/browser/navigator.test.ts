@@ -253,13 +253,16 @@ describe('Navigator — navigation', () => {
 
     const result = await navigator.goto({ url: 'https://example.com/' });
 
+    // La durée dépend de l'horloge réelle : elle est vérifiée séparément avec
+    // une horloge injectée, sinon le test devient instable sous Windows.
     expect(result).toEqual({
       url: 'https://example.com/',
       title: 'Example Domain',
       status: 200,
-      loadTime: 0,
+      loadTime: expect.any(Number),
       redirected: false,
     });
+    expect(result.loadTime).toBeGreaterThanOrEqual(0);
   });
 
   it('mesure le temps de chargement avec l’horloge injectée', async () => {
