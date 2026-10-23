@@ -66,7 +66,16 @@ npm run db:inspect     # état des trois bases
 npm run db:reindex     # reconstruction de l'index FTS
 npm run test:benchmark # benchmark recherche (C4.6, C4.7, C4.8)
 npm run providers      # état des clés d'API et chaîne d'appel (après npm run build)
+npm run mcp            # serveur MCP stdio (après npm run build)
 ```
+
+**Serveur MCP (`src/mcp/`)** : `stdout` est le canal JSON-RPC, donc **aucun**
+`console.log` ne doit y écrire ; toute trace passe par `src/mcp/utils/logger.ts`
+(`stderr`, JSON Lines). Les quatre outils sont en lecture seule et réutilisent
+`openCliServices` (une seule connexion SQLite). Les schémas d'entrée sont des
+objets Zod (`src/mcp/schemas/tool-schemas.ts`) : ne pas écrire de JSON Schema à
+la main, il est dérivé. Toute modification d'outil exige un test dans
+`tests/mcp/` et, si le contrat change, une mise à jour de `docs/MCP.md`.
 
 Variables lues à l'exécution : `EKTS_DATA_DIR`, `LOG_LEVEL`, `NODE_ENV` (base) ; `OPENAI_API_KEY`,
 `OPENAI_EMBEDDING_MODEL`, `EMBEDDING_DIMENSION` (Sprint 4). `.env` est ignoré par Git et Gitleaks ;
