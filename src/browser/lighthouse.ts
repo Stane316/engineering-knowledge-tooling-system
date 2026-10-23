@@ -25,6 +25,21 @@ export const LIGHTHOUSE_CATEGORIES = ['performance', 'seo'] as const;
 /** Ports au-dessus de 1024 pour éviter les privilèges administrateur. */
 const MIN_PORT = 1024;
 
+/**
+ * Émulation desktop de repli, identique aux valeurs de Lighthouse 12.
+ *
+ * Utilisée seulement si le module ne fournit pas `desktopConfig` (doublure de
+ * test, version future) : elle doit **toujours** être cohérente avec
+ * `formFactor`, sinon Lighthouse lève avant même la navigation.
+ */
+export const DESKTOP_EMULATION = {
+  mobile: false,
+  width: 1350,
+  height: 940,
+  deviceScaleFactor: 1,
+  disabled: false,
+} as const;
+
 /** Audit Lighthouse réduit à ce qui est lu. */
 export interface LighthouseAudit {
   readonly id?: string;
@@ -76,13 +91,24 @@ export interface LighthouseRunner {
   run(target: LighthouseTarget, options?: LighthouseRunOptions): Promise<LighthouseRunResult>;
 }
 
-/** Module `lighthouse` réduit à sa fonction d'analyse. */
+/**
+ * Module `lighthouse` réduit à ce qui est utilisé.
+ *
+ * `desktopConfig` est le préréglage officiel : il aligne `formFactor`,
+ * `screenEmulation`, le user-agent émulé et la limitation réseau. Le composer
+ * soi-même est possible mais fragile — Lighthouse **refuse** un `formFactor`
+ * desktop avec une émulation mobile restée par défaut (preuve relevée sur le
+ * poste : « Screen emulation mobile setting (true) does not match formFactor
+ * setting (desktop) »).
+ */
 export interface LighthouseModule {
   readonly default: (
     url: string,
     flags: Record<string, unknown>,
     config?: unknown,
   ) => Promise<LighthouseRunResult>;
+  /** Préréglage desktop, fourni par le paquet. */
+  readonly desktopConfig?: unknown;
 }
 
 /**
@@ -138,16 +164,30 @@ export function createLighthouseRunner(module?: LighthouseModule): LighthouseRun
       options: LighthouseRunOptions = {},
     ): Promise<LighthouseRunResult> {
       const lighthouse = await getModule();
+      const desktop = options.mobile !== true;
       const flags: Record<string, unknown> = {
         port: target.port,
         output: 'json',
         logLevel: 'error',
         onlyCategories: [...LIGHTHOUSE_CATEGORIES],
-        formFactor: options.mobile === true ? 'mobile' : 'desktop',
         ...(options.timeoutMs === undefined ? {} : { maxWaitForLoad: options.timeoutMs }),
       };
 
-      const result = await lighthouse.default(target.url, flags);
+      // Desktop : le préréglage officiel porte aussi la limitation réseau et le
+      // user-agent. À défaut, les drapeaux doivent rester cohérents entre eux.
+      const config = desktop ? lighthouse.desktopConfig : undefined;
+
+      if (desktop && config === undefined) {
+        flags.formFactor = 'desktop';
+        flags.screenEmulation = { ...DESKTOP_EMULATION };
+      } else if (!desktop) {
+        flags.formFactor = 'mobile';
+      }
+
+      const result =
+        config === undefined
+          ? await lighthouse.default(target.url, flags)
+          : await lighthouse.default(target.url, flags, config);
 
       return { lhr: result.lhr as unknown as LighthouseReport };
     },

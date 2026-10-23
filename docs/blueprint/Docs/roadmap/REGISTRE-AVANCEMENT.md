@@ -42,7 +42,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | **MVP-2** — Inspection navigateur | 7 à 12 | ✅ 24 dossiers | 🟡 Sprints 7 et 8 terminés | ✅ unitaires, ⏳ e2e poste |
 | **MVP-3** — Capitalisation projets | 13 à 18 | ⏳ non documentés | ⏳ | — |
 
-**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 8 au 23 octobre 2026 (986 tests dont 971 verts et 15 d'intégration conditionnels, couverture ≥ 80 %).
+**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 8 au 23 octobre 2026 (988 tests dont 973 verts et 15 d'intégration conditionnels, couverture ≥ 80 %).
 
 > **Sprint 4.5** est un sprint hors plan, ajouté à la demande de l'utilisateur
 > (multiplication des clés d'API disponibles). Il ne décale aucun sprint
@@ -89,7 +89,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 7 | 7-3 | Accessibility Tree + Tests + Documentation | ✅ Rédigée | ✅ `d104c57` | ✅ 45 tests accessibilité, 12 e2e |
 | Sprint 7 | Dossier parent | Playwright Setup (Semaine 13-14) | ✅ Rédigée | ✅ Validé le 23/10/2026 | ✅ e2e 12/12 sur le poste |
 | Sprint 8 | 8-1 | Types + Inspection L1 (Semaine 15) | ✅ Rédigée | ✅ `58d333e` | ✅ 19 tests |
-| Sprint 8 | 8-2 | Lighthouse + Inspection L2 (Semaine 15-16) | ✅ Rédigée | ✅ `58d333e` | ✅ 38 tests |
+| Sprint 8 | 8-2 | Lighthouse + Inspection L2 (Semaine 15-16) | ✅ Rédigée | ✅ `58d333e` | ✅ 40 tests |
 | Sprint 8 | 8-3 | axe-core + Inspection L3 + Tests + Documentation (Semaine 16) | ✅ Rédigée | ✅ `58d333e` | ✅ 62 tests, couverture 98,9 % |
 | Sprint 8 | Dossier parent | 4 Niveaux d'Inspection (Semaine 15-16) | ✅ Rédigée | ✅ Livré le 23/10/2026 | ✅ C8.1–C8.18 tracés |
 | Sprint 9 | 9-1 | Analyse Performance + Accessibilité (Semaine 17) | ✅ Rédigée | ⏳ | — |
@@ -144,14 +144,15 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 23/10/2026 | Correctif « Firefox Target crashed » : le diagnostic a prouvé que Firefox 157 ne s'ouvre que sans bac à sable sur le poste de validation. `Navigator.start('firefox')` rejoue une fois le lancement sans bac à sable et l'expose (`sandboxDisabled`), politique `EKTS_BROWSER_SANDBOX` (`auto`/`on`/`off`), même repli dans la sonde des tests et dans la fixture e2e, verdict unique dans `doctor:browsers` ; écart E7-13, risque R-7.10 | `fix/firefox-sandbox` |
 | 23/10/2026 | Correctif « essai sur poste réel » : `Navigator.stop()` ne lève plus (fermeture ordonnée page → contexte → navigateur, arrêt forcé après délai), sonde d'état des moteurs (`tests/browser/engine-health.ts`) avec saut explicite et mode `EKTS_BROWSER_STRICT`, diagnostic `npm run doctor:browsers` (4 causes d'un `Target crashed`), `firefoxUserPrefs` exposées ; ADR-023 (addendum), risques R-7.8 et R-7.9, `docs/PLAYWRIGHT.md` §6.2, §11.1, §14.1 | `fix/browser-runtime` |
 | 23/10/2026 | Sprint 7 : module navigateur `src/browser/` (Playwright 1.64, 3 moteurs), `Navigator` (goto, capture, trace, PDF), accessibility tree via `ariaSnapshotJSON` (l'API `accessibility.snapshot` a été supprimée), 6 règles de violation, serveur MCP navigateur (5 outils) avec politique http/https + confinement des artefacts ; `src/browser/**` à 100 %, 174 tests, suite à 823 tests ; ADR-023, risques R-7.1 à R-7.7, `docs/PLAYWRIGHT.md`, `playwright.config.ts` | `sprint-7` |
-| 23/10/2026 | Sprint 8 : inspecteur multi-niveaux `src/browser/inspection/` (L1 capture + arbre ARIA + photographie du DOM, L2 + Lighthouse, L3 + axe-core + UX + contenu), `src/browser/lighthouse.ts` (port CDP réservé, conversion du rapport), `src/browser/axe.ts` (WCAG 2.2 AA, score pondéré `100 − Σ poids × nœuds`), `InspectionError` (`INSPECTION_FAILED`) ; 119 tests unitaires sans navigateur, `src/browser/` à 98,9 %, suite à 986 cas ; ADR-026 (Lighthouse 12.8.2), ADR-027 (axe-core), risques R-8.1 à R-8.9, `docs/INSPECTOR.md` (écarts E8-1 à E8-12) | `sprint-8` |
+| 23/10/2026 | Correctif poste Sprint 8 : **Lighthouse desktop** (le préréglage `desktopConfig` remplace `formFactor` seul — échec « Screen emulation mobile setting does not match formFactor »), **test stdio MCP** (délai 5 s → 20 s réglable par `EKTS_MCP_TIMEOUT_MS`, diagnostic du processus, fermeture bornée), scripts `npm run audit` / `audit:prod` ; écarts E8-13, risque R-8.10 | `fix/post-validation` |
+| 23/10/2026 | Sprint 8 : inspecteur multi-niveaux `src/browser/inspection/` (L1 capture + arbre ARIA + photographie du DOM, L2 + Lighthouse, L3 + axe-core + UX + contenu), `src/browser/lighthouse.ts` (port CDP réservé, conversion du rapport), `src/browser/axe.ts` (WCAG 2.2 AA, score pondéré `100 − Σ poids × nœuds`), `InspectionError` (`INSPECTION_FAILED`) ; 121 tests unitaires sans navigateur, `src/browser/` à 98,9 %, suite à 988 cas ; ADR-026 (Lighthouse 12.8.2), ADR-027 (axe-core), risques R-8.1 à R-8.9, `docs/INSPECTOR.md` (écarts E8-1 à E8-12) | `sprint-8` |
 | 23/10/2026 | Sprint 6 : serveur MCP `src/mcp/` (SDK 1.32.1, transport stdio), 4 outils en lecture seule (`search_knowledge`, `get_resource`, `list_resources`, `validate_resource`), journal JSON sur stderr, codes `-32000`/`-32001`/`-32602`/`-32603` ; 99 tests MCP dont 8 sur le binaire, `src/mcp/**` à 100 %, suite à 649 tests ; ADR-022, risques R-6.1 à R-6.7, `docs/MCP.md`, `docs/MCP-EXAMPLES.md`, `.mcp.json`, `MCP-COMPATIBILITY.md` | `sprint-6` |
 ---
 
 ## 5. Prochaines étapes
 
 1. **Sprints 7 et 8 terminés** — module navigateur et inspecteur L1-L3 livrés
-   (986 cas au total dont 971 verts, `src/browser/` à 98,9 %).
+   (988 cas au total dont 973 verts, `src/browser/` à 98,9 %).
 2. **Sprint 9 (Analyse 5 dimensions)** — en attente du **feu vert explicite de
    l'utilisateur**. Aucun fichier du Sprint 9 n'est créé avant cet accord.
 3. Validation manuelle restante (poste Windows connecté) : `npm run test:e2e`

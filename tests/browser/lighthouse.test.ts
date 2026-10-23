@@ -11,6 +11,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   createLighthouseRunner,
+  DESKTOP_EMULATION,
   extractCoreWebVitals,
   extractSeoIssues,
   findFreePort,
@@ -192,26 +193,44 @@ describe('findFreePort', () => {
   });
 });
 
-describe('createLighthouseRunner', () => {
-  it('transmet les options attendues au module Lighthouse', async () => {
+describe('createLighthouseRunner — cohérence d’émulation', () => {
+  it('utilise le préréglage desktop du paquet quand il existe', async () => {
+    const desktopConfig = { extends: 'lighthouse:default', settings: { formFactor: 'desktop' } };
     const module = {
       default: vi.fn(async () => ({ lhr: lighthouseReport() })),
+      desktopConfig,
     };
     const runner = createLighthouseRunner(module);
 
-    await runner.run(
-      { url: 'https://exemple.fr', port: 9444 },
-      { timeoutMs: 30_000, mobile: false },
-    );
+    await runner.run({ url: 'https://exemple.fr', port: 9444 }, { timeoutMs: 30_000 });
 
-    expect(module.default).toHaveBeenCalledWith('https://exemple.fr', {
-      port: 9444,
-      output: 'json',
-      logLevel: 'error',
-      onlyCategories: ['performance', 'seo'],
-      formFactor: 'desktop',
-      maxWaitForLoad: 30_000,
-    });
+    expect(module.default).toHaveBeenCalledWith(
+      'https://exemple.fr',
+      {
+        port: 9444,
+        output: 'json',
+        logLevel: 'error',
+        onlyCategories: ['performance', 'seo'],
+        maxWaitForLoad: 30_000,
+      },
+      desktopConfig,
+    );
+  });
+
+  it('aligne formFactor et screenEmulation quand le préréglage manque', async () => {
+    const module = { default: vi.fn(async () => ({ lhr: lighthouseReport() })) };
+    const runner = createLighthouseRunner(module);
+
+    await runner.run({ url: 'https://exemple.fr', port: 9444 });
+
+    const [, flags] = module.default.mock.calls[0] as unknown as [
+      string,
+      { formFactor: string; screenEmulation: { mobile: boolean } },
+    ];
+
+    expect(flags.formFactor).toBe('desktop');
+    expect(flags.screenEmulation).toEqual(DESKTOP_EMULATION);
+    expect(flags.screenEmulation.mobile).toBe(flags.formFactor === 'mobile');
   });
 
   it('demande l’émulation mobile quand elle est demandée', async () => {
@@ -220,21 +239,46 @@ describe('createLighthouseRunner', () => {
 
     await runner.run({ url: 'https://exemple.fr', port: 9444 }, { mobile: true });
 
-    expect(module.default).toHaveBeenCalledWith(
-      'https://exemple.fr',
-      expect.objectContaining({ formFactor: 'mobile' }),
-    );
+    const call = module.default.mock.calls[0] as unknown as [
+      string,
+      Record<string, unknown>,
+      unknown,
+    ];
+
+    expect(call[0]).toBe('https://exemple.fr');
+    expect(call[1]['formFactor']).toBe('mobile');
+    expect(call[1]).not.toHaveProperty('screenEmulation');
+    expect(call[2]).toBeUndefined();
   });
 
-  it('n’ajoute ni délai ni émulation quand ils ne sont pas demandés', async () => {
+  it('n’ajoute pas de délai quand il n’est pas demandé', async () => {
     const module = { default: vi.fn(async () => ({ lhr: lighthouseReport() })) };
     const runner = createLighthouseRunner(module);
 
     await runner.run({ url: 'https://exemple.fr', port: 9444 });
 
-    expect(module.default).toHaveBeenCalledWith(
-      'https://exemple.fr',
-      expect.not.objectContaining({ maxWaitForLoad: expect.anything() }),
-    );
+    const call = module.default.mock.calls[0] as unknown as [string, Record<string, unknown>];
+
+    expect(call[0]).toBe('https://exemple.fr');
+    expect(call[1]).not.toHaveProperty('maxWaitForLoad');
+    expect(module.default.mock.calls[0]).toHaveLength(2);
   });
+});
+
+describe('createLighthouseRunner — module réel', () => {
+  it(
+    'accepte le préréglage desktop du paquet installé (aucune incohérence d’émulation)',
+    { timeout: 20_000 },
+    async () => {
+      // Le port est fermé : Lighthouse échoue à s'y connecter. Ce qui compte
+      // ici est *avant* la connexion — la validation des réglages. Avec un
+      // `formFactor` desktop et l'émulation mobile par défaut, Lighthouse lève
+      // « Screen emulation mobile setting … does not match formFactor ».
+      const runner = createLighthouseRunner();
+
+      await expect(runner.run({ url: 'https://example.com', port: 65_531 })).rejects.not.toThrow(
+        /Screen emulation/,
+      );
+    },
+  );
 });

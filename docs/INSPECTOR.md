@@ -269,7 +269,10 @@ L2 ajoute :
 
 - **Lighthouse** (`performance`, `seo`) avec `output: 'json'`,
   `logLevel: 'error'`, `onlyCategories: ['performance', 'seo']`, sur le port CDP
-  du Chromium de la session ;
+  du Chromium de la session. Le mode desktop passe le préréglage officiel
+  `desktopConfig` du paquet (qui aligne `formFactor`, `screenEmulation`,
+  user-agent émulé et limitation réseau) ; Lighthouse **refuse** un
+  `formFactor` desktop avec l'émulation mobile par défaut ;
 - **SEO dérivée du DOM** : règles listées au §7.1.
 
 > **Pourquoi deux mesures SEO ?** Lighthouse juge un chargement à froid, dans
@@ -379,9 +382,9 @@ L1 ≈ 1,5 s, L2 ≈ 12 s (dont ≈ 10 s de Lighthouse), L3 ≈ 14 s.
 | `tests/browser/inspection/level-2.test.ts` | 21 | héritage, Lighthouse, SEO |
 | `tests/browser/inspection/level-3.test.ts` | 23 | axe, UX, contenu, lisibilité |
 | `tests/browser/inspection/inspector.test.ts` | 20 | cycle de vie, artefacts, erreurs |
-| `tests/browser/lighthouse.test.ts` | 17 | conversion du rapport, port, options |
+| `tests/browser/lighthouse.test.ts` | 19 | conversion du rapport, port, options, émulation |
 | `tests/browser/axe.test.ts` | 19 | score, tri, tags, erreurs |
-| **Total Sprint 8** | **119** | |
+| **Total Sprint 8** | **121** | |
 
 Aucun test n'ouvre de navigateur : les doublures (`tests/browser/helpers.ts`,
 `tests/browser/inspection/fixtures.ts`) reproduisent les méthodes appelées. Les
@@ -403,6 +406,7 @@ Couverture mesurée : **98,9 %** des lignes de `src/browser/` (seuil du projet :
 | Symptôme | Cause probable | Remède |
 | --- | --- | --- |
 | `Inspection (lighthouse) : ECONNREFUSED` | port CDP non ouvert | vérifier que `browserKind` vaut `chromium` et que le moteur accepte `--remote-debugging-port` |
+| `Screen emulation mobile setting … does not match formFactor` | émulation incohérente | corrigé : le mode desktop passe `desktopConfig` ; ne jamais fixer `formFactor` seul |
 | `Inspection (lighthouse) : …` avec `NODE_MODULE_VERSION` | Node trop ancien | `node --version` ≥ 22.12 ; ne pas monter Lighthouse 13 (exige 22.19) |
 | `lighthouse` absent | `npm ci` incomplet | `npm ls lighthouse` puis `npm ci` |
 | `Analyse axe-core indisponible : …` | CSP bloquant l'injection | inspecter avec `strict: true` pour voir l'erreur exacte |
@@ -426,6 +430,30 @@ mode à utiliser pour diagnostiquer, pas pour produire un rapport.
 - `warnings` ne contient que des messages techniques, jamais d'en-tête
   d'authentification.
 
+### 11.1 Dépendances et audit
+
+`lighthouse` est une dépendance **de développement** : la CLI et le serveur MCP
+de connaissances ne la chargent jamais, et le paquet n'est exécuté que par
+l'inspecteur.
+
+```powershell
+npm run audit        # chaîne complète (dev incluse)
+npm run audit:prod   # dépendances de production uniquement
+```
+
+Au 23/10/2026 : `npm audit` signale **27 vulnérabilités** (19 modérées,
+8 élevées), **toutes situées dans la chaîne Lighthouse** (`puppeteer-core`,
+`@puppeteer/browsers`, `extract-zip`, `proxy-agent`, `basic-ftp`, `get-uri`,
+`@sentry/node`). `npm run audit:prod` répond **0 vulnérabilité**.
+
+Le seul correctif proposé est **Lighthouse 13.5**, qui exige Node ≥ 22.19 et
+relèverait le plancher du projet (ADR-026) : il n'est pas appliqué. L'exposition
+réelle est faible : Lighthouse se connecte au Chromium déjà lancé par
+`Navigator` (port CDP), donc il ne télécharge aucun navigateur (`extract-zip`,
+`@puppeteer/browsers`), n'utilise ni FTP (`basic-ftp`) ni proxy système
+(`proxy-agent`). Risque suivi en **R-8.10** ; la montée sera faite quand le
+plancher Node pourra bouger.
+
 ---
 
 ## 12. Écarts au plan
@@ -447,6 +475,7 @@ tels quels. Ils sont consignés ici et dans le registre des décisions.
 | **E8-10** | lisibilité Flesch-Kincaid | **Flesch Kandel-Moles** (français) | la variante anglaise pénalise toute phrase française |
 | **E8-11** | e2e des niveaux | non exécutés dans le bac à sable | binaires Playwright indisponibles ; couverture unitaire 98,9 % |
 | **E8-12** | — | ajout de `InspectionError` (`INSPECTION_FAILED`) | situer l'étape en échec sans multiplier les codes |
+| **E8-13** | `formFactor: 'desktop'` seul (déduit du plan) | préréglage `desktopConfig` + repli cohérent | Lighthouse 13 refuse un `formFactor` desktop avec l'émulation mobile par défaut : bug constaté sur le poste le 23/10/2026, corrigé avant livraison |
 
 ---
 
