@@ -381,7 +381,7 @@ Remove-Item Env:\EKTS_BROWSER_ONLINE
 | --- | --- | --- | --- |
 | C7.1 | Playwright installé avec 3 moteurs | `npx playwright install --list` + `npm run test:e2e` | ⏳ poste (CDN indisponible en CI) |
 | C7.2 | Configuration fonctionnelle | `npx playwright test --list` → 12 tests | ✅ |
-| C7.3 | « Playwright MCP » fonctionne | `tests/browser/playwright-mcp.test.ts` (49 tests, transport mémoire) | ✅ |
+| C7.3 | « Playwright MCP » fonctionne | `tests/browser/playwright-mcp.test.ts` (53 tests, transport mémoire) | ✅ |
 | C7.4 | Navigation basique | `Navigator.goto` + intégration locale | ✅ (local) |
 | C7.5 | Captures | PNG/JPEG écrits, dimensions lues | ✅ |
 | C7.6 | Traces | ZIP écrit (`stopTrace`) | ✅ |

@@ -7,7 +7,7 @@
 
 ---
 
-**Bilan :** `Navigator` (goto, capture, trace, PDF) avec lanceur injectable et `createBrowserMcpServer` (5 outils, politique d'URL et confinement des artefacts) ; 51 + 49 tests unitaires, 100 % de couverture.
+**Bilan :** `Navigator` (goto, capture, trace, PDF) avec lanceur injectable et `createBrowserMcpServer` (5 outils, politique d'URL et confinement des artefacts) ; 55 + 53 tests unitaires, 100 % de couverture.
 
 ## 1. Contexte
 

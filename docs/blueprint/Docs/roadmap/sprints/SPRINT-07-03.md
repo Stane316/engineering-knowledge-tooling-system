@@ -7,7 +7,7 @@
 
 ---
 
-**Bilan :** `Accessibility` fondée sur `ariaSnapshotJSON` (l'API `accessibility.snapshot` du dossier a été supprimée de Playwright), 6 règles de violation, 41 tests ; tests d'intégration hors ligne sur `127.0.0.1` (15 cas conditionnels) et documentation `docs/PLAYWRIGHT.md`.
+**Bilan :** `Accessibility` fondée sur `ariaSnapshotJSON` (l'API `accessibility.snapshot` du dossier a été supprimée de Playwright), 6 règles de violation, 45 tests ; tests d'intégration hors ligne sur `127.0.0.1` (15 cas conditionnels) et documentation `docs/PLAYWRIGHT.md`.
 
 ## 1. Contexte
 
