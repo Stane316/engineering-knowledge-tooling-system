@@ -408,6 +408,21 @@ CREATE VIRTUAL TABLE resources_vectors USING vec0(
 );
 ```
 
+**Tables d'audit (Sprint 10, ekts.db) :**
+```sql
+-- 3 tables normalisées + FTS5 autonome (content= externe refusé, cf. 001_init)
+audit_metadata  (id, url, timestamp, overall_score, …findings counts)
+audit_dimensions (audit_id → CASCADE, dimension, score, findings_count)
+audit_findings   (audit_id → CASCADE, title, severity, effort, impact, priority, …)
+audit_fts        FTS5(url, title, description) — rowid = id du constat
+```
+`AuditSchema.createSchema()` (idempotent, active `foreign_keys`) ;
+`AuditRepository` en transaction unique ; indexation `AuditIndexer` (FTS +
+`AuditEmbeddingStore` injecté — jamais de réseau en test) ; recherche hybride
+`AuditSearch` (BM25 + voisins, fusion RRF `k=60` réutilisée de
+`src/business/rrf.ts`) ; statistiques `AuditStatisticsManager`.
+Documenté dans `docs/STORAGE.md` : 101 tests, couverture 95,9 %.
+
 #### 4.3.3 Repository Pattern
 
 **Interface générique :**

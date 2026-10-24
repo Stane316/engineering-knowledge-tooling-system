@@ -1065,6 +1065,49 @@ seul responsable de la chaîne de collecte.
 
 ---
 
+#### ADR-029 — Audits relationnels avec FTS5 autonome et embeddings injectés
+
+**Statut :** ✅ APPLIQUÉ (Sprint 10)
+**Contexte :** le plan du Sprint 10 (rédigé sur un état imaginaire du dépôt)
+prescrivait une table FTS5 à content externe `content='audit_findings'`
+alimentée par des `INSERT` directs — refusés par SQLite sur ce type de table —
+et un `VectorStore` qui n'a jamais existé, adossé à des embeddings supposés
+disponibles. Les règles du projet interdisent tout réseau dans les tests
+unitaires.
+
+**Décision :**
+1. Trois tables relationnelles (`audit_metadata`, `audit_dimensions`,
+   `audit_findings`) avec `CHECK` de bornes et `ON DELETE CASCADE` — le pragma
+   `foreign_keys` est activé par `AuditSchema.createSchema()`.
+2. Index FTS5 **autonome** `audit_fts(url, title, description)` (contenu copié,
+   `rowid` = identifiant du constat), aligné sur la décision prise pour
+   `resources_fts` en migration `001_init` ; nettoyage FTS dans la même
+   transaction que la suppression.
+3. Contrat `AuditEmbeddingStore` **injecté** (`src/storage/types.ts`) : sans
+   magasin, la recherche reste plein texte et `vectorized: false` le signale ;
+   jamais de vecteur simulé.
+4. Recherche hybride fusionnée par la RRF maison (`RRF_K = 60`,
+   `reciprocalRank` de `src/business/rrf.ts`) : les échelles BM25 et cosinus
+   ne sont pas mélangées, seuls les rangs comptent.
+
+**Conséquences :** 6 fichiers code + 6 tests + 2 docs comme prévu ; 101 tests,
+couverture `src/storage/` 95,9 %/93,7 % branches ; scénario 10 000 audits en
+budget (stockage ~0,1 ms/audit, recherche < 1 ms) ; l'adaptation à un
+fournisseur d'embeddings réel sera un branchement de `AuditEmbeddingStore`
+sans toucher au module.
+
+---
+
+#### Risques nouveaux (Sprint 10)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-10.1 | Le contenu copié d'`audit_fts` **diverge** d'`audit_findings` (écriture SQL hors repository/indexer) | Moyen | Faible | Écritures confinées à `AuditRepository`/`AuditIndexer` ; `delete()` nettoie les rowid orphelins ; tests d'idempotence et de reconstruction |
+| R-10.2 | À grande échelle (10 000 audits), la recherche hybride **dépasse ses budgets** sur un poste plus lent que la CI | Moyen | Faible | Budgets mesurés en test (`integration.test.ts`, marges ×20-×100) ; index sur `url`/`timestamp`/`audit_id` ; pagination SQL ; surveiller au premier usage réel |
+| R-10.3 | Le magasin d'embeddings **défaut** reste en mode lexical après branchement production (`vectorized: false` ignoré) | Faible | Moyenne | Issue d'indexation structurée, documentation `docs/STORAGE.md` §5, test « sans magasin » dédié ; le Sprint 11 branchera `EmbeddingsService` |
+
+---
+
 ### 2.3 Décisions à vérifier
 
 | ID | Sujet | Information | Date vérification | Statut |
@@ -1564,6 +1607,7 @@ Pricing outils IA change (augmentation, suppression free tier).
 | ADR-026 (Lighthouse 12.8.2, port CDP) | R-8.1 à R-8.4 |
 | ADR-027 (axe-core, score pondéré) | R-8.5 à R-8.8 |
 | ADR-028 (adapter inspection → analyse) | R-9.1, R-9.2 |
+| ADR-029 (FTS autonome, embeddings injectés) | R-10.1 à R-10.3 |
 
 ### 4.2 Risques non couverts
 

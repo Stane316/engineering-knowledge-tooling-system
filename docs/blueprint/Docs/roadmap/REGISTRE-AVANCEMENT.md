@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 24 octobre 2026 — Sprint 9 (Analyse 5 dimensions)  
+**Dernière mise à jour :** 24 octobre 2026 — Sprint 10 (Stockage + Indexation)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -96,6 +96,10 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 9 | 9-2 | Analyse SEO + UX + Contenu (Semaine 17-18) | ✅ Rédigée | ✅ `a94760a` | ✅ 23 tests |
 | Sprint 9 | 9-3 | Matrice Sévérité + Priorisation + Tests + Documentation (Semaine 18) | ✅ Rédigée | ✅ `5195efe` | ✅ 39 tests, couverture 97,9 % |
 | Sprint 9 | Dossier parent | Analyse 5 Dimensions (Semaine 17-18) | ✅ Rédigée | ✅ Livré le 24/10/2026 | ✅ C9.1–C9.17 tracés |
+| Sprint 10 | 10-1 | Schema + Repository (Semaine 19) | ✅ Rédigée | ✅ `9ee57e6` | ✅ 30 tests |
+| Sprint 10 | 10-2 | Indexation + Recherche (Semaine 19) | ✅ Rédigée | ✅ `a32b971` | ✅ 33 tests |
+| Sprint 10 | 10-3 | Statistiques + Tests + Documentation (Semaine 20) | ✅ Rédigée | ✅ `d4940a9` | ✅ 38 tests, couverture 95,9 % |
+| Sprint 10 | Dossier parent | Stockage + Indexation MVP-2 (Semaine 19-20) | ✅ Rédigée | ✅ Livré le 24/10/2026 | ✅ C10.1–C10.18 tracés |
 | Sprint 9 | Dossier parent | Analyse 5 Dimensions (Semaine 17-18) | ✅ Rédigée | ⏳ | — |
 | Sprint 10 | 10-1 | Schema + Repository (Semaine 19, Jours 1-4) | ✅ Rédigée | ⏳ | — |
 | Sprint 10 | 10-2 | Indexation + Recherche (Semaine 19, Jours 5-7) | ✅ Rédigée | ⏳ | — |
