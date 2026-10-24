@@ -1,8 +1,50 @@
 import type { IEmbeddingsService } from '../business/embeddings.js';
 import type { IKnowledgeManager } from '../business/knowledge-manager.types.js';
 import type { ISearchEngine } from '../business/search-engine.types.js';
+import { AnalysisPipeline } from '../analysis/pipeline.js';
+import type { AnalysisReport } from '../analysis/types.js';
+import { fromInspection } from '../analysis/adapter.js';
+import { Inspector } from '../browser/inspection/inspector.js';
+import type { InspectionLevel, L3InspectionResult } from '../browser/inspection/types.js';
 import { createSearchEngine, openCliServices, type CliServices } from '../cli/services.js';
 import { loadConfig } from '../shared/config.js';
+import { ValidationError } from '../shared/errors.js';
+import type { Audit } from '../storage/types.js';
+import { AuditRepository } from '../storage/audit-repository.js';
+import { AuditSchema } from '../storage/schema.js';
+import { AuditSearch } from '../storage/search.js';
+import { AuditStatisticsManager } from '../storage/statistics.js';
+import { AuditIndexer } from '../storage/indexing.js';
+
+/**
+ * Services des outils d'inspection et d'audits (Sprint 11-3).
+ *
+ * `inspectAndAudit` concentre la chaîne navigation → analyse → stockage ;
+ * il est **remplaçable** dans les tests (aucune navigation réseau dans les
+ * tests unitaires), comme les autres dépendances du contexte.
+ */
+export interface AuditToolServices {
+  /** Lecture des audits stockés. */
+  readonly repository: AuditRepository;
+  /** Recherche/filtrage paginé des audits (FTS sans réseau). */
+  readonly search: AuditSearch;
+  /** Statistiques agrégées. */
+  readonly statistics: AuditStatisticsManager;
+  /** Indexation FTS des constats. */
+  readonly indexer: AuditIndexer;
+  /**
+   * Inspection complète (navigateur) → analyse → audit persisté + indexé.
+   *
+   * @param input - URL et niveau (`L3` requis : seuls L3 fournit les
+   *                entrées `lighthouse`/`axe`/`ux`/`content`).
+   * @returns Audit stocké et rapport d'analyse d'origine.
+   * @throws {ValidationError} Niveau insuffisant ou inspection inattendue.
+   */
+  inspectAndAudit(input: {
+    readonly url: string;
+    readonly level: InspectionLevel;
+  }): Promise<{ readonly audit: Audit; readonly report: AnalysisReport }>;
+}
 
 /**
  * Contexte d'exécution des outils MCP.
@@ -16,6 +58,8 @@ export interface McpToolContext {
   readonly manager: IKnowledgeManager;
   /** Recherche lexicale, vectorielle et hybride (Sprint 4). */
   readonly search: ISearchEngine;
+  /** Audits, inspection et rapports (Sprint 11). */
+  readonly audits: AuditToolServices;
 }
 
 /** Contexte complet, avec la fermeture des ressources ouvertes. */
@@ -58,9 +102,47 @@ export function openMcpServices(options: OpenMcpOptions = {}): McpServices {
     embeddings: options.embeddings,
   });
 
+  const { connection } = services.database;
+  new AuditSchema(connection).createSchema();
+  const repository = new AuditRepository(connection);
+  const indexer = new AuditIndexer(connection);
+
+  const audits: AuditToolServices = {
+    repository,
+    search: new AuditSearch(connection, repository),
+    statistics: new AuditStatisticsManager(connection),
+    indexer,
+    inspectAndAudit: async ({ url, level }) => {
+      if (level !== 'L3') {
+        throw new ValidationError([
+          `le niveau ${level} ne produit pas les entrées d'analyse complètes ; utilisez le niveau L3`,
+        ]);
+      }
+
+      const inspection = await new Inspector().inspect({ url, level });
+      if (inspection.level !== 'L3') {
+        throw new ValidationError([`inspection inattendue de niveau ${inspection.level}`]);
+      }
+
+      const inputs = fromInspection(inspection as L3InspectionResult);
+      const report = await new AnalysisPipeline().analyze(
+        url,
+        inputs.lighthouse,
+        inputs.axe,
+        inputs.ux,
+        inputs.content,
+      );
+      const audit = repository.store(report);
+      await indexer.indexAudit(audit);
+
+      return { audit, report };
+    },
+  };
+
   return {
     manager: services.manager,
-    search: createSearchEngine(services.database.connection, services.embeddings),
+    search: createSearchEngine(connection, services.embeddings),
+    audits,
     dataDir,
     embeddingsAvailable: services.embeddings !== undefined,
     close: services.close,

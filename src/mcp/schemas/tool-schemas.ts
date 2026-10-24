@@ -71,6 +71,34 @@ export const ValidateResourceInput = z.object({
   data: z.unknown(),
 });
 
+/** Entrée de `inspect_site`. */
+export const InspectSiteInput = z.object({
+  url: z
+    .string()
+    .url({ message: 'l\u2019URL doit être une URL valide (http/https)' })
+    .describe('URL du site à inspecter'),
+  level: z
+    .enum(['L1', 'L2', 'L3'])
+    .default('L3')
+    .describe(
+      'Niveau d\u2019inspection : L3 requis pour l\u2019analyse complète (L1/L2 ne fournissent pas toutes les entrées)',
+    ),
+});
+
+/** Entrée de `audit_history`. */
+export const AuditHistoryInput = z.object({
+  url: z.string().url({ message: 'l\u2019URL doit être une URL valide (http/https)' }).optional(),
+  limit: z.number().int().min(1).max(100).default(20),
+  score_min: z.number().int().min(0).max(100).optional(),
+  score_max: z.number().int().min(0).max(100).optional(),
+});
+
+/** Entrée de `audit_report`. */
+export const AuditReportInput = z.object({
+  audit_id: z.number().int().positive(),
+  format: z.enum(['markdown', 'text']).default('markdown'),
+});
+
 /** Sortie de `search_knowledge`. */
 export const SearchKnowledgeOutput = z.object({
   query: z.string(),
@@ -123,6 +151,15 @@ export const listResourcesSchema: ToolJsonSchema = toJsonSchema(ListResourcesInp
 /** JSON Schema de `validate_resource`. */
 export const validateResourceSchema: ToolJsonSchema = toJsonSchema(ValidateResourceInput);
 
+/** JSON Schema de `inspect_site`. */
+export const inspectSiteSchema: ToolJsonSchema = toJsonSchema(InspectSiteInput);
+
+/** JSON Schema de `audit_history`. */
+export const auditHistorySchema: ToolJsonSchema = toJsonSchema(AuditHistoryInput);
+
+/** JSON Schema de `audit_report`. */
+export const auditReportSchema: ToolJsonSchema = toJsonSchema(AuditReportInput);
+
 /** Descriptions affichées aux agents dans `tools/list`. */
 export const TOOL_DESCRIPTIONS = {
   search_knowledge:
@@ -133,6 +170,12 @@ export const TOOL_DESCRIPTIONS = {
     'Liste les ressources, éventuellement filtrées par type et par tags (tous les tags demandés doivent être présents), avec une limite optionnelle.',
   validate_resource:
     'Valide la forme d’une ressource avant création, sans rien écrire : type, titre, URL, tags, métadonnées et contenu. Renvoie { valid, errors? }.',
+  inspect_site:
+    'Inspecte un site web (navigation réelle, niveau L3 par défaut), analyse performance/accessibilité/SEO/UX/contenu, stocke un audit et renvoie son résumé (score, constats, identifiant d\u2019audit).',
+  audit_history:
+    'Liste les audits stockés avec filtres (URL, score min/max, limite) et statistiques globales (total, moyenne, min/max).',
+  audit_report:
+    'Génère le rapport Markdown complet d\u2019un audit à partir de son identifiant : en-tête, résumé, scores par dimension, constats et recommandations.',
 } as const;
 
 /** Noms des outils, dans l'ordre de `tools/list`. */
@@ -141,6 +184,9 @@ export const TOOL_NAMES = [
   'get_resource',
   'list_resources',
   'validate_resource',
+  'inspect_site',
+  'audit_history',
+  'audit_report',
 ] as const;
 
 /** Nom d'un outil MCP. */
@@ -151,3 +197,6 @@ export type SearchKnowledgeParams = z.output<typeof SearchKnowledgeInput>;
 export type GetResourceParams = z.output<typeof GetResourceInput>;
 export type ListResourcesParams = z.output<typeof ListResourcesInput>;
 export type ValidateResourceParams = z.output<typeof ValidateResourceInput>;
+export type InspectSiteParams = z.output<typeof InspectSiteInput>;
+export type AuditHistoryParams = z.output<typeof AuditHistoryInput>;
+export type AuditReportParams = z.output<typeof AuditReportInput>;

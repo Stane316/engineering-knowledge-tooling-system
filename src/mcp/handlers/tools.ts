@@ -4,13 +4,19 @@ import type { z } from 'zod';
 
 import type { McpToolContext } from '../context.js';
 import {
+  AuditHistoryInput,
+  AuditReportInput,
   GetResourceInput,
+  InspectSiteInput,
   ListResourcesInput,
   SearchKnowledgeInput,
   TOOL_DESCRIPTIONS,
   ValidateResourceInput,
 } from '../schemas/tool-schemas.js';
+import { executeAuditHistory } from '../tools/audit-history.js';
+import { executeAuditReport } from '../tools/audit-report.js';
 import { executeGetResource } from '../tools/get-resource.js';
+import { executeInspectSite } from '../tools/inspect-site.js';
 import { executeListResources } from '../tools/list-resources.js';
 import { executeSearchKnowledge } from '../tools/search-knowledge.js';
 import { executeValidateResource } from '../tools/validate-resource.js';
@@ -28,12 +34,15 @@ export interface ToolDefinition {
   readonly description: string;
 }
 
-/** Les quatre outils MVP-1, dans l'ordre de `tools/list`. */
+/** Les sept outils MVP-2, dans l'ordre de `tools/list`. */
 export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   { name: 'search_knowledge', description: TOOL_DESCRIPTIONS.search_knowledge },
   { name: 'get_resource', description: TOOL_DESCRIPTIONS.get_resource },
   { name: 'list_resources', description: TOOL_DESCRIPTIONS.list_resources },
   { name: 'validate_resource', description: TOOL_DESCRIPTIONS.validate_resource },
+  { name: 'inspect_site', description: TOOL_DESCRIPTIONS.inspect_site },
+  { name: 'audit_history', description: TOOL_DESCRIPTIONS.audit_history },
+  { name: 'audit_report', description: TOOL_DESCRIPTIONS.audit_report },
 ];
 
 /**
@@ -62,6 +71,12 @@ export async function dispatchTool(
       return executeListResources(context, parse(ListResourcesInput, name, args));
     case 'validate_resource':
       return executeValidateResource(parse(ValidateResourceInput, name, args));
+    case 'inspect_site':
+      return executeInspectSite(context, parse(InspectSiteInput, name, args));
+    case 'audit_history':
+      return executeAuditHistory(context, parse(AuditHistoryInput, name, args));
+    case 'audit_report':
+      return executeAuditReport(context, parse(AuditReportInput, name, args));
     default:
       throw invalidParams(`Outil inconnu : « ${name} ». Outils disponibles : ${toolNames()}.`);
   }
@@ -124,6 +139,40 @@ export function registerTools(server: McpServer, context: McpToolContext, logger
     },
     async (args) =>
       run('validate_resource', logger, () => dispatchTool(context, 'validate_resource', args)),
+  );
+
+  server.registerTool(
+    'inspect_site',
+    {
+      title: 'Inspecter un site web',
+      description: TOOL_DESCRIPTIONS.inspect_site,
+      inputSchema: InspectSiteInput,
+      annotations: { readOnlyHint: false, openWorldHint: true },
+    },
+    async (args) => run('inspect_site', logger, () => dispatchTool(context, 'inspect_site', args)),
+  );
+
+  server.registerTool(
+    'audit_history',
+    {
+      title: "Consulter l'historique des audits",
+      description: TOOL_DESCRIPTIONS.audit_history,
+      inputSchema: AuditHistoryInput,
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async (args) =>
+      run('audit_history', logger, () => dispatchTool(context, 'audit_history', args)),
+  );
+
+  server.registerTool(
+    'audit_report',
+    {
+      title: "Générer le rapport d'un audit",
+      description: TOOL_DESCRIPTIONS.audit_report,
+      inputSchema: AuditReportInput,
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async (args) => run('audit_report', logger, () => dispatchTool(context, 'audit_report', args)),
   );
 }
 
