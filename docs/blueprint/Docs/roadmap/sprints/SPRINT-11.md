@@ -3,7 +3,7 @@
 **Durée estimée :** 2 semaines (10 jours ouvrables)  
 **Prérequis :** Sprint 8 (Inspection L1-L3), Sprint 9 (Analyse 5 Dimensions), Sprint 10 (Stockage + Indexation)  
 **Objectif :** Générer des rapports d'inspection, comparer les audits, exposer via CLI et MCP
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (24 octobre 2026)  
 
 ---
 
@@ -353,53 +353,73 @@ audit_report
 ```
 src/
 ├── reports/
-│   ├── types.ts                    (Sprint 11-1) ~100 lignes
+│   ├── types.ts                    (Sprint 11-1) livré
 │   ├── templates/
-│   │   ├── markdown.ts             (Sprint 11-1) ~200 lignes
-│   │   ├── html.ts                 (Sprint 11-1) ~250 lignes
-│   │   └── comparison-markdown.ts  (Sprint 11-2) ~150 lignes
-│   ├── markdown-generator.ts       (Sprint 11-1) ~180 lignes
-│   ├── pdf-generator.ts            (Sprint 11-1) ~120 lignes
-│   └── comparator.ts               (Sprint 11-2) ~200 lignes
+│   │   ├── markdown.ts             (Sprint 11-1) livré
+│   │   ├── html.ts                 (Sprint 11-1) livré
+│   │   └── comparison-markdown.ts  (Sprint 11-2) livré
+│   ├── markdown-generator.ts       (Sprint 11-1) livré
+│   ├── pdf-generator.ts            (Sprint 11-1) livré
+│   └── comparator.ts               (Sprint 11-2) livré
 │
 ├── cli/
 │   └── commands/
-│       ├── inspect.ts              (Sprint 11-3) ~150 lignes
-│       └── audit.ts                (Sprint 11-3) ~250 lignes
+│       ├── inspect.ts              (Sprint 11-3) livré
+│       └── audit.ts                (Sprint 11-3) livré
 │
 └── mcp/
     └── tools/
-        ├── inspect-site.ts         (Sprint 11-3) ~100 lignes
-        ├── audit-history.ts        (Sprint 11-3) ~120 lignes
-        └── audit-report.ts         (Sprint 11-3) ~100 lignes
+        ├── inspect-site.ts         (Sprint 11-3) livré
+        ├── audit-history.ts        (Sprint 11-3) livré
+        └── audit-report.ts         (Sprint 11-3) livré
 
 tests/
 ├── reports/
-│   ├── markdown-generator.test.ts  (Sprint 11-1) ~150 lignes
-│   ├── pdf-generator.test.ts       (Sprint 11-1) ~100 lignes
-│   └── comparator.test.ts          (Sprint 11-2) ~180 lignes
+│   ├── markdown-generator.test.ts  (Sprint 11-1) livré
+│   ├── pdf-generator.test.ts       (Sprint 11-1) livré
+│   └── comparator.test.ts          (Sprint 11-2) livré
 │
 ├── cli/
-│   ├── inspect.test.ts             (Sprint 11-3) ~120 lignes
-│   └── audit.test.ts               (Sprint 11-3) ~200 lignes
+│   ├── inspect.test.ts             (Sprint 11-3) livré
+│   └── audit.test.ts               (Sprint 11-3) livré
 │
 └── mcp/
-    ├── inspect-site.test.ts        (Sprint 11-3) ~80 lignes
-    ├── audit-history.test.ts       (Sprint 11-3) ~100 lignes
-    └── audit-report.test.ts        (Sprint 11-3) ~80 lignes
+    ├── inspect-site.test.ts        (Sprint 11-3) livré
+    ├── audit-history.test.ts       (Sprint 11-3) livré
+    └── audit-report.test.ts        (Sprint 11-3) livré
 
 docs/
-├── REPORTS.md                      (Sprint 11-3) ~400 lignes
+├── REPORTS.md                      (Sprint 11-3) livré
 ├── CLI.md                          (mise à jour)
 └── MCP.md                          (mise à jour)
 ```
 
-**Total :**
-- **23 fichiers** (13 code + 8 tests + 3 docs)
-- **~3 530 lignes** de code + tests
-- **~400 lignes** de documentation
+**Total livré :**
+- **23 fichiers** (12 code + 8 tests + 3 docs) — le 13ᵉ fichier code annoncé
+  (`scripts/test-reports-performance.ts`) reste hors livrables nombrés :
+  les budgets de performance sont mesurés dans les tests (écart E11-6)
+- **3 697 lignes** de code + tests (2 306 code, 1 391 tests)
+- **240 lignes** pour `REPORTS.md` + extensions `CLI.md`/`MCP.md`
+- **19 commits** atomiques (16 code/tests/docs + 3 de clôture documentaire)
 
 ---
+
+### 6.1 Écarts au plan (24/10/2026)
+
+| # | Écart | Arbitrage |
+|---|-------|-----------|
+| E11-1 | Imports de la spécification `../storage/audit-types`, `audit-search`, `audit-statistics`, `audit-indexing`, `audit-schema` **inexistants** | Fichiers réels du dépôt : `types.js`, `search.js`, `statistics.js`, `indexing.js`, `schema.js` (liste des livrables = référence) |
+| E11-2 | `getDatabase()` (CLI/MCP) et `VectorStore` inexistants | `openDatabase({ dataDir: runtime.dataDir })` + `AuditSchema.createSchema()` idempotent côté CLI ; `openCliServices` (ADR-019) côté MCP ; `AuditIndexer(db)` sans embeddings (FTS seul, aucun réseau en test) |
+| E11-3 | Niveau par défaut **L2** de la spécification impossible : seules les inspections **L3** fournissent `lighthouse`/`axe`/`ux`/`content` à `AnalysisPipeline` | Défaut `L3` ; `L1`/`L2` acceptés par l'interface mais refusés avec message réparateur (code 4) |
+| E11-4 | Puppeteer 25 : `page.pdf()` → `Uint8Array` ; `setContent` sans `networkidle0` ; Chrome non téléchargé (`PUPPETEER_SKIP_DOWNLOAD=1`, CDN bloqués) | Encodage base64 maison ; attente `load` (HTML autonome) ; résolution Chrome en 4 niveaux (env → embarqué → Playwright → système) |
+| E11-5 | Registration : `program.ts`, `mcp/{context,handlers/tools,server}.ts`, `schemas/tool-schemas.ts` + 4 tests existants hors périmètre « fichiers listés » | Modification **minimale** indispensable au branchement (critères C11.4-C11.8) : 2 registration d'import, compteurs 4 → 7 outils, `readOnlyHint` faux pour `inspect_site` seul |
+| E11-6 | `scripts/test-reports-performance.ts` annoncé dans les « 13 fichiers code » mais non listé dans la mission (12 fichiers énumérés) | Même arbitrage que Sprint 10 : budgets mesurés dans les tests dédiés (MD/PDF/comparaison/CLI/MCP) |
+| E11-7 | `tests/reports/comparison-markdown.test.ts` prévu par SPRINT-11-02 mais absent des 8 fichiers tests de la mission | Tests du template intégrés à `tests/reports/comparator.test.ts` (11 cas spec + 5 cas template) |
+| E11-8 | Motif MCP de la fiche (`server.tool()`, tests « export défini ») différent du dépôt (`executeX` + `dispatchTool` + `server.registerTool`, tests sur base réelle) | Motif du dépôt conservé ; tests réels (fixtures SQLite, aucun réseau) pour la couverture |
+| E11-9 | Motif CLI de la fiche (`console.log` + `process.exit(1)`) différent du dépôt (`execute()` → `CommandResult`, codes 0/2/3/4) | Motif du dépôt conservé (C11.5 sorties humaines + `--json` standardisées) |
+| E11-10 | `audit compare --format both` : la fiche ne générait que le Markdown | Génération symétrique md **et** pdf (le PDF de comparaison existe dans `pdf-generator.ts`) |
+| E11-11 | Mission citant « architecture §4.5 (Reports) » alors que la doc saute de §4.4 à §5 ; « ADR-014 (Puppeteer) » alors que l'ADR-014 réel est l'assainissement FTS (le §2.4 écarte Puppeteer pour l'*automation navigateur*, rôle distinct de HTML → PDF) | Sections **§4.4 + §4.5** créées dans `02-ARCHITECTURE-TECHNIQUE.md` ; décision Puppeteer consignée en **ADR-030** |
+| E11-12 | Poste de développement sans Chrome (CDN bloqués) : tests de rendu PDF inéxecutables ici | `skipIf` gracieux (4 tests sautés) ; contrôles d'erreur toujours actifs ; tests PDF actifs sur CI ubuntu (Chrome système) et poste EKTS |
 
 ## 7. Tests et validation
 
