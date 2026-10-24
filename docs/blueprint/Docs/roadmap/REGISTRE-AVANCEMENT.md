@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 24 octobre 2026 — Sprint 10 (Stockage + Indexation)  
+**Dernière mise à jour :** 24 octobre 2026 — Sprint 11 (Rapport Inspection)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -100,6 +100,10 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 10 | 10-2 | Indexation + Recherche (Semaine 19) | ✅ Rédigée | ✅ `a32b971` | ✅ 33 tests |
 | Sprint 10 | 10-3 | Statistiques + Tests + Documentation (Semaine 20) | ✅ Rédigée | ✅ `d4940a9` | ✅ 38 tests, couverture 95,9 % |
 | Sprint 10 | Dossier parent | Stockage + Indexation MVP-2 (Semaine 19-20) | ✅ Rédigée | ✅ Livré le 24/10/2026 | ✅ C10.1–C10.18 tracés |
+| Sprint 11 | 11-1 | Rapports Markdown + PDF (Semaine 21, Jours 1-4) | ✅ Rédigée | ✅ `d741c32` | ✅ 17 tests (4 PDF skipIf hors CI) |
+| Sprint 11 | 11-2 | Comparaison d'audits (Semaine 21, Jours 5-7) | ✅ Rédigée | ✅ `56bfbdd` | ✅ 17 tests |
+| Sprint 11 | 11-3 | CLI + MCP + Tests + Documentation (Semaine 22, Jours 8-10) | ✅ Rédigée | ✅ `1acf0ac` | ✅ 27 tests nouveaux, verify 1208 ✅, couverture 95,95 % |
+| Sprint 11 | Dossier parent | Rapport Inspection MVP-2 (Semaine 21-22) | ✅ Rédigée | ✅ Livré le 24/10/2026 | ✅ C11.1–C11.18 tracés |
 | Sprint 9 | Dossier parent | Analyse 5 Dimensions (Semaine 17-18) | ✅ Rédigée | ⏳ | — |
 | Sprint 10 | 10-1 | Schema + Repository (Semaine 19, Jours 1-4) | ✅ Rédigée | ⏳ | — |
 | Sprint 10 | 10-2 | Indexation + Recherche (Semaine 19, Jours 5-7) | ✅ Rédigée | ⏳ | — |

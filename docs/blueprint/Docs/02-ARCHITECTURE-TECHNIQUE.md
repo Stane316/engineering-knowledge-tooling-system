@@ -465,6 +465,47 @@ EKTS_DEPLOYMENT=distributed   # Services distribués
 
 ---
 
+#### 4.4 Génération de rapports (Sprint 11-1/11-2)
+
+```
+src/reports/
+├── types.ts                      ReportOptions, GeneratedReport, ComparisonReport, …
+├── templates/markdown.ts         MarkdownTemplate — sections pures (emojis scores)
+├── templates/html.ts             HtmlTemplate — HTML autonome, CSS inline,
+│                                 classes score-good/medium/poor
+├── templates/comparison-markdown.ts  ComparisonMarkdownTemplate (detailed + summary)
+├── markdown-generator.ts         MarkdownReportGenerator — écriture .md (ou mémoire)
+├── pdf-generator.ts              PDFReportGenerator — Puppeteer (Chrome headless)
+└── comparator.ts                 AuditComparator — deltas + évolution + recommandations
+```
+
+Pipeline PDF : `HtmlTemplate` → `page.setContent(..., waitUntil: 'load')`
+(HTML autonome) → `page.pdf()` A4, marges 20/15 mm, fonds imprimés → fichier
+`.pdf` (contenu exposé en base64). Chrome résolu en 4 niveaux :
+`PUPPETEER_EXECUTABLE_PATH`/`EKTS_CHROME_PATH` → Chrome embarqué → Chromium
+Playwright (`npm run browsers:install`) → Chrome système ; aucun téléchargement
+à l'exécution, message explicite sinon.
+
+Comparaison : clé d'appariement `dimension:title:severity` (minuscules),
+`pct = delta / scoreA × 100` arrondi à 0,1, tendances à ±5 points,
+recommandations en escalier. Documenté dans `docs/REPORTS.md` ;
+9 tests `tests/reports/`, budgets MD < 2 s, PDF < 10 s, comparaison < 1 s.
+
+#### 4.5 Interfaces de rapports : CLI et MCP (Sprint 11-3)
+
+- **CLI** : `ekts inspect <url>` (défaut L3 — seules les inspections L3
+  fournissent les 4 blocs d'entrée d'analyse ; L1/L2 refusés avec code 4) et
+  `ekts audit list|show|report|compare` (codes 0/2/3/4, sorties humaines +
+  `--json`). Registration dans `src/cli/program.ts`.
+- **MCP** : outils `inspect_site` (readOnlyHint false, openWorld true),
+  `audit_history`, `audit_report` (lecture, contenu renvoyé en mémoire) ;
+  entrées Zod dans `src/mcp/schemas/tool-schemas.ts`, dispatch dans
+  `src/mcp/handlers/tools.ts` (7 outils), services audits câblés dans
+  `src/mcp/context.ts` (`AuditToolServices.inspectAndAudit` injectable en
+  test — aucune navigation réseau dans les tests unitaires).
+
+---
+
 ## 5. Interfaces et contrats
 
 ### 5.1 Contrats TypeScript

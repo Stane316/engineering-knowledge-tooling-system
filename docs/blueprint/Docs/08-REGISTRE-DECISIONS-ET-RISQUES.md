@@ -1108,6 +1108,48 @@ sans toucher au module.
 
 ---
 
+#### ADR-030 — Rapports PDF via Puppeteer (HTML → PDF) et comparaison d'audits
+
+**Statut :** ✅ APPLIQUÉ (Sprint 11)
+**Contexte :** le dossier Sprint 11 imposait « Puppeteer pour le PDF (ADR-014) »
+alors que l'ADR-014 réel porte sur l'assainissement FTS, et que le §2.4 de la
+stack écarte Puppeteer **pour l'automation navigateur** (rôle tenu par
+Playwright, Sprint 7). Le rôle « document HTML → PDF » est distinct : ni
+jsPDF ni wkhtmltopdf ne sont acceptés.
+
+**Décision :**
+1. `puppeteer@25` comme moteur PDF uniquement (aucune navigation pilotée par
+   Puppeteer ; l'inspection reste Playwright). Aucun téléchargement de Chrome
+   à l'exécution : `PUPPETEER_SKIP_DOWNLOAD=1` à l'installation et résolution
+   locale du binaire (`PUPPETEER_EXECUTABLE_PATH` → Chrome embarqué →
+   Chromium Playwright → Chrome système), sinon échec explicite.
+2. HTML **autonome** (`HtmlTemplate`, CSS inline, aucune ressource externe) :
+   attente `load` sur `setContent` (API Puppeteer 25 : `networkidle0` retiré),
+   `page.pdf()` renvoie `Uint8Array` → encodage base64 maison.
+3. Chaîne de rapports consommant les audits Sprint 10 **sans modification**
+   du stockage : `MarkdownReportGenerator` (sections pures) +
+   `AuditComparator` (deltas) + `ComparisonMarkdownTemplate`.
+4. Budgets tenus en test : MD < 2 s, PDF < 10 s (timeout 15 s),
+   comparaison < 1 s ; sans Chrome, les tests de rendu sont sautés
+   gracieusement (`skipIf`), les contrôles d'erreur restant actifs.
+
+**Conséquences :** 12 fichiers code + 8 tests + 3 docs (écart E11-6 : script
+de perf hors livrables nombrés) ; couverture globale 95,95 % ; les tests PDF
+s'exécutent sur CI ubuntu (Chrome système) et le poste EKTS, pas sur un poste
+nu — à vérifier au premier run CI.
+
+---
+
+#### Risques nouveaux (Sprint 11)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-11.1 | Tests de rendu **PDF sautés** sur tout environnement sans Chrome : couverture locale de `pdf-generator.ts` faible (23 %) et régression possible non détectée | Moyen | Moyenne | `skipIf` visible dans les résultats (4 ⏭) ; CI ubuntu + poste EKTS disposent de Chrome ; contrôles d'erreur (Chrome introuvable, audit invalide) toujours actifs ; surveiller le premier `gh run watch` |
+| R-11.2 | `inspect_site` / `ekts inspect` exécutent une **navigation réseau réelle** : durées (L3 ≈ 10-15 s) pouvant dépasser les timeouts MCP ou l'usage agent | Moyen | Moyenne | Budgets constatés par `npm run inspect` ; outils documentés « openWorld » ; échecs retournés `isError` sans crash de serveur ; ajuster `timeout` côté client si nécessaire |
+| R-11.3 | **Refus L1/L2** perçu comme une régression d'UX (la spécification promettait L2 par défaut) | Faible | Faible | Message réparateur explicite (« rejouez avec --level L3 »), aide CLI et doc `REPORTS.md` §8 ; remise en cause possible si le dépôt gagne plus tard des ponts L1/L2 → analyse |
+
+---
+
 ### 2.3 Décisions à vérifier
 
 | ID | Sujet | Information | Date vérification | Statut |
@@ -1608,6 +1650,7 @@ Pricing outils IA change (augmentation, suppression free tier).
 | ADR-027 (axe-core, score pondéré) | R-8.5 à R-8.8 |
 | ADR-028 (adapter inspection → analyse) | R-9.1, R-9.2 |
 | ADR-029 (FTS autonome, embeddings injectés) | R-10.1 à R-10.3 |
+| ADR-030 (Puppeteer pour le PDF, chaîne de rapports) | R-11.1 à R-11.3 |
 
 ### 4.2 Risques non couverts
 
