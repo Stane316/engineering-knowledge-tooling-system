@@ -3,7 +3,7 @@
 **Durée :** 3 jours  
 **Objectif :** Implémenter l'indexation FTS5/Vector et la recherche hybride  
 **Dépendance :** Sprint 10-1 (Schema + Repository) ✅
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (24 octobre 2026)  
 
 ---
 
