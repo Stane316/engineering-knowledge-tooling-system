@@ -12,6 +12,7 @@ import {
   serverImplementation,
 } from './handlers/initialize.js';
 import { registerTools } from './handlers/tools.js';
+import { TOOL_NAMES } from './schemas/tool-schemas.js';
 import { createStdioTransport } from './transport.js';
 import { createLogger, resolveLogLevel, SILENT_LOGGER, type McpLogger } from './utils/logger.js';
 
@@ -122,7 +123,7 @@ export async function startStdioServer(options: StartServerOptions = {}): Promis
     transport: transport.constructor.name,
     protocolVersion: LATEST_PROTOCOL_VERSION,
     dataDir: context.dataDir,
-    tools: 4,
+    tools: TOOL_NAMES.length,
     embeddings: context.embeddingsAvailable,
   });
 

@@ -6,10 +6,12 @@ import { CommandFailure } from './command.js';
 import { registerAdd } from './commands/add.js';
 import { registerDelete } from './commands/delete.js';
 import { registerGet } from './commands/get.js';
+import { registerAudit } from './commands/audit.js';
 import { registerInit } from './commands/init.js';
 import { registerList } from './commands/list.js';
 import { registerReindex } from './commands/reindex.js';
 import { registerSearch } from './commands/search.js';
+import { registerInspect } from './commands/inspect.js';
 import { registerStatus } from './commands/status.js';
 import { createPalette } from './output.js';
 import { createRuntime, type CliRuntime } from './runtime.js';
@@ -57,6 +59,8 @@ export function createProgram(runtime: CliRuntime): Command {
   registerDelete(program, runtime);
   registerStatus(program, runtime);
   registerReindex(program, runtime);
+  registerInspect(program, runtime);
+  registerAudit(program, runtime);
 
   return program;
 }

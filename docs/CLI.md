@@ -4,6 +4,9 @@
 > `init`, `add`, `get`, `search`, `list`, `delete`, `status`. Chaque commande
 > possède une sortie humaine lisible et une sortie `--json` stable, destinée
 > aux scripts.
+>
+> **Sprint 11** complète l'interface avec `inspect` et les sous-commandes
+> `audit list|show|report|compare` (voir § 11).
 
 | Élément | Valeur |
 | --- | --- |
@@ -463,3 +466,115 @@ npx vitest run --coverage tests/cli   # src/cli/** à 100 %
 Le test d'intégration (`tests/cli/cli.test.ts`) exécute le binaire compilé et
 rejoue le parcours complet : `init` → `add` → `get` → `list` → `search` →
 `status` → `delete`, codes de sortie inclus.
+
+---
+
+## 11. Commandes d'inspection et d'audits (Sprint 11-3)
+
+> Ces commandes pilotent le module de rapports (`docs/REPORTS.md`). Elles
+> nécessitent un navigateur Chrome/Chromium pour l'inspection et la génération
+> PDF (`npm run browsers:install`), et échouent proprement sans lui.
+
+### `ekts inspect <url>`
+
+Inspection complète (L3), analyse des 5 dimensions, stockage de l'audit,
+indexation FTS puis génération des rapports.
+
+```bash
+ekts inspect https://example.com
+ekts inspect https://example.com --format md --output ./reports
+```
+
+| Option | Valeur | Défaut |
+| --- | --- | --- |
+| `-l, --level <level>` | `L1`, `L2`, `L3` | `L3` |
+| `-o, --output <path>` | dossier de sortie | `./reports` |
+| `-f, --format <format>` | `md`, `pdf`, `both` | `both` |
+
+**Niveau :** seules les inspections **L3** fournissent les entrées
+(`lighthouse`, `axe`, `ux`, `content`) exigées par l'analyse complète.
+`--level L1` / `--level L2` sont refusés avec le code **4** et un message
+invitant à rejouer en `L3`.
+
+**Sortie `--json` :**
+
+```json
+{
+  "url": "https://example.com",
+  "level": "L3",
+  "auditId": 1,
+  "score": 78,
+  "totalFindings": 6,
+  "reports": [{ "format": "markdown", "filePath": ".../audit-1-....md" }],
+  "durationMs": 12345
+}
+```
+
+### `ekts audit list`
+
+Liste les audits stockés (énumération paginée FTS, sans réseau).
+
+```bash
+ekts audit list
+ekts audit list --limit 10 --score-min 70
+ekts audit list --url https://example.com
+```
+
+| Option | Défaut |
+| --- | --- |
+| `-n, --limit <n>` | `20` |
+| `--url <url>` | — |
+| `--score-min <n>` | — |
+| `--score-max <n>` | — |
+
+Sortie humaine : tableau `ID | URL | Score | Constats | Date` + total et score
+moyen. Sortie `--json` : `{ count, statistics, audits[] }`.
+
+### `ekts audit show <id>`
+
+Détails d'un audit : scores par dimension, répartition des constats, top 5
+des constats avec recommandations.
+
+```bash
+ekts audit show 1
+```
+
+Code **3** si l'identifiant est inconnu, **4** s'il n'est pas un entier
+positif.
+
+### `ekts audit report <id>`
+
+Génère les rapports Markdown et/ou PDF d'un audit existant.
+
+```bash
+ekts audit report 1
+ekts audit report 1 --format md --output ./reports
+```
+
+| Option | Défaut |
+| --- | --- |
+| `-f, --format <format>` | `both` |
+| `-o, --output <path>` | `./reports` |
+
+### `ekts audit compare <id1> <id2>`
+
+Compare deux audits (delta scores, delta constats, évolution,
+recommandations) et génère les rapports de comparaison.
+
+```bash
+ekts audit compare 1 2
+ekts audit compare 1 2 --format md --output ./reports
+```
+
+Sortie `--json` : `{ evolution, deltaScores, deltaCounts, recommendations,
+reports }`.
+
+### Codes de sortie (rappel)
+
+| Code | Signification |
+| --- | --- |
+| 0 | succès |
+| 1 | erreur inattendue |
+| 2 | erreur d'utilisation (Commander) |
+| 3 | ressource introuvable (`audit #n`) |
+| 4 | validation (`--level`, `--format`, `--limit`, identifiants) |

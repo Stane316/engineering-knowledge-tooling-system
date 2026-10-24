@@ -3,7 +3,7 @@
 **Durée estimée :** 2 semaines (10 jours ouvrables)  
 **Prérequis :** Sprint 2 (SQLite), Sprint 4 (Search Engine), Sprint 9 (Analyse 5 Dimensions)  
 **Objectif :** Stocker les rapports d'analyse, indexer pour recherche, préparer la génération de rapports
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (24 octobre 2026)  
 
 ---
 
@@ -372,12 +372,12 @@ const hybridResults = this.reciprocalRankFusion(
 ```
 src/
 ├── storage/
-│   ├── types.ts                    (Sprint 10-1) ~80 lignes
-│   ├── schema.ts                   (Sprint 10-1) ~120 lignes
-│   ├── audit-repository.ts         (Sprint 10-1) ~250 lignes
-│   ├── indexing.ts                 (Sprint 10-2) ~150 lignes
-│   ├── search.ts                   (Sprint 10-2) ~180 lignes
-│   └── statistics.ts               (Sprint 10-3) ~200 lignes
+│   ├── types.ts                    (Sprint 10-1) livré
+│   ├── schema.ts                   (Sprint 10-1) livré
+│   ├── audit-repository.ts         (Sprint 10-1) livré
+│   ├── indexing.ts                 (Sprint 10-2) livré
+│   ├── search.ts                   (Sprint 10-2) livré
+│   └── statistics.ts               (Sprint 10-3) livré
 │
 └── ...
 
@@ -401,6 +401,19 @@ docs/
 - **~300 lignes** de documentation
 
 ---
+
+### 6.1 Écarts au plan (24/10/2026)
+
+| # | Écart | Arbitrage |
+|---|-------|-----------|
+| E10-1 | FTS5 **autonome** au lieu de `content='audit_findings'` | Content externe incompatible avec les INSERT directs de l'indexeur et interdiction de référencer une table hors schéma FTS ; aligné sur `resources_fts` (migration 001) |
+| E10-2 | `audit-types.ts`/`audit-schema.ts`/`audit-indexing.ts`… des tâches renommés aux noms des livrables (`types.ts`, `schema.ts`, `indexing.ts`…) | Liste des livrables du dossier = référence ; pas de doublon de noms |
+| E10-3 | Fichier `audit-converter.ts` absent : conversion intégrée à `AuditRepository` | Livrables = 6 fichiers code ; un seul consommateur |
+| E10-4 | `VectorStore` (Sprint 4 décrit un état inexistant) remplacé par le contrat injectable `AuditEmbeddingStore` | Aucun réseau en test ; `VectorRepository` réel est lié aux ressources |
+| E10-5 | Filtre `dimension` : teste `findings_count > 0` (les 5 dimensions existent sur chaque audit : le test de la spécification était tautologique) | Sens actionnable |
+| E10-6 | `scripts/test-storage-performance.ts` hors livrables → scénario 10 000 audits intégré à `integration.test.ts` | 6 tests + 2 docs = périmètre exact |
+| E10-7 | `bm25()` interdit par SQLite hors colonne simple → agrégation par audit en mémoire | Même comportement |
+| E10-8 | `delete()` nettoie aussi `audit_fts` (la spécification laissait des orphelins) | Même transaction que le CASCADE |
 
 ## 7. Tests et validation
 

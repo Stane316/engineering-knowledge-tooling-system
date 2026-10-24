@@ -11,8 +11,8 @@
 ## 1. Objectif
 
 Le serveur MCP expose la base de connaissances EKTS aux agents IA (Claude Code,
-Cursor, GitHub Copilot) via le **Model Context Protocol**. Quatre outils en
-lecture seule sont disponibles :
+Cursor, GitHub Copilot) via le **Model Context Protocol**. Sept outils sont
+disponibles (Sprint 11-3) :
 
 | Outil | Rôle |
 | --- | --- |
@@ -20,10 +20,15 @@ lecture seule sont disponibles :
 | `get_resource` | Lecture d'une ressource par identifiant |
 | `list_resources` | Parcours du catalogue avec filtres |
 | `validate_resource` | Validation d'une ressource avant création (aucune écriture) |
+| `inspect_site` | Inspection complète d'un site (L3) → audit stocké (**action**) |
+| `audit_history` | Historique des audits avec filtres et statistiques |
+| `audit_report` | Rapport Markdown d'un audit, renvoyé en mémoire |
 
-Le serveur ne modifie jamais la base : aucune création, mise à jour ni
-suppression n'est exposée. Les écritures restent le fait de la CLI (`ekts add`,
-`ekts delete`).
+Les six outils hors `inspect_site` sont en lecture seule (`readOnlyHint:
+true`) : le serveur ne crée, ne met à jour ni ne supprime aucune ressource de
+connaissance. Les écritures connaissances restent le fait de la CLI
+(`ekts add`, `ekts delete`) ; `inspect_site` ajoute un audit via la chaîne
+d'inspection navigateur (réseau requis).
 
 ---
 
@@ -370,3 +375,105 @@ le poste, aucun agent n'étant installable dans l'environnement de CI.
 - SDK TypeScript : <https://github.com/modelcontextprotocol/typescript-sdk>
 - ADR-022 : serveur MCP sur SDK officiel, transport stdio
 - `docs/guide` voisin : [`MCP-EXAMPLES.md`](./MCP-EXAMPLES.md)
+
+---
+
+## 15. Outils d'inspection et d'audits (Sprint 11-3)
+
+> Voir aussi [`REPORTS.md`](./REPORTS.md) pour le module de rapports et
+> [`CLI.md`](./CLI.md) (§ 11) pour les commandes homologues.
+
+### `inspect_site`
+
+Inspecte un site (navigation réelle), analyse performance / accessibilité /
+SEO / UX / contenu, **stocke un audit** et renvoie son résumé.
+
+**Input :**
+
+```json
+{ "url": "https://example.com", "level": "L3" }
+```
+
+| Champ | Type | Défaut | Notes |
+| --- | --- | --- | --- |
+| `url` | string (URL) | obligatoire | http/https |
+| `level` | `L1` \| `L2` \| `L3` | `L3` | `L1`/`L2` refusés (entrées d'analyse incomplètes) |
+
+**Output :**
+
+```json
+{
+  "inspection_url": "https://example.com",
+  "level": "L3",
+  "score": 75,
+  "total_findings": 5,
+  "critical_findings": 0,
+  "high_findings": 2,
+  "audit_id": 1,
+  "timestamp": "2026-10-24T10:00:00.000Z",
+  "dimensions": { "performance": 80, "accessibility": 70, "seo": 85, "ux": 65, "content": 75 }
+}
+```
+
+Annotations : `readOnlyHint: false`, `openWorldHint: true` (navigation
+réelle). Budget : < 2 s hors temps de navigation.
+
+### `audit_history`
+
+Historique des audits avec statistiques (aucun réseau : énumération FTS).
+
+**Input :**
+
+```json
+{ "url": "https://example.com", "limit": 20, "score_min": 70, "score_max": 100 }
+```
+
+| Champ | Type | Défaut |
+| --- | --- | --- |
+| `url` | string (URL) optionnelle | — |
+| `limit` | entier 1-100 | `20` |
+| `score_min` | entier 0-100 | — |
+| `score_max` | entier 0-100 | — |
+
+**Output :** `{ audits[], statistics, count }` — chaque audit expose
+`id`, `url`, `timestamp`, `overall_score`, `total_findings`, les compteurs
+par priorité et `dimensions[]` ; `statistics` couvre `total_audits`,
+`average_score`, `min_score`, `max_score`, `total_findings` (globales, ou
+restreintes à `url` quand le filtre est fourni).
+
+### `audit_report`
+
+Rapport Markdown complet d'un audit, **généré en mémoire** (aucun fichier
+écrit côté serveur).
+
+**Input :**
+
+```json
+{ "audit_id": 1, "format": "markdown" }
+```
+
+| Champ | Type | Défaut |
+| --- | --- | --- |
+| `audit_id` | entier positif | obligatoire |
+| `format` | `markdown` \| `text` | `markdown` |
+
+**Output :**
+
+```json
+{
+  "audit_id": 1,
+  "format": "markdown",
+  "url": "https://example.com",
+  "report_content": "# 📊 Rapport d'audit — …",
+  "generated_at": "2026-10-24T12:00:00.000Z"
+}
+```
+
+Code d'erreur `-32000` (`RESOURCE_NOT_FOUND`) si `audit_id` est inconnu.
+
+### Validation
+
+Les trois entrées sont déclarées en Zod dans
+`src/mcp/schemas/tool-schemas.ts` (source unique pour `tools/list` et pour
+`dispatchTool`) : une entrée invalide échoue avec `-32602` avant toute
+exécution.

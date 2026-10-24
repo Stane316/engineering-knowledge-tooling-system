@@ -3,7 +3,7 @@
 **Durée :** 4 jours  
 **Objectif :** Implémenter les générateurs de rapports Markdown et PDF  
 **Dépendance :** Sprint 10 (Stockage + Indexation) ✅
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (24 octobre 2026)  
 
 ---
 

@@ -1030,6 +1030,126 @@ jamais un score de 100 trompeur.
 
 ---
 
+#### ADR-028 — Pont d'adapter dédié entre inspection et analyse
+
+**Statut :** ✅ APPLIQUÉ (Sprint 9)
+**Contexte :** le contrat d'analyse (C9.1) nomme la métrique d'interaction
+`fid`, nom historique de Lighthouse, alors que le Sprint 8 mesure **INP**
+(`CoreWebVitals.inp`, successeur du FID) ; `ContentAnalysis` est **plat** côté
+inspection et attendu **imbriqué** (`metrics`) côté analyse ; les types de
+sortie Sprint 8 sont `readonly`. Ce sont les trois — seuls — écarts constatés
+entre les types réels et le contrat d'analyse.
+
+**Décision :**
+1. Un module unique `src/analysis/adapter.ts` concentre les traductions :
+   `inp → fid`, contenu plat → `metrics.{wordCount,readingTime,readabilityScore}`,
+   tableaux `readonly` recopiés.
+2. `fromInspection(result)` agrège les quatre entrées (lighthouse, axe, ux,
+   content) à partir d'un résultat L3.
+3. Si `lighthouse` ou `axe` est `null` (inspection dégradée, Sprint 8),
+   l'adapter **lève une erreur explicite** — jamais un score inventé.
+
+**Conséquences :** le module d'analyse reste découplé du navigateur (aucun
+import de `src/browser/`), toute évolution de Lighthouse ou d'axe-core ne touche
+que le pont ; 8 tests dédiés, adapter à 100 % de couverture ; ADR-026 reste
+seul responsable de la chaîne de collecte.
+
+---
+
+#### Risques nouveaux (Sprint 9)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-9.1 | Les **scores et priorités maison** (`severity × (6 − effort)`, score pondéré 25/25/20/15/15) sont lus comme des standards normalisés | Moyen | Moyenne | Formules et seuils publiés (`docs/ANALYSIS.md` §3-§5) ; priorités affichées avec impact et effort ; `DimensionScore` gardé strictement local à chaque dimension |
+| R-9.2 | Les types d'analyse **divergent** des types inspection réels au fil des sprints (nouvelles métriques Lighthouse, champs axe) | Moyen | Moyenne | Écart possible confiné à `adapter.ts` (ADR-028) ; aucune dépendance de `src/analysis/` vers `src/browser/` ; test du pont 100 % couvert ; contract test sur la fixture réelle |
+
+---
+
+#### ADR-029 — Audits relationnels avec FTS5 autonome et embeddings injectés
+
+**Statut :** ✅ APPLIQUÉ (Sprint 10)
+**Contexte :** le plan du Sprint 10 (rédigé sur un état imaginaire du dépôt)
+prescrivait une table FTS5 à content externe `content='audit_findings'`
+alimentée par des `INSERT` directs — refusés par SQLite sur ce type de table —
+et un `VectorStore` qui n'a jamais existé, adossé à des embeddings supposés
+disponibles. Les règles du projet interdisent tout réseau dans les tests
+unitaires.
+
+**Décision :**
+1. Trois tables relationnelles (`audit_metadata`, `audit_dimensions`,
+   `audit_findings`) avec `CHECK` de bornes et `ON DELETE CASCADE` — le pragma
+   `foreign_keys` est activé par `AuditSchema.createSchema()`.
+2. Index FTS5 **autonome** `audit_fts(url, title, description)` (contenu copié,
+   `rowid` = identifiant du constat), aligné sur la décision prise pour
+   `resources_fts` en migration `001_init` ; nettoyage FTS dans la même
+   transaction que la suppression.
+3. Contrat `AuditEmbeddingStore` **injecté** (`src/storage/types.ts`) : sans
+   magasin, la recherche reste plein texte et `vectorized: false` le signale ;
+   jamais de vecteur simulé.
+4. Recherche hybride fusionnée par la RRF maison (`RRF_K = 60`,
+   `reciprocalRank` de `src/business/rrf.ts`) : les échelles BM25 et cosinus
+   ne sont pas mélangées, seuls les rangs comptent.
+
+**Conséquences :** 6 fichiers code + 6 tests + 2 docs comme prévu ; 101 tests,
+couverture `src/storage/` 95,9 %/93,7 % branches ; scénario 10 000 audits en
+budget (stockage ~0,1 ms/audit, recherche < 1 ms) ; l'adaptation à un
+fournisseur d'embeddings réel sera un branchement de `AuditEmbeddingStore`
+sans toucher au module.
+
+---
+
+#### Risques nouveaux (Sprint 10)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-10.1 | Le contenu copié d'`audit_fts` **diverge** d'`audit_findings` (écriture SQL hors repository/indexer) | Moyen | Faible | Écritures confinées à `AuditRepository`/`AuditIndexer` ; `delete()` nettoie les rowid orphelins ; tests d'idempotence et de reconstruction |
+| R-10.2 | À grande échelle (10 000 audits), la recherche hybride **dépasse ses budgets** sur un poste plus lent que la CI | Moyen | Faible | Budgets mesurés en test (`integration.test.ts`, marges ×20-×100) ; index sur `url`/`timestamp`/`audit_id` ; pagination SQL ; surveiller au premier usage réel |
+| R-10.3 | Le magasin d'embeddings **défaut** reste en mode lexical après branchement production (`vectorized: false` ignoré) | Faible | Moyenne | Issue d'indexation structurée, documentation `docs/STORAGE.md` §5, test « sans magasin » dédié ; le Sprint 11 branchera `EmbeddingsService` |
+
+---
+
+#### ADR-030 — Rapports PDF via Puppeteer (HTML → PDF) et comparaison d'audits
+
+**Statut :** ✅ APPLIQUÉ (Sprint 11)
+**Contexte :** le dossier Sprint 11 imposait « Puppeteer pour le PDF (ADR-014) »
+alors que l'ADR-014 réel porte sur l'assainissement FTS, et que le §2.4 de la
+stack écarte Puppeteer **pour l'automation navigateur** (rôle tenu par
+Playwright, Sprint 7). Le rôle « document HTML → PDF » est distinct : ni
+jsPDF ni wkhtmltopdf ne sont acceptés.
+
+**Décision :**
+1. `puppeteer@25` comme moteur PDF uniquement (aucune navigation pilotée par
+   Puppeteer ; l'inspection reste Playwright). Aucun téléchargement de Chrome
+   à l'exécution : `PUPPETEER_SKIP_DOWNLOAD=1` à l'installation et résolution
+   locale du binaire (`PUPPETEER_EXECUTABLE_PATH` → Chrome embarqué →
+   Chromium Playwright → Chrome système), sinon échec explicite.
+2. HTML **autonome** (`HtmlTemplate`, CSS inline, aucune ressource externe) :
+   attente `load` sur `setContent` (API Puppeteer 25 : `networkidle0` retiré),
+   `page.pdf()` renvoie `Uint8Array` → encodage base64 maison.
+3. Chaîne de rapports consommant les audits Sprint 10 **sans modification**
+   du stockage : `MarkdownReportGenerator` (sections pures) +
+   `AuditComparator` (deltas) + `ComparisonMarkdownTemplate`.
+4. Budgets tenus en test : MD < 2 s, PDF < 10 s (timeout 15 s),
+   comparaison < 1 s ; sans Chrome, les tests de rendu sont sautés
+   gracieusement (`skipIf`), les contrôles d'erreur restant actifs.
+
+**Conséquences :** 12 fichiers code + 8 tests + 3 docs (écart E11-6 : script
+de perf hors livrables nombrés) ; couverture globale 95,95 % ; les tests PDF
+s'exécutent sur CI ubuntu (Chrome système) et le poste EKTS, pas sur un poste
+nu — à vérifier au premier run CI.
+
+---
+
+#### Risques nouveaux (Sprint 11)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-11.1 | Tests de rendu **PDF sautés** sur tout environnement sans Chrome : couverture locale de `pdf-generator.ts` faible (23 %) et régression possible non détectée | Moyen | Moyenne | `skipIf` visible dans les résultats (4 ⏭) ; CI ubuntu + poste EKTS disposent de Chrome ; contrôles d'erreur (Chrome introuvable, audit invalide) toujours actifs ; surveiller le premier `gh run watch` |
+| R-11.2 | `inspect_site` / `ekts inspect` exécutent une **navigation réseau réelle** : durées (L3 ≈ 10-15 s) pouvant dépasser les timeouts MCP ou l'usage agent | Moyen | Moyenne | Budgets constatés par `npm run inspect` ; outils documentés « openWorld » ; échecs retournés `isError` sans crash de serveur ; ajuster `timeout` côté client si nécessaire |
+| R-11.3 | **Refus L1/L2** perçu comme une régression d'UX (la spécification promettait L2 par défaut) | Faible | Faible | Message réparateur explicite (« rejouez avec --level L3 »), aide CLI et doc `REPORTS.md` §8 ; remise en cause possible si le dépôt gagne plus tard des ponts L1/L2 → analyse |
+
+---
+
 ### 2.3 Décisions à vérifier
 
 | ID | Sujet | Information | Date vérification | Statut |
@@ -1528,6 +1648,9 @@ Pricing outils IA change (augmentation, suppression free tier).
 | ADR-023 (navigateur, arbre ARIA) | R-7.1 à R-7.7 |
 | ADR-026 (Lighthouse 12.8.2, port CDP) | R-8.1 à R-8.4 |
 | ADR-027 (axe-core, score pondéré) | R-8.5 à R-8.8 |
+| ADR-028 (adapter inspection → analyse) | R-9.1, R-9.2 |
+| ADR-029 (FTS autonome, embeddings injectés) | R-10.1 à R-10.3 |
+| ADR-030 (Puppeteer pour le PDF, chaîne de rapports) | R-11.1 à R-11.3 |
 
 ### 4.2 Risques non couverts
 

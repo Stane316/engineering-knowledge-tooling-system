@@ -284,7 +284,7 @@ score_rrf(d) = Σ 1/(k + rank_i(d))
 #### 4.2.3 Browser Inspector
 
 **Rôle :** Inspection automatisée de sites web  
-**Statut :** 🟢 L1-L3 implémentés (Sprint 8, 23 octobre 2026) — L4 reporté après MVP-2  
+**Statut :** 🟢 L1-L3 implémentés (Sprint 8, 23 octobre 2026) + module d'analyse 5 dimensions (Sprint 9, 24 octobre 2026) — L4 reporté après MVP-2  
 **Technologie :** Playwright 1.64.1 + Lighthouse 13.5.0 + axe-core 4.14.0  
 **Responsabilités :**
 - Navigation et captures (screenshots, traces)
@@ -312,6 +312,13 @@ Chromium (ADR-026) et axe-core complète l'arbre ARIA (ADR-027).
 3. SEO (meta tags, structured data)
 4. UX (heuristiques Nielsen)
 5. Contenu (qualité, pertinence)
+
+**Module d'analyse (`src/analysis/`, Sprint 9) :** matrice de sévérité
+`severity × (6 − effort)` (seuils 20/12/6/2), priorisation automatique avec
+tri/groupements/résumés, pipeline au score pondéré 25/25/20/15/15 et pont
+`adapter.ts` (INP→FID, ADR-028) — sans dépendance vers `src/browser/`.
+Documenté dans `docs/ANALYSIS.md` : 10 fichiers de test, 77 cas, couverture
+97,9 % instructions / 100 % fonctions.
 
 #### 4.2.4 Creative Library
 
@@ -401,6 +408,21 @@ CREATE VIRTUAL TABLE resources_vectors USING vec0(
 );
 ```
 
+**Tables d'audit (Sprint 10, ekts.db) :**
+```sql
+-- 3 tables normalisées + FTS5 autonome (content= externe refusé, cf. 001_init)
+audit_metadata  (id, url, timestamp, overall_score, …findings counts)
+audit_dimensions (audit_id → CASCADE, dimension, score, findings_count)
+audit_findings   (audit_id → CASCADE, title, severity, effort, impact, priority, …)
+audit_fts        FTS5(url, title, description) — rowid = id du constat
+```
+`AuditSchema.createSchema()` (idempotent, active `foreign_keys`) ;
+`AuditRepository` en transaction unique ; indexation `AuditIndexer` (FTS +
+`AuditEmbeddingStore` injecté — jamais de réseau en test) ; recherche hybride
+`AuditSearch` (BM25 + voisins, fusion RRF `k=60` réutilisée de
+`src/business/rrf.ts`) ; statistiques `AuditStatisticsManager`.
+Documenté dans `docs/STORAGE.md` : 101 tests, couverture 95,9 %.
+
 #### 4.3.3 Repository Pattern
 
 **Interface générique :**
@@ -440,6 +462,47 @@ EKTS_DB_MODE=postgres         # PostgreSQL externe
 EKTS_DEPLOYMENT=standalone    # Défaut : processus unique
 EKTS_DEPLOYMENT=distributed   # Services distribués
 ```
+
+---
+
+#### 4.4 Génération de rapports (Sprint 11-1/11-2)
+
+```
+src/reports/
+├── types.ts                      ReportOptions, GeneratedReport, ComparisonReport, …
+├── templates/markdown.ts         MarkdownTemplate — sections pures (emojis scores)
+├── templates/html.ts             HtmlTemplate — HTML autonome, CSS inline,
+│                                 classes score-good/medium/poor
+├── templates/comparison-markdown.ts  ComparisonMarkdownTemplate (detailed + summary)
+├── markdown-generator.ts         MarkdownReportGenerator — écriture .md (ou mémoire)
+├── pdf-generator.ts              PDFReportGenerator — Puppeteer (Chrome headless)
+└── comparator.ts                 AuditComparator — deltas + évolution + recommandations
+```
+
+Pipeline PDF : `HtmlTemplate` → `page.setContent(..., waitUntil: 'load')`
+(HTML autonome) → `page.pdf()` A4, marges 20/15 mm, fonds imprimés → fichier
+`.pdf` (contenu exposé en base64). Chrome résolu en 4 niveaux :
+`PUPPETEER_EXECUTABLE_PATH`/`EKTS_CHROME_PATH` → Chrome embarqué → Chromium
+Playwright (`npm run browsers:install`) → Chrome système ; aucun téléchargement
+à l'exécution, message explicite sinon.
+
+Comparaison : clé d'appariement `dimension:title:severity` (minuscules),
+`pct = delta / scoreA × 100` arrondi à 0,1, tendances à ±5 points,
+recommandations en escalier. Documenté dans `docs/REPORTS.md` ;
+9 tests `tests/reports/`, budgets MD < 2 s, PDF < 10 s, comparaison < 1 s.
+
+#### 4.5 Interfaces de rapports : CLI et MCP (Sprint 11-3)
+
+- **CLI** : `ekts inspect <url>` (défaut L3 — seules les inspections L3
+  fournissent les 4 blocs d'entrée d'analyse ; L1/L2 refusés avec code 4) et
+  `ekts audit list|show|report|compare` (codes 0/2/3/4, sorties humaines +
+  `--json`). Registration dans `src/cli/program.ts`.
+- **MCP** : outils `inspect_site` (readOnlyHint false, openWorld true),
+  `audit_history`, `audit_report` (lecture, contenu renvoyé en mémoire) ;
+  entrées Zod dans `src/mcp/schemas/tool-schemas.ts`, dispatch dans
+  `src/mcp/handlers/tools.ts` (7 outils), services audits câblés dans
+  `src/mcp/context.ts` (`AuditToolServices.inspectAndAudit` injectable en
+  test — aucune navigation réseau dans les tests unitaires).
 
 ---
 
