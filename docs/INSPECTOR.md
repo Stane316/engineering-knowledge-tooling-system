@@ -450,27 +450,51 @@ mode à utiliser pour diagnostiquer, pas pour produire un rapport.
 
 ### 11.1 Dépendances et audit
 
-`lighthouse` est une dépendance **de développement** : la CLI et le serveur MCP
-de connaissances ne la chargent jamais, et le paquet n'est exécuté que par
-l'inspecteur.
+`lighthouse` et `@axe-core/playwright` sont des dépendances **de développement**.
+Conséquence à connaître : une installation `npm ci --omit=dev` les omet, et les
+niveaux **L2 et L3 se dégradent proprement** (`lighthouse: null` / `axe: null`
+plus un avertissement) au lieu d'échouer. Le socle L1 et la CLI fonctionnent
+toujours.
 
 ```powershell
-npm run audit        # chaîne complète (dev incluse)
-npm run audit:prod   # dépendances de production uniquement
+npm run audit          # chaîne complète, développement incluse
+npm run audit:prod     # dépendances de production uniquement
+npm run audit:prod:ci  # identique, mais échoue si sévérité high ou plus
 ```
 
-Au 23/10/2026 : `npm audit` signale **27 vulnérabilités** (19 modérées,
-8 élevées), **toutes situées dans la chaîne Lighthouse** (`puppeteer-core`,
-`@puppeteer/browsers`, `extract-zip`, `proxy-agent`, `basic-ftp`, `get-uri`,
-`@sentry/node`). `npm run audit:prod` répond **0 vulnérabilité**.
+Au 24/10/2026 : `npm audit` signale **29 vulnérabilités** (19 modérées,
+10 élevées, 0 critique), **toutes dans la chaîne Lighthouse**.
+`npm run audit:prod` répond **0 vulnérabilité** — et c'est cette valeur qui est
+vérifiée en CI, dans le job « Vulnérabilités des dépendances de production ».
 
-Le seul correctif proposé est **Lighthouse 13.5**, qui exige Node ≥ 22.19 et
-relèverait le plancher du projet (ADR-026) : il n'est pas appliqué. L'exposition
-réelle est faible : Lighthouse se connecte au Chromium déjà lancé par
-`Navigator` (port CDP), donc il ne télécharge aucun navigateur (`extract-zip`,
-`@puppeteer/browsers`), n'utilise ni FTP (`basic-ftp`) ni proxy système
-(`proxy-agent`). Risque suivi en **R-8.10** ; la montée sera faite quand le
-plancher Node pourra bouger.
+**Pourquoi le nombre bouge sans que le code change.** `npm audit` interroge la
+base d'avis du registre, qui évolue. Entre le 23 et le 24 octobre, le compte est
+passé de 27 à 29 : deux familles d'avis **nouvelles** ont été publiées sur
+`@opentelemetry/core` (allocation mémoire non bornée dans la propagation
+« baggage » W3C) et sur les paquets `@opentelemetry/instrumentation-*`
+(exposition du nom d'utilisateur de base dans `db.use`). Aucune dépendance n'a
+été ajoutée ni mise à jour.
+
+**Triage : ce qui est chargé n'est pas ce qui est exécuté.**
+
+| Paquet signalé | Chemin dans Lighthouse | Exécuté par l'inspecteur ? |
+| --- | --- | --- |
+| `extract-zip`, `@puppeteer/browsers` | décompression de l'archive du Chrome téléchargé | **Non** : on passe `port`, Lighthouse se connecte au Chromium déjà lancé par `Navigator` |
+| `basic-ftp`, `get-uri`, `pac-proxy-agent`, `proxy-agent` | résolution du proxy système lors du lancement d'un Chrome | **Non** : connexion directe à `127.0.0.1`, sans proxy |
+| `chromium-bidi`, `zod` 3.25 | protocole BiDi de `puppeteer-core`, chargé par `navigation-runner.js` | **Chargé, jamais emprunté** : Lighthouse 12 pilote en CDP |
+| `@opentelemetry/*`, `@sentry/node` | télémétrie d'erreurs | **Non** : `core/lib/sentry.js` sort immédiatement si `flags.enableErrorReporting` est absent — c'est notre cas, `@sentry/node` n'est jamais importé |
+| `puppeteer-core` (avis agrégé) | somme des précédents | **Chargé pour ses types d'exécution, sans les chemins vulnérables** |
+
+**Pourquoi pas de correctif.** Le seul proposé est **Lighthouse 13.5**, qui exige
+Node ≥ 22.19 et relèverait le plancher du projet (`engines` ≥ 22.12, `.nvmrc` 22)
+— ADR-026. Aucun `overrides` ciblé n'est appliqué : `extract-zip` est vulnérable
+sur **toutes** ses versions, `chromium-bidi` demanderait un saut de version
+majeur, et forcer `@opentelemetry/core` 2.x casserait l'API attendue par
+`@sentry/node` 7. Patcher une chaîne qu'on n'exécute pas ajouterait de la dette
+sans réduire le risque.
+
+Risque suivi en **R-8.10**. La montée sera faite quand le plancher Node pourra
+bouger.
 
 ---
 

@@ -272,22 +272,33 @@ describe('createLighthouseRunner — module réel', () => {
   // d'échec du système (1,5 s sous Linux, plus de 28 s sous Windows avec
   // antivirus) et non notre code. Les invariants se vérifient sans I/O.
 
-  it('expose un préréglage desktop cohérent (formFactor et émulation accordés)', async () => {
-    const module = await loadLighthouse();
-    const settings = desktopSettings(module);
+  // Le chargement à froid de Lighthouse (19 Mo) prend ~1,5 s sous Linux mais
+  // ~8 s sous Windows avec antivirus : le délai par défaut de Vitest (20 s)
+  // laissait trop peu de marge. Ces deux cas fixent leur propre délai.
+  it(
+    'expose un préréglage desktop cohérent (formFactor et émulation accordés)',
+    { timeout: 60_000 },
+    async () => {
+      const module = await loadLighthouse();
+      const settings = desktopSettings(module);
 
-    expect(settings.formFactor).toBe('desktop');
-    expect(settings.screenEmulation.mobile).toBe(false);
-  });
+      expect(settings.formFactor).toBe('desktop');
+      expect(settings.screenEmulation.mobile).toBe(false);
+    },
+  );
 
-  it('notre émulation de repli reproduit exactement celle du paquet', async () => {
-    const module = await loadLighthouse();
-    const settings = desktopSettings(module);
+  it(
+    'notre émulation de repli reproduit exactement celle du paquet',
+    { timeout: 60_000 },
+    async () => {
+      const module = await loadLighthouse();
+      const settings = desktopSettings(module);
 
-    // Si Lighthouse change ses métriques desktop, ce test casse : le repli
-    // `DESKTOP_EMULATION` doit être mis à jour dans le même commit.
-    expect(DESKTOP_EMULATION).toEqual(settings.screenEmulation);
-  });
+      // Si Lighthouse change ses métriques desktop, ce test casse : le repli
+      // `DESKTOP_EMULATION` doit être mis à jour dans le même commit.
+      expect(DESKTOP_EMULATION).toEqual(settings.screenEmulation);
+    },
+  );
 });
 
 /** Réglages du préréglage desktop du module chargé, typés pour le test. */

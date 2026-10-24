@@ -41,7 +41,8 @@
     "doctor:browsers": "node scripts/browser-doctor.mjs",
     "inspect": "node scripts/inspect.mjs",
     "audit": "npm audit",
-    "audit:prod": "npm audit --omit=dev"
+    "audit:prod": "npm audit --omit=dev",
+    "audit:prod:ci": "npm audit --omit=dev --audit-level=high"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
