@@ -139,6 +139,106 @@ describe('AuditRepository', () => {
       expect(repo.list()).toHaveLength(0);
     });
 
+    it('rejette un timestamp vide', () => {
+      expect(() => repo.store(makeReport('https://example.com', 70, [], '   '))).toThrow(
+        /timestamp vide/,
+      );
+    });
+
+    it('rejette un score global non entier', () => {
+      const report = makeReport();
+      (report.summary as { overallScore: number }).overallScore = 70.5;
+
+      expect(() => repo.store(report)).toThrow(/score global hors 0-100/);
+    });
+
+    it('rejette un compteur de constats négatif', () => {
+      const report = makeReport();
+      (report.summary as { totalFindings: number }).totalFindings = -1;
+
+      expect(() => repo.store(report)).toThrow(/totalFindings invalide/);
+    });
+
+    it('rejette une dimension absente du rapport', () => {
+      const report = makeReport();
+      delete (report.dimensions as Partial<typeof report.dimensions>).content;
+
+      expect(() => repo.store(report)).toThrow(/dimension absente : content/);
+    });
+
+    it('rejette un score de dimension hors bornes', () => {
+      const report = makeReport();
+      (report.dimensions.seo as { score: number }).score = 150;
+
+      expect(() => repo.store(report)).toThrow(/seo: score hors 0-100/);
+    });
+
+    it('rejette un constat sans titre', () => {
+      const invalid = makeReport('https://example.com', 70, [makeFinding({ title: '  ' })]);
+
+      expect(() => repo.store(invalid)).toThrow(/titre vide/);
+    });
+
+    it('rejette une dimension de constat inconnue', () => {
+      const hostile = makeFinding();
+      (hostile as { dimension: string }).dimension = 'telepathie';
+      const invalid = makeReport('https://example.com', 70, [hostile]);
+
+      expect(() => repo.store(invalid)).toThrow(/dimension inconnue/);
+    });
+
+    it('rejette une priorité inconnue', () => {
+      const hostile = makeFinding();
+      (hostile as { priority: string }).priority = 'urgent';
+      const invalid = makeReport('https://example.com', 70, [hostile]);
+
+      expect(() => repo.store(invalid)).toThrow(/priorité inconnue/);
+    });
+
+    it('rejette une sévérité non entière et un impact hors bornes', () => {
+      const fractional = makeFinding();
+      (fractional as { severity: number }).severity = 3.5;
+      expect(() => repo.store(makeReport('https://example.com', 70, [fractional]))).toThrow(
+        /sévérité hors 0-4/,
+      );
+
+      const badImpact = makeFinding();
+      (badImpact as { impact: number }).impact = 0;
+      expect(() => repo.store(makeReport('https://example.com', 70, [badImpact]))).toThrow(
+        /impact hors 1-5/,
+      );
+    });
+
+    it('rejette un effort non entier', () => {
+      const hostile = makeFinding();
+      (hostile as { effort: number }).effort = 2.5;
+
+      expect(() => repo.store(makeReport('https://example.com', 70, [hostile]))).toThrow(
+        /effort hors 1-5/,
+      );
+    });
+
+    it('mappe les colonnes NULL (description, recommandation) vers undefined', () => {
+      const stored = repo.store(makeReport('https://example.com', 70, [makeFinding()]));
+      db.prepare(
+        'UPDATE audit_findings SET description = NULL, recommendation = NULL WHERE audit_id = ?',
+      ).run(stored.metadata.id!);
+
+      const found = repo.findById(stored.metadata.id!);
+
+      expect(found?.findings[0]?.description).toBeUndefined();
+      expect(found?.findings[0]?.recommendation).toBeUndefined();
+      expect(found?.findings[0]?.createdAt).toBeDefined();
+    });
+
+    it("supprime même si l'index FTS a été retiré du schéma", () => {
+      const stored = repo.store(makeReport('https://example.com', 70, [makeFinding()]));
+      db.exec('DROP TABLE audit_fts');
+
+      expect(repo.delete(stored.metadata.id!)).toBe(true);
+      expect(repo.findById(stored.metadata.id!)).toBeNull();
+    });
+
     it("rejette un effort hors de l'intervalle 1-5", () => {
       const hostile = makeFinding();
       (hostile as { effort: number }).effort = 9;

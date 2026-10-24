@@ -266,6 +266,72 @@ describe('AuditSearch', () => {
       expect(first[0]?.audit.metadata.url).not.toBe(second[0]?.audit.metadata.url);
     });
 
+    it('recherche avec des options vides (défauts offset/limit, sans requête)', async () => {
+      repo.store(makeReport('https://example.com', 70));
+
+      const results = await search.search();
+
+      expect(results).toHaveLength(1);
+      expect(results[0]?.score).toBe(1);
+    });
+
+    it('combine tous les filtres sur une recherche requêtée', async () => {
+      const audit = repo.store(
+        makeReport('https://garder.com', 80, [
+          makeFinding({ id: 'f1', title: 'Contraste faible', priority: 'critical', severity: 4 }),
+        ]),
+      );
+      const other = repo.store(
+        makeReport('https://echouer.com', 40, [
+          makeFinding({ id: 'f2', dimension: 'seo', priority: 'low', severity: 1 }),
+        ]),
+      );
+      await indexer.indexAudit(audit);
+      await indexer.indexAudit(other);
+
+      const results = await search.search({
+        query: 'Contraste',
+        scoreMin: 60,
+        scoreMax: 90,
+        dimension: 'performance',
+        priority: 'critical',
+        limit: 10,
+      });
+
+      expect(results).toHaveLength(1);
+      expect(results[0]?.audit.metadata.url).toBe('https://garder.com');
+    });
+
+    it('déduplique les constats multiples d’un même audit (rang lexical)', async () => {
+      const audit = repo.store(
+        makeReport('https://example.com', 70, [
+          makeFinding({ id: 'f1', title: 'Gradient visible partout', description: 'Gradient' }),
+          makeFinding({ id: 'f2', title: 'Gradient flou', description: 'Autre gradient' }),
+        ]),
+      );
+      await indexer.indexAudit(audit);
+      store.forcedMatches = [];
+
+      const results = await search.search({ query: 'Gradient' });
+
+      expect(results).toHaveLength(1);
+      expect(results[0]?.score).toBeGreaterThan(0);
+    });
+
+    it("échoue explicitement sur un voisin orphelin (id d'audit inconnu)", async () => {
+      store.forcedMatches = [{ auditId: 999_999, score: 0.9 }];
+
+      await expect(search.search({ query: 'quelconque' })).rejects.toThrow(SearchError);
+    });
+
+    it('refuse la fusion sémantique sans magasin (garde-fou interne)', async () => {
+      // Invocation du garde-fou privé sur une instance sans magasin.
+      const bareSearch = new AuditSearch(db, repo) as unknown as {
+        hybridMerge(query: string, fts: never[], limit: number): Promise<unknown[]>;
+      };
+      await expect(bareSearch.hybridMerge('x', [], 1)).rejects.toThrow(SearchError);
+    });
+
     it('rejette un offset négatif', async () => {
       await expect(search.search({ offset: -1 })).rejects.toThrow(ValidationError);
     });

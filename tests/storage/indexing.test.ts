@@ -257,6 +257,27 @@ describe('AuditIndexer', () => {
       await expect(indexer.addEmbeddings(audit)).rejects.toThrow(/non persisté/);
     });
 
+    it('indexe un audit sans constat (rien à vectoriser)', async () => {
+      const empty = repo.store(makeReport('https://vide.com', 100));
+
+      expect(await indexer.addEmbeddings(empty)).toBe(true);
+      expect(store.items.size).toBe(0);
+      expect(await indexer.removeEmbeddings(empty.metadata.id!)).toBe(0);
+    });
+
+    it('tolère un constat sans description (texte vectorisé vide)', async () => {
+      // Hostilité assumée : le contrat Sprint 9 exige `description`, on la
+      // retire après construction pour viser le repli du vectoriseur.
+      const finding = makeFinding();
+      (finding as { description?: string }).description = undefined;
+      const audit = repo.store(makeReport('https://example.com', 70, [finding]));
+
+      await indexer.addEmbeddings(audit);
+
+      const only = [...store.items.values()][0];
+      expect(only?.text).toBe('LCP trop élevé');
+    });
+
     it('retourne 0 vecteur retiré sans magasin injecté', async () => {
       const bare = new AuditIndexer(db);
 
