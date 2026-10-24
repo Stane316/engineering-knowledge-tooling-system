@@ -271,7 +271,7 @@ export class AuditRepository {
    */
   findByUrl(url: string): Audit[] {
     const rows = this.db
-      .prepare('SELECT * FROM audit_metadata WHERE url = ? ORDER BY timestamp DESC')
+      .prepare('SELECT * FROM audit_metadata WHERE url = ? ORDER BY timestamp DESC, id DESC')
       .all(url) as MetadataRow[];
 
     return rows.map((row) => this.hydrate(row));
@@ -294,7 +294,7 @@ export class AuditRepository {
     }
 
     const rows = this.db
-      .prepare('SELECT * FROM audit_metadata ORDER BY timestamp DESC LIMIT ? OFFSET ?')
+      .prepare('SELECT * FROM audit_metadata ORDER BY timestamp DESC, id DESC LIMIT ? OFFSET ?')
       .all(limit, offset) as MetadataRow[];
 
     return rows.map((row) => this.hydrate(row));
