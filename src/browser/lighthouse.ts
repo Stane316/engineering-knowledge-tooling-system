@@ -26,7 +26,7 @@ export const LIGHTHOUSE_CATEGORIES = ['performance', 'seo'] as const;
 const MIN_PORT = 1024;
 
 /**
- * Émulation desktop de repli, identique aux valeurs de Lighthouse 12.
+ * Émulation desktop de repli, identique aux valeurs de Lighthouse 13.
  *
  * Utilisée seulement si le module ne fournit pas `desktopConfig` (doublure de
  * test, version future) : elle doit **toujours** être cohérente avec
@@ -198,7 +198,7 @@ export function createLighthouseRunner(module?: LighthouseModule): LighthouseRun
  * Charge Lighthouse à la demande.
  *
  * L'import est dynamique : une inspection L1 ne paie pas le chargement d'un
- * paquet de 19 Mo.
+ * paquet de 24 Mo.
  */
 export async function loadLighthouse(): Promise<LighthouseModule> {
   const module = (await import('lighthouse')) as unknown as LighthouseModule;

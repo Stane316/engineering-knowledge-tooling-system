@@ -285,7 +285,7 @@ score_rrf(d) = Σ 1/(k + rank_i(d))
 
 **Rôle :** Inspection automatisée de sites web  
 **Statut :** 🟢 L1-L3 implémentés (Sprint 8, 23 octobre 2026) — L4 reporté après MVP-2  
-**Technologie :** Playwright 1.64.1 + Lighthouse 12.8.2 + axe-core 4.14.0  
+**Technologie :** Playwright 1.64.1 + Lighthouse 13.5.0 + axe-core 4.14.0  
 **Responsabilités :**
 - Navigation et captures (screenshots, traces)
 - Extraction accessibility tree

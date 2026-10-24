@@ -905,9 +905,9 @@ pas joignable depuis l'environnement d'intégration continue.
 
 ---
 
-#### ADR-026 — Lighthouse 12.8.2 piloté par port CDP, derrière un contrat local
+#### ADR-026 — Lighthouse piloté par port CDP, derrière un contrat local
 
-**Statut :** ✅ APPLIQUÉ (Sprint 8)
+**Statut :** ✅ APPLIQUÉ (Sprint 8) — **révisé le 24/10/2026 : Lighthouse 13.5.0**
 **Contexte :** le plan du Sprint 8 prévoit Lighthouse 11+ (`lighthouse`,
 `onlyCategories: ['performance', 'seo']`). Trois contraintes sont apparues à
 l'audit :
@@ -959,6 +959,31 @@ et `.nvmrc` : c'est un choix explicite, consigné ici.
    un avis `high` sur une dépendance de production casse la construction.
    Risque R-8.10.
 
+**Addendum 2 (24 octobre 2026 — révision de la décision 1).** À la demande
+explicite de l'utilisateur (« les 29 erreurs de `npm ci` existent toujours »),
+le plancher Node est **relevé à 22.19** (`engines`, `check:env` ; `.nvmrc` 22
+et la matrice CI `22.x`/`24.x` restent valides) et la dépendance passe à
+**`lighthouse` 13.5.0**. Justification :
+
+1. **Objectif atteint.** `npm audit` répond **0 vulnérabilité**, production et
+   développement — les 29 avis n'existent plus, au lieu d'être seulement triés.
+2. **Compatibilité vérifiée avant validation** : `desktopConfig` et l'export par
+   défaut présents ; `maxWaitForLoad` conservé ; audits Core Web Vitals et SEO
+   inchangés (mêmes identifiants) ; connexion CDP franchie après le contrôle des
+   réglages (échec attendu sur port fermé, jamais sur l'émulation) ;
+   `npm run verify` vert sur les 989 cas ; `axe-core` dédupliqué sur 4.14.0.
+3. **Réversibilité.** Le contrat local (`LighthouseModule`, types déclarés dans
+   `lighthouse-module.d.ts`, conversion du rapport) isole la version : un
+   retour en arrière reste un changement de `package.json` et d'`engines`.
+4. **Effet de bord assumé.** Node 22.12 à 22.18 est désormais refusé par
+   `check:env` — message explicite. Le reste du projet (Vitest 5, better-sqlite3
+   13, SDK MCP) n'imposait rien de plus que 22.12.
+
+Le triage §11.1 est conservé comme **méthode** (la base d'avis du registre peut
+faire réapparaître un paquet), et le job CI passe à l'audit **complet**
+(`npm run audit:ci`, seuil `high`) pour que le compteur ne redérive pas en
+silence. Risque R-8.10 clôturé.
+
 #### ADR-027 — axe-core 4.14.0 avec score pondéré par gravité, en complément de l'arbre ARIA
 
 **Statut :** ✅ APPLIQUÉ (Sprint 8)
@@ -1001,7 +1026,7 @@ jamais un score de 100 trompeur.
 | R-8.7 | Une CSP bloque l'injection d'axe-core → accessibilité non mesurée | Moyen | Moyenne | Erreur traduite en `InspectionError` (`stage: 'axe'`), dégradation explicite, `strict` pour l'exiger |
 | R-8.8 | Un DOM exotique fait échouer l'expression de photographie | Faible | Moyenne | Normalisation champ par champ + `EMPTY_SNAPSHOT`, 5 tests de valeurs hostiles, aucune hypothèse de forme |
 | R-8.9 | Le rapport conserve le texte visible d'une page authentifiée | **Élevé** | Faible | Texte borné à 20 000 caractères, avertissement `docs/INSPECTOR.md` §11, aucun en-tête d'authentification journalisé |
-| R-8.10 | La chaîne Lighthouse (dev) traîne 29 avis `npm audit`, non corrigeables sans Lighthouse 13 | Faible | **Réalisée** | Triage par **accessibilité du code** dans `docs/INSPECTOR.md` §11.1 (aucun téléchargement de Chrome, aucun proxy, aucun FTP, Sentry jamais initialisé) ; `npm run audit:prod` à 0 vulnérabilité et **job CI dédié** qui échoue dès qu'un avis `high` touche une dépendance de production ; montée de Lighthouse conditionnée au relèvement du plancher Node (ADR-026) |
+| R-8.10 | La chaîne Lighthouse (dev) traînait 29 avis `npm audit`, non corrigeables sans Lighthouse 13 | Faible | **Clôturée le 24/10/2026** | Correctif **appliqué** : `lighthouse` 13.5.0 + plancher Node 22.19 (ADR-026 addendum 2) → `npm audit` à **0**, dev comprise ; **job CI `npm run audit:ci`** (seuil `high`, audit complet) contre toute régression ; triage d'accessibilité conservé en `docs/INSPECTOR.md` §11.1 pour les futurs avis |
 
 ---
 

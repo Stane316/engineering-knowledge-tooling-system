@@ -37,7 +37,7 @@ Commits atomiques : un commit par sous-sprint ou par correction cohérente, mess
 
 | Élément                   | Version                                    |
 | ------------------------- | ------------------------------------------ |
-| Node.js                   | ≥ 22.12 (LTS)                              |
+| Node.js                   | ≥ 22.19 (LTS)                              |
 | TypeScript                | 5.9.x épinglé                              |
 | ESLint                    | 10+ — **flat config** (`eslint.config.js`) |
 | Vitest                    | 5+ avec `@vitest/coverage-v8`              |

@@ -272,7 +272,7 @@ describe('createLighthouseRunner — module réel', () => {
   // d'échec du système (1,5 s sous Linux, plus de 28 s sous Windows avec
   // antivirus) et non notre code. Les invariants se vérifient sans I/O.
 
-  // Le chargement à froid de Lighthouse (19 Mo) prend ~1,5 s sous Linux mais
+  // Le chargement à froid de Lighthouse (24 Mo) prend ~1,5 s sous Linux mais
   // ~8 s sous Windows avec antivirus : le délai par défaut de Vitest (20 s)
   // laissait trop peu de marge. Ces deux cas fixent leur propre délai.
   it(

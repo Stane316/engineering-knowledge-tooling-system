@@ -31,7 +31,7 @@ suppression n'est exposée. Les écritures restent le fait de la CLI (`ekts add`
 
 | Élément | Version | Vérification |
 | --- | --- | --- |
-| Node.js | ≥ 22.12 | `node --version` |
+| Node.js | ≥ 22.19 | `node --version` |
 | Dépendances | — | `npm ci` |
 | Build | — | `npm run build` |
 | Base | 3 fichiers | `data/ekts.db`, `data/ekts-fts.db`, `data/ekts-vectors.db` |

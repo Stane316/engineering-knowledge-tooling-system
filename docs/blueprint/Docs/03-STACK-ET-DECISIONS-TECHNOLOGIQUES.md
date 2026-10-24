@@ -110,7 +110,7 @@ ekts-vectors.db  → Index vectoriel (sqlite-vec embeddings)
 
 | Technologie | Version | Rôle | Statut | Justification |
 |-------------|---------|------|--------|---------------|
-| **Lighthouse** | 12.8.2 (épinglée) | Performance/SEO | ✅ VALIDÉ | Standard industrie ; 13.x écartée (Node ≥ 22.19 vs `engines` ≥ 22.12) — ADR-026 |
+| **Lighthouse** | 13.5.0 | Performance/SEO | ✅ VALIDÉ | Standard industrie ; montée au 13.5.0 le 24/10/2026 pour supprimer les 29 avis de la chaîne 12.8.2 (plancher Node porté à 22.19) — ADR-026 addendum |
 | **axe-core** | 4.14.0 (`@axe-core/playwright`) | Accessibilité | ✅ VALIDÉ | WCAG 2.2 AA, standard industrie ; complète l'arbre ARIA — ADR-027 |
 
 ### 2.6 Sécurité

@@ -36,7 +36,7 @@ src/
 
 | Composant  | Technologie                                         |
 | ---------- | --------------------------------------------------- |
-| Runtime    | Node.js ≥ 22.12 LTS                                 |
+| Runtime    | Node.js ≥ 22.19 LTS                                 |
 | Langage    | TypeScript 5.9 (strict, ESM)                        |
 | Données    | SQLite WAL + FTS5 + sqlite-vec (3 bases)            |
 | Recherche  | FTS5 (BM25) + vectoriel + RRF k=60                  |
@@ -64,7 +64,7 @@ Décisions détaillées : [`docs/blueprint/Docs/03-STACK-ET-DECISIONS-TECHNOLOGI
 
 ### Prérequis
 
-- **Node.js ≥ 22.12** (LTS) — `node --version`
+- **Node.js ≥ 22.19** (LTS) — `node --version`
 - **npm ≥ 10** — `npm --version`
 - **Git** — `git --version`
 

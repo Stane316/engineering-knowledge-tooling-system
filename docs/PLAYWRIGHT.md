@@ -29,7 +29,7 @@ données. Les niveaux L1-L3, Lighthouse et axe-core arrivent aux Sprints 8-9.
 
 | Élément | Exigence | Vérification |
 | --- | --- | --- |
-| Node.js | ≥ 22.12 | `node --version` |
+| Node.js | ≥ 22.19 | `node --version` |
 | Dépendances | `npm ci` | `npm ls @playwright/test` |
 | Binaires de navigateur | ~760 Mo (Chromium ≈ 280, Firefox ≈ 260, WebKit ≈ 220) | `npx playwright install --list` |
 | Espace disque | ≥ 2 Go libres avant installation | `Get-PSDrive C` |
