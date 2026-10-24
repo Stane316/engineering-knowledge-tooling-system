@@ -151,10 +151,14 @@ export class AccessibilityAnalyzer {
 
     summary += `${findings.length} violation(s) WCAG détectée(s) : `;
 
-    if (criticalCount > 0) summary += `${criticalCount} critique(s), `;
-    if (seriousCount > 0) summary += `${seriousCount} sérieuse(s), `;
-    if (moderateCount > 0) summary += `${moderateCount} modérée(s), `;
-    if (minorCount > 0) summary += `${minorCount} mineure(s).`;
+    const parts: string[] = [];
+
+    if (criticalCount > 0) parts.push(`${criticalCount} critique(s)`);
+    if (seriousCount > 0) parts.push(`${seriousCount} sérieuse(s)`);
+    if (moderateCount > 0) parts.push(`${moderateCount} modérée(s)`);
+    if (minorCount > 0) parts.push(`${minorCount} mineure(s)`);
+
+    summary += `${parts.join(', ')}.`;
 
     return summary;
   }
