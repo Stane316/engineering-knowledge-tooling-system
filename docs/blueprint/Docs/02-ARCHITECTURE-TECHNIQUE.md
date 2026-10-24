@@ -284,7 +284,7 @@ score_rrf(d) = Σ 1/(k + rank_i(d))
 #### 4.2.3 Browser Inspector
 
 **Rôle :** Inspection automatisée de sites web  
-**Statut :** 🟢 L1-L3 implémentés (Sprint 8, 23 octobre 2026) — L4 reporté après MVP-2  
+**Statut :** 🟢 L1-L3 implémentés (Sprint 8, 23 octobre 2026) + module d'analyse 5 dimensions (Sprint 9, 24 octobre 2026) — L4 reporté après MVP-2  
 **Technologie :** Playwright 1.64.1 + Lighthouse 13.5.0 + axe-core 4.14.0  
 **Responsabilités :**
 - Navigation et captures (screenshots, traces)
@@ -312,6 +312,13 @@ Chromium (ADR-026) et axe-core complète l'arbre ARIA (ADR-027).
 3. SEO (meta tags, structured data)
 4. UX (heuristiques Nielsen)
 5. Contenu (qualité, pertinence)
+
+**Module d'analyse (`src/analysis/`, Sprint 9) :** matrice de sévérité
+`severity × (6 − effort)` (seuils 20/12/6/2), priorisation automatique avec
+tri/groupements/résumés, pipeline au score pondéré 25/25/20/15/15 et pont
+`adapter.ts` (INP→FID, ADR-028) — sans dépendance vers `src/browser/`.
+Documenté dans `docs/ANALYSIS.md` : 10 fichiers de test, 77 cas, couverture
+97,9 % instructions / 100 % fonctions.
 
 #### 4.2.4 Creative Library
 

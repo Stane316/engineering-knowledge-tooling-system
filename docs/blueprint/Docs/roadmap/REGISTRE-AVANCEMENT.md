@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 23 octobre 2026 — Sprint 8 (4 niveaux d'inspection)  
+**Dernière mise à jour :** 24 octobre 2026 — Sprint 9 (Analyse 5 dimensions)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -92,9 +92,10 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 8 | 8-2 | Lighthouse + Inspection L2 (Semaine 15-16) | ✅ Rédigée | ✅ `58d333e` | ✅ 41 tests |
 | Sprint 8 | 8-3 | axe-core + Inspection L3 + Tests + Documentation (Semaine 16) | ✅ Rédigée | ✅ `58d333e` | ✅ 62 tests, couverture 98,9 % |
 | Sprint 8 | Dossier parent | 4 Niveaux d'Inspection (Semaine 15-16) | ✅ Rédigée | ✅ Livré le 23/10/2026 | ✅ C8.1–C8.18 tracés |
-| Sprint 9 | 9-1 | Analyse Performance + Accessibilité (Semaine 17) | ✅ Rédigée | ⏳ | — |
-| Sprint 9 | 9-2 | Analyse SEO + UX + Contenu (Semaine 17-18) | ✅ Rédigée | ⏳ | — |
-| Sprint 9 | 9-3 | Matrice Sévérité + Priorisation + Tests + Documentation (Semaine 18) | ✅ Rédigée | ⏳ | — |
+| Sprint 9 | 9-1 | Analyse Performance + Accessibilité (Semaine 17) | ✅ Rédigée | ✅ `9468dac` | ✅ 15 tests |
+| Sprint 9 | 9-2 | Analyse SEO + UX + Contenu (Semaine 17-18) | ✅ Rédigée | ✅ `a94760a` | ✅ 23 tests |
+| Sprint 9 | 9-3 | Matrice Sévérité + Priorisation + Tests + Documentation (Semaine 18) | ✅ Rédigée | ✅ `5195efe` | ✅ 39 tests, couverture 97,9 % |
+| Sprint 9 | Dossier parent | Analyse 5 Dimensions (Semaine 17-18) | ✅ Rédigée | ✅ Livré le 24/10/2026 | ✅ C9.1–C9.17 tracés |
 | Sprint 9 | Dossier parent | Analyse 5 Dimensions (Semaine 17-18) | ✅ Rédigée | ⏳ | — |
 | Sprint 10 | 10-1 | Schema + Repository (Semaine 19, Jours 1-4) | ✅ Rédigée | ⏳ | — |
 | Sprint 10 | 10-2 | Indexation + Recherche (Semaine 19, Jours 5-7) | ✅ Rédigée | ⏳ | — |

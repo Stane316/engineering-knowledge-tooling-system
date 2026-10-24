@@ -1030,6 +1030,41 @@ jamais un score de 100 trompeur.
 
 ---
 
+#### ADR-028 — Pont d'adapter dédié entre inspection et analyse
+
+**Statut :** ✅ APPLIQUÉ (Sprint 9)
+**Contexte :** le contrat d'analyse (C9.1) nomme la métrique d'interaction
+`fid`, nom historique de Lighthouse, alors que le Sprint 8 mesure **INP**
+(`CoreWebVitals.inp`, successeur du FID) ; `ContentAnalysis` est **plat** côté
+inspection et attendu **imbriqué** (`metrics`) côté analyse ; les types de
+sortie Sprint 8 sont `readonly`. Ce sont les trois — seuls — écarts constatés
+entre les types réels et le contrat d'analyse.
+
+**Décision :**
+1. Un module unique `src/analysis/adapter.ts` concentre les traductions :
+   `inp → fid`, contenu plat → `metrics.{wordCount,readingTime,readabilityScore}`,
+   tableaux `readonly` recopiés.
+2. `fromInspection(result)` agrège les quatre entrées (lighthouse, axe, ux,
+   content) à partir d'un résultat L3.
+3. Si `lighthouse` ou `axe` est `null` (inspection dégradée, Sprint 8),
+   l'adapter **lève une erreur explicite** — jamais un score inventé.
+
+**Conséquences :** le module d'analyse reste découplé du navigateur (aucun
+import de `src/browser/`), toute évolution de Lighthouse ou d'axe-core ne touche
+que le pont ; 8 tests dédiés, adapter à 100 % de couverture ; ADR-026 reste
+seul responsable de la chaîne de collecte.
+
+---
+
+#### Risques nouveaux (Sprint 9)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-9.1 | Les **scores et priorités maison** (`severity × (6 − effort)`, score pondéré 25/25/20/15/15) sont lus comme des standards normalisés | Moyen | Moyenne | Formules et seuils publiés (`docs/ANALYSIS.md` §3-§5) ; priorités affichées avec impact et effort ; `DimensionScore` gardé strictement local à chaque dimension |
+| R-9.2 | Les types d'analyse **divergent** des types inspection réels au fil des sprints (nouvelles métriques Lighthouse, champs axe) | Moyen | Moyenne | Écart possible confiné à `adapter.ts` (ADR-028) ; aucune dépendance de `src/analysis/` vers `src/browser/` ; test du pont 100 % couvert ; contract test sur la fixture réelle |
+
+---
+
 ### 2.3 Décisions à vérifier
 
 | ID | Sujet | Information | Date vérification | Statut |
@@ -1528,6 +1563,7 @@ Pricing outils IA change (augmentation, suppression free tier).
 | ADR-023 (navigateur, arbre ARIA) | R-7.1 à R-7.7 |
 | ADR-026 (Lighthouse 12.8.2, port CDP) | R-8.1 à R-8.4 |
 | ADR-027 (axe-core, score pondéré) | R-8.5 à R-8.8 |
+| ADR-028 (adapter inspection → analyse) | R-9.1, R-9.2 |
 
 ### 4.2 Risques non couverts
 
