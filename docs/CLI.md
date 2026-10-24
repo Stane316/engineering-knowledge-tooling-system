@@ -58,7 +58,7 @@ ekts --help
 >   vers `ConvertFrom-Json` ou `jq` échoue alors. Dans un script, utiliser
 >   `npm run --silent cli -- <args>`, `npx --no-install ekts` ou `node dist\…`.
 
-Prérequis : Node.js ≥ 22.12 et un `npm run build` à jour. Aucune clé n'est
+Prérequis : Node.js ≥ 22.19 et un `npm run build` à jour. Aucune clé n'est
 nécessaire pour `init`, `add` (indexation plein texte), `get`, `list`, `delete`,
 `status` et `search --mode fts`. Le fichier `.env` du répertoire courant est
 chargé au démarrage (sans écraser les variables déjà définies).

@@ -62,7 +62,7 @@ jobs:
           retention-days: 7
 
   dependencies:
-    name: Vulnérabilités des dépendances de production
+    name: Audit des dépendances
     runs-on: ubuntu-latest
 
     steps:
@@ -78,13 +78,13 @@ jobs:
       - name: Installer les dépendances
         run: npm ci
 
-      # Seules les dépendances de PRODUCTION bloquent la CI. La chaîne de
-      # développement de Lighthouse traîne des avis (extract-zip, basic-ftp,
-      # proxy-agent, @opentelemetry/*) qui n'ont pas de correctif compatible
-      # avec le plancher Node du projet : ils sont triés dans
-      # docs/INSPECTOR.md §11.1 et suivis par le risque R-8.10.
-      - name: Audit des dépendances de production
-        run: npm run audit:prod:ci
+      # Toute vulnérabilité de sévérité `high` ou plus bloque la CI, y compris
+      # dans la chaîne de développement. L'historique (29 avis dans l'arbre de
+      # Lighthouse 12.8.2, voir docs/INSPECTOR.md §11.1) montre pourquoi ne pas
+      # laisser ce compteur dériver en silence. Les correctifs d'ampleur
+      # (montée majeure) se discutent dans le registre, pas en urgence CI.
+      - name: Audit des dépendances (production incluse)
+        run: npm run audit:ci
 
   benchmark:
     name: Benchmark recherche (100K documents)

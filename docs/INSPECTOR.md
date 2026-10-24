@@ -3,7 +3,7 @@
 **Version :** 1.0
 **Date :** 23 octobre 2026
 **Sprint :** 8 (4 Niveaux d'Inspection)
-**Bibliothèques :** `lighthouse` 12.8.2, `@axe-core/playwright` 4.14.0, Playwright 1.64.1
+**Bibliothèques :** `lighthouse` 13.5.0, `@axe-core/playwright` 4.14.0, Playwright 1.64.1
 **Point d'entrée :** `src/browser/inspection/inspector.ts`
 
 ---
@@ -44,7 +44,7 @@ L4 (crawling multi-pages) est **hors périmètre** (reporté après MVP-2).
 
 | Élément | Exigence | Vérification |
 | --- | --- | --- |
-| Node.js | ≥ 22.12.0 (`engines`) | `node --version` |
+| Node.js | ≥ 22.19.0 (`engines`) | `node --version` |
 | npm | ≥ 10.9.0 | `npm --version` |
 | Dépendances | `npm ci` | `npm ls lighthouse @axe-core/playwright` |
 | Binaires Playwright | Chromium obligatoire pour L2/L3 | `npx playwright install --list` |
@@ -74,7 +74,7 @@ Résultat attendu :
 ```text
 ekts@0.1.0
 ├── @axe-core/playwright@4.14.0
-└── lighthouse@12.8.2
+└── lighthouse@13.5.0
 ```
 
 Vérification :
@@ -133,7 +133,7 @@ sont ensuite **pures** : testables sans réseau, comparables entre moteurs.
 **Des analyseurs injectables.** `LighthouseAnalyzer` et `AxeAnalyzer` reçoivent
 un exécutant (`LighthouseRunner`, `AxeRunner`). Les tests fournissent des
 doublures ; la production charge le paquet réel à la demande, si bien qu'une
-inspection L1 ne paie pas 19 Mo de dépendances.
+inspection L1 ne paie pas 24 Mo de dépendances.
 
 **Dégradation plutôt qu'échec silencieux.** Un outil indisponible produit un
 `warning` explicite et un champ `null`, jamais un score inventé. En mode
@@ -425,7 +425,7 @@ Couverture mesurée : **98,9 %** des lignes de `src/browser/` (seuil du projet :
 | --- | --- | --- |
 | `Inspection (lighthouse) : ECONNREFUSED` | port CDP non ouvert | vérifier que `browserKind` vaut `chromium` et que le moteur accepte `--remote-debugging-port` |
 | `Screen emulation mobile setting … does not match formFactor` | émulation incohérente | corrigé : le mode desktop passe `desktopConfig` ; ne jamais fixer `formFactor` seul |
-| `Inspection (lighthouse) : …` avec `NODE_MODULE_VERSION` | Node trop ancien | `node --version` ≥ 22.12 ; ne pas monter Lighthouse 13 (exige 22.19) |
+| `Inspection (lighthouse) : …` avec `NODE_MODULE_VERSION` | Node trop ancien | `node --version` ≥ 22.19 (exigence de Lighthouse 13.5) puis `npm ci` |
 | `lighthouse` absent | `npm ci` incomplet | `npm ls lighthouse` puis `npm ci` |
 | `Analyse axe-core indisponible : …` | CSP bloquant l'injection | inspecter avec `strict: true` pour voir l'erreur exacte |
 | `Lighthouse exige Chromium` | `browserKind` = `firefox`/`webkit` | relancer en Chromium |
@@ -457,44 +457,57 @@ plus un avertissement) au lieu d'échouer. Le socle L1 et la CLI fonctionnent
 toujours.
 
 ```powershell
-npm run audit          # chaîne complète, développement incluse
+npm run audit          # chaîne complète
 npm run audit:prod     # dépendances de production uniquement
-npm run audit:prod:ci  # identique, mais échoue si sévérité high ou plus
+npm run audit:ci       # échoue si sévérité high ou plus — exécuté en CI
+npm run audit:prod:ci  # identique, restreint à la production
 ```
 
-Au 24/10/2026 : `npm audit` signale **29 vulnérabilités** (19 modérées,
-10 élevées, 0 critique), **toutes dans la chaîne Lighthouse**.
-`npm run audit:prod` répond **0 vulnérabilité** — et c'est cette valeur qui est
-vérifiée en CI, dans le job « Vulnérabilités des dépendances de production ».
+**État au 24/10/2026 : `npm audit` répond 0 vulnérabilité**, développement
+inclus. C'est ce que le CI vérifie à chaque push.
 
-**Pourquoi le nombre bouge sans que le code change.** `npm audit` interroge la
-base d'avis du registre, qui évolue. Entre le 23 et le 24 octobre, le compte est
-passé de 27 à 29 : deux familles d'avis **nouvelles** ont été publiées sur
-`@opentelemetry/core` (allocation mémoire non bornée dans la propagation
-« baggage » W3C) et sur les paquets `@opentelemetry/instrumentation-*`
-(exposition du nom d'utilisateur de base dans `db.use`). Aucune dépendance n'a
-été ajoutée ni mise à jour.
+**Historique (conservé pour la trace).** Jusqu'au 24/10/2026, le projet
+embarquait `lighthouse` **12.8.2**, dont la chaîne de développement comptait
+27 puis **29 avis** (19 modérées, 10 élevées) sans aucun correctif applicable :
+`extract-zip` est vulnérable sur toutes ses versions, `chromium-bidi`
+exigerait un saut de version majeur, forcer `@opentelemetry/core` 2.x
+casserait l'API attendue par `@sentry/node` 7, et le seul correctif global
+(Lighthouse 13.5) relevait le plancher Node du projet. Le triage par
+**accessibilité du code** — ce qui était *chargé* n'était pas *exécuté* —
+est conservé ci-dessous comme méthode.
 
-**Triage : ce qui est chargé n'est pas ce qui est exécuté.**
+**Décision d'appliquer le correctif.** La demande explicite de supprimer ces
+29 erreurs a fait basculer ADR-026 : **`lighthouse` 13.5.0** (24/10/2026) remplace
+12.8.2 et le plancher Node suit (`engines` ≥ 22.19, `.nvmrc` 22, `check:env`).
+Vérifications faites avant validation : `npm audit` → **0** ; API inchangée
+(`desktopConfig`, export par défaut, `maxWaitForLoad`) ; mêmes audits Core Web
+Vitals et SEO présents ; connexion CDP franchie après contrôle des réglages ;
+`npm run verify` vert sur les 989 cas.
+
+**Si un avis réapparaît un jour** (la base du registre évolue sans que le code
+change — le passage de 27 à 29 le 24/10 en est la preuve) :
+
+1. `npm run audit:ci` bloque la CI sur `high` — lire l'arbre `npm ls <paquet>`.
+2. Trier par accessibilité du code avant toute panique : un paquet n'est
+   dangereux que s'il est exécuté sur un chemin atteint.
+3. Remonter Lighthouse si le correctif vient de là, avant d'envisager des
+   `overrides` manuels.
+
+**Triage de référence, appliqué à la chaîne 12.8.2 :**
 
 | Paquet signalé | Chemin dans Lighthouse | Exécuté par l'inspecteur ? |
 | --- | --- | --- |
 | `extract-zip`, `@puppeteer/browsers` | décompression de l'archive du Chrome téléchargé | **Non** : on passe `port`, Lighthouse se connecte au Chromium déjà lancé par `Navigator` |
 | `basic-ftp`, `get-uri`, `pac-proxy-agent`, `proxy-agent` | résolution du proxy système lors du lancement d'un Chrome | **Non** : connexion directe à `127.0.0.1`, sans proxy |
-| `chromium-bidi`, `zod` 3.25 | protocole BiDi de `puppeteer-core`, chargé par `navigation-runner.js` | **Chargé, jamais emprunté** : Lighthouse 12 pilote en CDP |
-| `@opentelemetry/*`, `@sentry/node` | télémétrie d'erreurs | **Non** : `core/lib/sentry.js` sort immédiatement si `flags.enableErrorReporting` est absent — c'est notre cas, `@sentry/node` n'est jamais importé |
+| `chromium-bidi`, `zod` 3.25 | protocole BiDi de `puppeteer-core` | **Chargé, jamais emprunté** : Lighthouse pilote en CDP |
+| `@opentelemetry/*`, `@sentry/node` | télémétrie d'erreurs | **Non** : sortie immédiate sans `flags.enableErrorReporting` — cas présent |
 | `puppeteer-core` (avis agrégé) | somme des précédents | **Chargé pour ses types d'exécution, sans les chemins vulnérables** |
 
-**Pourquoi pas de correctif.** Le seul proposé est **Lighthouse 13.5**, qui exige
-Node ≥ 22.19 et relèverait le plancher du projet (`engines` ≥ 22.12, `.nvmrc` 22)
-— ADR-026. Aucun `overrides` ciblé n'est appliqué : `extract-zip` est vulnérable
-sur **toutes** ses versions, `chromium-bidi` demanderait un saut de version
-majeur, et forcer `@opentelemetry/core` 2.x casserait l'API attendue par
-`@sentry/node` 7. Patcher une chaîne qu'on n'exécute pas ajouterait de la dette
-sans réduire le risque.
+> L'avertissement `npm warn deprecated @opentelemetry/sdk-trace-base` qui suit
+> l'installation n'est **pas** une vulnérabilité : c'est un avis de dépréciation
+> npm sur un sous-paquet de `@sentry/node`. `npm audit` reste à 0.
 
-Risque suivi en **R-8.10**. La montée sera faite quand le plancher Node pourra
-bouger.
+Risque suivi en **R-8.10** (clôturé le 24/10/2026).
 
 ---
 
@@ -506,10 +519,10 @@ tels quels. Ils sont consignés ici et dans le registre des décisions.
 | # | Plan | Réalisation | Raison |
 | --- | --- | --- | --- |
 | **E8-1** | ADR-012 (Lighthouse), ADR-013 (axe-core) | **ADR-026**, **ADR-027** | ces numéros sont déjà pris dans le registre (`docs/08-REGISTRE-DECISIONS-ET-RISQUES.md`) |
-| **E8-2** | `lighthouse` 11+ / 13.x | `lighthouse` **12.8.2** | Lighthouse 13.5 exige Node ≥ 22.19, au-dessus du plancher `engines` (≥ 22.12) |
+| **E8-2** | `lighthouse` 11+ / 13.x | `lighthouse` **13.5.0** | Écart **résolu** le 24/10/2026 : montée de Lighthouse pour supprimer les 29 avis de la chaîne 12.8.2, plancher Node porté à 22.19 (ADR-026 addendum) |
 | **E8-3** | Types Lighthouse disponibles | déclaration locale `lighthouse-module.d.ts` | le paquet ne publie ni `types` ni `exports` ; `import('lighthouse')` échoue en TS2307 |
-| **E8-4** | audit `max-potential-fid` | **INP** en priorité, `max-potential-fid` en repli | Lighthouse 12 mesure INP ; FID n'existe plus comme audit principal |
-| **E8-5** | TTFB via `time-to-first-byte` | `server-response-time` | c'est le nom réel de l'audit dans Lighthouse 12 |
+| **E8-4** | audit `max-potential-fid` | **INP** en priorité, `max-potential-fid` en repli | Lighthouse mesure INP ; FID n'existe plus comme audit principal |
+| **E8-5** | TTFB via `time-to-first-byte` | `server-response-time` | c'est le nom réel de l'audit |
 | **E8-6** | analyse L2/L3 sur les 3 moteurs | L2/L3 en **Chromium** uniquement | Lighthouse exige CDP ; l'absence est signalée, pas contournée |
 | **E8-7** | viewport non spécifié | option `viewport` (défaut 1920 × 1080) + `LaunchOptions.context` | permet de fixer viewport et user-agent sans second navigateur |
 | **E8-8** | score SEO Lighthouse | **deux** scores : Lighthouse et DOM | un rapport doit distinguer ce qui a été mesuré par qui |

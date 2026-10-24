@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-const MINIMUM_NODE = [22, 12, 0];
+const MINIMUM_NODE = [22, 19, 0];
 
 const failures = [];
 
@@ -44,7 +44,7 @@ function checkNode() {
     current[0] < MINIMUM_NODE[0] ||
     (current[0] === MINIMUM_NODE[0] && current[1] < MINIMUM_NODE[1]);
 
-  report(!tooOld, 'Version de Node', `${process.versions.node} (minimum 22.12)`);
+  report(!tooOld, 'Version de Node', `${process.versions.node} (minimum 22.19)`);
 }
 
 function checkSqlite() {
