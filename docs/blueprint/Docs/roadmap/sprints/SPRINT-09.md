@@ -1,7 +1,7 @@
 # Sprint 9 — Analyse 5 Dimensions (Semaine 17-18)
 
 **MVP :** MVP-2 (Inspection Navigateur)  
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ LIVRÉ (24 octobre 2026)  
 
 ---
 
@@ -284,7 +284,9 @@ Engineering-Knowledge-Tooling-System/
 │   │   ├── ux.ts                       # UXAnalyzer
 │   │   ├── content.ts                  # ContentAnalyzer
 │   │   ├── severity.ts                 # SeverityMatrix
-│   │   └── prioritizer.ts              # FindingPrioritizer
+│   │   ├── prioritizer.ts              # FindingPrioritizer
+│   │   ├── pipeline.ts                 # AnalysisPipeline (score pondéré)
+│   │   └── adapter.ts                  # Pont inspection → analyse
 │   └── ...
 ├── tests/
 │   └── analysis/
@@ -294,10 +296,23 @@ Engineering-Knowledge-Tooling-System/
 │       ├── ux.test.ts
 │       ├── content.test.ts
 │       ├── severity.test.ts
-│       └── prioritizer.test.ts
+│       ├── prioritizer.test.ts
+│       ├── pipeline.test.ts
+│       ├── adapter.test.ts
+│       └── integration.test.ts
 └── docs/
     └── ANALYSIS.md                     # Documentation Analysis
 ```
+
+### 6.1 Écarts au plan
+
+| # | Écart | Arbitrage |
+|---|-------|-----------|
+| E9-1 | `pipeline.ts` et `adapter.ts` ajoutés (non listés au plan : le plan n'a ni orchestrateur ni traducteur de types) | Nécessaires au fonctionnement — pont en un point, ADR-028 |
+| E9-2 | Test d'intégration réseau conditionnel (`EKTS_BROWSER_ONLINE=1`) + test permanent sur fixtures réelles | Pattern établi du dépôt (aucun test unitaire au réseau) |
+| E9-3 | `analyze()` non-`async` en interne (promesse sans I/O) | API identique, zéro règle `require-await` dépendante |
+| E9-4 | Résumés sans virgule finale (`parts.join(', ') + '.'`) | Bug cosmétique de la spécification, corrigé 9-2 |
+| E9-5 | Comptes du `summary` sur `priorityFindings` recalculés | Le rapport ne doit montrer que les priorités normalisées |
 
 ## 7. Tests et validation
 
@@ -371,6 +386,8 @@ Engineering-Knowledge-Tooling-System/
 | `src/analysis/content.ts` | ContentAnalyzer | 200 |
 | `src/analysis/severity.ts` | SeverityMatrix | 150 |
 | `src/analysis/prioritizer.ts` | FindingPrioritizer | 150 |
+| `src/analysis/pipeline.ts` | AnalysisPipeline | 150 |
+| `src/analysis/adapter.ts` | Pont inspection → analyse | 150 |
 
 ### 9.2 Tests
 
@@ -383,6 +400,9 @@ Engineering-Knowledge-Tooling-System/
 | `tests/analysis/content.test.ts` | Tests ContentAnalyzer | 150 |
 | `tests/analysis/severity.test.ts` | Tests SeverityMatrix | 100 |
 | `tests/analysis/prioritizer.test.ts` | Tests FindingPrioritizer | 150 |
+| `tests/analysis/pipeline.test.ts` | Tests AnalysisPipeline | 150 |
+| `tests/analysis/adapter.test.ts` | Tests du pont | 150 |
+| `tests/analysis/integration.test.ts` | Tests d'intégration | 150 |
 
 ### 9.3 Documentation
 
