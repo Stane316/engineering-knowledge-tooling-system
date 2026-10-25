@@ -5,7 +5,7 @@
 **Position dans la roadmap :** Premier sprint du MVP-3 (nouveau périmètre, ADR-031)  
 **Durée prévue :** 2 semaines (Semaine 25-26)  
 **Date de documentation :** 25 octobre 2026  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ (25 octobre 2026)
 
 ---
 
@@ -567,4 +567,4 @@ Permettre la gestion de plusieurs projets dans EKTS : modèle Project, associati
 ---
 
 **Document rédigé le 25 octobre 2026 — Sprint 13 du projet EKTS**  
-**Statut : ⏳ Dossier Sprint 13 prêt pour approbation**
+**Statut : ✅ Dossier Sprint 13 validé — voir `SPRINT-13-RESULTAT.md`**
