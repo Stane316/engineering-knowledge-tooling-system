@@ -3,7 +3,7 @@
 **Durée :** 4 jours  
 **Objectif :** Implémenter les tests E2E complets pour valider les flux utilisateur  
 **Dépendance :** Sprint 11 (Rapports + CLI + MCP) ✅
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ TERMINÉ (voir `SPRINT-12-01-RESULTAT.md`)  
 
 ---
 
