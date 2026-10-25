@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
 import path from 'node:path';
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import { PDFReportGenerator } from '../../src/reports/pdf-generator.js';
 import type { ComparisonReport } from '../../src/reports/types.js';
@@ -157,6 +157,22 @@ describe.skipIf(chromium === undefined)('PDFReportGenerator — rendu Puppeteer'
   afterEach(async () => {
     await Promise.all(cleanups.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
   });
+
+  // Premier lancement de Chrome à froid : sur Windows, l'antivirus analyse le
+  // binaire fraîchement téléchargé et l'init process dépasse 15 s (constaté :
+  // les deux premiers rendus timeoutaient, les suivants passaient à chaud).
+  // Ce warm-up absorbe le cold start hors des tests chronométrés — le contrat
+  // C11.2 mesure la performance du rendu, pas l'analyse d'antivirus.
+  beforeAll(async () => {
+    const warmDir = await mkdtemp(path.join(tmpdir(), 'ekts-pdf-warm-'));
+    try {
+      await new PDFReportGenerator().generate(makeAudit(99), {
+        outputPath: path.join(warmDir, 'reports'),
+      });
+    } finally {
+      await rm(warmDir, { recursive: true, force: true });
+    }
+  }, 60_000);
 
   it('produit un PDF A4 valide dans outputPath en moins de 10 secondes (C11.2)', async () => {
     const dir = path.join(await mkdtemp(path.join(tmpdir(), 'ekts-pdf-')), 'reports');
