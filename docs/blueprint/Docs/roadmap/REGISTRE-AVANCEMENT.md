@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 24 octobre 2026 — Sprint 11 (Rapport Inspection)  
+**Dernière mise à jour :** 25 octobre 2026 — Sprint 12 (Validation MVP-2 88/88)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -38,11 +38,13 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 
 | Périmètre | Sprints | Documentation | Implémentation | Tests |
 |-----------|---------|---------------|----------------|-------|
-| **MVP-1** — Bibliothèque, recherche, CLI, MCP | 1 à 6 | ✅ 24 dossiers | ✅ Sprints 1 à 6 terminés | ✅ Linux + Windows |
-| **MVP-2** — Inspection navigateur | 7 à 12 | ✅ 24 dossiers | 🟡 Sprints 7 et 8 terminés | ✅ unitaires, ⏳ e2e poste |
-| **MVP-3** — Capitalisation projets | 13 à 18 | ⏳ non documentés | ⏳ | — |
+| **MVP-1** — Bibliothèque, recherche, CLI, MCP | 1 à 6 | ✅ 24 dossiers | ✅ Sprints 1 à 6 terminés | ✅ 1 260 tests, couverture 97,06 % |
+| **MVP-2** — Inspection navigateur, analyse, rapports | 7 à 12 | ✅ 24 dossiers | ✅ Sprints 7 à 12 terminés | ✅ 88/88 critères validés |
+| **MVP-3** — Multi-projets, capitalisation, recommandations | 13 à 18 | ⏳ non documentés | ⏳ | — |
 
-**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 8 au 23 octobre 2026 (989 tests dont 974 verts et 15 d'intégration conditionnels, couverture ≥ 80 %).
+**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 12 au 25 octobre 2026 (1 260 tests, couverture 97,06 %, MVP-2 validé 88/88).
+
+> **Note (25/10/2026) :** Le périmètre du MVP-3 a été redéfini (ADR-031). Il ne s'agit plus du workflow 8 étapes initial, mais de : Multi-Projets (S13), Suivi Temporel (S14), Capitalisation Connaissances (S15), Recommandations (S16), Templates (S17), Tests+Docs (S18). Voir `docs/ROADMAP.md`.
 
 > **Sprint 4.5** est un sprint hors plan, ajouté à la demande de l'utilisateur
 > (multiplication des clés d'API disponibles). Il ne décale aucun sprint
@@ -104,19 +106,14 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 11 | 11-2 | Comparaison d'audits (Semaine 21, Jours 5-7) | ✅ Rédigée | ✅ `56bfbdd` | ✅ 17 tests |
 | Sprint 11 | 11-3 | CLI + MCP + Tests + Documentation (Semaine 22, Jours 8-10) | ✅ Rédigée | ✅ `1acf0ac` | ✅ 27 tests nouveaux, verify 1208 ✅, couverture 95,95 % |
 | Sprint 11 | Dossier parent | Rapport Inspection MVP-2 (Semaine 21-22) | ✅ Rédigée | ✅ Livré le 24/10/2026 | ✅ C11.1–C11.18 tracés |
-| Sprint 9 | Dossier parent | Analyse 5 Dimensions (Semaine 17-18) | ✅ Rédigée | ⏳ | — |
-| Sprint 10 | 10-1 | Schema + Repository (Semaine 19, Jours 1-4) | ✅ Rédigée | ⏳ | — |
-| Sprint 10 | 10-2 | Indexation + Recherche (Semaine 19, Jours 5-7) | ✅ Rédigée | ⏳ | — |
-| Sprint 10 | 10-3 | Statistiques + Tests + Documentation (Semaine 20, Jours 8-10) | ✅ Rédigée | ⏳ | — |
-| Sprint 10 | Dossier parent | Stockage + Indexation (MVP-2) | ✅ Rédigée | ⏳ | — |
-| Sprint 11 | 11-1 | Rapports Markdown + PDF (Semaine 21, Jours 1-4) | ✅ Rédigée | ⏳ | — |
-| Sprint 11 | 11-2 | Comparaison d'audits (Semaine 21, Jours 5-7) | ✅ Rédigée | ⏳ | — |
-| Sprint 11 | 11-3 | CLI + MCP + Tests + Documentation (Semaine 22, Jours 8-10) | ✅ Rédigée | ⏳ | — |
-| Sprint 11 | Dossier parent | Rapport Inspection (MVP-2) | ✅ Rédigée | ⏳ | — |
-| Sprint 12 | 12-1 | Tests E2E (Semaine 23, Jours 1-4) | ✅ Rédigée | ⏳ | — |
-| Sprint 12 | 12-2 | Documentation (Semaine 23, Jours 5-7) | ✅ Rédigée | ⏳ | — |
-| Sprint 12 | 12-3 | Validation MVP-2 + Préparation MVP-3 (Semaine 24, Jours 8-10) | ✅ Rédigée | ⏳ | — |
-| Sprint 12 | Dossier parent | Tests + Documentation MVP-2 | ✅ Rédigée | ⏳ | — |
+| Sprint 12 | 12-1 | Tests E2E (Semaine 23, Jours 1-4) | ✅ Rédigée | ✅ Livré le 25/10/2026 | ✅ 5 flux E2E, 16 tests |
+| Sprint 12 | 12-2 | Documentation (Semaine 23, Jours 5-7) | ✅ Rédigée | ✅ Livré le 25/10/2026 | ✅ 5 guides (USER, DEV, API, TROUBLE, CONTRIB) |
+| Sprint 12 | 12-3 | Validation MVP-2 + Préparation MVP-3 (Semaine 24, Jours 8-10) | ✅ Rédigée | ✅ Livré le 25/10/2026 | ✅ 88/88 critères, MVP2_VALIDATION.md |
+| Sprint 12 | Dossier parent | Tests + Documentation MVP-2 | ✅ Rédigée | ✅ Validé le 25/10/2026 | ✅ 88/88 critères, couverture 97,06 % |
+| Sprint 13 | 13-1 | Migration 003 + ProjectRepository + ProjectManager (Semaine 25, Jours 1-3) | ✅ Rédigée | ⏳ Non commencé | — |
+| Sprint 13 | 13-2 | CLI `ekts project` + filtre `--project` (Semaine 25-26, Jours 4-6) | ✅ Rédigée | ⏳ Non commencé | — |
+| Sprint 13 | 13-3 | MCP projets + tests + documentation (Semaine 26, Jours 7-10) | ✅ Rédigée | ⏳ Non commencé | — |
+| Sprint 13 | Dossier parent | Gestion Multi-Projets (MVP-3, ADR-031) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 
 ---
 
