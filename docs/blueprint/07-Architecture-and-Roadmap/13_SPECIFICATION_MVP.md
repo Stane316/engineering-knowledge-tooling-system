@@ -1,9 +1,14 @@
 # Spécification MVP — Phase 13
 
 **Date de création :** 21 octobre 2026  
-**Statut :** ✅ Terminé  
+**Statut :** ✅ Terminé (partiellement remplacé — voir note)  
 **Auteur :** Agent EKTS  
 **Objectif :** Définir le périmètre MVP, contrats entre composants, ce qui est reporté
+
+> **⚠️ Note (25 octobre 2026) — MVP-3 redéfini :**
+> Le §4 de ce document décrit le périmètre **initial** du MVP-3 (workflow 8 étapes, post-mortems, sécurité secrets).
+> Le périmètre **actif** est défini dans [`docs/ROADMAP.md`](../../ROADMAP.md) (ADR-031).
+> Ce document reste comme référence historique et pour les sections MVP-1/MVP-2 toujours valides.
 
 ---
 

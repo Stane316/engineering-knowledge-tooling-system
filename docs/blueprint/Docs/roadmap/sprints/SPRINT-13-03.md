@@ -4,7 +4,7 @@
 **Parent :** SPRINT-13 (Gestion Multi-Projets)  
 **Durée prévue :** 4 jours  
 **Date de documentation :** 25 octobre 2026  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ (25/10/2026 — voir `SPRINT-13-RESULTAT.md`)
 
 ---
 

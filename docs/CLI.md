@@ -578,3 +578,113 @@ reports }`.
 | 2 | erreur d'utilisation (Commander) |
 | 3 | ressource introuvable (`audit #n`) |
 | 4 | validation (`--level`, `--format`, `--limit`, identifiants) |
+
+---
+
+## 12. Commandes projets et filtre `--project` (Sprint 13)
+
+> Nouveauté Sprint 13 (multi-projets, ADR-031). Chaque audit, ressource ou
+> inspection peut être rattaché à un **projet** ; le filtre `--project` isole
+> ensuite le contexte d'un projet donné. Guide complet :
+> `docs/guides/PROJECTS.md`.
+
+### `ekts project create <name>`
+
+Crée un nouveau projet (UUIDv4 généré, statut `active` par défaut).
+
+```bash
+ekts project create "Mon Site Web" --description "Audit example.com"
+ekts project create "Migration v2" --status completed --json
+```
+
+| Option | Défaut |
+| --- | --- |
+| `-d, --description <text>` | — |
+| `-s, --status <status>` (`active` \| `completed` \| `archived`) | `active` |
+| `--json` | — |
+
+Sortie `--json` : l'objet projet complet (`id`, `name`, `description`,
+`status`, `startedAt`, `completedAt`, `metadata`, `createdAt`, `updatedAt`).
+
+### `ekts project list`
+
+Liste les projets du plus récent au plus ancien.
+
+```bash
+ekts project list
+ekts project list --status active --limit 10
+ekts project list --json
+```
+
+| Option | Défaut |
+| --- | --- |
+| `-s, --status <status>` | — |
+| `-n, --limit <n>` (1-1000) | `50` |
+
+Sortie `--json` : `{ count, projects[] }`.
+
+### `ekts project show <id>`
+
+Affiche les détails d'un projet (UUID attendu).
+
+```bash
+ekts project show 550e8400-e29b-41d4-a716-446655440000 --json
+```
+
+Codes : **0** si trouvé, **3** si le projet n'existe pas, **4** si l'argument
+n'est pas un UUIDv4.
+
+### `ekts project delete <id>`
+
+Supprime un projet. **Confirmation obligatoire** : sans `--force`, la
+suppression est refusée avec le message `confirmation requise…` et le code
+**1**. Les audits et ressources associés sont **conservés** — leur
+`project_id` passe à `NULL` (`ON DELETE SET NULL`), jamais de purge en
+cascade.
+
+```bash
+ekts project delete 550e8400-e29b-41d4-a716-446655440000 --force
+```
+
+| Option | Effet |
+| --- | --- |
+| `-f, --force` | Supprime sans confirmation |
+
+Codes : **0** supprimé, **1** sans `--force`, **3** introuvable.
+
+### Filtre et assignation `--project`
+
+**Filtrage** (`-p, --project <uuid>`, format contrôlé → code **2** si non
+UUID) :
+
+| Commande | Effet |
+| --- | --- |
+| `ekts audit list --project <id>` | Seuls les audits du projet |
+| `ekts audit show <id> --project <id>` | Refuse un audit d'un autre projet (code **3**) |
+| `ekts search <query> --project <id>` | Seules les ressources du projet |
+| `ekts list --project <id>` | Seules les ressources du projet |
+
+**Assignation** :
+
+| Commande | Effet |
+| --- | --- |
+| `ekts add --project <id>` | La ressource créée est rattachée au projet (projet inconnu → code **3**) |
+| `ekts inspect <url> --project <id>` | L'audit stocké est rattaché au projet (projet inconnu → code **3**, vérifié avant la navigation) |
+
+```bash
+$p = ekts project create "example.com" --json | ConvertFrom-Json   # PowerShell
+ekts inspect https://example.com --project $p.id
+ekts audit list --project $p.id
+ekts search "bonnes pratiques" --mode fts --project $p.id
+```
+
+### Codes de sortie projet (rappel)
+
+| Code | Cas projet |
+| --- | --- |
+| 0 | succès |
+| 1 | suppression sans `--force` (`CONFIRMATION_REQUIRED`) |
+| 2 | `--project` ou `show <id>` non UUID, `--status` hors enum |
+| 3 | projet introuvable (`PROJECT_NOT_FOUND`), audit hors projet |
+| 4 | validation Zod (nom vide, nom > 200 caractères, `--status` atteint via API) |
+

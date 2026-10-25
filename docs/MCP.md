@@ -11,8 +11,8 @@
 ## 1. Objectif
 
 Le serveur MCP expose la base de connaissances EKTS aux agents IA (Claude Code,
-Cursor, GitHub Copilot) via le **Model Context Protocol**. Sept outils sont
-disponibles (Sprint 11-3) :
+Cursor, GitHub Copilot) via le **Model Context Protocol**. **Onze outils** sont
+disponibles (Sprints 6, 11-3 et 13) :
 
 | Outil | Rôle |
 | --- | --- |
@@ -20,15 +20,20 @@ disponibles (Sprint 11-3) :
 | `get_resource` | Lecture d'une ressource par identifiant |
 | `list_resources` | Parcours du catalogue avec filtres |
 | `validate_resource` | Validation d'une ressource avant création (aucune écriture) |
-| `inspect_site` | Inspection complète d'un site (L3) → audit stocké (**action**) |
+| `inspect_site` | Inspection complète d'un site (L3) → audit stocké (**action**, `project_id` optionnel) |
 | `audit_history` | Historique des audits avec filtres et statistiques |
 | `audit_report` | Rapport Markdown d'un audit, renvoyé en mémoire |
+| `create_project` | Création d'un projet (**action**, Sprint 13) |
+| `list_projects` | Projets avec filtres `status`/pagination (Sprint 13) |
+| `get_project` | Lecture d'un projet par UUID (Sprint 13) |
+| `delete_project` | Suppression d'un projet, audits conservés (**action**, Sprint 13) |
 
-Les six outils hors `inspect_site` sont en lecture seule (`readOnlyHint:
-true`) : le serveur ne crée, ne met à jour ni ne supprime aucune ressource de
-connaissance. Les écritures connaissances restent le fait de la CLI
-(`ekts add`, `ekts delete`) ; `inspect_site` ajoute un audit via la chaîne
-d'inspection navigateur (réseau requis).
+Huit outils sont en lecture seule (`readOnlyHint: true`). Les trois actions —
+`inspect_site`, `create_project`, `delete_project` — écrivent via la CLI part
+mêmes interfaces : le serveur ne modifie ni ressource de connaissance (ajouts/
+suppressions restent `ekts add` / `ekts delete`) ; `inspect_site` ajoute un
+audit (réseau requis) et `delete_project` repose sur `ON DELETE SET NULL`
+(audits et ressources conservés avec `project_id` à `NULL`).
 
 ---
 
@@ -134,7 +139,7 @@ Puis « MCP: List Servers » dans la palette de commandes.
 
 ---
 
-## 5. Les quatre outils
+## 5. Outils de connaissance (Sprint 6, détaillés)
 
 ### 5.1 `search_knowledge`
 
@@ -477,3 +482,98 @@ Les trois entrées sont déclarées en Zod dans
 `src/mcp/schemas/tool-schemas.ts` (source unique pour `tools/list` et pour
 `dispatchTool`) : une entrée invalide échoue avec `-32602` avant toute
 exécution.
+
+---
+
+## 16. Outils projets (Sprint 13 — multi-projets)
+
+> Voir aussi [`CLI.md`](./CLI.md) (§ 12) pour les commandes homologues et
+> [`guides/PROJECTS.md`](./guides/PROJECTS.md) pour le guide complet.
+> Schémas Zod : `src/mcp/schemas/tool-schemas.ts`.
+
+### `create_project`
+
+Crée un projet et renvoie l'objet persisté.
+
+**Input :**
+
+```json
+{ "name": "Mon Site Web", "description": "Audit example.com", "status": "active" }
+```
+
+| Champ | Type | Défaut |
+| --- | --- | --- |
+| `name` | string 1-200 (obligatoire) | — |
+| `description` | string ≤ 2000 | — |
+| `status` | `active` \| `completed` \| `archived` | `active` |
+| `metadata` | objet (clés/valeurs libres) | `{}` |
+
+**Output :** `{ "project": { "id": "<uuid>", "name": …, "status": …, … } }`
+
+Erreur `-32602` si le nom est vide ou le statut hors enum (Zod, messages
+français).
+
+### `list_projects`
+
+**Input :**
+
+```json
+{ "status": "active", "limit": 50, "offset": 0 }
+```
+
+| Champ | Type | Défaut |
+| --- | --- | --- |
+| `status` | enum des statuts | tous |
+| `limit` | entier 1-1000 | `50` |
+| `offset` | entier ≥ 0 | `0` |
+
+**Output :** `{ "count": 2, "projects": [ … ] }` (tri `created_at DESC`).
+
+### `get_project`
+
+**Input :**
+
+```json
+{ "project_id": "550e8400-e29b-41d4-a716-446655440000" }
+```
+
+**Output :** `{ "project": { … } }`
+
+Code d'erreur **`-32000`** (`PROJECT_NOT_FOUND`) si l'UUID est absent de la
+base ; `-32602` si `project_id` n'est pas un UUIDv4.
+
+### `delete_project`
+
+**Input :**
+
+```json
+{ "project_id": "550e8400-e29b-41d4-a716-446655440000" }
+```
+
+**Output :** `{ "deleted": true, "project_id": "…" }`
+
+Aucune confirmation interactive (l'appel formule explicitement la demande).
+Les audits et ressources du projet sont **conservés** (`project_id` → `NULL`).
+Code d'erreur **`-32000`** si le projet n'existe pas.
+
+### `inspect_site` avec assignation (Sprint 13)
+
+L'entrée de `inspect_site` accepte un `project_id` optionnel (UUID) : l'audit
+créé est alors rattaché au projet. Omis → audit sans projet.
+
+```json
+{ "url": "https://example.com", "level": "L3", "project_id": "550e8400-…" }
+```
+
+### Vérification (11 outils)
+
+```bash
+# Après npm run build, avec le serveur configuré (voir § 4) :
+# tools/list doit retourner les 11 noms de TOOL_NAMES dans l'ordre :
+# search_knowledge, get_resource, list_resources, validate_resource,
+# inspect_site, audit_history, audit_report, create_project, list_projects,
+# get_project, delete_project
+```
+
+Les tests `tests/mcp/**` vérifient le catalogue (11 noms, 11 descriptions
+distinctes), les entrées Zod et les codes d'erreur sur une base SQLite réelle.

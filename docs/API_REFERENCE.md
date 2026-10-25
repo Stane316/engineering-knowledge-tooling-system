@@ -115,12 +115,30 @@ ekts audit compare <id1> <id2> [-f <md|pdf|both>] [-o <path>]
 
 Référence exhaustive des options : `docs/CLI.md`.
 
+### `ekts project`
+
+```bash
+ekts project create <name> [-d <text>] [-s <active|completed|archived>]
+ekts project list [-s <status>] [-n <limit>]
+ekts project show <id>
+ekts project delete <id> [-f|--force]
+```
+
+- `create` : UUIDv4 généré, statut défaut `active` ; sortie `--json` = objet
+  projet.
+- `show`/`delete` : UUID attendu (sinon code 4) ; projet absent → code 3.
+- `delete` : sans `--force` → refus `CONFIRMATION_REQUIRED`, code 1 ; audits et
+  ressources conservés (`project_id` → `NULL`).
+- Filtres `-p/--project <uuid>` (option invalide → code 2) sur
+  `audit list`, `audit show`, `search`, `list` ; assignation sur `add` et
+  `inspect` (projet absent → code 3).
+
 ---
 
 ## MCP
 
 Serveur stdio : `node dist/mcp/server.js` (config client, voir
-`docs/MCP.md`). **7 outils** — entrées validées par Zod, erreurs renvoyées en
+`docs/MCP.md`). **11 outils** — entrées validées par Zod, erreurs renvoyées en
 payload structuré (`isError: true`, codes MCP : `-32602` paramètres,
 `-32000` ressource).
 
@@ -203,6 +221,23 @@ Entrée : `{ audit_id: entier > 0, format?: 'markdown' | 'text' (défaut markdow
 Sortie (`AuditReportResult`) : `{ audit_id, format, url, report_content, generated_at }`
 — audit absent → erreur `-32000`.
 
+### `create_project` / `list_projects` / `get_project` / `delete_project`
+
+Entrées :
+
+| Outil | Entrée |
+| --- | --- |
+| `create_project` | `{ name: string 1-200, description?: string ≤ 2000, status?: enum (défaut active), metadata?: object }` |
+| `list_projects` | `{ status?: enum, limit?: 1-1000 (défaut 50), offset?: ≥ 0 (défaut 0) }` |
+| `get_project` | `{ project_id: uuid }` |
+| `delete_project` | `{ project_id: uuid }` |
+
+Sorties : `create`/`get` → `{ project }` ; `list_projects` →
+`{ count, projects[] }` ; `delete_project` → `{ deleted: true, project_id }`.
+Projet absent → erreur `-32000` (`PROJECT_NOT_FOUND`) ; entrée invalide →
+`-32602`. `inspect_site` accepte en plus `project_id?: uuid` (assignation de
+l'audit créé).
+
 ---
 
 ## API TypeScript
@@ -284,6 +319,35 @@ const comparison = new AuditComparator().compare(auditA, auditB);
 await new MarkdownReportGenerator().generateComparison(comparison, { outputPath });
 ```
 
+### Projets (Sprint 13)
+
+```typescript
+import { createProjectManager } from 'src/business/project-manager.js';
+import type { IProjectManager } from 'src/business/project-manager.types.js';
+import { ProjectRepository } from 'src/data/repositories/project-repository.js';
+
+// Connecté sur la même connexion better-sqlite3 que le KnowledgeManager.
+const { manager } = createProjectManager(connection);
+
+await manager.createProject({ name: 'Site A', status: 'active' }); // Zod validé
+await manager.getProject(uuid);            // Project | null
+await manager.getProjectOrThrow(uuid);     // ProjectNotFoundError → code 3
+await manager.listProjects({ status: 'active', limit: 50 });
+await manager.updateProject(uuid, { status: 'archived' });
+await manager.deleteProject(uuid);         // void, audits conservés
+await manager.countProjects({ status: 'archived' });
+
+// Stockage d'un audit rattaché à un projet :
+new AuditRepository(connection).store(report, { projectId: uuid });
+// Ressource rattachée :
+manager.addResource({ type: 'article', title, tags: [], projectId: uuid });
+```
+
+Contrats : `IProjectManager` (async, `src/business/project-manager.types.ts`),
+`ProjectRepository` (`src/data/repositories/project-repository.ts`),
+schémas Zod `ProjectSchema` / `CreateProjectSchema` / `UpdateProjectSchema` /
+`ProjectFiltersSchema` (`src/shared/validators.js`).
+
 ### Types principaux
 
 ```typescript
@@ -292,9 +356,22 @@ interface Audit {
     id: number; url: string; timestamp: string; overallScore: number;
     totalFindings: number; criticalFindings: number; highFindings: number;
     mediumFindings: number; lowFindings: number;
+    projectId?: string | null;   // Sprint 13 : projet associé (NULL = sans projet)
   };
   dimensions: { auditId: number; dimension: DimensionName; score: number; findingsCount: number }[];
   findings: Finding[];   // versionnées par audit
+}
+
+interface Project {
+  id: string;                 // UUIDv4
+  name: string;               // 1-200 caractères
+  description?: string | null;
+  status: 'active' | 'completed' | 'archived';
+  startedAt?: string | null;  // ISO 8601
+  completedAt?: string | null;
+  metadata: Record<string, unknown>;
+  createdAt: string;          // ISO 8601
+  updatedAt: string;
 }
 
 interface Finding {
@@ -312,4 +389,4 @@ interface Finding {
 
 ---
 
-**Version :** 0.1.0 (MVP-2) · **Dernière mise à jour :** 25 octobre 2026
+**Version :** 0.1.0 (MVP-2, périmètre MVP-3 ouvert — ADR-031) · **Dernière mise à jour :** 25 octobre 2026

@@ -1150,6 +1150,93 @@ nu — à vérifier au premier run CI.
 
 ---
 
+#### ADR-031 — Redéfinition du MVP-3 — Capitalisation par multi-projets et bonnes pratiques
+
+**Statut :** ✅ VALIDÉ (25 octobre 2026)
+**Date :** 25 octobre 2026
+**Phase :** Audit Phase 1 — préparation Sprint 13
+**Référence :** `docs/ROADMAP.md`
+
+**Contexte :**
+Le blueprint original (Phase 13) prévoyait un MVP-3 centré sur le workflow de capitalisation en 8 étapes (collecte artefacts → dépréciation), les post-mortems structurés (10 sections) et la sécurité des secrets (Gitleaks + TruffleHog). Ces spécifications sont documentées dans `13_SPECIFICATION_MVP.md` §4, `10_WORKFLOW_CAPITALISATION.md` et `10_TEMPLATE_POSTMORTEM_PROJET.md`.
+
+Après l'implémentation complète des MVP-1 et MVP-2 (Sprints 1-12, 194 commits, 88/88 critères validés), le périmètre du MVP-3 a été redéfini dans `docs/ROADMAP.md` (25 octobre 2026) pour exploiter les composants existants et proposer une capitalisation progressive par projets.
+
+**Décision :**
+Le MVP-3 suit `docs/ROADMAP.md` — 6 sprints :
+
+| Sprint | Objectif | Dépend de |
+|--------|----------|-----------|
+| 13 | Gestion Multi-Projets (modèle Project, association audits ↔ projets, CLI + MCP) | aucun |
+| 14 | Suivi Temporel (timeline, graphiques, détection tendances) | 13 |
+| 15 | Capitalisation Connaissances (BestPractice, extraction, recherche) | 13 |
+| 16 | Recommandations Contextuelles (moteur règles + scoring) | 15 |
+| 17 | Templates Projets (initialisation rapide) | 13 |
+| 18 | Tests E2E + Documentation MVP-3 | 13-17 |
+
+**Justification :**
+1. `docs/ROADMAP.md` est le document le plus récent (25/10/2026), rédigé après l'implémentation des MVP-1/2, en connaissance de l'état réel du code.
+2. Le Sprint 13 "Multi-Projets" est directement supporté par la table `projects` déjà créée dans la migration 001 (`src/data/migrations/001_init.ts`).
+3. La progression Multi-Projets → Timeline → BestPractice → Recommandations → Templates est logique et incrémentale.
+4. Le blueprint original décrivait un MVP-3 théorique ; la nouvelle roadmap décrit un MVP-3 ancré dans le code existant.
+5. Les documents du blueprint (workflow 8 étapes, post-mortem) restent comme références utiles, notamment pour le Sprint 15 (Capitalisation Connaissances).
+
+**Conséquences :**
+- ✅ Les documents `13_SPECIFICATION_MVP.md` §4, `13_ROADMAP_IMPLEMENTATION.md` §4, `10_WORKFLOW_CAPITALISATION.md` et `10_TEMPLATE_POSTMORTEM_PROJET.md` sont conservés comme références historiques et annotés.
+- ✅ La source de vérité pour le MVP-3 est désormais `docs/ROADMAP.md`.
+- ⚠️ Le workflow de capitalisation et les post-mortems peuvent être réutilisés partiellement dans le Sprint 15 (BestPractice).
+
+**Conditions de réexamen :**
+- Si le Sprint 13 révèle que le modèle Project est insuffisant pour la capitalisation, un ADR complémentaire pourra reintroduire les concepts du blueprint.
+
+---
+
+#### ADR-032 — Firebase abandonné, Supabase envisagé pour synchronisation distante
+
+**Statut :** ✅ VALIDÉ (25 octobre 2026)
+**Date :** 25 octobre 2026
+**Phase :** Audit Phase 1 — préparation Sprint 13
+**Référence :** Audit EKTS-AUDIT-010
+
+**Contexte :**
+La directive utilisateur mentionnait initialement des éléments Firebase créés. Après inspection exhaustive du dépôt (108 fichiers source, 99 fichiers de test, 183 fichiers de documentation), **aucun élément Firebase n'a été trouvé** : 0 import, 0 dépendance, 0 configuration, 0 test, 0 documentation.
+
+Le stockage EKTS est 100% local (SQLite WAL, 3 bases). L'utilisateur a confirmé que Firebase est abandonné et qu'une alternative de type Supabase est envisagée pour un MVP ultérieur (synchronisation distante, authentification, multi-appareils).
+
+**Décision :**
+1. **Firebase est abandonné** pour le projet EKTS. Aucun code Firebase ne sera ajouté.
+2. **Supabase** (ou alternative similaire) est envisagé pour un MVP futur (MVP-5+), lorsque la synchronisation distante et le multi-appareils seront nécessaires.
+3. L'architecture actuelle (SQLite local-first) reste la source de vérité pour le stockage.
+4. ADR-001 (SQLite WAL + FTS5 + sqlite-vec) reste pleinement valide.
+5. La migration vers Supabase, si elle advient, sera un changement architectural majeur nécessitant un ADR dédié et une évaluation approfondie (coût, complexité, latence, dépendance fournisseur).
+
+**Conséquences :**
+- ✅ Aucun code Firebase à ajouter, nettoyer ou maintenir.
+- ✅ Le projet reste local-first, conforme au blueprint original (§1.2 "environnement personnel, local-first").
+- ⚠️ La synchronisation distante est reportée à un horizon non engagé (MVP-5+).
+- ⚠️ Si Supabase est adopté plus tard, il faudra évaluer : coût, verrouillage fournisseur, compatibilité avec SQLite existant, stratégie de synchronisation (CRDT, last-write-wins, etc.).
+
+**Alternatives considérées :**
+- ❌ Firebase : abandonné par décision utilisateur
+- ❌ CouchDB/PouchDB : écarté (complexité, écosystème moins actif)
+- 💡 Supabase : envisagé pour MVP-5+ (PostgreSQL, auth intégrée, API REST/GraphQL, temps réel)
+- 💡 Alternatives à évaluer : PlanetScale, Neon, Turso (SQLite distribué)
+
+**Conditions de réexamen :**
+- Si le besoin de synchronisation distante devient critique avant MVP-5, un ADR dédié sera rédigé pour évaluer Supabase vs alternatives.
+
+---
+
+#### Risques nouveaux (MVP-3)
+
+| ID | Risque | Impact | Probabilité | Mitigation |
+|----|--------|--------|-------------|------------|
+| R-13.1 | Le modèle `Project` (migration 001) est trop restrictif pour les besoins réels du Sprint 13 (manque `url`, `metadata` étendu) | Moyen | Faible | La table `projects` actuelle contient déjà `id`, `name`, `description`, `status`, `started_at`, `completed_at`, `metadata`, `timestamps` — suffisant pour démarrer. Migration additive si nécessaire. |
+| R-13.2 | L'association audits ↔ projets par clé étrangère casse les audits existants (non associés) | Faible | Faible | Clé étrangère `project_id` nullable (`TEXT REFERENCES projects(id)` ou `NULL`) — aucun audit existant ne sera affecté. |
+| R-13.3 | Le filtre `--project` transversal ajoute de la complexité à toutes les commandes CLI | Faible | Moyenne | Option `--project` facultative, défaut = tous les projets. Aucune commande existante n'est modifiée, seule une option est ajoutée. |
+
+---
+
 ### 2.3 Décisions à vérifier
 
 | ID | Sujet | Information | Date vérification | Statut |
@@ -1651,6 +1738,8 @@ Pricing outils IA change (augmentation, suppression free tier).
 | ADR-028 (adapter inspection → analyse) | R-9.1, R-9.2 |
 | ADR-029 (FTS autonome, embeddings injectés) | R-10.1 à R-10.3 |
 | ADR-030 (Puppeteer pour le PDF, chaîne de rapports) | R-11.1 à R-11.3 |
+| ADR-031 (Redéfinition MVP-3, multi-projets) | R-13.1 à R-13.3 |
+| ADR-032 (Firebase abandonné, Supabase envisagé) | Aucun risque immédiat |
 
 ### 4.2 Risques non couverts
 
