@@ -48,7 +48,7 @@ describe('MCP get_recommendations (Sprint 16-03, C16.10)', () => {
       const finding = database.connection.prepare(
         `INSERT INTO audit_findings
            (audit_id, dimension, title, severity, effort, impact, priority, recommendation)
-         VALUES (?, 'performance', 'Images non optimisées', 3, 2, 2, 'medium', 'WebP')`,
+         VALUES (?, 'performance', 'Widget de démonstration', 3, 2, 2, 'medium', 'WebP')`,
       );
       const dimension = database.connection.prepare(
         `INSERT INTO audit_dimensions (audit_id, dimension, score, findings_count)
@@ -99,7 +99,7 @@ describe('MCP get_recommendations (Sprint 16-03, C16.10)', () => {
       description: 'Optimisation',
       dimension: 'performance',
       severityThreshold: 2,
-      pattern: 'images non optimisées',
+      pattern: 'widget de démonstration',
       recommendationTitle: 'Optimiser les images WebP',
       recommendationDescription: 'Convertir en WebP et lazy-loader',
       effort: 2,
@@ -174,8 +174,8 @@ describe('MCP get_recommendations (Sprint 16-03, C16.10)', () => {
       description: 'D',
       dimension: 'performance',
       severityThreshold: 1,
-      pattern: 'images',
-      recommendationTitle: 'Reco images',
+      pattern: 'widget',
+      recommendationTitle: 'Reco widget',
       recommendationDescription: 'D',
     });
 

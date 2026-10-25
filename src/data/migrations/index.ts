@@ -7,6 +7,8 @@ import { migration003ProjectAudits } from './003_project_audits.js';
 import { migration004Alerts } from './004_alerts.js';
 import { migration005BestPractices } from './005_best_practices.js';
 import { migration006Recommendations } from './006_recommendations.js';
+import { migration007Templates } from './007_templates.js';
+import { migration008ProjectConfig } from './008_project_config.js';
 
 export interface Migration {
   version: number;
@@ -25,6 +27,8 @@ export const migrations: readonly Migration[] = [
   { version: 4, name: 'alerts', up: migration004Alerts },
   { version: 5, name: 'best-practices', up: migration005BestPractices },
   { version: 6, name: 'recommendations', up: migration006Recommendations },
+  { version: 7, name: 'templates', up: migration007Templates },
+  { version: 8, name: 'project-config', up: migration008ProjectConfig },
 ];
 
 interface MigrationRow {

@@ -157,8 +157,10 @@ describe('Data Layer — ouverture des bases', () => {
       { version: 4, name: 'alerts' },
       { version: 5, name: 'best-practices' },
       { version: 6, name: 'recommendations' },
+      { version: 7, name: 'templates' },
+      { version: 8, name: 'project-config' },
     ]);
-    expect(connection.pragma('user_version', { simple: true })).toBe(6);
+    expect(connection.pragma('user_version', { simple: true })).toBe(8);
   });
 
   it('est idempotent : une seconde ouverture ne rejoue pas les migrations', () => {
@@ -173,7 +175,7 @@ describe('Data Layer — ouverture des bases', () => {
     const extra = [
       ...migrations,
       {
-        version: 7,
+        version: 9,
         name: 'test-only',
         up: (connection: Database.Database) => {
           connection.exec('CREATE TABLE IF NOT EXISTS test_marker (id INTEGER PRIMARY KEY)');
@@ -181,10 +183,10 @@ describe('Data Layer — ouverture des bases', () => {
       },
     ];
 
-    expect(runMigrations(database.connection, extra)).toEqual([7]);
+    expect(runMigrations(database.connection, extra)).toEqual([9]);
     expect(runMigrations(database.connection, extra)).toEqual([]);
     expect(tableNames(database.connection)).toContain('test_marker');
-    expect(database.connection.pragma('user_version', { simple: true })).toBe(7);
+    expect(database.connection.pragma('user_version', { simple: true })).toBe(9);
   });
 
   it('restreint les permissions des fichiers à 600', () => {

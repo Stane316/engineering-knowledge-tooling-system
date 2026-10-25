@@ -168,6 +168,6 @@ describe('CLI compilée (intégration)', () => {
 
   it('persiste les données dans les trois bases', () => {
     expect(readFileSync(join(dataDir, 'ekts.db')).byteLength).toBeGreaterThan(0);
-    expect(Number(scalar('ekts.db', 'PRAGMA user_version'))).toBe(6);
+    expect(Number(scalar('ekts.db', 'PRAGMA user_version'))).toBe(8);
   });
 });

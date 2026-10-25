@@ -12,6 +12,8 @@ import {
   GetProjectInput,
   GetResourceInput,
   GetRecommendationsInput,
+  ListTemplatesInput,
+  ApplyTemplateInput,
   GetTimelineInput,
   InspectSiteInput,
   SearchBestPracticesInput,
@@ -30,6 +32,8 @@ import { executeAddBestPractice } from '../tools/add-best-practice.js';
 import { executeGetTimeline } from '../tools/get-timeline.js';
 import { executeSearchBestPractices } from '../tools/search-best-practices.js';
 import { executeGetRecommendations } from '../tools/get-recommendations.js';
+import { executeListTemplates } from '../tools/list-templates.js';
+import { executeApplyTemplate } from '../tools/apply-template.js';
 import { executeGetResource } from '../tools/get-resource.js';
 import { executeInspectSite } from '../tools/inspect-site.js';
 import { executeListProjects } from '../tools/list-projects.js';
@@ -67,6 +71,8 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   { name: 'search_best_practices', description: TOOL_DESCRIPTIONS.search_best_practices },
   { name: 'add_best_practice', description: TOOL_DESCRIPTIONS.add_best_practice },
   { name: 'get_recommendations', description: TOOL_DESCRIPTIONS.get_recommendations },
+  { name: 'list_templates', description: TOOL_DESCRIPTIONS.list_templates },
+  { name: 'apply_template', description: TOOL_DESCRIPTIONS.apply_template },
 ];
 
 /**
@@ -117,13 +123,17 @@ export async function dispatchTool(
       return executeGetRecommendations(context, parse(GetRecommendationsInput, name, args));
     case 'add_best_practice':
       return executeAddBestPractice(context, parse(AddBestPracticeInput, name, args));
+    case 'list_templates':
+      return executeListTemplates(context, parse(ListTemplatesInput, name, args));
+    case 'apply_template':
+      return executeApplyTemplate(context, parse(ApplyTemplateInput, name, args));
     default:
       throw invalidParams(`Outil inconnu : « ${name} ». Outils disponibles : ${toolNames()}.`);
   }
 }
 
 /**
- * Enregistre les quatorze outils sur un serveur MCP.
+ * Enregistre les dix-sept outils sur un serveur MCP.
  *
  * Chaque gestionnaire attrape ses erreurs et renvoie un résultat `isError`
  * avec la charge utile standardisée : le SDK, lui, remplacerait un `throw` par
@@ -309,6 +319,30 @@ export function registerTools(server: McpServer, context: McpToolContext, logger
     },
     async (args) =>
       run('get_recommendations', logger, () => dispatchTool(context, 'get_recommendations', args)),
+  );
+
+  server.registerTool(
+    'list_templates',
+    {
+      title: 'Lister les templates',
+      description: TOOL_DESCRIPTIONS.list_templates,
+      inputSchema: ListTemplatesInput,
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async (args) =>
+      run('list_templates', logger, () => dispatchTool(context, 'list_templates', args)),
+  );
+
+  server.registerTool(
+    'apply_template',
+    {
+      title: 'Appliquer un template',
+      description: TOOL_DESCRIPTIONS.apply_template,
+      inputSchema: ApplyTemplateInput,
+      annotations: { readOnlyHint: false, openWorldHint: false },
+    },
+    async (args) =>
+      run('apply_template', logger, () => dispatchTool(context, 'apply_template', args)),
   );
 }
 

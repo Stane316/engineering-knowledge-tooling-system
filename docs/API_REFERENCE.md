@@ -498,4 +498,49 @@ interface Finding {
 
 ---
 
+### API templates (Sprint 17)
+
+```typescript
+import { TemplateService } from './templates/template-service.js';
+
+// Le constructeur sème les 10 prédéfinis (idempotent, C17.2).
+const templates = new TemplateService(db);
+
+// CRUD (C17.1) — builtins immuables (ADR-040).
+const created = templates.createTemplate({
+  name: 'Perso', description: '…', category: 'custom',
+  config: { priorityDimensions: ['performance'] },
+});
+const list = templates.listTemplates({ isBuiltin: true, limit: 10 });
+templates.updateTemplate(created.id, { name: 'Renommé' }); // ValidationError si builtin
+templates.deleteTemplate(created.id);
+
+// Application (C17.3) avec overrides partiels (C17.4, ADR-041).
+const result = templates.applyTemplate({
+  templateId: created.id,
+  projectName: 'Mon site',
+  projectUrl: 'https://x.co',
+  overrides: { config: { alertThresholds: { minScore: 75 } } },
+});
+// → {projectId, projectName, templateId, bestPracticesAssociated,
+//    rulesCreated, durationMs}
+
+// Validation (C17.20) et export/import JSON (C17.5).
+const check = templates.validateTemplate(created.id); // {valid, errors, warnings}
+const json = templates.exportTemplate(created.id);
+templates.importTemplate(json); // nouveau template vierge
+```
+
+- `TemplateRepository` (`template-repository.ts`) : CRUD SQL, filtres
+  (category/isBuiltin/tags/pagination), `createBuiltin` (seed).
+- `TemplateApplier` (`template-applier.ts`) : `apply` (projet →
+  `project_config` → BP → règles), `mergeConfig`, `validate`.
+- Types : `template.types.ts` (`ProjectTemplate`, `TemplateConfig`,
+  `TemplateExport`, `ApplyTemplateResult`, `ValidationResult`).
+- Tables : `project_templates` (migration 007), `project_config`
+  (migration 008) ; règles créées avec les builtins dans
+  `recommendation_rules`.
+
+---
+
 **Version :** 0.1.0 (MVP-2, périmètre MVP-3 ouvert — ADR-031) · **Dernière mise à jour :** 25 octobre 2026

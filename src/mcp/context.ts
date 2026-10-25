@@ -10,6 +10,7 @@ import { Inspector } from '../browser/inspection/inspector.js';
 import type { InspectionLevel, L3InspectionResult } from '../browser/inspection/types.js';
 import { createSearchEngine, openCliServices, type CliServices } from '../cli/services.js';
 import { BestPracticeService } from '../best-practices/best-practice-service.js';
+import { TemplateService } from '../templates/template-service.js';
 import { RecommendationContext } from '../recommendations/recommendation-context.js';
 import { RecommendationEngine } from '../recommendations/recommendation-engine.js';
 import { AlertManager } from '../timeline/alert-manager.js';
@@ -110,6 +111,8 @@ export interface McpToolContext {
   readonly bestPractices: BestPracticeService;
   /** Moteur de recommandations contextuelles (Sprint 16). */
   readonly recommendations: RecommendationEngine;
+  /** Templates de projets — seed des 10 prédéfinis au constructeur (Sprint 17). */
+  readonly templates: TemplateService;
 }
 
 /** Contexte complet, avec la fermeture des ressources ouvertes. */
@@ -203,6 +206,7 @@ export function openMcpServices(options: OpenMcpOptions = {}): McpServices {
       new RecommendationContext(connection, bestPracticeService),
       bestPracticeService,
     ),
+    templates: new TemplateService(connection),
     dataDir,
     embeddingsAvailable: services.embeddings !== undefined,
     close: services.close,
