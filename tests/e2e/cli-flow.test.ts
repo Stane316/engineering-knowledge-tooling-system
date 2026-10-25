@@ -8,7 +8,7 @@
  *
  * Sans Chromium Playwright installé, la suite est « skipped » (cf. CI).
  */
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
 import { createServer, type Server } from 'node:http';
 import { existsSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -47,36 +47,57 @@ interface CliResult {
   readonly status: number;
   readonly stdout: string;
   readonly stderr: string;
+  readonly timedOut: boolean;
 }
 
-/** Exécute la CLI compilée dans le bac à sable de données du test. */
-function cli(dataDir: string, ...args: string[]): CliResult {
-  try {
-    const stdout = execFileSync(process.execPath, [CLI, ...args], {
-      encoding: 'utf8',
-      env: { ...process.env, EKTS_DATA_DIR: dataDir, EKTS_OFFLINE: '1' },
-      // 120 s : premier lancement de Chrome + Lighthouse sur poste Windows
-      // sous charge (antivirus) dépassait 60 s, masquant la vraie cause.
-      timeout: 120_000,
-    });
+/**
+ * Exécute la CLI compilée dans le bac à sable de données du test.
+ *
+ * **Asynchrone obligatoire** : un `execFileSync` bloquerait l'event loop du
+ * worker vitest, qui héberge pourtant le serveur fixture HTTP — le
+ * `page.goto` du process CLI attendrait alors une réponse que le parent
+ * gelé ne peut plus servir (timeout navigateur systématique). Avec
+ * `execFile`, l'event loop continue de servir la fixture pendant l'attente.
+ */
+function cli(dataDir: string, ...args: string[]): Promise<CliResult> {
+  return new Promise((resolve) => {
+    execFile(
+      process.execPath,
+      [CLI, ...args],
+      {
+        encoding: 'utf8',
+        env: { ...process.env, EKTS_DATA_DIR: dataDir, EKTS_OFFLINE: '1' },
+        // 120 s : premier lancement de Chrome + Lighthouse sur poste Windows
+        // sous charge (antivirus) dépassait 60 s, masquant la vraie cause.
+        timeout: 120_000,
+        maxBuffer: 10 * 1024 * 1024,
+      },
+      (error, stdout, stderr) => {
+        if (error === null) {
+          resolve({ status: 0, stdout, stderr, timedOut: false });
+          return;
+        }
 
-    return { status: 0, stdout, stderr: '' };
-  } catch (error) {
-    const failure = error as { status?: number; stdout?: string; stderr?: string };
+        const failure = error as { status?: number | null; killed?: boolean };
+        const timedOut = failure.killed === true;
+        const prefix = timedOut ? '[CLI tuée après 120 s — timeout execFile]\n' : '';
 
-    return {
-      status: failure.status ?? 1,
-      stdout: failure.stdout ?? '',
-      stderr: failure.stderr ?? '',
-    };
-  }
+        resolve({
+          status: typeof failure.status === 'number' ? failure.status : 1,
+          stdout,
+          stderr: prefix + stderr,
+          timedOut,
+        });
+      },
+    );
+  });
 }
 
 /** Échec parlant : la sortie d'erreur complète (sinon « status 1 » muet). */
 function expectOk(result: CliResult): void {
   expect(
     result.status,
-    `CLI en échec (${String(result.status)}) — stderr:\n${result.stderr}\nstdout:\n${result.stdout}`,
+    `CLI en échec (${String(result.status)})${result.timedOut ? ' [timeout]' : ''} — stderr:\n${result.stderr}\nstdout:\n${result.stdout}`,
   ).toBe(0);
 }
 
@@ -114,8 +135,16 @@ describe.skipIf(!CHROMIUM_OK)('E2E — cli-flow', () => {
     await Promise.all([dataDir, outputDir].map((dir) => rm(dir, { recursive: true, force: true })));
   });
 
-  it('inspect une page locale et affiche le bilan', () => {
-    const result = cli(dataDir, 'inspect', fixture.url, '--format', 'md', '--output', outputDir);
+  it('inspect une page locale et affiche le bilan', async () => {
+    const result = await cli(
+      dataDir,
+      'inspect',
+      fixture.url,
+      '--format',
+      'md',
+      '--output',
+      outputDir,
+    );
 
     expectOk(result);
     expect(result.stdout).toContain('Inspection');
@@ -125,25 +154,25 @@ describe.skipIf(!CHROMIUM_OK)('E2E — cli-flow', () => {
     expect(result.stdout).toContain('MARKDOWN');
   }, 120_000);
 
-  it('liste les audits et expose le JSON standardisé', () => {
-    const human = cli(dataDir, 'audit', 'list');
+  it('liste les audits et expose le JSON standardisé', async () => {
+    const human = await cli(dataDir, 'audit', 'list');
     expectOk(human);
     expect(human.stdout).toContain(fixture.url);
     expect(human.stdout).toContain('Score');
 
-    const jsonRun = cli(dataDir, '--json', 'audit', 'list', '--limit', '1');
+    const jsonRun = await cli(dataDir, '--json', 'audit', 'list', '--limit', '1');
     expect(jsonRun.status).toBe(0);
     const payload = JSON.parse(jsonRun.stdout) as { count: number; audits: { id: number }[] };
     expect(payload.count).toBe(1);
     expect(payload.audits[0]?.id).toBeGreaterThan(0);
   });
 
-  it("affiche le détail d'un audit existant", () => {
-    const jsonRun = cli(dataDir, '--json', 'audit', 'list', '--limit', '1');
+  it("affiche le détail d'un audit existant", async () => {
+    const jsonRun = await cli(dataDir, '--json', 'audit', 'list', '--limit', '1');
     const id = (JSON.parse(jsonRun.stdout) as { audits: { id: number }[] }).audits[0]?.id;
     expect(id).toBeGreaterThan(0);
 
-    const result = cli(dataDir, 'audit', 'show', String(id));
+    const result = await cli(dataDir, 'audit', 'show', String(id));
     expect(result.status).toBe(0);
     expect(result.stdout).toContain(`Audit #${String(id)}`);
     expect(result.stdout).toContain(fixture.url);
@@ -151,12 +180,12 @@ describe.skipIf(!CHROMIUM_OK)('E2E — cli-flow', () => {
     expect(result.stdout).toContain('Top 5 des constats');
   });
 
-  it('génère le rapport Markdown de l’audit', () => {
-    const jsonRun = cli(dataDir, '--json', 'audit', 'list', '--limit', '1');
+  it('génère le rapport Markdown de l’audit', async () => {
+    const jsonRun = await cli(dataDir, '--json', 'audit', 'list', '--limit', '1');
     const id = (JSON.parse(jsonRun.stdout) as { audits: { id: number }[] }).audits[0]?.id;
     expect(id).toBeGreaterThan(0);
 
-    const result = cli(
+    const result = await cli(
       dataDir,
       'audit',
       'report',
@@ -171,15 +200,14 @@ describe.skipIf(!CHROMIUM_OK)('E2E — cli-flow', () => {
     expect(result.stdout).toContain('MARKDOWN');
   });
 
-  it('compare deux audits inspectés', () => {
-    const first = JSON.parse(cli(dataDir, '--json', 'audit', 'list', '--limit', '1').stdout) as {
-      audits: { id: number }[];
-    };
+  it('compare deux audits inspectés', async () => {
+    const listRun = await cli(dataDir, '--json', 'audit', 'list', '--limit', '1');
+    const first = JSON.parse(listRun.stdout) as { audits: { id: number }[] };
     const idA = first.audits[0]?.id;
     expect(idA).toBeGreaterThan(0);
 
     // Seconde inspection (la comparaison exige deux audits distincts).
-    const secondInspect = cli(
+    const secondInspect = await cli(
       dataDir,
       'inspect',
       fixture.url,
@@ -190,14 +218,13 @@ describe.skipIf(!CHROMIUM_OK)('E2E — cli-flow', () => {
     );
     expect(secondInspect.status).toBe(0);
 
-    const after = JSON.parse(cli(dataDir, '--json', 'audit', 'list').stdout) as {
-      audits: { id: number }[];
-    };
+    const afterRun = await cli(dataDir, '--json', 'audit', 'list');
+    const after = JSON.parse(afterRun.stdout) as { audits: { id: number }[] };
     expect(after.audits.length).toBeGreaterThanOrEqual(2);
     const idB = after.audits.find((audit) => audit.id !== idA)?.id;
     expect(idB).toBeGreaterThan(0);
 
-    const result = cli(
+    const result = await cli(
       dataDir,
       'audit',
       'compare',
