@@ -4,7 +4,8 @@ import type { Database } from 'better-sqlite3';
  * Schéma SQLite du stockage d'audits (Sprint 10-1).
  *
  * Quatre objets :
- * - `audit_metadata` — une ligne par rapport d'analyse stocké ;
+ * - `audit_metadata` — une ligne par rapport d'analyse stocké ; porte
+ *   `project_id` (nullable, Sprint 13) pour l'association audits ↔ projets ;
  * - `audit_dimensions` — 5 lignes par audit (scores par dimension) ;
  * - `audit_findings` — une ligne par constat ;
  * - `audit_fts` — index plein texte **autonome** (FM25 sur titre/description/URL).
@@ -44,6 +45,7 @@ export class AuditSchema {
         high_findings INTEGER NOT NULL CHECK (high_findings >= 0),
         medium_findings INTEGER NOT NULL CHECK (medium_findings >= 0),
         low_findings INTEGER NOT NULL CHECK (low_findings >= 0),
+        project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -106,6 +108,10 @@ export class AuditSchema {
     this.db.exec(`
       CREATE INDEX IF NOT EXISTS idx_audit_metadata_timestamp
       ON audit_metadata(timestamp DESC)
+    `);
+    this.db.exec(`
+      CREATE INDEX IF NOT EXISTS idx_audit_metadata_project_id
+      ON audit_metadata(project_id)
     `);
   }
 

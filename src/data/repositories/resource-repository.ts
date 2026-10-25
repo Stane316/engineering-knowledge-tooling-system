@@ -24,6 +24,7 @@ interface ResourceRow {
   metadata: string;
   content: string | null;
   embedding_model: string | null;
+  project_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -33,7 +34,7 @@ interface RowIdRow {
 }
 
 const SELECT_COLUMNS =
-  'rowid, id, type, title, url, tags, metadata, content, embedding_model, created_at, updated_at';
+  'rowid, id, type, title, url, tags, metadata, content, embedding_model, project_id, created_at, updated_at';
 
 /**
  * Repository des ressources : CRUD sur `ekts.db`, indexation FTS5 dans
@@ -61,9 +62,9 @@ export class ResourceRepository {
     this.selectRowId = connection.prepare(`SELECT rowid FROM ${TABLES.resources} WHERE id = ?`);
     this.mainInsert = connection.prepare(`
       INSERT INTO ${TABLES.resources}
-        (id, type, title, url, tags, metadata, content, embedding_model, created_at, updated_at)
+        (id, type, title, url, tags, metadata, content, embedding_model, project_id, created_at, updated_at)
       VALUES
-        (@id, @type, @title, @url, @tags, @metadata, @content, @embeddingModel, @createdAt, @updatedAt)
+        (@id, @type, @title, @url, @tags, @metadata, @content, @embeddingModel, @projectId, @createdAt, @updatedAt)
     `);
     this.mainUpdate = connection.prepare(`
       UPDATE ${TABLES.resources}
@@ -106,6 +107,7 @@ export class ResourceRepository {
       updatedAt: now,
       ...(values.url !== undefined ? { url: values.url } : {}),
       ...(values.content !== undefined ? { content: values.content } : {}),
+      ...(values.projectId !== undefined ? { projectId: values.projectId } : {}),
     };
 
     const insert = this.connection.transaction(() => {
@@ -134,6 +136,11 @@ export class ResourceRepository {
     if (values.type) {
       conditions.push('type = @type');
       params.type = values.type;
+    }
+
+    if (values.projectId !== undefined) {
+      conditions.push('project_id = @projectId');
+      params.projectId = values.projectId;
     }
 
     values.tags?.forEach((tag, index) => {
@@ -269,6 +276,7 @@ export class ResourceRepository {
       metadata: JSON.stringify(resource.metadata),
       content: resource.content ?? null,
       embeddingModel: resource.embeddingModel ?? null,
+      projectId: resource.projectId ?? null,
       createdAt: resource.createdAt,
       updatedAt: resource.updatedAt,
     };
@@ -287,5 +295,6 @@ function toResource(row: ResourceRow): Resource {
     ...(row.url !== null ? { url: row.url } : {}),
     ...(row.content !== null ? { content: row.content } : {}),
     ...(row.embedding_model !== null ? { embeddingModel: row.embedding_model } : {}),
+    ...(row.project_id !== null ? { projectId: row.project_id } : {}),
   };
 }

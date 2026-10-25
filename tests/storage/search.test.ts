@@ -110,6 +110,8 @@ describe('AuditSearch', () => {
 
   beforeEach(() => {
     db = new Database(':memory:');
+    // Table `projects` (migration 001) : requise par la FK `ON DELETE SET NULL` (Sprint 13).
+    db.exec('CREATE TABLE projects (id TEXT PRIMARY KEY, name TEXT NOT NULL)');
     new AuditSchema(db).createSchema();
     repo = new AuditRepository(db);
     store = new FakeEmbeddingStore();

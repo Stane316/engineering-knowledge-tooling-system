@@ -8,6 +8,7 @@
 
 export type EktsErrorCode =
   | 'RESOURCE_NOT_FOUND'
+  | 'PROJECT_NOT_FOUND'
   | 'VALIDATION_FAILED'
   | 'INDEXING_FAILED'
   | 'SEARCH_FAILED'
@@ -38,6 +39,13 @@ export class EktsError extends Error {
 export class ResourceNotFoundError extends EktsError {
   constructor(readonly resourceId: string) {
     super(`Ressource introuvable : ${resourceId}`, 'RESOURCE_NOT_FOUND');
+  }
+}
+
+/** Projet inexistant pour l'identifiant demandé (Sprint 13). */
+export class ProjectNotFoundError extends EktsError {
+  constructor(readonly projectId: string) {
+    super(`Projet introuvable : ${projectId}`, 'PROJECT_NOT_FOUND');
   }
 }
 

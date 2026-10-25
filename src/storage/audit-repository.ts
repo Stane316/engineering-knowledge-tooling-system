@@ -28,6 +28,7 @@ interface MetadataRow {
   high_findings: number;
   medium_findings: number;
   low_findings: number;
+  project_id: string | null;
   created_at: string;
 }
 
@@ -153,19 +154,22 @@ export class AuditRepository {
    * Stocke un rapport d'analyse complet.
    *
    * @param report - Rapport produit par `AnalysisPipeline` (Sprint 9).
+   * @param options - `projectId` associe l'audit à un projet (Sprint 13).
    * @returns Audit persisté, avec identifiants renseignés.
    * @throws {ValidationError} Rapport invalide (aucune ligne écrite).
    */
-  store(report: AnalysisReport): Audit {
+  store(report: AnalysisReport, options: { readonly projectId?: string | null } = {}): Audit {
     validateAnalysisReport(report);
+    const projectId = options.projectId ?? null;
 
     const transaction = this.db.transaction((): Audit => {
       const metadataResult = this.db
         .prepare(
           `INSERT INTO audit_metadata (
              url, timestamp, overall_score, total_findings,
-             critical_findings, high_findings, medium_findings, low_findings
-           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+             critical_findings, high_findings, medium_findings, low_findings,
+             project_id
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .run(
           report.url,
@@ -176,6 +180,7 @@ export class AuditRepository {
           report.summary.highFindings,
           report.summary.mediumFindings,
           report.summary.lowFindings,
+          projectId,
         );
 
       const auditId = Number(metadataResult.lastInsertRowid);
@@ -237,6 +242,7 @@ export class AuditRepository {
           highFindings: report.summary.highFindings,
           mediumFindings: report.summary.mediumFindings,
           lowFindings: report.summary.lowFindings,
+          projectId,
         },
         dimensions,
         findings,
@@ -375,6 +381,7 @@ export class AuditRepository {
       highFindings: row.high_findings,
       mediumFindings: row.medium_findings,
       lowFindings: row.low_findings,
+      projectId: row.project_id,
       createdAt: row.created_at,
     };
   }

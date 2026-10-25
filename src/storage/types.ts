@@ -32,6 +32,12 @@ export interface AuditMetadata {
   mediumFindings: number;
   /** Constats de priorité `low`. */
   lowFindings: number;
+  /**
+   * Projet associé (Sprint 13), `null` si aucun.
+   *
+   * Absent avant insertion des bases antérieures au schéma 003.
+   */
+  projectId?: string | null;
   /** Horodatage d'insertion (renseigné par SQLite). */
   createdAt?: string;
 }

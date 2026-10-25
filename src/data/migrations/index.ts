@@ -3,6 +3,7 @@ import type Database from 'better-sqlite3';
 import { TABLES } from '../../shared/constants.js';
 import { migration001Init } from './001_init.js';
 import { migration002EmbeddingSpace } from './002_embedding_space.js';
+import { migration003ProjectAudits } from './003_project_audits.js';
 
 export interface Migration {
   version: number;
@@ -17,6 +18,7 @@ export interface Migration {
 export const migrations: readonly Migration[] = [
   { version: 1, name: 'init', up: migration001Init },
   { version: 2, name: 'embedding-space', up: migration002EmbeddingSpace },
+  { version: 3, name: 'project-audits', up: migration003ProjectAudits },
 ];
 
 interface MigrationRow {
