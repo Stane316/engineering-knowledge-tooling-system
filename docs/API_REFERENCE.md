@@ -138,7 +138,7 @@ ekts project delete <id> [-f|--force]
 ## MCP
 
 Serveur stdio : `node dist/mcp/server.js` (config client, voir
-`docs/MCP.md`). **11 outils** — entrées validées par Zod, erreurs renvoyées en
+`docs/MCP.md`). **12 outils** — entrées validées par Zod, erreurs renvoyées en
 payload structuré (`isError: true`, codes MCP : `-32602` paramètres,
 `-32000` ressource).
 
@@ -347,6 +347,44 @@ Contrats : `IProjectManager` (async, `src/business/project-manager.types.ts`),
 `ProjectRepository` (`src/data/repositories/project-repository.ts`),
 schémas Zod `ProjectSchema` / `CreateProjectSchema` / `UpdateProjectSchema` /
 `ProjectFiltersSchema` (`src/shared/validators.js`).
+
+### API timeline (Sprint 14)
+
+Modules `src/timeline/**` + migration `004_alerts` (table `alerts`).
+
+```typescript
+import { TimelineAnalyzer } from './src/timeline/timeline-analyzer.js';
+import { TrendDetector } from './src/timeline/trend-detector.js';
+import { AlertManager } from './src/timeline/alert-manager.js';
+import { ChartGenerator } from './src/timeline/chart-generator.js';
+
+// Analyse chronologique (0 audit → structure vide, code 0 / non bloquant) ;
+// filtres start/end inclusifs, bornes réjectées si start > end (ValidationError).
+const analyzer = new TimelineAnalyzer(connection);
+const analysis = await analyzer.analyze(projectId, { start?, end?, limit? });
+// analysis : { projectId, projectName, startDate, endDate, totalAudits,
+//   overallScores[], dimensionScores[5], minAudits }
+
+const detector = new TrendDetector();
+const report = detector.detectTrends(analysis);
+// report : { trends: Map<dim, Trend>, overallTrend, recommendations[] }
+// Trend = { direction: improving|declining|stable, slope, confidence, description }
+const regressions = detector.detectRegressions(analysis, 10); // perte > 10 pts
+
+const alertRepository = new AlertRepository(connection);
+const manager = new AlertManager(alertRepository);
+await manager.checkAndCreateAlerts(report, regressions); // idempotent
+const active = await manager.getActiveAlerts(projectId);
+await manager.markAsResolved(alertId); // ValidationError si déjà résolue
+
+const charts = new ChartGenerator();
+const svg = charts.generateTimelineChart(analysis, 'svg');
+const png = charts.generateDimensionChart(analysis, 'performance', 'png');
+// SVG/PNG autonomes (police bitmap embarquée, palettes fixes, pas de réseau)
+```
+
+**Entrées CLI** : sous-commandes `ekts timeline analyze|trends|alerts|chart`
+(`src/cli/commands/timeline.ts`).
 
 ### Types principaux
 

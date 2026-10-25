@@ -1,3 +1,5 @@
+import type Database from 'better-sqlite3';
+
 import type { IEmbeddingsService } from '../business/embeddings.js';
 import type { IKnowledgeManager } from '../business/knowledge-manager.types.js';
 import type { ISearchEngine } from '../business/search-engine.types.js';
@@ -7,11 +9,16 @@ import { fromInspection } from '../analysis/adapter.js';
 import { Inspector } from '../browser/inspection/inspector.js';
 import type { InspectionLevel, L3InspectionResult } from '../browser/inspection/types.js';
 import { createSearchEngine, openCliServices, type CliServices } from '../cli/services.js';
+import { AlertManager } from '../timeline/alert-manager.js';
+import { ChartGenerator } from '../timeline/chart-generator.js';
+import { TimelineAnalyzer } from '../timeline/timeline-analyzer.js';
+import { TrendDetector } from '../timeline/trend-detector.js';
 import { loadConfig } from '../shared/config.js';
 import { ValidationError } from '../shared/errors.js';
 import type { IProjectManager } from '../business/project-manager.types.js';
 import type { Audit } from '../storage/types.js';
 import { AuditRepository } from '../storage/audit-repository.js';
+import { AlertRepository } from '../storage/alert-repository.js';
 import { AuditSchema } from '../storage/schema.js';
 import { AuditSearch } from '../storage/search.js';
 import { AuditStatisticsManager } from '../storage/statistics.js';
@@ -59,6 +66,32 @@ export interface AuditToolServices {
  * ce contrat minimal, ce qui permet de les tester sur une base SQLite réelle
  * temporaire, sans maquette ni variable globale.
  */
+/** Services de suivi temporel (Sprint 14). */
+export interface TimelineToolServices {
+  /** Séries chronologiques par projet. */
+  readonly analyzer: TimelineAnalyzer;
+  /** Détection de tendances et de régressions. */
+  readonly detector: TrendDetector;
+  /** Alertes persistées (table `alerts`, migration 004). */
+  readonly alertRepository: AlertRepository;
+  /** Cycle de vie des alertes (création idempotente, résolution). */
+  readonly alertManager: AlertManager;
+  /** Graphiques SVG/PNG des timelines. */
+  readonly chartGenerator: ChartGenerator;
+}
+
+/** Instancie les services de timeline sur la connexion ouverte. */
+function buildTimelineServices(connection: Database.Database): TimelineToolServices {
+  const alertRepository = new AlertRepository(connection);
+  return {
+    analyzer: new TimelineAnalyzer(connection),
+    detector: new TrendDetector(),
+    alertRepository,
+    alertManager: new AlertManager(alertRepository),
+    chartGenerator: new ChartGenerator(),
+  };
+}
+
 export interface McpToolContext {
   /** Lecture des ressources (Sprint 3). */
   readonly manager: IKnowledgeManager;
@@ -68,6 +101,8 @@ export interface McpToolContext {
   readonly audits: AuditToolServices;
   /** Gestion des projets (Sprint 13). */
   readonly projects: IProjectManager;
+  /** Suivi temporel (Sprint 14). */
+  readonly timeline: TimelineToolServices;
 }
 
 /** Contexte complet, avec la fermeture des ressources ouvertes. */
@@ -152,6 +187,7 @@ export function openMcpServices(options: OpenMcpOptions = {}): McpServices {
     search: createSearchEngine(connection, services.embeddings),
     audits,
     projects: services.projects,
+    timeline: buildTimelineServices(connection),
     dataDir,
     embeddingsAvailable: services.embeddings !== undefined,
     close: services.close,

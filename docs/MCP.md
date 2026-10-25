@@ -565,15 +565,60 @@ créé est alors rattaché au projet. Omis → audit sans projet.
 { "url": "https://example.com", "level": "L3", "project_id": "550e8400-…" }
 ```
 
-### Vérification (11 outils)
+### Vérification (12 outils)
 
 ```bash
 # Après npm run build, avec le serveur configuré (voir § 4) :
-# tools/list doit retourner les 11 noms de TOOL_NAMES dans l'ordre :
+# tools/list doit retourner les 12 noms de TOOL_NAMES dans l'ordre :
 # search_knowledge, get_resource, list_resources, validate_resource,
 # inspect_site, audit_history, audit_report, create_project, list_projects,
-# get_project, delete_project
+# get_project, delete_project, get_timeline
 ```
 
-Les tests `tests/mcp/**` vérifient le catalogue (11 noms, 11 descriptions
+Les tests `tests/mcp/**` vérifient le catalogue (12 noms, 12 descriptions
 distinctes), les entrées Zod et les codes d'erreur sur une base SQLite réelle.
+
+## 17. Outil timeline (Sprint 14-3)
+
+> Guide complet : [`guides/TIMELINE.md`](guides/TIMELINE.md). Contrat détaillé
+> : [`API_REFERENCE.md`](API_REFERENCE.md), section « Sorties MCP ».
+
+### `get_timeline`
+
+Analyse temporelle complète d'un projet (C14.7) : séries de scores, tendances,
+régressions au-dessus du seuil, alertes actives et résumé Markdown. **Lecture
+seule** (`readOnlyHint: true`) — aucune alerte n'est créée par l'outil.
+
+**Entrée** (défauts appliqués par Zod, champs omis plutôt qu'à `undefined`) :
+
+```json
+{
+  "project_id": "550e8400-…",
+  "start_date": "2026-10-01",
+  "end_date": "2026-10-15",
+  "lookback_days": 90,
+  "threshold": 10,
+  "include_alerts": true,
+  "include_charts": false
+}
+```
+
+| Champ | Type | Défaut | Rejet (`-32602`) |
+| --- | --- | --- | --- |
+| `project_id` | UUID | requis | format, projet absent → `-32000` |
+| `start_date` / `end_date` | `YYYY-MM-DD` | glissant 90 j / ∞ | regex ; `start_date > end_date` → `ValidationError` |
+| `lookback_days` | entier | `90` | `< 1` |
+| `threshold` | entier | `10` | `< 1` ou `> 100` |
+| `include_alerts` | booléen | `true` | type |
+| `include_charts` | booléen | `false` | type |
+
+**Réponse** (un seul content JSON, `run()`) : `period{start,end}`,
+`dimensions[dim]{averageScore,min,max,scores[]}`, `trends[dim]{direction,slope,
+confidence,description}`, `overallTrend`, `recommendations[]`,
+`regressions[]`, `summary` (Markdown), `alerts{active,list}` (optionnel),
+`charts.svg` (optionnel).
+
+**Références** : entrée `GetTimelineInput` (`tool-schemas.ts`),
+`TOOL_NAMES`/`TOOL_DESCRIPTIONS`, dispatch `case 'get_timeline'`,
+`executeGetTimeline` (`tools/get-timeline.ts`), services `context.timeline`
+(analyzer, detector, alertRepository, alertManager, chartGenerator).

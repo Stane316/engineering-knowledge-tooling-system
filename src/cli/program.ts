@@ -19,6 +19,7 @@ import { registerReindex } from './commands/reindex.js';
 import { registerSearch } from './commands/search.js';
 import { registerInspect } from './commands/inspect.js';
 import { registerStatus } from './commands/status.js';
+import { registerTimelineCommands } from './commands/timeline.js';
 import { createPalette } from './output.js';
 import { createRuntime, type CliRuntime } from './runtime.js';
 
@@ -68,6 +69,7 @@ export function createProgram(runtime: CliRuntime): Command {
   registerInspect(program, runtime);
   registerAudit(program, runtime);
   registerProjectCommands(program, runtime);
+  registerTimelineCommands(program, runtime);
 
   return program;
 }

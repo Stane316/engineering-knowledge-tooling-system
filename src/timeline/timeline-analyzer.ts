@@ -1,7 +1,7 @@
 import type Database from 'better-sqlite3';
 
 import type { AnalysisDimension } from '../analysis/types.js';
-import { ProjectNotFoundError } from '../shared/errors.js';
+import { ProjectNotFoundError, ValidationError } from '../shared/errors.js';
 import { AuditRepository } from '../storage/audit-repository.js';
 import type { Audit } from '../storage/types.js';
 import { ProjectRepository } from '../data/repositories/project-repository.js';
@@ -46,20 +46,35 @@ export class TimelineAnalyzer {
    * Analyse complète de la timeline d'un projet.
    *
    * @param projectId - Identifiant UUID du projet.
-   * @param options - `limit` : nombre maximal d'audits (défaut 500).
+   * @param options - `limit` : nombre maximal d'audits (défaut 500) ;
+   *   `start`/`end` : fenêtre de dates (bornes inclusives, filtrée avant le
+   *   calcul des séries — options `--start`/`--end`, Sprint 14-3).
    * @returns Analyse triée chronologiquement (croissant).
    * @throws {ProjectNotFoundError} Projet absent de la base.
+   * @throws {ValidationError} Fenêtre incohérente (`start` > `end`).
    */
   async analyze(
     projectId: string,
-    options: { readonly limit?: number } = {},
+    options: { readonly limit?: number; readonly start?: Date; readonly end?: Date } = {},
   ): Promise<TimelineAnalysis> {
     const project = this.projectRepo.getById(projectId);
     if (project === null) {
       throw new ProjectNotFoundError(projectId);
     }
 
-    const audits = this.auditRepo.listByProject(projectId, options.limit ?? 500);
+    if (options.start !== undefined && options.end !== undefined && options.start > options.end) {
+      throw new ValidationError(['fenêtre de dates invalide : --start est postérieur à --end']);
+    }
+
+    let audits = this.auditRepo.listByProject(projectId, options.limit ?? 500);
+    if (options.start !== undefined || options.end !== undefined) {
+      audits = audits.filter((audit) => {
+        const timestamp = new Date(audit.metadata.timestamp);
+        if (options.start !== undefined && timestamp < options.start) return false;
+        if (options.end !== undefined && timestamp > options.end) return false;
+        return true;
+      });
+    }
     const dimensionScores = DIMENSIONS.map((dimension) =>
       this.buildDimensionTimeline(dimension, audits),
     );

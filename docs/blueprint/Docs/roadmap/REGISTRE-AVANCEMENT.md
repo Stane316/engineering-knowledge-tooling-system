@@ -110,14 +110,14 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 12 | 12-2 | Documentation (Semaine 23, Jours 5-7) | ✅ Rédigée | ✅ Livré le 25/10/2026 | ✅ 5 guides (USER, DEV, API, TROUBLE, CONTRIB) |
 | Sprint 12 | 12-3 | Validation MVP-2 + Préparation MVP-3 (Semaine 24, Jours 8-10) | ✅ Rédigée | ✅ Livré le 25/10/2026 | ✅ 88/88 critères, MVP2_VALIDATION.md |
 | Sprint 12 | Dossier parent | Tests + Documentation MVP-2 | ✅ Rédigée | ✅ Validé le 25/10/2026 | ✅ 88/88 critères, couverture 97,06 % |
-| Sprint 13 | 13-1 | Migration 003 + ProjectRepository + ProjectManager (Semaine 25, Jours 1-3) | ✅ Rédigée | ⏳ Non commencé | — |
-| Sprint 13 | 13-2 | CLI `ekts project` + filtre `--project` (Semaine 25-26, Jours 4-6) | ✅ Rédigée | ⏳ Non commencé | — |
-| Sprint 13 | 13-3 | MCP projets + tests + documentation (Semaine 26, Jours 7-10) | ✅ Rédigée | ⏳ Non commencé | — |
-| Sprint 13 | Dossier parent | Gestion Multi-Projets (MVP-3, ADR-031) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
-| Sprint 14 | 14-1 | TimelineAnalyzer + TrendDetector (Semaine 27, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
-| Sprint 14 | 14-2 | AlertManager + ChartGenerator (Semaine 27, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
-| Sprint 14 | 14-3 | CLI `ekts timeline` + MCP `get_timeline` + Tests + Documentation (Semaine 28, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
-| Sprint 14 | Dossier parent | Suivi Temporel (MVP-3, ADR-031, ADR-032) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 13 | 13-1 | Migration 003 + ProjectRepository + ProjectManager (Semaine 25, Jours 1-3) | ✅ Rédigée | ✅ Livré le 25/10/2026 | ✅ CI `40201804122` |
+| Sprint 13 | 13-2 | CLI `ekts project` + filtre `--project` (Semaine 25-26, Jours 4-6) | ✅ Rédigée | ✅ Livré le 25/10/2026 | ✅ CI `40208441240` |
+| Sprint 13 | 13-3 | MCP projets + tests + documentation (Semaine 26, Jours 7-10) | ✅ Rédigée | ✅ Validé le 25/10/2026 | ✅ `SPRINT-13-RESULTAT.md`, 13 écarts P3 |
+| Sprint 13 | Dossier parent | Gestion Multi-Projets (MVP-3, ADR-031) | ✅ Rédigée le 25/10/2026 | ✅ Validé le 25/10/2026 | ✅ fusionné sur develop (`ede70fc`) |
+| Sprint 14 | 14-1 | TimelineAnalyzer + TrendDetector (Semaine 27, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ 20 tests, cov 98,14 % |
+| Sprint 14 | 14-2 | AlertManager + ChartGenerator (Semaine 27, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ 36 tests timeline, migration 004 |
+| Sprint 14 | 14-3 | CLI `ekts timeline` + MCP `get_timeline` + Tests + Documentation (Semaine 28, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ 17 CLI + 7 MCP + 3 intégration, guide TIMELINE.md |
+| Sprint 14 | Dossier parent | Suivi Temporel (MVP-3, ADR-031, ADR-032) | ✅ Rédigée le 25/10/2026 | ✅ Validé le 25/10/2026 | ✅ verify 0 (1 342 tests), couverture 96,83 % |
 | Sprint 15 | 15-1 | Types + Migration + BestPracticeRepository + BestPracticeSearch (Semaine 29, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 15 | 15-2 | BestPracticeExtractor + BestPracticeService + associations (Semaine 29, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 15 | 15-3 | CLI `ekts bestpractice` + MCP `search/add_best_practice` + Tests + Documentation (Semaine 30, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |

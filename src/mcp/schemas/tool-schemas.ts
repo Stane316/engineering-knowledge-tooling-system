@@ -148,6 +148,29 @@ export const DeleteProjectInput = z.object({
   project_id: ProjectIdInput,
 });
 
+/** Date calendrier `YYYY-MM-DD` (Sprint 14, timeline). */
+const TimelineDateInput = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'format YYYY-MM-DD attendu');
+
+/** Entrée de `get_timeline` (Sprint 14). */
+export const GetTimelineInput = z.object({
+  project_id: ProjectIdInput,
+  start_date: TimelineDateInput.optional(),
+  end_date: TimelineDateInput.optional(),
+  lookback_days: z
+    .number()
+    .int('la période doit être un entier en jours')
+    .min(1, 'la période doit être supérieure ou égale à 1 jour')
+    .default(90),
+  threshold: z
+    .number()
+    .int('le seuil doit être un entier en points')
+    .min(1, 'le seuil doit être supérieur ou égal à 1')
+    .max(100, 'le seuil ne peut pas dépasser 100')
+    .default(10),
+  include_alerts: z.boolean().default(true),
+  include_charts: z.boolean().default(false),
+});
+
 /** Sortie de `search_knowledge`. */
 export const SearchKnowledgeOutput = z.object({
   query: z.string(),
@@ -233,6 +256,8 @@ export const TOOL_DESCRIPTIONS = {
     'Renvoie un projet par son identifiant UUID ; erreur -32000 si le projet n\u2019existe pas.',
   delete_project:
     'Supprime un projet par son UUID. Les audits et ressources associés sont conservés avec project_id à NULL (aucune suppression en cascade).',
+  get_timeline:
+    "Analyse la timeline d'un projet (période, scores par dimension, tendances par régression linéaire, régressions au-dessus du seuil et alertes actives) ; résumé Markdown + JSON structuré.",
 } as const;
 
 /** Noms des outils, dans l'ordre de `tools/list`. */
@@ -248,6 +273,7 @@ export const TOOL_NAMES = [
   'list_projects',
   'get_project',
   'delete_project',
+  'get_timeline',
 ] as const;
 
 /** Nom d'un outil MCP. */
@@ -264,4 +290,5 @@ export type AuditReportParams = z.output<typeof AuditReportInput>;
 export type CreateProjectParams = z.output<typeof CreateProjectInput>;
 export type ListProjectsParams = z.output<typeof ListProjectsInput>;
 export type GetProjectParams = z.output<typeof GetProjectInput>;
+export type GetTimelineParams = z.output<typeof GetTimelineInput>;
 export type DeleteProjectParams = z.output<typeof DeleteProjectInput>;
