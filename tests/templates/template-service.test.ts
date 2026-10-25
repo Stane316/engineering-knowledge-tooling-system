@@ -52,10 +52,14 @@ describe('TemplateService — orchestration CRUD (17-01)', () => {
     service.createTemplate({ name: 'A', description: '', category: 'custom' });
     service.createTemplate({ name: 'B', description: '', category: 'saas' });
 
-    expect(service.listTemplates()).toHaveLength(2);
-    expect(service.listTemplates({ category: 'saas' }).map((t) => t.name)).toEqual(['B']);
-    expect(service.countTemplates()).toBe(2);
-    expect(service.countTemplates({ category: 'saas' })).toBe(1);
+    // Hors builtin : le constructeur a semé les 10 prédéfinis (C17.2).
+    expect(service.listTemplates({ isBuiltin: false })).toHaveLength(2);
+    expect(
+      service.listTemplates({ category: 'saas', isBuiltin: false }).map((t) => t.name),
+    ).toEqual(['B']);
+    expect(service.countTemplates({ isBuiltin: false })).toBe(2);
+    expect(service.countTemplates({ category: 'saas', isBuiltin: false })).toBe(1);
+    expect(service.listTemplates({ isBuiltin: true })).toHaveLength(10);
   });
 
   it('devrait mettre à jour un template (patch partiel)', () => {
@@ -87,20 +91,16 @@ describe('TemplateService — orchestration CRUD (17-01)', () => {
     const t = service.createTemplate({ name: 'À supprimer', description: '', category: 'custom' });
     service.deleteTemplate(t.id);
     expect(service.getTemplate(t.id)).toBeNull();
-    expect(service.countTemplates()).toBe(0);
+    expect(service.countTemplates({ isBuiltin: false })).toBe(0);
   });
 
-  it('devrait protéger les builtins via le service (ADR-040)', () => {
-    const t = service.createTemplate({
-      name: 'Futur builtin',
-      description: '',
-      category: 'custom',
-    });
-    db.connection.prepare('UPDATE project_templates SET is_builtin = 1 WHERE id = ?').run(t.id);
+  it('devrait protéger les builtins du seed via le service (ADR-040)', () => {
+    const builtin = service.listTemplates({ isBuiltin: true })[0]!;
+    expect(builtin.isBuiltin).toBe(true);
 
-    expect(() => service.updateTemplate(t.id, { name: 'x' })).toThrow(/immuable/);
-    expect(() => service.deleteTemplate(t.id)).toThrow(/immuable/);
-    expect(service.getTemplate(t.id)).not.toBeNull();
+    expect(() => service.updateTemplate(builtin.id, { name: 'x' })).toThrow(/immuable/);
+    expect(() => service.deleteTemplate(builtin.id)).toThrow(/immuable/);
+    expect(service.getTemplate(builtin.id)).not.toBeNull();
   });
 });
 
@@ -122,12 +122,107 @@ describe('TemplateService — export/import (C17.5)', () => {
     expect(imported.category).toBe('agency');
     expect(imported.bestPracticeIds).toEqual(['bp-9']);
     expect(imported.recommendationRuleIds).toEqual(['rule-9']);
-    expect(service.countTemplates()).toBe(2);
+    expect(service.countTemplates({ isBuiltin: false })).toBe(2);
   });
 
   it('devrait refuser un export/ import invalides (C17.20)', () => {
     expect(() => service.exportTemplate('absent')).toThrow(/introuvable/);
     expect(() => service.importTemplate('pas-json')).toThrow(/JSON invalide/);
+  });
+});
+
+describe('TemplateService — seed des builtins (17-02, C17.2)', () => {
+  it('devrait disposer des 10 prédéfinis immuables au démarrage', () => {
+    const builtins = service.listTemplates({ isBuiltin: true });
+    expect(builtins).toHaveLength(10);
+    expect(builtins.every((t) => t.isBuiltin)).toBe(true);
+    expect(builtins.every((t) => t.recommendationRuleIds.length >= 3)).toBe(true);
+    // Règles réellement créées dans recommendation_rules (seed conjoint).
+    const rules = db.connection
+      .prepare('SELECT COUNT(*) AS count FROM recommendation_rules')
+      .get() as { count: number };
+    expect(rules.count).toBe(builtins.reduce((acc, t) => acc + t.recommendationRuleIds.length, 0));
+  });
+
+  it('devrait être idempotent (deuxième service = mêmes 10, pas de doublon)', () => {
+    const before = service.countTemplates({ isBuiltin: true });
+    const rulesBefore = (
+      db.connection.prepare('SELECT COUNT(*) AS count FROM recommendation_rules').get() as {
+        count: number;
+      }
+    ).count;
+
+    const second = new TemplateService(db.connection);
+    expect(second.countTemplates({ isBuiltin: true })).toBe(before);
+    const rulesAfter = (
+      db.connection.prepare('SELECT COUNT(*) AS count FROM recommendation_rules').get() as {
+        count: number;
+      }
+    ).count;
+    expect(rulesAfter).toBe(rulesBefore);
+  });
+
+  it("l'application rapide d'un builtin devrait rester sous 10 s (C17.13)", () => {
+    const start = Date.now();
+    const builtin = service.listTemplates({ isBuiltin: true })[0]!;
+    service.applyTemplate({
+      templateId: builtin.id,
+      projectName: 'Perf builtins',
+      projectUrl: 'https://perf.example',
+    });
+    expect(Date.now() - start).toBeLessThan(10_000);
+  });
+});
+
+describe('TemplateService — applyTemplate (17-02, C17.3/C17.4)', () => {
+  it('devrait créer un projet depuis un template builtin avec ses règles actives', () => {
+    const builtin = service.listTemplates({ isBuiltin: true })[0]!;
+    const result = service.applyTemplate({
+      templateId: builtin.id,
+      projectName: 'Site e-commerce client',
+      projectUrl: 'https://client.example',
+      overrides: { config: { alertThresholds: { minScore: 90 } } },
+    });
+
+    expect(result.projectName).toBe('Site e-commerce client');
+    expect(result.templateId).toBe(builtin.id);
+    expect(result.rulesCreated).toBe(builtin.recommendationRuleIds.length);
+    expect(result.durationMs).toBeLessThan(10_000);
+
+    // Config persistée avec override fusionné (ADR-041).
+    const row = db.connection
+      .prepare('SELECT config FROM project_config WHERE project_id = ?')
+      .get(result.projectId) as { config: string };
+    const config = JSON.parse(row.config) as { alertThresholds: Record<string, number> };
+    expect(config.alertThresholds.minScore).toBe(90);
+    expect(config.alertThresholds.regressionPoints).toEqual(
+      builtin.config.alertThresholds?.regressionPoints,
+    );
+  });
+
+  it('devrait échouer avec code 4 sur un template inexistant (C17.20)', () => {
+    try {
+      service.applyTemplate({ templateId: 'absent', projectName: 'X', projectUrl: 'https://x.co' });
+      expect.unreachable('apply aurait dû échouer');
+    } catch (error) {
+      expect((error as Error).message).toMatch(/introuvable/);
+      expect(exitCodeFor(error)).toBe(4);
+    }
+  });
+});
+
+describe('TemplateService — validateTemplate (17-02, C17.20)', () => {
+  it('devrait valider un builtin du seed', () => {
+    const builtin = service.listTemplates({ isBuiltin: true })[0]!;
+    const result = service.validateTemplate(builtin.id);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toEqual([]);
+  });
+
+  it('devrait retourner invalide pour un template absent', () => {
+    const result = service.validateTemplate('absent');
+    expect(result.valid).toBe(false);
+    expect(result.errors.join(' ')).toMatch(/introuvable/);
   });
 });
 

@@ -63,6 +63,34 @@ export class TemplateRepository {
    * @throws {ValidationError} Nom vide ou catégorie inconnue.
    */
   create(input: CreateTemplateInput): ProjectTemplate {
+    return this.insertRow(input, false);
+  }
+
+  /**
+   * Crée un template **prédéfini** (`isBuiltin = 1`, ADR-040) — usage
+   * réservé au seed {@link TemplateService.seedBuiltins} (Sprint 17-02).
+   *
+   * @param input - Données du template (rules liées via `recommendationRuleIds`).
+   * @param ruleIds - IDs des règles déjà insérées dans `recommendation_rules`.
+   * @returns Le template builtin créé.
+   * @throws {ValidationError} Nom vide ou catégorie inconnue.
+   */
+  createBuiltin(input: CreateTemplateInput, ruleIds: string[] = []): ProjectTemplate {
+    const recommendationRuleIds = [
+      ...new Set([...(input.recommendationRuleIds ?? []), ...ruleIds]),
+    ];
+    return this.insertRow({ ...input, recommendationRuleIds }, true);
+  }
+
+  /**
+   * Insère une ligne template (commun create/createBuiltin).
+   *
+   * @param input - Données normalisées.
+   * @param isBuiltin - Drapeau builtin (seed uniquement).
+   * @returns La ligne insérée.
+   * @throws {ValidationError} Nom vide ou catégorie inconnue.
+   */
+  private insertRow(input: CreateTemplateInput, isBuiltin: boolean): ProjectTemplate {
     const name = input.name.trim();
     if (name.length === 0) {
       throw new ValidationError(['name ne peut pas être vide']);
@@ -78,7 +106,7 @@ export class TemplateRepository {
            id, name, description, category, config,
            best_practice_ids, recommendation_rule_ids, is_builtin,
            created_at, updated_at
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`,
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         id,
@@ -88,6 +116,7 @@ export class TemplateRepository {
         JSON.stringify(input.config ?? {}),
         JSON.stringify(input.bestPracticeIds ?? []),
         JSON.stringify(input.recommendationRuleIds ?? []),
+        isBuiltin ? 1 : 0,
         now,
         now,
       );

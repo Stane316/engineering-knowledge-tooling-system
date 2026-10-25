@@ -46,14 +46,14 @@ function input(over: Partial<CreateTemplateInput> = {}): CreateTemplateInput {
 }
 
 describe('TemplateRepository — migration (17-01)', () => {
-  it('devrait créer la table project_templates avec user_version 7', () => {
+  it('devrait créer la table project_templates avec user_version 8', () => {
     const tables = db.connection
       .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='project_templates'")
       .all();
     expect(tables).toHaveLength(1);
 
     const uv = db.connection.prepare('PRAGMA user_version').get() as { user_version: number };
-    expect(uv.user_version).toBe(7);
+    expect(uv.user_version).toBe(8);
   });
 });
 
