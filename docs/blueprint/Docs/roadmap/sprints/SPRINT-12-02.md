@@ -3,7 +3,7 @@
 **Durée :** 3 jours  
 **Objectif :** Rédiger la documentation utilisateur et développeur complète  
 **Dépendance :** Sprint 12-1 (Tests E2E) ✅
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ TERMINÉ (voir `SPRINT-12-02-RESULTAT.md`)  
 
 ---
 
