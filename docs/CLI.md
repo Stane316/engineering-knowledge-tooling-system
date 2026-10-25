@@ -726,3 +726,32 @@ npx ekts timeline chart <id> --format png --dimension performance \
 Sortie : humaine par défaut, structurée avec `--json` (mêmes contrats que
 `tools/MCP`). Les entrées invalides sont rejetées avant toute écriture base.
 
+## 14. Commande bestpractice (Sprint 15-03)
+
+> Guide complet : [`guides/BEST_PRACTICES.md`](guides/BEST_PRACTICES.md).
+
+`ekts bestpractice` (alias `bp`) — 6 sous-commandes de capitalisation (C15.7 →
+C15.10) :
+
+```bash
+npx ekts bestpractice list -c performance -t images --manual --json
+npx ekts bestpractice search "optimiser images" --limit 5
+npx ekts bestpractice add --title "Titre ≥ 3" --description "Desc ≥ 10" \
+  --category performance --tags "images,webp" --json
+npx ekts bestpractice show <uuid> --json
+npx ekts bestpractice delete <uuid> --yes
+npx ekts bestpractice extract <projectId> --min-occurrences 2 --min-audits 2
+```
+
+| Sous-commande | Codes retour | Notes |
+| --- | --- | --- |
+| `list` | 0, 1, 2, 4 | Filtres `--category/--tag/--project/--manual/--auto`, tri `--sort/--order`, `--limit` borné 1-500 ; `--manual`+`--auto` = 4. |
+| `search` | 0, 1, 2, 4 | Recherche FTS5, `--limit` 1-500, `--category` validé ; 0 résultat = code 0. |
+| `add` | 0, 2, 4 | `isManual` forcé ; titre ≥ 3, description ≥ 10, catégorie dans la liste blanche. |
+| `show` | 0, 3, 4 | Détail + findings liés (confiance %) ; UUID requis. |
+| `delete` | 0, 1, 3, 4 | Sans `--yes` → 1 (aligné `project delete --force`). |
+| `extract` | 0, 1, 3, 4 | Rapport d'extraction ; projet absent = 3 ; 0 audit = 0 (non bloquant). |
+
+Entrées invalides rejetées avant écriture ; sortie `human`/`--json` via
+`execute`.
+

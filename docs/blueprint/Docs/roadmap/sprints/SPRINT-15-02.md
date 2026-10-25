@@ -2,7 +2,7 @@
 
 **Sprint :** 15-02 sur 15 (Sous-sprint 2/3)  
 **Durée :** 3 jours  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ
 
 ---
 

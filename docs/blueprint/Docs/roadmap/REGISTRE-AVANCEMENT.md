@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 25 octobre 2026 — Sprint 12 (Validation MVP-2 88/88)  
+**Dernière mise à jour :** 25 octobre 2026 — Sprint 15 (Capitalisation des connaissances)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -118,10 +118,10 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 14 | 14-2 | AlertManager + ChartGenerator (Semaine 27, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ 36 tests timeline, migration 004 |
 | Sprint 14 | 14-3 | CLI `ekts timeline` + MCP `get_timeline` + Tests + Documentation (Semaine 28, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ 17 CLI + 7 MCP + 3 intégration, guide TIMELINE.md |
 | Sprint 14 | Dossier parent | Suivi Temporel (MVP-3, ADR-031, ADR-032) | ✅ Rédigée le 25/10/2026 | ✅ Validé le 25/10/2026 | ✅ verify 0 (1 342 tests), couverture 96,83 % |
-| Sprint 15 | 15-1 | Types + Migration + BestPracticeRepository + BestPracticeSearch (Semaine 29, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
-| Sprint 15 | 15-2 | BestPracticeExtractor + BestPracticeService + associations (Semaine 29, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
-| Sprint 15 | 15-3 | CLI `ekts bestpractice` + MCP `search/add_best_practice` + Tests + Documentation (Semaine 30, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
-| Sprint 15 | Dossier parent | Capitalisation Connaissances (MVP-3, ADR-033 à ADR-035) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 15 | 15-1 | Types + Migration + BestPracticeRepository + BestPracticeSearch (Semaine 29, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ CI `40232463236` |
+| Sprint 15 | 15-2 | BestPracticeExtractor + BestPracticeService + associations (Semaine 29, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ 66 tests module, verify 0 |
+| Sprint 15 | 15-3 | CLI `ekts bestpractice` + MCP `search/add_best_practice` + Tests + Documentation (Semaine 30, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ guide BEST_PRACTICES.md, catalogue 14 outils |
+| Sprint 15 | Dossier parent | Capitalisation Connaissances (MVP-3, ADR-033 à ADR-035) | ✅ Rédigée le 25/10/2026 | ✅ Validé le 25/10/2026 | ✅ `SPRINT-15-RESULTAT.md` (12 écarts P3) |
 | Sprint 16 | 16-1 | Types + Migration + RecommendationRules + Repository + Engine (Semaine 31, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 16 | 16-2 | RecommendationContext + Scoring contextuel + Intégration rapports Markdown/PDF (Semaine 31, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 16 | 16-3 | CLI `ekts recommend` + MCP `get_recommendations` + Tests intégration + Documentation (Semaine 32, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |

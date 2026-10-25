@@ -4,6 +4,7 @@ import type { z } from 'zod';
 
 import type { McpToolContext } from '../context.js';
 import {
+  AddBestPracticeInput,
   AuditHistoryInput,
   AuditReportInput,
   CreateProjectInput,
@@ -12,6 +13,7 @@ import {
   GetResourceInput,
   GetTimelineInput,
   InspectSiteInput,
+  SearchBestPracticesInput,
   ListProjectsInput,
   ListResourcesInput,
   SearchKnowledgeInput,
@@ -23,7 +25,9 @@ import { executeAuditReport } from '../tools/audit-report.js';
 import { executeCreateProject } from '../tools/create-project.js';
 import { executeDeleteProject } from '../tools/delete-project.js';
 import { executeGetProject } from '../tools/get-project.js';
+import { executeAddBestPractice } from '../tools/add-best-practice.js';
 import { executeGetTimeline } from '../tools/get-timeline.js';
+import { executeSearchBestPractices } from '../tools/search-best-practices.js';
 import { executeGetResource } from '../tools/get-resource.js';
 import { executeInspectSite } from '../tools/inspect-site.js';
 import { executeListProjects } from '../tools/list-projects.js';
@@ -44,7 +48,7 @@ export interface ToolDefinition {
   readonly description: string;
 }
 
-/** Les douze outils (MVP-2 + projets S13 + timeline S14), ordre de `tools/list`. */
+/** Les quatorze outils (MVP-2 + S13 projets + S14 timeline + S15 BP), ordre stable. */
 export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   { name: 'search_knowledge', description: TOOL_DESCRIPTIONS.search_knowledge },
   { name: 'get_resource', description: TOOL_DESCRIPTIONS.get_resource },
@@ -58,6 +62,8 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   { name: 'get_project', description: TOOL_DESCRIPTIONS.get_project },
   { name: 'delete_project', description: TOOL_DESCRIPTIONS.delete_project },
   { name: 'get_timeline', description: TOOL_DESCRIPTIONS.get_timeline },
+  { name: 'search_best_practices', description: TOOL_DESCRIPTIONS.search_best_practices },
+  { name: 'add_best_practice', description: TOOL_DESCRIPTIONS.add_best_practice },
 ];
 
 /**
@@ -102,13 +108,17 @@ export async function dispatchTool(
       return executeDeleteProject(context, parse(DeleteProjectInput, name, args));
     case 'get_timeline':
       return executeGetTimeline(context, parse(GetTimelineInput, name, args));
+    case 'search_best_practices':
+      return executeSearchBestPractices(context, parse(SearchBestPracticesInput, name, args));
+    case 'add_best_practice':
+      return executeAddBestPractice(context, parse(AddBestPracticeInput, name, args));
     default:
       throw invalidParams(`Outil inconnu : « ${name} ». Outils disponibles : ${toolNames()}.`);
   }
 }
 
 /**
- * Enregistre les douze outils sur un serveur MCP.
+ * Enregistre les quatorze outils sur un serveur MCP.
  *
  * Chaque gestionnaire attrape ses erreurs et renvoie un résultat `isError`
  * avec la charge utile standardisée : le SDK, lui, remplacerait un `throw` par
@@ -256,6 +266,32 @@ export function registerTools(server: McpServer, context: McpToolContext, logger
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
     async (args) => run('get_timeline', logger, () => dispatchTool(context, 'get_timeline', args)),
+  );
+
+  server.registerTool(
+    'search_best_practices',
+    {
+      title: 'Rechercher les bonnes pratiques',
+      description: TOOL_DESCRIPTIONS.search_best_practices,
+      inputSchema: SearchBestPracticesInput,
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async (args) =>
+      run('search_best_practices', logger, () =>
+        dispatchTool(context, 'search_best_practices', args),
+      ),
+  );
+
+  server.registerTool(
+    'add_best_practice',
+    {
+      title: 'Créer une bonne pratique',
+      description: TOOL_DESCRIPTIONS.add_best_practice,
+      inputSchema: AddBestPracticeInput,
+      annotations: { readOnlyHint: false, openWorldHint: false },
+    },
+    async (args) =>
+      run('add_best_practice', logger, () => dispatchTool(context, 'add_best_practice', args)),
   );
 }
 

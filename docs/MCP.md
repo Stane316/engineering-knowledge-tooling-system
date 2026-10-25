@@ -565,18 +565,68 @@ créé est alors rattaché au projet. Omis → audit sans projet.
 { "url": "https://example.com", "level": "L3", "project_id": "550e8400-…" }
 ```
 
-### Vérification (12 outils)
+### Vérification (14 outils)
 
 ```bash
 # Après npm run build, avec le serveur configuré (voir § 4) :
-# tools/list doit retourner les 12 noms de TOOL_NAMES dans l'ordre :
+# tools/list doit retourner les 14 noms de TOOL_NAMES dans l'ordre :
 # search_knowledge, get_resource, list_resources, validate_resource,
 # inspect_site, audit_history, audit_report, create_project, list_projects,
-# get_project, delete_project, get_timeline
+# get_project, delete_project, get_timeline, search_best_practices,
+# add_best_practice
 ```
 
-Les tests `tests/mcp/**` vérifient le catalogue (12 noms, 12 descriptions
+Les tests `tests/mcp/**` vérifient le catalogue (14 noms, 14 descriptions
 distinctes), les entrées Zod et les codes d'erreur sur une base SQLite réelle.
+
+## 18. Outils bonnes pratiques (Sprint 15-03)
+
+> Guide complet : [`guides/BEST_PRACTICES.md`](guides/BEST_PRACTICES.md).
+
+### `search_best_practices` — lecture seule
+
+Recherche hybride (FTS5 + filtres) dans les bonnes pratiques capitalisées
+(C15.11).
+
+**Entrée** (tout optionnel, défauts Zod) :
+
+```json
+{ "query": "optimiser images", "category": "performance", "tag": "images",
+  "project_id": "550e8400-…", "limit": 10 }
+```
+
+| Champ | Type | Défaut | Rejet (`-32602`) |
+| --- | --- | --- | --- |
+| `query` | string ≥ 1 | — (énumération `list`) | vide |
+| `category` | enum 6 valeurs | — | hors liste |
+| `tag` | string ≥ 1 | — | vide |
+| `project_id` | UUID | — | format |
+| `limit` | entier 0-500 | `10` | négatif, non entier, > 500 |
+
+**Réponse** : `{ query?, count, total, results[{id,title,description,category,
+tags,occurrenceCount,isManual,score,matchType}], summary }`.
+
+### `add_best_practice` — écriture
+
+Seul outil du module avec `readOnlyHint: false` (C15.12).
+
+**Entrée** :
+
+```json
+{ "title": "Utiliser le lazy loading",
+  "description": "Ajouter loading=lazy aux images hors viewport",
+  "category": "performance", "tags": ["lazy-loading"] }
+```
+
+`title` 3-200 caractères, `description` 10-4000, `category` obligatoire,
+`tags` 0-30 éléments non vides ; `isManual: true` forcé.
+
+**Réponse** : `{ practice, summary }` ; violations → `-32602` (champs fautifs).
+
+**Références** : `SearchBestPracticesInput`/`AddBestPracticeInput`
+(`tool-schemas.ts`), `TOOL_NAMES` (14), dispatch `handlers/tools.ts`,
+`executeSearchBestPractices`/`executeAddBestPractice`, service
+`context.bestPractices` (construit dans `openMcpServices`).
 
 ## 17. Outil timeline (Sprint 14-3)
 
