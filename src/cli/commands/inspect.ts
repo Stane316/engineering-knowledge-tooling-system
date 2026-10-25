@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import type { Command } from 'commander';
+import { Option, type Command } from 'commander';
 
 import { AnalysisPipeline } from '../../analysis/pipeline.js';
 import { fromInspection } from '../../analysis/adapter.js';
@@ -11,10 +11,12 @@ import { PDFReportGenerator } from '../../reports/pdf-generator.js';
 import type { GeneratedReport } from '../../reports/types.js';
 import { ValidationError } from '../../shared/errors.js';
 import { openDatabase } from '../../data/database.js';
+import { createProjectManager } from '../../business/project-manager.js';
 import { AuditIndexer } from '../../storage/indexing.js';
 import { AuditRepository } from '../../storage/audit-repository.js';
 import { AuditSchema } from '../../storage/schema.js';
 import { execute, withOutputFlags, type CommandResult } from '../command.js';
+import { parseProjectId } from '../options.js';
 import type { CliRuntime } from '../runtime.js';
 
 /** Formats de rapport acceptés. */
@@ -57,7 +59,12 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
       .description('inspecter un site (L3 complet) et générer un audit + rapports')
       .option('-l, --level <level>', "niveau d'inspection (L1, L2, L3)", 'L3')
       .option('-o, --output <path>', 'dossier de sortie des rapports', './reports')
-      .option('-f, --format <format>', 'format du rapport (md, pdf, both)', 'both'),
+      .option('-f, --format <format>', 'format du rapport (md, pdf, both)', 'both')
+      .addOption(
+        new Option('-p, --project <id>', 'assigner l’audit à un projet (UUID)').argParser(
+          parseProjectId,
+        ),
+      ),
   ).action(async (url: string, options: Record<string, string | undefined>, command: Command) => {
     await execute(command, runtime, async (palette): Promise<CommandResult> => {
       const started = runtime.now();
@@ -68,6 +75,17 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
         throw new ValidationError([
           `le niveau ${level} ne produit pas les entrées d'analyse complètes ; rejouez avec --level ${AUDIT_LEVEL}`,
         ]);
+      }
+
+      // 0. Projet assigné : existence vérifiée avant la navigation (code 3 si
+      //    inconnu) — éviter une inspection réseau complète pour un id fautif.
+      if (options.project !== undefined) {
+        const probe = openDatabase({ dataDir: runtime.dataDir });
+        try {
+          await createProjectManager(probe.connection).manager.getProjectOrThrow(options.project);
+        } finally {
+          probe.close();
+        }
       }
 
       // 1. Inspection (navigateur, réseau autorisé par l'utilisateur).
@@ -94,7 +112,8 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
       try {
         new AuditSchema(database.connection).createSchema();
         const repository = new AuditRepository(database.connection);
-        const audit = repository.store(report);
+        // `--project` assigne l'audit au projet ; sans option : sans projet.
+        const audit = repository.store(report, { projectId: options.project ?? null });
         const outcome = await new AuditIndexer(database.connection).indexAudit(audit);
 
         // 4. Rapports.

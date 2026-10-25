@@ -2,6 +2,8 @@ import type Database from 'better-sqlite3';
 
 import { EmbeddingsService, type IEmbeddingsService } from '../business/embeddings.js';
 import { createKnowledgeManager } from '../business/knowledge-manager.js';
+import { createProjectManager } from '../business/project-manager.js';
+import type { IProjectManager } from '../business/project-manager.types.js';
 import {
   GatewayEmbeddingProvider,
   resolveEmbeddingSpace,
@@ -69,6 +71,8 @@ export interface OpenServicesOptions {
 export interface CliServices {
   readonly database: EktsDatabase;
   readonly manager: IKnowledgeManager;
+  /** Gestion des projets (Sprint 13) : indépendant des embeddings. */
+  readonly projects: IProjectManager;
   readonly paths: DatabasePaths;
   /** Absent quand les embeddings sont désactivés, hors ligne ou non configurés. */
   readonly embeddings: IEmbeddingsService | undefined;
@@ -207,12 +211,14 @@ export function openCliServices(options: OpenServicesOptions): CliServices {
 
   try {
     const { manager: plain } = createKnowledgeManager(database.connection);
+    const { manager: projects } = createProjectManager(database.connection);
     const resolved = resolveEmbeddings(options);
 
     if (resolved === undefined) {
       return {
         database,
         manager: plain,
+        projects,
         paths: database.paths,
         embeddings: undefined,
         embeddingSpace: undefined,
@@ -230,6 +236,7 @@ export function openCliServices(options: OpenServicesOptions): CliServices {
     return {
       database,
       manager: withVectorIndexing(plain, tolerant ?? indexer),
+      projects,
       paths: database.paths,
       embeddings: resolved.service,
       embeddingSpace: resolved.space,

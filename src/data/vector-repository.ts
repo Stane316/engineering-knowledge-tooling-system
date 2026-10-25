@@ -46,6 +46,7 @@ const SELECT_COLUMNS = [
   'r.metadata',
   'r.content',
   'r.embedding_model',
+  'r.project_id',
   'r.created_at',
   'r.updated_at',
 ].join(', ');

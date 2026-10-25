@@ -1,10 +1,10 @@
-import type { Command } from 'commander';
+import { Option, type Command } from 'commander';
 
 import type { AddResourceInput } from '../../business/knowledge-manager.types.js';
 import type { Resource, ResourceType } from '../../shared/validators.js';
 import { execute, withOutputFlags } from '../command.js';
 import { truncate } from '../output.js';
-import { parseTags } from '../options.js';
+import { parseProjectId, parseTags } from '../options.js';
 import type { Palette } from '../output.js';
 import type { CliRuntime } from '../runtime.js';
 
@@ -14,6 +14,7 @@ interface AddCliOptions {
   url?: string;
   tags?: string;
   content?: string;
+  project?: string;
 }
 
 /** Rapport d'ajout : la ressource et l'état de son indexation. */
@@ -49,7 +50,15 @@ export async function collectAdd(runtime: CliRuntime, options: AddCliOptions): P
       tags: parseTags(options.tags),
       ...(options.url === undefined ? {} : { url: options.url }),
       ...(options.content === undefined ? {} : { content: options.content }),
+      ...(options.project === undefined ? {} : { projectId: options.project }),
     };
+
+    // Projet assigné : existence vérifiée avant toute écriture (code 3 si
+    // inconnu) — la FK SQL resterait le garde-fou, mais son message brut
+    // serait illisible pour l'utilisateur.
+    if (options.project !== undefined) {
+      await services.projects.getProjectOrThrow(options.project);
+    }
 
     const resource = await services.manager.addResource(input);
     const outcome = services.vectorIndexer?.outcome(resource.id);
@@ -112,7 +121,12 @@ export function registerAdd(program: Command, runtime: CliRuntime): void {
       .requiredOption('--title <title>', 'titre de la ressource')
       .option('--url <url>', 'URL de la ressource')
       .option('--tags <tags>', 'tags séparés par des virgules')
-      .option('--content <content>', 'contenu textuel (indexé)'),
+      .option('--content <content>', 'contenu textuel (indexé)')
+      .addOption(
+        new Option('-p, --project <id>', 'assigner la ressource à un projet (UUID)').argParser(
+          parseProjectId,
+        ),
+      ),
   ).action(async (options: AddCliOptions, command: Command) => {
     await execute(command, runtime, async (palette) => {
       const report = await collectAdd(runtime, options);

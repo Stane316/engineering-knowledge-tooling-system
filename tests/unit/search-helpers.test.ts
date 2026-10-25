@@ -100,6 +100,21 @@ describe('matchesFilters', () => {
     expect(matchesFilters(resource({ type: 'video' }), { type: 'article' })).toBe(false);
   });
 
+  it('filtre par projet (Sprint 13) : correspondance stricte sur projectId', () => {
+    const projectId = '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed';
+    const assigned = resource({ projectId });
+
+    expect(matchesFilters(assigned, { projectId })).toBe(true);
+    expect(matchesFilters(assigned, { projectId: '2b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed' })).toBe(
+      false,
+    );
+    // Une ressource sans projet ne correspond jamais à un filtre explicite.
+    expect(matchesFilters(resource(), { projectId })).toBe(false);
+    // Sans filtre projet, le statut de projet est indifférent.
+    expect(matchesFilters(resource(), {})).toBe(true);
+    expect(matchesFilters(assigned, {})).toBe(true);
+  });
+
   it('exige tous les tags demandés (ET), sans tenir compte de la casse', () => {
     const target = resource({ tags: ['SQLite', 'Recherche'] });
 

@@ -34,6 +34,8 @@ export async function executeInspectSite(
   const { audit, report } = await context.audits.inspectAndAudit({
     url: params.url,
     level: params.level,
+    // Assignation optionnelle (Sprint 13) : omis → audit sans projet.
+    ...(params.project_id === undefined ? {} : { projectId: params.project_id }),
   });
 
   return {

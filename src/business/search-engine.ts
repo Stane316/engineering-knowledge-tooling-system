@@ -62,7 +62,10 @@ export class SearchEngine implements ISearchEngine {
   async search(query: string, options: SearchOptions = {}): Promise<SearchResult[]> {
     const limit = resolveLimit(options.limit);
     const mode = options.mode ?? 'hybrid';
-    const filtered = options.type !== undefined || (options.tags?.length ?? 0) > 0;
+    const filtered =
+      options.type !== undefined ||
+      options.projectId !== undefined ||
+      (options.tags?.length ?? 0) > 0;
     const candidates = filtered ? candidateLimit(limit) : limit;
 
     if (query.trim().length === 0) {
@@ -156,6 +159,10 @@ export function candidateLimit(limit: number): number {
  */
 export function matchesFilters(resource: Resource, options: SearchOptions): boolean {
   if (options.type !== undefined && resource.type !== options.type) {
+    return false;
+  }
+
+  if (options.projectId !== undefined && resource.projectId !== options.projectId) {
     return false;
   }
 

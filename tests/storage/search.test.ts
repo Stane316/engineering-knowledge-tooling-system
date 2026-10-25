@@ -224,6 +224,46 @@ describe('AuditSearch', () => {
       expect(results[0]?.audit.metadata.url).toBe('https://fort.com');
     });
 
+    it('applique le filtre de projet en SQL (sans requête)', async () => {
+      const projectId = '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed';
+      // La FK `project_id → projects(id)` exige le projet parent en base.
+      db.prepare('INSERT INTO projects (id, name) VALUES (?, ?)').run(projectId, 'Filtre SQL');
+      repo.store(makeReport('https://projet.com', 80), { projectId });
+      repo.store(makeReport('https://hors-projet.com', 80));
+
+      const filtered = await search.search({ projectId });
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0]?.audit.metadata.url).toBe('https://projet.com');
+      expect(filtered[0]?.audit.metadata.projectId).toBe(projectId);
+
+      // Sans filtre : les deux audits.
+      expect(await search.search({})).toHaveLength(2);
+
+      // Un projet vide ne rend rien plutôt que tout (égalité stricte).
+      expect(
+        await search.search({ projectId: '2b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed' }),
+      ).toHaveLength(0);
+    });
+
+    it('applique le filtre de projet en mémoire (avec requête FTS)', async () => {
+      const projectId = '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed';
+      db.prepare('INSERT INTO projects (id, name) VALUES (?, ?)').run(projectId, 'Filtre mémoire');
+      const inside = repo.store(
+        makeReport('https://dans.com', 70, [makeFinding({ title: 'Needle commune' })]),
+        { projectId },
+      );
+      const outside = repo.store(
+        makeReport('https://hors.com', 70, [makeFinding({ title: 'Needle commune' })]),
+      );
+      await indexer.indexAudit(inside);
+      await indexer.indexAudit(outside);
+
+      const results = await search.search({ query: 'Needle', projectId });
+
+      expect(results).toHaveLength(1);
+      expect(results[0]?.audit.metadata.url).toBe('https://dans.com');
+    });
+
     it('applique le filtre de dimension', async () => {
       const perf = repo.store(
         makeReport('https://perf.com', 70, [makeFinding({ dimension: 'performance' })]),

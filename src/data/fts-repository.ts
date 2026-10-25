@@ -26,6 +26,7 @@ export interface ResourceRow {
   metadata: string;
   content: string | null;
   embedding_model: string | null;
+  project_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,6 +45,7 @@ const SELECT_COLUMNS = [
   'r.metadata',
   'r.content',
   'r.embedding_model',
+  'r.project_id',
   'r.created_at',
   'r.updated_at',
 ].join(', ');
@@ -176,5 +178,6 @@ export function toResource(row: ResourceRow): Resource {
     ...(row.url !== null ? { url: row.url } : {}),
     ...(row.content !== null ? { content: row.content } : {}),
     ...(row.embedding_model !== null ? { embeddingModel: row.embedding_model } : {}),
+    ...(row.project_id !== null ? { projectId: row.project_id } : {}),
   };
 }

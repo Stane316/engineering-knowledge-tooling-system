@@ -28,6 +28,12 @@ export interface SearchOptions {
   type?: ResourceType;
   /** Filtre sur les tags : la ressource doit porter **tous** les tags listés. */
   tags?: readonly string[];
+  /**
+   * Filtre par projet (Sprint 13) : seules les ressources dont `projectId`
+   * vaut exactement cette valeur sont retenues. Les ressources sans projet ne
+   * correspondent jamais à un filtre explicite.
+   */
+  projectId?: string;
 }
 
 /**

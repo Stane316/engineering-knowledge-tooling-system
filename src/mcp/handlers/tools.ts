@@ -6,8 +6,12 @@ import type { McpToolContext } from '../context.js';
 import {
   AuditHistoryInput,
   AuditReportInput,
+  CreateProjectInput,
+  DeleteProjectInput,
+  GetProjectInput,
   GetResourceInput,
   InspectSiteInput,
+  ListProjectsInput,
   ListResourcesInput,
   SearchKnowledgeInput,
   TOOL_DESCRIPTIONS,
@@ -15,8 +19,12 @@ import {
 } from '../schemas/tool-schemas.js';
 import { executeAuditHistory } from '../tools/audit-history.js';
 import { executeAuditReport } from '../tools/audit-report.js';
+import { executeCreateProject } from '../tools/create-project.js';
+import { executeDeleteProject } from '../tools/delete-project.js';
+import { executeGetProject } from '../tools/get-project.js';
 import { executeGetResource } from '../tools/get-resource.js';
 import { executeInspectSite } from '../tools/inspect-site.js';
+import { executeListProjects } from '../tools/list-projects.js';
 import { executeListResources } from '../tools/list-resources.js';
 import { executeSearchKnowledge } from '../tools/search-knowledge.js';
 import { executeValidateResource } from '../tools/validate-resource.js';
@@ -34,7 +42,7 @@ export interface ToolDefinition {
   readonly description: string;
 }
 
-/** Les sept outils MVP-2, dans l'ordre de `tools/list`. */
+/** Les onze outils (MVP-2 + projets Sprint 13), dans l'ordre de `tools/list`. */
 export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   { name: 'search_knowledge', description: TOOL_DESCRIPTIONS.search_knowledge },
   { name: 'get_resource', description: TOOL_DESCRIPTIONS.get_resource },
@@ -43,6 +51,10 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   { name: 'inspect_site', description: TOOL_DESCRIPTIONS.inspect_site },
   { name: 'audit_history', description: TOOL_DESCRIPTIONS.audit_history },
   { name: 'audit_report', description: TOOL_DESCRIPTIONS.audit_report },
+  { name: 'create_project', description: TOOL_DESCRIPTIONS.create_project },
+  { name: 'list_projects', description: TOOL_DESCRIPTIONS.list_projects },
+  { name: 'get_project', description: TOOL_DESCRIPTIONS.get_project },
+  { name: 'delete_project', description: TOOL_DESCRIPTIONS.delete_project },
 ];
 
 /**
@@ -77,13 +89,21 @@ export async function dispatchTool(
       return executeAuditHistory(context, parse(AuditHistoryInput, name, args));
     case 'audit_report':
       return executeAuditReport(context, parse(AuditReportInput, name, args));
+    case 'create_project':
+      return executeCreateProject(context, parse(CreateProjectInput, name, args));
+    case 'list_projects':
+      return executeListProjects(context, parse(ListProjectsInput, name, args));
+    case 'get_project':
+      return executeGetProject(context, parse(GetProjectInput, name, args));
+    case 'delete_project':
+      return executeDeleteProject(context, parse(DeleteProjectInput, name, args));
     default:
       throw invalidParams(`Outil inconnu : « ${name} ». Outils disponibles : ${toolNames()}.`);
   }
 }
 
 /**
- * Enregistre les quatre outils sur un serveur MCP.
+ * Enregistre les onze outils sur un serveur MCP.
  *
  * Chaque gestionnaire attrape ses erreurs et renvoie un résultat `isError`
  * avec la charge utile standardisée : le SDK, lui, remplacerait un `throw` par
@@ -173,6 +193,53 @@ export function registerTools(server: McpServer, context: McpToolContext, logger
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
     async (args) => run('audit_report', logger, () => dispatchTool(context, 'audit_report', args)),
+  );
+
+  server.registerTool(
+    'create_project',
+    {
+      title: 'Créer un projet',
+      description: TOOL_DESCRIPTIONS.create_project,
+      inputSchema: CreateProjectInput,
+      annotations: { readOnlyHint: false, openWorldHint: false },
+    },
+    async (args) =>
+      run('create_project', logger, () => dispatchTool(context, 'create_project', args)),
+  );
+
+  server.registerTool(
+    'list_projects',
+    {
+      title: 'Lister les projets',
+      description: TOOL_DESCRIPTIONS.list_projects,
+      inputSchema: ListProjectsInput,
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async (args) =>
+      run('list_projects', logger, () => dispatchTool(context, 'list_projects', args)),
+  );
+
+  server.registerTool(
+    'get_project',
+    {
+      title: 'Lire un projet',
+      description: TOOL_DESCRIPTIONS.get_project,
+      inputSchema: GetProjectInput,
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async (args) => run('get_project', logger, () => dispatchTool(context, 'get_project', args)),
+  );
+
+  server.registerTool(
+    'delete_project',
+    {
+      title: 'Supprimer un projet',
+      description: TOOL_DESCRIPTIONS.delete_project,
+      inputSchema: DeleteProjectInput,
+      annotations: { readOnlyHint: false, openWorldHint: false },
+    },
+    async (args) =>
+      run('delete_project', logger, () => dispatchTool(context, 'delete_project', args)),
   );
 }
 

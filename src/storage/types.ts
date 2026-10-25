@@ -104,6 +104,12 @@ export interface AuditSearchOptions {
   dimension?: AnalysisDimension;
   /** Filtre sur une priorité présente. */
   priority?: Priority;
+  /**
+   * Filtre par projet (Sprint 13) : seuls les audits dont `metadata.projectId`
+   * vaut exactement cette valeur sont retenus. Les audits sans projet ne
+   * correspondent jamais à un filtre explicite.
+   */
+  projectId?: string;
   /** Décalage de pagination (défaut : 0). */
   offset?: number;
   /** Taille de page (défaut : 100). */

@@ -62,7 +62,16 @@ export class AuditSearch {
    * @throws {SearchError} Requête FTS5 malformée ou échec du magasin.
    */
   async search(options: AuditSearchOptions = {}): Promise<AuditSearchResult[]> {
-    const { query, scoreMin, scoreMax, dimension, priority, offset = 0, limit = 100 } = options;
+    const {
+      query,
+      scoreMin,
+      scoreMax,
+      dimension,
+      priority,
+      projectId,
+      offset = 0,
+      limit = 100,
+    } = options;
 
     if (!Number.isInteger(offset) || offset < 0) {
       throw new ValidationError([`offset invalide (${String(offset)})`]);
@@ -89,6 +98,9 @@ export class AuditSearch {
 
       const filtered = results.filter((result) => {
         const { audit } = result;
+        if (projectId !== undefined && audit.metadata.projectId !== projectId) {
+          return false;
+        }
         if (scoreMin !== undefined && audit.metadata.overallScore < scoreMin) {
           return false;
         }
@@ -112,7 +124,7 @@ export class AuditSearch {
 
     // Sans requête : filtres et pagination poussés en SQL (une seule
     // pagination, pas de ré-ajustement mémoire sur une page déjà tronquée).
-    return this.listFiltered({ scoreMin, scoreMax, dimension, priority }, offset, limit);
+    return this.listFiltered({ scoreMin, scoreMax, dimension, priority, projectId }, offset, limit);
   }
 
   /**
@@ -223,6 +235,7 @@ export class AuditSearch {
       scoreMax?: number;
       dimension?: AnalysisDimension;
       priority?: Priority;
+      projectId?: string;
     },
     offset: number,
     limit: number,
@@ -230,7 +243,8 @@ export class AuditSearch {
     const rows = this.db
       .prepare(
         `SELECT m.id AS id FROM audit_metadata m
-          WHERE (@scoreMin IS NULL OR m.overall_score >= @scoreMin)
+          WHERE (@projectId IS NULL OR m.project_id = @projectId)
+            AND (@scoreMin IS NULL OR m.overall_score >= @scoreMin)
             AND (@scoreMax IS NULL OR m.overall_score <= @scoreMax)
             AND (
               @dimension IS NULL
@@ -252,6 +266,7 @@ export class AuditSearch {
           LIMIT @limit OFFSET @offset`,
       )
       .all({
+        projectId: filters.projectId ?? null,
         scoreMin: filters.scoreMin ?? null,
         scoreMax: filters.scoreMax ?? null,
         dimension: filters.dimension ?? null,

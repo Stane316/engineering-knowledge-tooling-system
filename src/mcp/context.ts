@@ -9,6 +9,7 @@ import type { InspectionLevel, L3InspectionResult } from '../browser/inspection/
 import { createSearchEngine, openCliServices, type CliServices } from '../cli/services.js';
 import { loadConfig } from '../shared/config.js';
 import { ValidationError } from '../shared/errors.js';
+import type { IProjectManager } from '../business/project-manager.types.js';
 import type { Audit } from '../storage/types.js';
 import { AuditRepository } from '../storage/audit-repository.js';
 import { AuditSchema } from '../storage/schema.js';
@@ -43,6 +44,11 @@ export interface AuditToolServices {
   inspectAndAudit(input: {
     readonly url: string;
     readonly level: InspectionLevel;
+    /**
+     * Projet auquel l'audit est assigné (Sprint 13) ; omis ou `null` :
+     * audit sans projet.
+     */
+    readonly projectId?: string | null;
   }): Promise<{ readonly audit: Audit; readonly report: AnalysisReport }>;
 }
 
@@ -60,6 +66,8 @@ export interface McpToolContext {
   readonly search: ISearchEngine;
   /** Audits, inspection et rapports (Sprint 11). */
   readonly audits: AuditToolServices;
+  /** Gestion des projets (Sprint 13). */
+  readonly projects: IProjectManager;
 }
 
 /** Contexte complet, avec la fermeture des ressources ouvertes. */
@@ -112,7 +120,7 @@ export function openMcpServices(options: OpenMcpOptions = {}): McpServices {
     search: new AuditSearch(connection, repository),
     statistics: new AuditStatisticsManager(connection),
     indexer,
-    inspectAndAudit: async ({ url, level }) => {
+    inspectAndAudit: async ({ url, level, projectId }) => {
       if (level !== 'L3') {
         throw new ValidationError([
           `le niveau ${level} ne produit pas les entrées d'analyse complètes ; utilisez le niveau L3`,
@@ -132,7 +140,7 @@ export function openMcpServices(options: OpenMcpOptions = {}): McpServices {
         inputs.ux,
         inputs.content,
       );
-      const audit = repository.store(report);
+      const audit = repository.store(report, { projectId: projectId ?? null });
       await indexer.indexAudit(audit);
 
       return { audit, report };
@@ -143,6 +151,7 @@ export function openMcpServices(options: OpenMcpOptions = {}): McpServices {
     manager: services.manager,
     search: createSearchEngine(connection, services.embeddings),
     audits,
+    projects: services.projects,
     dataDir,
     embeddingsAvailable: services.embeddings !== undefined,
     close: services.close,

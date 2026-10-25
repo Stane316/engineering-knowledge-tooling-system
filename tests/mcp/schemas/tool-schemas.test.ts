@@ -44,7 +44,7 @@ describe('JSON Schemas exposés par tools/list', () => {
     expect(validateResourceSchema.required).toEqual(['data']);
   });
 
-  it('expose sept descriptions et sept noms stables', () => {
+  it('expose onze descriptions et onze noms stables', () => {
     expect(TOOL_NAMES).toEqual([
       'search_knowledge',
       'get_resource',
@@ -53,6 +53,10 @@ describe('JSON Schemas exposés par tools/list', () => {
       'inspect_site',
       'audit_history',
       'audit_report',
+      'create_project',
+      'list_projects',
+      'get_project',
+      'delete_project',
     ]);
 
     for (const name of TOOL_NAMES) {
