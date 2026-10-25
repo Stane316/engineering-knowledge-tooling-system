@@ -1,9 +1,14 @@
 # Phase 10 — Workflow de Capitalisation
 
 **Date de création :** 21 octobre 2026  
-**Statut :** ✅ Terminé  
+**Statut :** ✅ Terminé (référence historique — voir note)  
 **Auteur :** Agent EKTS  
 **Version :** 1.0
+
+> **⚠️ Note (25 octobre 2026) — MVP-3 redéfini :**
+> Ce document décrit le workflow de capitalisation en 8 étapes tel que conçu dans la Phase 10.
+> Il reste une **référence utile** pour le Sprint 15 (Capitalisation Connaissances, BestPractice) du MVP-3 actif.
+> Le périmètre complet du MVP-3 est défini dans [`docs/ROADMAP.md`](../ROADMAP.md) (ADR-031).
 
 ---
 

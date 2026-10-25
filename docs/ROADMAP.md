@@ -211,9 +211,16 @@ des modèles avant exécution.
 
 ## MVP-4 — Collaboration (optionnel, non engagé)
 
-**Durée estimée :** 8 semaines (Sprints 19–22)
+**Durée estimée :** 8 semaines (Sprints 19–22)  
 **Objectif :** partager, commenter, assigner, notifier.
 **Condition :** feu vert explicite après MVP-3.
+
+> **Note synchronisation distante (ADR-032, 25/10/2026) :**
+> Firebase est abandonné. Supabase (ou alternative similaire : Neon, Turso,
+> PlanetScale) est envisagé pour les MVP-4/5 si la synchronisation
+> multi-appareils devient nécessaire. L'architecture actuelle reste
+> 100% locale (SQLite WAL, 3 bases). Aucun code distant n'est prévu
+> pour le MVP-3.
 
 - Sprint 19 — Authentification + autorisations
 - Sprint 20 — Partage de projets
