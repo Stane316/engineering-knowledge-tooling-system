@@ -160,27 +160,15 @@ describe.skipIf(!CHROMIUM_OK)('E2E — inspection-flow', () => {
   }, 60_000);
 
   it.skipIf(!PDF_OK)(
-    "génère le PDF de l'audit inspecté (C11.2 actif en E2E)",
+    "génère le PDF de l'audit du flux (C11.2 actif en E2E)",
     async () => {
-      const inspection = (await new Inspector().inspect({
-        url: fixture.url,
-        level: 'L3',
-      })) as L3InspectionResult;
-      const inputs = fromInspection(inspection);
-      const report = await new AnalysisPipeline().analyze(
-        fixture.url,
-        inputs.lighthouse,
-        inputs.axe,
-        inputs.ux,
-        inputs.content,
-      );
-
+      // Réutilise l'audit du test précédent : aucune seconde navigation (budget).
       const database = openDatabase({ dataDir: outputDir });
       try {
-        new AuditSchema(database.connection).createSchema();
-        const audit = new AuditRepository(database.connection).store(report);
+        const audit = new AuditRepository(database.connection).findByUrl(fixture.url)[0];
+        expect(audit).toBeDefined();
 
-        const pdf = await new PDFReportGenerator().generate(audit, { outputPath: outputDir });
+        const pdf = await new PDFReportGenerator().generate(audit!, { outputPath: outputDir });
 
         expect(pdf.format).toBe('pdf');
         expect(Buffer.from(pdf.content, 'base64').subarray(0, 4).toString('latin1')).toBe('%PDF');
