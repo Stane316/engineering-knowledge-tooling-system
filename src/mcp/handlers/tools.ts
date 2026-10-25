@@ -11,6 +11,7 @@ import {
   DeleteProjectInput,
   GetProjectInput,
   GetResourceInput,
+  GetRecommendationsInput,
   GetTimelineInput,
   InspectSiteInput,
   SearchBestPracticesInput,
@@ -28,6 +29,7 @@ import { executeGetProject } from '../tools/get-project.js';
 import { executeAddBestPractice } from '../tools/add-best-practice.js';
 import { executeGetTimeline } from '../tools/get-timeline.js';
 import { executeSearchBestPractices } from '../tools/search-best-practices.js';
+import { executeGetRecommendations } from '../tools/get-recommendations.js';
 import { executeGetResource } from '../tools/get-resource.js';
 import { executeInspectSite } from '../tools/inspect-site.js';
 import { executeListProjects } from '../tools/list-projects.js';
@@ -64,6 +66,7 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   { name: 'get_timeline', description: TOOL_DESCRIPTIONS.get_timeline },
   { name: 'search_best_practices', description: TOOL_DESCRIPTIONS.search_best_practices },
   { name: 'add_best_practice', description: TOOL_DESCRIPTIONS.add_best_practice },
+  { name: 'get_recommendations', description: TOOL_DESCRIPTIONS.get_recommendations },
 ];
 
 /**
@@ -110,6 +113,8 @@ export async function dispatchTool(
       return executeGetTimeline(context, parse(GetTimelineInput, name, args));
     case 'search_best_practices':
       return executeSearchBestPractices(context, parse(SearchBestPracticesInput, name, args));
+    case 'get_recommendations':
+      return executeGetRecommendations(context, parse(GetRecommendationsInput, name, args));
     case 'add_best_practice':
       return executeAddBestPractice(context, parse(AddBestPracticeInput, name, args));
     default:
@@ -292,6 +297,18 @@ export function registerTools(server: McpServer, context: McpToolContext, logger
     },
     async (args) =>
       run('add_best_practice', logger, () => dispatchTool(context, 'add_best_practice', args)),
+  );
+
+  server.registerTool(
+    'get_recommendations',
+    {
+      title: 'Générer les recommandations',
+      description: TOOL_DESCRIPTIONS.get_recommendations,
+      inputSchema: GetRecommendationsInput,
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async (args) =>
+      run('get_recommendations', logger, () => dispatchTool(context, 'get_recommendations', args)),
   );
 }
 

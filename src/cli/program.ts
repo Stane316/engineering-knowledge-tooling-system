@@ -20,6 +20,7 @@ import { registerSearch } from './commands/search.js';
 import { registerInspect } from './commands/inspect.js';
 import { registerStatus } from './commands/status.js';
 import { registerBestPracticeCommands } from './commands/best-practice.js';
+import { registerRecommendCommands } from './commands/recommend.js';
 import { registerTimelineCommands } from './commands/timeline.js';
 import { createPalette } from './output.js';
 import { createRuntime, type CliRuntime } from './runtime.js';
@@ -71,6 +72,7 @@ export function createProgram(runtime: CliRuntime): Command {
   registerAudit(program, runtime);
   registerProjectCommands(program, runtime);
   registerBestPracticeCommands(program, runtime);
+  registerRecommendCommands(program, runtime);
   registerTimelineCommands(program, runtime);
 
   return program;

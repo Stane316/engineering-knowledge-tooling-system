@@ -262,6 +262,8 @@ export const TOOL_DESCRIPTIONS = {
     'Recherche les bonnes pratiques capitalisées (FTS5 + filtres catégorie/tag/projet, tri par pertinence) ; résumé Markdown + résultats JSON.',
   add_best_practice:
     'Crée manuellement une bonne pratique (titre ≥ 3 caractères, description ≥ 10, catégorie, tags optionnels) ; retourne la pratique créée.',
+  get_recommendations:
+    'Génère les recommandations contextuelles d’un projet (règles explicites + scoring statistique + tendances/historique) ; résumé Markdown + rapport JSON, régénération idempotente.',
 } as const;
 
 /** Noms des outils, dans l'ordre de `tools/list`. */
@@ -280,6 +282,7 @@ export const TOOL_NAMES = [
   'get_timeline',
   'search_best_practices',
   'add_best_practice',
+  'get_recommendations',
 ] as const;
 
 /** Nom d'un outil MCP. */
@@ -338,6 +341,28 @@ export const AddBestPracticeInput = z.object({
   tags: z.array(z.string().trim().min(1)).max(30).optional(),
 });
 
+/** Entrée de `get_recommendations` (Sprint 16, lecture). */
+export const GetRecommendationsInput = z.object({
+  project_id: ProjectIdInput,
+  max_recommendations: z
+    .number()
+    .int('le maximum doit être un entier')
+    .min(1, 'le maximum doit être ≥ 1')
+    .max(500, 'le maximum ne peut pas dépasser 500')
+    .default(10),
+  min_relevance_score: z
+    .number()
+    .min(0, 'le score minimum ne peut pas être négatif')
+    .max(1, 'le score maximum ne peut pas dépasser 1')
+    .default(0.3),
+  dimensions: z
+    .array(z.enum(['performance', 'accessibility', 'seo', 'ux', 'content'] as const))
+    .optional(),
+  include_rules: z.boolean().default(true),
+  include_statistical: z.boolean().default(true),
+});
+
 export type SearchBestPracticesParams = z.output<typeof SearchBestPracticesInput>;
 export type AddBestPracticeParams = z.output<typeof AddBestPracticeInput>;
+export type GetRecommendationsParams = z.output<typeof GetRecommendationsInput>;
 export type DeleteProjectParams = z.output<typeof DeleteProjectInput>;

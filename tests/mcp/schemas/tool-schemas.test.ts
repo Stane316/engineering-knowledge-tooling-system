@@ -44,7 +44,7 @@ describe('JSON Schemas exposés par tools/list', () => {
     expect(validateResourceSchema.required).toEqual(['data']);
   });
 
-  it('expose quatorze descriptions et quatorze noms stables', () => {
+  it('expose quinze descriptions et quinze noms stables', () => {
     expect(TOOL_NAMES).toEqual([
       'search_knowledge',
       'get_resource',
@@ -60,6 +60,7 @@ describe('JSON Schemas exposés par tools/list', () => {
       'get_timeline',
       'search_best_practices',
       'add_best_practice',
+      'get_recommendations',
     ]);
 
     for (const name of TOOL_NAMES) {

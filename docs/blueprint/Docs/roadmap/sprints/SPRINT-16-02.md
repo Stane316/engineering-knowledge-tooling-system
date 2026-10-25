@@ -2,7 +2,7 @@
 
 **Sprint :** 16-02 sur 16 (Sous-sprint 2/3)  
 **Durée :** 3 jours  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ
 
 ---
 
@@ -824,4 +824,4 @@ Sprint 16-03 : CLI + MCP + Tests intégration + Documentation
 ---
 
 **Document rédigé le 25 octobre 2026 — Sprint 16-02 du projet EKTS**  
-**Statut : ⏳ Dossier Sprint 16-02 prêt pour implémentation**
+**Statut : ✅ Sprint 16-02 implémenté et validé**
