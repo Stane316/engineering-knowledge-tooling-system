@@ -7,7 +7,7 @@ import {
   type ResourceType,
 } from '../../shared/validators.js';
 import { execute, withOutputFlags } from '../command.js';
-import { parseLimit, parseOffset, parseTags } from '../options.js';
+import { parseLimit, parseOffset, parseProjectId, parseTags } from '../options.js';
 import { plural, renderTable, truncate, type Palette } from '../output.js';
 import type { CliRuntime } from '../runtime.js';
 
@@ -16,6 +16,7 @@ interface ListCliOptions {
   offset?: number;
   type?: ResourceType;
   tags?: string;
+  project?: string;
 }
 
 /** Liste les ressources, filtres appliqués côté base. */
@@ -32,6 +33,7 @@ export async function collectList(
       ...(tags.length === 0 ? {} : { tags }),
       ...(options.limit === undefined ? {} : { limit: options.limit }),
       ...(options.offset === undefined ? {} : { offset: options.offset }),
+      ...(options.project === undefined ? {} : { projectId: options.project }),
     };
 
     return await services.manager.listResources(filters);
@@ -80,7 +82,10 @@ export function registerList(program: Command, runtime: CliRuntime): void {
           ...ResourceTypeSchema.options,
         ]),
       )
-      .option('--tags <tags>', 'filtre : la ressource doit porter tous les tags (CSV)'),
+      .option('--tags <tags>', 'filtre : la ressource doit porter tous les tags (CSV)')
+      .addOption(
+        new Option('-p, --project <id>', 'filtrer par projet (UUID)').argParser(parseProjectId),
+      ),
   ).action(async (options: ListCliOptions, command: Command) => {
     await execute(command, runtime, async (palette) => {
       const resources = await collectList(runtime, options);

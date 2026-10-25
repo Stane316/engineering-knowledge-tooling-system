@@ -1,5 +1,23 @@
 import { InvalidArgumentError } from 'commander';
 
+import { ProjectIdSchema } from '../shared/validators.js';
+
+/**
+ * Convertit `--project` en identifiant UUID validé.
+ *
+ * @throws {InvalidArgumentError} Format non UUIDv4.
+ *   Commander la transforme en erreur d'usage (code de sortie 2).
+ */
+export function parseProjectId(raw: string): string {
+  const result = ProjectIdSchema.safeParse(raw);
+
+  if (!result.success) {
+    throw new InvalidArgumentError('UUIDv4 attendu (ex. 1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed)');
+  }
+
+  return result.data;
+}
+
 /**
  * Convertit une option texte en liste de tags.
  *

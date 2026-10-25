@@ -1,6 +1,11 @@
 import { Command, CommanderError } from 'commander';
 
-import { EktsError, ResourceNotFoundError, ValidationError } from '../shared/errors.js';
+import {
+  EktsError,
+  ProjectNotFoundError,
+  ResourceNotFoundError,
+  ValidationError,
+} from '../shared/errors.js';
 import { VERSION } from '../shared/version.js';
 import { CommandFailure } from './command.js';
 import { registerAdd } from './commands/add.js';
@@ -9,6 +14,7 @@ import { registerGet } from './commands/get.js';
 import { registerAudit } from './commands/audit.js';
 import { registerInit } from './commands/init.js';
 import { registerList } from './commands/list.js';
+import { registerProjectCommands } from './commands/project.js';
 import { registerReindex } from './commands/reindex.js';
 import { registerSearch } from './commands/search.js';
 import { registerInspect } from './commands/inspect.js';
@@ -61,6 +67,7 @@ export function createProgram(runtime: CliRuntime): Command {
   registerReindex(program, runtime);
   registerInspect(program, runtime);
   registerAudit(program, runtime);
+  registerProjectCommands(program, runtime);
 
   return program;
 }
@@ -77,7 +84,7 @@ export function createProgram(runtime: CliRuntime): Command {
  * | 4    | données refusées par la validation      |
  */
 export function exitCodeFor(error: unknown): number {
-  if (error instanceof ResourceNotFoundError) {
+  if (error instanceof ResourceNotFoundError || error instanceof ProjectNotFoundError) {
     return 3;
   }
 

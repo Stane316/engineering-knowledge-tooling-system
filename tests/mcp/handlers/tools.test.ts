@@ -9,9 +9,9 @@ import { McpErrorCode } from '../../../src/mcp/utils/errors.js';
 import { openTestServices, seedResources, type TestServices } from '../helpers.js';
 
 describe('définitions d’outils', () => {
-  it('expose les sept outils MVP-2 dans un ordre stable', () => {
+  it('expose les onze outils (MVP-2 + projets) dans un ordre stable', () => {
     expect(TOOL_DEFINITIONS.map((tool) => tool.name)).toEqual([...TOOL_NAMES]);
-    expect(new Set(TOOL_DEFINITIONS.map((tool) => tool.description)).size).toBe(7);
+    expect(new Set(TOOL_DEFINITIONS.map((tool) => tool.description)).size).toBe(11);
   });
 });
 

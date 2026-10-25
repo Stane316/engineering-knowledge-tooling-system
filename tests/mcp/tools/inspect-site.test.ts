@@ -108,6 +108,28 @@ describe('inspect_site', () => {
     });
   });
 
+  it("transmet le projet d'assignation (Sprint 13)", async () => {
+    const report = makeReport(80);
+    const audit = makeAudit();
+    const inspectAndAudit = vi.fn().mockResolvedValue({ audit, report });
+    const context = {
+      ...fixture.services,
+      audits: { ...fixture.services.audits, inspectAndAudit },
+    };
+    const projectId = '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed';
+
+    await executeInspectSite(
+      context,
+      InspectSiteInput.parse({ url: 'https://example.com', project_id: projectId }),
+    );
+
+    expect(inspectAndAudit).toHaveBeenCalledWith({
+      url: 'https://example.com',
+      level: 'L3',
+      projectId,
+    });
+  });
+
   it("refuse L1/L2 avant toute navigation (entrée d'analyse incomplète)", async () => {
     const params = InspectSiteInput.parse({ url: 'https://example.com', level: 'L2' });
 

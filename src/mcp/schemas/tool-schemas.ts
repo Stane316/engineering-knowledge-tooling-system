@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ResourceTypeSchema } from '../../shared/validators.js';
+import { ProjectStatusSchema, ResourceTypeSchema } from '../../shared/validators.js';
 
 /**
  * Schémas d'entrée des quatre outils MCP.
@@ -83,6 +83,10 @@ export const InspectSiteInput = z.object({
     .describe(
       'Niveau d\u2019inspection : L3 requis pour l\u2019analyse complète (L1/L2 ne fournissent pas toutes les entrées)',
     ),
+  project_id: z
+    .uuid({ message: 'l’identifiant de projet doit être un UUID' })
+    .optional()
+    .describe('Projet auquel l’audit est assigné (Sprint 13) ; omis : audit sans projet'),
 });
 
 /** Entrée de `audit_history`. */
@@ -97,6 +101,51 @@ export const AuditHistoryInput = z.object({
 export const AuditReportInput = z.object({
   audit_id: z.number().int().positive(),
   format: z.enum(['markdown', 'text']).default('markdown'),
+});
+
+/** Identifiant de projet (UUIDv4) exposé aux agents (Sprint 13). */
+const ProjectIdInput = z.uuid({ message: 'l’identifiant de projet doit être un UUID' });
+
+/** Entrée de `create_project`. */
+export const CreateProjectInput = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'le nom du projet est obligatoire')
+    .max(200, 'le nom ne peut pas dépasser 200 caractères'),
+  description: z
+    .string()
+    .trim()
+    .max(2000, 'la description ne peut pas dépasser 2000 caractères')
+    .optional(),
+  status: ProjectStatusSchema.default('active'),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+/** Entrée de `list_projects`. */
+export const ListProjectsInput = z.object({
+  status: ProjectStatusSchema.optional(),
+  limit: z
+    .number()
+    .int('la limite doit être un entier')
+    .min(1, 'la limite doit être supérieure ou égale à 1')
+    .max(MAX_LIST_LIMIT, `la limite ne peut pas dépasser ${String(MAX_LIST_LIMIT)}`)
+    .default(50),
+  offset: z
+    .number()
+    .int('le décalage doit être un entier')
+    .min(0, 'le décalage doit être positif ou nul')
+    .default(0),
+});
+
+/** Entrée de `get_project`. */
+export const GetProjectInput = z.object({
+  project_id: ProjectIdInput,
+});
+
+/** Entrée de `delete_project` (aucune confirmation interactive côté MCP). */
+export const DeleteProjectInput = z.object({
+  project_id: ProjectIdInput,
 });
 
 /** Sortie de `search_knowledge`. */
@@ -176,6 +225,14 @@ export const TOOL_DESCRIPTIONS = {
     'Liste les audits stockés avec filtres (URL, score min/max, limite) et statistiques globales (total, moyenne, min/max).',
   audit_report:
     'Génère le rapport Markdown complet d\u2019un audit à partir de son identifiant : en-tête, résumé, scores par dimension, constats et recommandations.',
+  create_project:
+    'Crée un projet (nom obligatoire, description/statut/métadonnées optionnels) et renvoie le projet créé avec son UUID.',
+  list_projects:
+    'Liste les projets avec filtres facultatifs (statut active|completed|archived, limite, décalage), du plus récent au plus ancien.',
+  get_project:
+    'Renvoie un projet par son identifiant UUID ; erreur -32000 si le projet n\u2019existe pas.',
+  delete_project:
+    'Supprime un projet par son UUID. Les audits et ressources associés sont conservés avec project_id à NULL (aucune suppression en cascade).',
 } as const;
 
 /** Noms des outils, dans l'ordre de `tools/list`. */
@@ -187,6 +244,10 @@ export const TOOL_NAMES = [
   'inspect_site',
   'audit_history',
   'audit_report',
+  'create_project',
+  'list_projects',
+  'get_project',
+  'delete_project',
 ] as const;
 
 /** Nom d'un outil MCP. */
@@ -200,3 +261,7 @@ export type ValidateResourceParams = z.output<typeof ValidateResourceInput>;
 export type InspectSiteParams = z.output<typeof InspectSiteInput>;
 export type AuditHistoryParams = z.output<typeof AuditHistoryInput>;
 export type AuditReportParams = z.output<typeof AuditReportInput>;
+export type CreateProjectParams = z.output<typeof CreateProjectInput>;
+export type ListProjectsParams = z.output<typeof ListProjectsInput>;
+export type GetProjectParams = z.output<typeof GetProjectInput>;
+export type DeleteProjectParams = z.output<typeof DeleteProjectInput>;

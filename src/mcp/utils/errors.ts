@@ -5,6 +5,7 @@ import {
   EmbeddingSpaceMismatchError,
   EmbeddingsError,
   NoProviderAvailableError,
+  ProjectNotFoundError,
   ResourceNotFoundError,
   SearchError,
   ValidationError,
@@ -81,6 +82,14 @@ export function toErrorPayload(error: unknown): McpErrorPayload {
       code: McpErrorCode.ResourceNotFound,
       message: error.message,
       data: { resourceId: error.resourceId },
+    };
+  }
+
+  if (error instanceof ProjectNotFoundError) {
+    return {
+      code: McpErrorCode.ResourceNotFound,
+      message: error.message,
+      data: { projectId: error.projectId },
     };
   }
 

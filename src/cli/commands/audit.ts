@@ -14,6 +14,7 @@ import { AuditSchema } from '../../storage/schema.js';
 import { AuditSearch } from '../../storage/search.js';
 import { AuditStatisticsManager } from '../../storage/statistics.js';
 import { execute, withOutputFlags, type CommandResult } from '../command.js';
+import { parseProjectId } from '../options.js';
 import { renderTable } from '../output.js';
 import type { CliRuntime } from '../runtime.js';
 
@@ -171,6 +172,7 @@ export function registerAudit(program: Command, runtime: CliRuntime): void {
       .description('lister les audits stockés')
       .option('-n, --limit <n>', "nombre maximum d'audits", '20')
       .option('--url <url>', 'filtrer par URL')
+      .option('-p, --project <id>', 'filtrer par projet (UUID)', parseProjectId)
       .option('--score-min <n>', 'score minimum (0-100)')
       .option('--score-max <n>', 'score maximum (0-100)'),
   ).action(async (options: Record<string, string | undefined>, command: Command) => {
@@ -189,6 +191,7 @@ export function registerAudit(program: Command, runtime: CliRuntime): void {
           options.scoreMax === undefined ? undefined : Number.parseInt(options.scoreMax, 10);
 
         const results = await services.search.search({
+          ...(options.project === undefined ? {} : { projectId: options.project }),
           ...(scoreMin === undefined || Number.isNaN(scoreMin) ? {} : { scoreMin }),
           ...(scoreMax === undefined || Number.isNaN(scoreMax) ? {} : { scoreMax }),
           offset: 0,
@@ -244,60 +247,73 @@ export function registerAudit(program: Command, runtime: CliRuntime): void {
   });
 
   // --- audit show ---
-  withOutputFlags(audit.command('show <id>').description("afficher les détails d'un audit")).action(
-    async (id: string, _options: unknown, command: Command) => {
-      await execute(command, runtime, async (palette): Promise<CommandResult> => {
-        const services = openAuditServices(runtime);
-        try {
-          const found = requireAudit(services, parseId(id, 'id'));
-          const { metadata, dimensions, findings } = found;
-
-          const sorted = [...findings].sort(
-            (a, b) => (PRIORITY_ORDER[b.priority] ?? 0) - (PRIORITY_ORDER[a.priority] ?? 0),
+  withOutputFlags(
+    audit
+      .command('show <id>')
+      .description("afficher les détails d'un audit")
+      .option(
+        '-p, --project <id>',
+        "n'afficher l'audit que s'il appartient au projet",
+        parseProjectId,
+      ),
+  ).action(async (id: string, options: Record<string, string | undefined>, command: Command) => {
+    await execute(command, runtime, async (palette): Promise<CommandResult> => {
+      const services = openAuditServices(runtime);
+      try {
+        const found = requireAudit(services, parseId(id, 'id'));
+        // Filtre `--project` : l'audit existe mais n'appartient pas au projet
+        // demandé → traité comme introuvable (code 3), comme `requireAudit`.
+        if (options.project !== undefined && found.metadata.projectId !== options.project) {
+          throw new ResourceNotFoundError(
+            `audit #${String(found.metadata.id)} introuvable dans le projet ${options.project}`,
           );
-
-          const human = [
-            palette.bold(`📋 Audit #${String(metadata.id)}`),
-            '',
-            `  URL            : ${metadata.url}`,
-            `  Date           : ${new Date(metadata.timestamp).toISOString().substring(0, 10)}`,
-            `  Score global   : ${palette.accent(`${String(metadata.overallScore)}/100`)}`,
-            '',
-            palette.bold('  Scores par dimension'),
-            renderTable({
-              columns: [
-                { header: 'Dimension' },
-                { header: 'Score', align: 'right' },
-                { header: 'Constats', align: 'right' },
-              ],
-              rows: dimensions.map((dim) => [
-                dim.dimension,
-                String(dim.score),
-                String(dim.findingsCount),
-              ]),
-            }),
-            '',
-            palette.bold('  Répartition des constats'),
-            `    🔴 Critical : ${String(metadata.criticalFindings)}`,
-            `    🟠 High     : ${String(metadata.highFindings)}`,
-            `    🟡 Medium   : ${String(metadata.mediumFindings)}`,
-            `    🟢 Low      : ${String(metadata.lowFindings)}`,
-            '',
-            palette.bold('  Top 5 des constats'),
-            ...sorted.slice(0, 5).map((finding, index) => {
-              const rec =
-                finding.recommendation === undefined ? '' : ` → ${finding.recommendation}`;
-              return `    ${String(index + 1)}. [${finding.priority}] ${finding.title} (${finding.dimension})${rec}`;
-            }),
-          ].join('\n');
-
-          return { human, json: found };
-        } finally {
-          services.database.close();
         }
-      });
-    },
-  );
+        const { metadata, dimensions, findings } = found;
+
+        const sorted = [...findings].sort(
+          (a, b) => (PRIORITY_ORDER[b.priority] ?? 0) - (PRIORITY_ORDER[a.priority] ?? 0),
+        );
+
+        const human = [
+          palette.bold(`📋 Audit #${String(metadata.id)}`),
+          '',
+          `  URL            : ${metadata.url}`,
+          `  Date           : ${new Date(metadata.timestamp).toISOString().substring(0, 10)}`,
+          `  Score global   : ${palette.accent(`${String(metadata.overallScore)}/100`)}`,
+          '',
+          palette.bold('  Scores par dimension'),
+          renderTable({
+            columns: [
+              { header: 'Dimension' },
+              { header: 'Score', align: 'right' },
+              { header: 'Constats', align: 'right' },
+            ],
+            rows: dimensions.map((dim) => [
+              dim.dimension,
+              String(dim.score),
+              String(dim.findingsCount),
+            ]),
+          }),
+          '',
+          palette.bold('  Répartition des constats'),
+          `    🔴 Critical : ${String(metadata.criticalFindings)}`,
+          `    🟠 High     : ${String(metadata.highFindings)}`,
+          `    🟡 Medium   : ${String(metadata.mediumFindings)}`,
+          `    🟢 Low      : ${String(metadata.lowFindings)}`,
+          '',
+          palette.bold('  Top 5 des constats'),
+          ...sorted.slice(0, 5).map((finding, index) => {
+            const rec = finding.recommendation === undefined ? '' : ` → ${finding.recommendation}`;
+            return `    ${String(index + 1)}. [${finding.priority}] ${finding.title} (${finding.dimension})${rec}`;
+          }),
+        ].join('\n');
+
+        return { human, json: found };
+      } finally {
+        services.database.close();
+      }
+    });
+  });
 
   // --- audit report ---
   withOutputFlags(

@@ -30,7 +30,7 @@ const TagsSchema = z
 const MetadataSchema = z.record(z.string(), z.unknown());
 
 /** Identifiant de projet (UUID), utilisé par le Sprint 13 (multi-projets). */
-const ProjectIdSchema = z.uuid({
+export const ProjectIdSchema = z.uuid({
   error: 'L’identifiant de projet doit être un UUID',
 });
 

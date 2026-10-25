@@ -5,7 +5,7 @@ import type { SearchMode } from '../../business/search-engine.types.js';
 import type { SearchResult } from '../../shared/types.js';
 import { ResourceTypeSchema, type ResourceType } from '../../shared/validators.js';
 import { execute, withOutputFlags } from '../command.js';
-import { parseLimit, parseTags } from '../options.js';
+import { parseLimit, parseProjectId, parseTags } from '../options.js';
 import { renderTable, truncate, type Palette } from '../output.js';
 import type { CliRuntime } from '../runtime.js';
 import { createSearchEngine } from '../services.js';
@@ -17,6 +17,7 @@ interface SearchCliOptions {
   mode: SearchMode;
   type?: ResourceType;
   tags?: string;
+  project?: string;
 }
 
 export interface SearchReport {
@@ -54,6 +55,7 @@ export async function collectSearch(
       mode: options.mode,
       ...(options.type === undefined ? {} : { type: options.type }),
       ...(tags.length === 0 ? {} : { tags }),
+      ...(options.project === undefined ? {} : { projectId: options.project }),
     });
 
     return {
@@ -120,7 +122,10 @@ export function registerSearch(program: Command, runtime: CliRuntime): void {
           ...ResourceTypeSchema.options,
         ]),
       )
-      .option('--tags <tags>', 'filtre : la ressource doit porter tous les tags (CSV)'),
+      .option('--tags <tags>', 'filtre : la ressource doit porter tous les tags (CSV)')
+      .addOption(
+        new Option('-p, --project <id>', 'filtrer par projet (UUID)').argParser(parseProjectId),
+      ),
   ).action(async (query: string, options: SearchCliOptions, command: Command) => {
     await execute(command, runtime, async (palette) => {
       const report = await collectSearch(runtime, query, options);
