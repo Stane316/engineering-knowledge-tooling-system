@@ -3,7 +3,7 @@
 **Sprint :** 17 sur 18  
 **MVP :** MVP-3 (Capitalisation de Projets)  
 **Durée estimée :** 2 semaines (9 jours ouvrables)  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ
 
 ---
 
@@ -414,4 +414,4 @@ Sprint 17-03 (CLI + MCP + Export/Import + Docs)
 ---
 
 **Document rédigé le 25 octobre 2026 — Sprint 17 du projet EKTS**  
-**Statut : ⏳ Dossier Sprint 17 prêt pour implémentation**
+**Statut : ✅ Sprint 17 implémenté et validé (17-01/02/03)**

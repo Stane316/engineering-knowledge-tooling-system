@@ -2,7 +2,7 @@
 
 **Sprint :** 17-02 sur 17 (Sous-sprint 2/3)  
 **Durée :** 3 jours  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ
 
 ---
 
@@ -607,4 +607,4 @@ Créer `SPRINT-17-02-RESULTAT.md` :
 ---
 
 **Document rédigé le 25 octobre 2026 — Sprint 17-02 du projet EKTS**  
-**Statut : ⏳ Dossier Sprint 17-02 prêt pour implémentation**
+**Statut : ✅ Sprint 17-02 implémenté et validé**

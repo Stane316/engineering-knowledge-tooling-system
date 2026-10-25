@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 25 octobre 2026 — Sprint 16 (Recommandations contextuelles)  
+**Dernière mise à jour :** 25 octobre 2026 — Sprint 17 (Templates projets)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -126,6 +126,10 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 16 | 16-2 | RecommendationContext + Scoring contextuel + Intégration rapports Markdown/PDF (Semaine 31, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ 20 tests, sections C16.6/C16.7 |
 | Sprint 16 | 16-3 | CLI `ekts recommend` + MCP `get_recommendations` + Tests intégration + Documentation (Semaine 32, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ guide RECOMMENDATIONS.md, catalogue 15 outils |
 | Sprint 16 | Dossier parent | Recommandations Contextuelles (MVP-3, ADR-036 à ADR-038) | ✅ Rédigée le 25/10/2026 | ✅ Validé le 25/10/2026 | ✅ `SPRINT-16-RESULTAT.md` (écarts P3) |
+| Sprint 17 | 17-1 | Types + Migration + TemplateRepository + TemplateService (Semaine 33, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ 33 tests, migration 007 (schéma v7) |
+| Sprint 17 | 17-2 | 10 templates prédéfinis + TemplateApplier + seed idempotent (Semaine 33, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ 60 tests module, migration 008 (schéma v8) |
+| Sprint 17 | 17-3 | CLI `ekts template` + MCP `list/apply_template` + docs (Semaine 34, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ guide TEMPLATES.md, catalogue 17 outils |
+| Sprint 17 | Dossier parent | Templates Projets (MVP-3, ADR-039 à ADR-041) | ✅ Rédigée le 25/10/2026 | ✅ Validé le 25/10/2026 | ✅ `SPRINT-17-RESULTAT.md` (écarts P3) |
 | Sprint 17 | 17-1 | Types + Migration + TemplateRepository + TemplateService (Semaine 33, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 17 | 17-2 | 10 templates prédéfinis + TemplateApplier + Personnalisation (Semaine 33, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 17 | 17-3 | CLI `ekts template` (7 cmd) + MCP (2 outils) + Export/Import + Tests + Documentation (Semaine 34, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
@@ -176,14 +180,17 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 23/10/2026 | Correctif poste Sprint 8 : **Lighthouse desktop** (le préréglage `desktopConfig` remplace `formFactor` seul — échec « Screen emulation mobile setting does not match formFactor »), **test stdio MCP** (délai 5 s → 20 s réglable par `EKTS_MCP_TIMEOUT_MS`, diagnostic du processus, fermeture bornée), scripts `npm run audit` / `audit:prod` ; écarts E8-13, risque R-8.10 | `fix/post-validation` |
 | 23/10/2026 | Sprint 8 : inspecteur multi-niveaux `src/browser/inspection/` (L1 capture + arbre ARIA + photographie du DOM, L2 + Lighthouse, L3 + axe-core + UX + contenu), `src/browser/lighthouse.ts` (port CDP réservé, conversion du rapport), `src/browser/axe.ts` (WCAG 2.2 AA, score pondéré `100 − Σ poids × nœuds`), `InspectionError` (`INSPECTION_FAILED`) ; 122 tests unitaires sans navigateur, `src/browser/` à 99,2 %, suite à 989 cas ; ADR-026 (Lighthouse 12.8.2), ADR-027 (axe-core), risques R-8.1 à R-8.9, `docs/INSPECTOR.md` (écarts E8-1 à E8-12) | `sprint-8` |
 | 23/10/2026 | Sprint 6 : serveur MCP `src/mcp/` (SDK 1.32.1, transport stdio), 4 outils en lecture seule (`search_knowledge`, `get_resource`, `list_resources`, `validate_resource`), journal JSON sur stderr, codes `-32000`/`-32001`/`-32602`/`-32603` ; 99 tests MCP dont 8 sur le binaire, `src/mcp/**` à 100 %, suite à 649 tests ; ADR-022, risques R-6.1 à R-6.7, `docs/MCP.md`, `docs/MCP-EXAMPLES.md`, `.mcp.json`, `MCP-COMPATIBILITY.md` | `sprint-6` |
+| 25/10/2026 | Sprint 17 : module templates `src/templates/` (types, repository CRUD + protection builtin ADR-040, service orchestrateur), migration 007 `project_templates` (v7) | `797c110` |
+| 25/10/2026 | Sprint 17 : 10 templates prédéfinis + leurs 37 règles (seed idempotent au démarrage), `TemplateApplier` (merge profond ADR-041, `project_config`), migration 008 (v8) | `ddaedad` |
+| 25/10/2026 | Sprint 17 : CLI `ekts template` (7 sous-commandes, alias `tpl`), MCP `list_templates`/`apply_template` (catalogue 17 outils), guide `TEMPLATES.md`, CLI.md §16, MCP.md §20 | `sprint-17` |
 ---
 
 ## 5. Prochaines étapes
 
-1. **Sprints 7 et 8 terminés** — module navigateur et inspecteur L1-L3 livrés
-   (989 cas au total dont 974 verts, `src/browser/` à 99,2 %).
-2. **Sprint 9 (Analyse 5 dimensions)** — en attente du **feu vert explicite de
-   l'utilisateur**. Aucun fichier du Sprint 9 n'est créé avant cet accord.
+1. **Sprints 1 à 17 terminés** — templates de projets livrés (10 prédéfinis,
+   CLI, MCP catalogue 17 outils, `guides/TEMPLATES.md`).
+2. **Sprint 18** — en attente du **feu vert explicite de l'utilisateur**.
+   Aucun fichier du Sprint 18 n'est créé avant cet accord.
 3. Validation manuelle restante (poste Windows connecté) : `npm run test:e2e`
    (12 tests, 3 moteurs), `npm test` pour activer les 15 tests d'intégration, puis
    une inspection réelle L1/L2/L3 sur une page publique pour confirmer les budgets.

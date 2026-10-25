@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
 import { ProjectStatusSchema, ResourceTypeSchema } from '../../shared/validators.js';
+import { TEMPLATE_CATEGORIES } from '../../templates/template.types.js';
+
+import type { TemplateCategory } from '../../templates/template.types.js';
 
 /**
  * Schémas d'entrée des quatre outils MCP.
@@ -264,6 +267,10 @@ export const TOOL_DESCRIPTIONS = {
     'Crée manuellement une bonne pratique (titre ≥ 3 caractères, description ≥ 10, catégorie, tags optionnels) ; retourne la pratique créée.',
   get_recommendations:
     'Génère les recommandations contextuelles d’un projet (règles explicites + scoring statistique + tendances/historique) ; résumé Markdown + rapport JSON, régénération idempotente.',
+  list_templates:
+    'Liste les templates de projets EKTS (10 prédéfinis immuables + personnalisés) avec filtres catégorie/builtin/limit ; résumé Markdown + JSON.',
+  apply_template:
+    'Crée un projet en appliquant un template (config fusionnée, bonnes pratiques associées, règles actives) avec overrides partiels ; renvoie le projet créé et les compteurs.',
 } as const;
 
 /** Noms des outils, dans l'ordre de `tools/list`. */
@@ -283,6 +290,8 @@ export const TOOL_NAMES = [
   'search_best_practices',
   'add_best_practice',
   'get_recommendations',
+  'list_templates',
+  'apply_template',
 ] as const;
 
 /** Nom d'un outil MCP. */
@@ -362,7 +371,50 @@ export const GetRecommendationsInput = z.object({
   include_statistical: z.boolean().default(true),
 });
 
+/** UUID de template (message dédié, distinct du projet). */
+const TemplateIdInput = z.uuid({ message: 'l’identifiant de template doit être un UUID' });
+
+/** Entrée de `list_templates` (Sprint 17, C17.7/C17.8). */
+export const ListTemplatesInput = z.object({
+  category: z
+    .enum(TEMPLATE_CATEGORIES as unknown as [TemplateCategory, ...TemplateCategory[]])
+    .optional()
+    .describe('filtrer par catégorie (10 prédéfinies + custom)'),
+  builtin_only: z
+    .boolean()
+    .default(false)
+    .describe('uniquement les templates prédéfinis immuables'),
+  limit: z
+    .number()
+    .int('le limit doit être un entier')
+    .min(1, 'le limit doit être ≥ 1')
+    .max(500, 'le limit ne peut pas dépasser 500')
+    .default(20)
+    .describe('nombre maximum de templates'),
+});
+
+/** Entrée de `apply_template` (Sprint 17, C17.3/C17.4). */
+export const ApplyTemplateInput = z.object({
+  template_id: TemplateIdInput,
+  project_name: z.string().trim().min(1, 'le nom du projet ne peut pas être vide'),
+  project_url: z.url({ message: 'l’URL du projet doit être valide' }),
+  project_description: z.string().optional(),
+  overrides: z
+    .object({
+      config: z
+        .record(z.string(), z.unknown())
+        .optional()
+        .describe('configuration à merger (merge profond des sous-objets)'),
+      additional_best_practice_ids: z.array(z.string()).optional(),
+      additional_rule_ids: z.array(z.string()).optional(),
+    })
+    .optional()
+    .describe('overrides partiels (ADR-041)'),
+});
+
 export type SearchBestPracticesParams = z.output<typeof SearchBestPracticesInput>;
 export type AddBestPracticeParams = z.output<typeof AddBestPracticeInput>;
 export type GetRecommendationsParams = z.output<typeof GetRecommendationsInput>;
+export type ListTemplatesParams = z.output<typeof ListTemplatesInput>;
+export type ApplyTemplateParams = z.output<typeof ApplyTemplateInput>;
 export type DeleteProjectParams = z.output<typeof DeleteProjectInput>;

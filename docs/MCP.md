@@ -710,3 +710,49 @@ confidence,description}`, `overallTrend`, `recommendations[]`,
 `TOOL_NAMES`/`TOOL_DESCRIPTIONS`, dispatch `case 'get_timeline'`,
 `executeGetTimeline` (`tools/get-timeline.ts`), services `context.timeline`
 (analyzer, detector, alertRepository, alertManager, chartGenerator).
+
+---
+
+## 20. Outils templates (Sprint 17-03)
+
+Catalogue : **17 outils**. Deux outils ajoutés (C17.7/C17.8).
+
+### `list_templates`
+
+Liste les templates de projets (10 prédéfinis semés au démarrage +
+personnalisés), résumé Markdown + JSON. Lecture seule
+(`readOnlyHint: true`).
+
+| Champ | Type | Défaut | Rejet (`-32602`) |
+| --- | --- | --- | --- |
+| `category` | enum (11) | tous | valeur hors liste |
+| `builtin_only` | booléen | `false` | type |
+| `limit` | entier | `20` | `< 1`, `> 500`, non entier |
+
+**Réponse** : `{count, templates[{id,name,category,description,isBuiltin,
+bestPracticeCount,ruleCount}], summary}`.
+
+### `apply_template`
+
+Crée un projet en appliquant un template (C17.3/C17.4) : config fusionnée
+(merge profond, ADR-041), bonnes pratiques associées, règles actives
+comptées. Écriture (`readOnlyHint: false`).
+
+| Champ | Type | Défaut | Rejet |
+| --- | --- | --- | --- |
+| `template_id` | UUID | requis | format ; absent → `ValidationError` (`VALIDATION_FAILED`) |
+| `project_name` | string ≥ 1 | requis | vide |
+| `project_url` | URL | requis | format |
+| `project_description` | string | optionnel | type |
+| `overrides.config` | object | — | type |
+| `overrides.additional_best_practice_ids` | string[] | — | type |
+| `overrides.additional_rule_ids` | string[] | — | type |
+
+**Réponse** : `{projectId, projectName, templateId,
+bestPracticesAssociated, rulesCreated, durationMs, summary}`.
+
+**Références** : entrées `ListTemplatesInput`/`ApplyTemplateInput`
+(`tool-schemas.ts`), dispatch `case 'list_templates'`/`case 'apply_template'`,
+`executeListTemplates` (`tools/list-templates.ts`), `executeApplyTemplate`
+(`tools/apply-template.ts`), service `context.templates`
+(`TemplateService`, seed idempotent au constructeur).

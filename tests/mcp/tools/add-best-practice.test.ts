@@ -97,6 +97,6 @@ describe('MCP add_best_practice (Sprint 15-03, C15.12)', () => {
   it('add_best_practice est un outil d écriture du catalogue', async () => {
     const { TOOL_DEFINITIONS } = await import('../../../src/mcp/handlers/tools.js');
     expect(TOOL_DEFINITIONS.map((tool) => tool.name)).toContain('add_best_practice');
-    expect(TOOL_DEFINITIONS).toHaveLength(15);
+    expect(TOOL_DEFINITIONS).toHaveLength(17);
   });
 });

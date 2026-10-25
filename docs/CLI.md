@@ -785,3 +785,36 @@ npx ekts rec rules delete <ruleId> --yes
 Sortie `human`/`--json` via `execute` ; moteur injecté avec
 `BestPracticeService` (bonnes pratiques proposées en bonus C16.12).
 
+---
+
+## 16. Commande template (Sprint 17-03)
+
+`ekts template` (alias `tpl`) — 7 sous-commandes (C17.6/C17.7) :
+
+```bash
+npx ekts template list -c e-commerce --builtin -n 50 --json
+npx ekts tpl list --custom
+npx ekts template show <templateId> --json
+npx ekts template apply <templateId> --name "Ma boutique" --url "https://x.co" \
+  --description "Boutique" --config '{"alertThresholds":{"minScore":75}}'
+npx ekts template create -n "Perso" -d "Description" -c custom \
+  --config '{"priorityDimensions":["seo"]}' --bp-ids "id1,id2" --rule-ids "id3"
+npx ekts template delete <templateId>
+npx ekts template export <templateId> template.json
+npx ekts template import template.json
+```
+
+| Sous-commande | Codes retour | Notes |
+| --- | --- | --- |
+| `list` | 0, 4 | `-c/--category` (11 valeurs), `--builtin`/`--custom` exclusifs, `-n` 1-500. |
+| `show <id>` | 0, 4 | UUID requis ; template absent = `ValidationError` (4). |
+| `apply <id>` | 0, 2, 4 | `--name`/`--url` requis (2) ; JSON `--config` invalide = 4 ; template absent = 4. |
+| `create` | 0, 2, 4 | Catégorie, entier/JSON validés ; CSV `--bp-ids`/`--rule-ids`. |
+| `delete <id>` | 0, 4 | Builtin immuable (ADR-040) = 4 ; absent = 4. |
+| `export <id> <file>` | 0, 1, 4 | Écriture fichier (1) ; absent = 4. |
+| `import <file>` | 0, 1, 4 | Fichier absent = 1 ; JSON/format invalide = 4 (C17.11). |
+
+Constructeur du service : **seed idempotent des 10 prédéfinis** (C17.2) ;
+`openTemplateServices(runtime)` ouvre les bases locales (`openDatabase`).
+Guide détaillé : [`guides/TEMPLATES.md`](guides/TEMPLATES.md).
+
