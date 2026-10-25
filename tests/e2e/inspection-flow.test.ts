@@ -181,7 +181,10 @@ describe.skipIf(!CHROMIUM_OK)('E2E — inspection-flow', () => {
   );
 
   it('conserve deux audits successifs pour la même URL', async () => {
-    const database = openDatabase({ dataDir: outputDir });
+    // Base dédiée : indépendante des audits des autres tests du fichier
+    // (sinon le total pour l'URL inclut ceux de la chaîne complète).
+    const isolatedDir = await mkdtemp(path.join(tmpdir(), 'ekts-e2e-two-audits-'));
+    const database = openDatabase({ dataDir: isolatedDir });
     try {
       new AuditSchema(database.connection).createSchema();
       const repository = new AuditRepository(database.connection);
@@ -206,6 +209,7 @@ describe.skipIf(!CHROMIUM_OK)('E2E — inspection-flow', () => {
       expect(repository.findByUrl(fixture.url)).toHaveLength(2);
     } finally {
       database.close();
+      await rm(isolatedDir, { recursive: true, force: true });
     }
   }, 90_000);
 });
