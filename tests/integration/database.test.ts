@@ -153,8 +153,9 @@ describe('Data Layer — ouverture des bases', () => {
     expect(applied).toEqual([
       { version: 1, name: 'init' },
       { version: 2, name: 'embedding-space' },
+      { version: 3, name: 'project-audits' },
     ]);
-    expect(connection.pragma('user_version', { simple: true })).toBe(2);
+    expect(connection.pragma('user_version', { simple: true })).toBe(3);
   });
 
   it('est idempotent : une seconde ouverture ne rejoue pas les migrations', () => {
@@ -169,7 +170,7 @@ describe('Data Layer — ouverture des bases', () => {
     const extra = [
       ...migrations,
       {
-        version: 3,
+        version: 4,
         name: 'test-only',
         up: (connection: Database.Database) => {
           connection.exec('CREATE TABLE IF NOT EXISTS test_marker (id INTEGER PRIMARY KEY)');
@@ -177,10 +178,10 @@ describe('Data Layer — ouverture des bases', () => {
       },
     ];
 
-    expect(runMigrations(database.connection, extra)).toEqual([3]);
+    expect(runMigrations(database.connection, extra)).toEqual([4]);
     expect(runMigrations(database.connection, extra)).toEqual([]);
     expect(tableNames(database.connection)).toContain('test_marker');
-    expect(database.connection.pragma('user_version', { simple: true })).toBe(3);
+    expect(database.connection.pragma('user_version', { simple: true })).toBe(4);
   });
 
   it('restreint les permissions des fichiers à 600', () => {

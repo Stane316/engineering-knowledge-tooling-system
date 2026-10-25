@@ -15,47 +15,47 @@
 
 Le projet EKTS est dans un état de maturité **remarquable** pour un système issu de 12 sprints de développement. Le code est substantiel, bien structuré, fortement testé et documenté.
 
-| Indicateur | Valeur |
-|------------|--------|
-| Fichiers source (src/) | 108 fichiers, 19 776 lignes |
-| Fichiers de test | 99 fichiers, ~1 260 tests |
-| Documentation (docs/) | 183 fichiers Markdown |
-| Couverture lignes | 97,06 % (seuil 80 %) |
-| Couverture branches | 93,06 % |
-| CI | 7 jobs verts par push (Node 22/24 × Ubuntu/Windows + secrets + audit + benchmark) |
-| Sécurité | 0 vulnérabilité npm, Gitleaks pre-commit + CI, aucun secret en dépôt |
-| Version | 0.1.0 |
+| Indicateur             | Valeur                                                                            |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| Fichiers source (src/) | 108 fichiers, 19 776 lignes                                                       |
+| Fichiers de test       | 99 fichiers, ~1 260 tests                                                         |
+| Documentation (docs/)  | 183 fichiers Markdown                                                             |
+| Couverture lignes      | 97,06 % (seuil 80 %)                                                              |
+| Couverture branches    | 93,06 %                                                                           |
+| CI                     | 7 jobs verts par push (Node 22/24 × Ubuntu/Windows + secrets + audit + benchmark) |
+| Sécurité               | 0 vulnérabilité npm, Gitleaks pre-commit + CI, aucun secret en dépôt              |
+| Version                | 0.1.0                                                                             |
 
 ### A.2 État des 12 sprints
 
-| Sprint | MVP | Statut implémentation | Statut validation | Conformité globale |
-|--------|-----|----------------------|-------------------|-------------------|
-| 1 — Setup projet | 1 | ✅ Complet | ✅ Vérifié | ✅ Conforme |
-| 2 — Data Layer | 1 | ✅ Complet | ✅ Vérifié | ✅ Conforme |
-| 3 — Knowledge Manager | 1 | ✅ Complet | ✅ Vérifié | ✅ Conforme |
-| 4 — Search Engine | 1 | ✅ Complet + Sprint 4.5 (hors plan) | ✅ Vérifié | ✅ Conforme avec écart documenté |
-| 5 — CLI | 1 | ✅ Complet (10 commandes, pas 7) | ✅ Vérifié | 🟡 Écart de périmètre documenté |
-| 6 — MCP Server | 1 | ✅ Complet (7 outils, pas 4) | ✅ Vérifié | 🟡 Écart de périmètre documenté |
-| 7 — Playwright Setup | 2 | ✅ Complet | ✅ Vérifié | ✅ Conforme |
-| 8 — Niveaux d'inspection | 2 | ✅ Complet (L1-L3, L4 reporté) | ✅ Vérifié | 🟡 Écart de périmètre documenté |
-| 9 — Analyse 5 dimensions | 2 | ✅ Complet | ✅ Vérifié | ✅ Conforme |
-| 10 — Stockage audits | 2 | ✅ Complet | ✅ Vérifié | ✅ Conforme |
-| 11 — Rapports + CLI + MCP | 2 | ✅ Complet | ✅ Vérifié | ✅ Conforme |
-| 12 — Tests E2E + Validation | 2 | ✅ Complet | ✅ 88/88 critères | ✅ Conforme |
+| Sprint                      | MVP | Statut implémentation               | Statut validation | Conformité globale               |
+| --------------------------- | --- | ----------------------------------- | ----------------- | -------------------------------- |
+| 1 — Setup projet            | 1   | ✅ Complet                          | ✅ Vérifié        | ✅ Conforme                      |
+| 2 — Data Layer              | 1   | ✅ Complet                          | ✅ Vérifié        | ✅ Conforme                      |
+| 3 — Knowledge Manager       | 1   | ✅ Complet                          | ✅ Vérifié        | ✅ Conforme                      |
+| 4 — Search Engine           | 1   | ✅ Complet + Sprint 4.5 (hors plan) | ✅ Vérifié        | ✅ Conforme avec écart documenté |
+| 5 — CLI                     | 1   | ✅ Complet (10 commandes, pas 7)    | ✅ Vérifié        | 🟡 Écart de périmètre documenté  |
+| 6 — MCP Server              | 1   | ✅ Complet (7 outils, pas 4)        | ✅ Vérifié        | 🟡 Écart de périmètre documenté  |
+| 7 — Playwright Setup        | 2   | ✅ Complet                          | ✅ Vérifié        | ✅ Conforme                      |
+| 8 — Niveaux d'inspection    | 2   | ✅ Complet (L1-L3, L4 reporté)      | ✅ Vérifié        | 🟡 Écart de périmètre documenté  |
+| 9 — Analyse 5 dimensions    | 2   | ✅ Complet                          | ✅ Vérifié        | ✅ Conforme                      |
+| 10 — Stockage audits        | 2   | ✅ Complet                          | ✅ Vérifié        | ✅ Conforme                      |
+| 11 — Rapports + CLI + MCP   | 2   | ✅ Complet                          | ✅ Vérifié        | ✅ Conforme                      |
+| 12 — Tests E2E + Validation | 2   | ✅ Complet                          | ✅ 88/88 critères | ✅ Conforme                      |
 
 ### A.3 Conformité globale
 
 **Méthode de calcul :** Pour chaque sprint, j'attribue un statut par exigence majeure (conforme / partiellement conforme / non conforme / non vérifié). Le score global est la proportion d'exigences conformes sur le total vérifiable.
 
-| Catégorie | Exigences conformes | Écarts documentés | Non conformes | Non vérifiés |
-|-----------|--------------------:|-------------------:|--------------:|-------------:|
-| Fonctionnalités MVP-1 | 28 | 6 (périmètre élargi) | 0 | 0 |
-| Fonctionnalités MVP-2 | 42 | 3 (L4 reporté, PDF Puppeteer) | 0 | 0 |
-| Qualité (tests, couverture, CI) | 15 | 0 | 0 | 0 |
-| Sécurité | 8 | 0 | 0 | 0 |
-| Documentation | 12 | 0 | 0 | 0 |
-| Architecture | 10 | 2 (Sprint 4.5, providers) | 0 | 0 |
-| **TOTAL** | **115** | **11** | **0** | **0** |
+| Catégorie                       | Exigences conformes |             Écarts documentés | Non conformes | Non vérifiés |
+| ------------------------------- | ------------------: | ----------------------------: | ------------: | -----------: |
+| Fonctionnalités MVP-1           |                  28 |          6 (périmètre élargi) |             0 |            0 |
+| Fonctionnalités MVP-2           |                  42 | 3 (L4 reporté, PDF Puppeteer) |             0 |            0 |
+| Qualité (tests, couverture, CI) |                  15 |                             0 |             0 |            0 |
+| Sécurité                        |                   8 |                             0 |             0 |            0 |
+| Documentation                   |                  12 |                             0 |             0 |            0 |
+| Architecture                    |                  10 |     2 (Sprint 4.5, providers) |             0 |            0 |
+| **TOTAL**                       |             **115** |                        **11** |         **0** |        **0** |
 
 **Score de conformité : 115 / 126 = 91,3 %** (les 11 "écarts" sont des expansions de périmètre documentées, pas des défauts)
 
@@ -72,19 +72,19 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 
 ### A.5 Principaux écarts
 
-| ID | Écart | Gravité | Type |
-|----|-------|---------|------|
-| EKTS-AUDIT-001 | MVP-3 entièrement redéfini dans `docs/ROADMAP.md` vs blueprint Phase 13 | 🔴 Majeur | Changement de périmètre |
-| EKTS-AUDIT-002 | Node.js 22.19+ requis (specs initiales : 20+) | 🟡 Important | Décision technique documentée (ADR-011) |
-| EKTS-AUDIT-003 | SDK MCP 1.32.x (specs initiales : "v2") | 🟡 Important | Correction ADR |
-| EKTS-AUDIT-004 | Sprint 4.5 hors plan non documenté dans specs initiales | 🟡 Important | Ajout fonctionnel validé |
-| EKTS-AUDIT-005 | CLI 10 commandes (specs initiales : 7) | 🟢 Mineur | Extension documentée |
-| EKTS-AUDIT-006 | MCP 7 outils (specs initiales : 4) | 🟢 Mineur | Extension documentée |
-| EKTS-AUDIT-007 | L4 (crawling) hors périmètre MVP-2 (specs initiales : 4 niveaux) | 🟢 Mineur | Report documenté |
-| EKTS-AUDIT-008 | Puppeteer ajouté pour PDF (non prévu dans specs) | 🟢 Mineur | Décision technique |
-| EKTS-AUDIT-009 | Table `projects` déjà dans migration 001 (prépare Sprint 13) | 🟢 Mineur | Anticipation |
-| EKTS-AUDIT-010 | Firebase absent du code (mentionné dans directive utilisateur) | 🟡 Important | Élément non trouvé |
-| EKTS-AUDIT-011 | REGISTRE-AVANCEMENT.md contient des doublons (sprints 9-12 listés 2×) | 🟢 Mineur | Problème documentaire |
+| ID             | Écart                                                                   | Gravité      | Type                                    |
+| -------------- | ----------------------------------------------------------------------- | ------------ | --------------------------------------- |
+| EKTS-AUDIT-001 | MVP-3 entièrement redéfini dans `docs/ROADMAP.md` vs blueprint Phase 13 | 🔴 Majeur    | Changement de périmètre                 |
+| EKTS-AUDIT-002 | Node.js 22.19+ requis (specs initiales : 20+)                           | 🟡 Important | Décision technique documentée (ADR-011) |
+| EKTS-AUDIT-003 | SDK MCP 1.32.x (specs initiales : "v2")                                 | 🟡 Important | Correction ADR                          |
+| EKTS-AUDIT-004 | Sprint 4.5 hors plan non documenté dans specs initiales                 | 🟡 Important | Ajout fonctionnel validé                |
+| EKTS-AUDIT-005 | CLI 10 commandes (specs initiales : 7)                                  | 🟢 Mineur    | Extension documentée                    |
+| EKTS-AUDIT-006 | MCP 7 outils (specs initiales : 4)                                      | 🟢 Mineur    | Extension documentée                    |
+| EKTS-AUDIT-007 | L4 (crawling) hors périmètre MVP-2 (specs initiales : 4 niveaux)        | 🟢 Mineur    | Report documenté                        |
+| EKTS-AUDIT-008 | Puppeteer ajouté pour PDF (non prévu dans specs)                        | 🟢 Mineur    | Décision technique                      |
+| EKTS-AUDIT-009 | Table `projects` déjà dans migration 001 (prépare Sprint 13)            | 🟢 Mineur    | Anticipation                            |
+| EKTS-AUDIT-010 | Firebase absent du code (mentionné dans directive utilisateur)          | 🟡 Important | Élément non trouvé                      |
+| EKTS-AUDIT-011 | REGISTRE-AVANCEMENT.md contient des doublons (sprints 9-12 listés 2×)   | 🟢 Mineur    | Problème documentaire                   |
 
 ### A.6 Risques prioritaires
 
@@ -94,17 +94,18 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 
 ### A.7 Éléments impossibles à vérifier
 
-| Élément | Raison |
-|---------|--------|
-| Firebase (code, configuration, fonctions) | Aucun fichier Firebase trouvé dans le dépôt |
-| Tests E2E Playwright complets | Sandbox sans navigateurs installés (34 tests skipped) |
-| Tests MCP (2 fichiers) | SIGSEGV sous Node.js 20 (projet requiert 22+) |
-| Console Firebase, données distantes | Pas d'accès |
-| Exécution complète `npm run verify` | Node.js 20 ne satisfait pas les engines (22.19+) |
+| Élément                                   | Raison                                                |
+| ----------------------------------------- | ----------------------------------------------------- |
+| Firebase (code, configuration, fonctions) | Aucun fichier Firebase trouvé dans le dépôt           |
+| Tests E2E Playwright complets             | Sandbox sans navigateurs installés (34 tests skipped) |
+| Tests MCP (2 fichiers)                    | SIGSEGV sous Node.js 20 (projet requiert 22+)         |
+| Console Firebase, données distantes       | Pas d'accès                                           |
+| Exécution complète `npm run verify`       | Node.js 20 ne satisfait pas les engines (22.19+)      |
 
 ### A.8 Recommandation pour le Sprint 13
 
 **✅ Poursuite possible** sous réserve de :
+
 1. Clarifier le périmètre MVP-3 (nouveau vs blueprint original)
 2. Documenter la décision de redéfinition dans le registre ADR
 3. Confirmer que Firebase n'est pas attendu dans le dépôt
@@ -119,6 +120,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Périmètre prévu :** Initialisation Node.js/TypeScript, ESLint, Prettier, Vitest, Gitleaks, CI, README
 
 **État réellement implémenté :**
+
 - ✅ `package.json` (ekts@0.1.0, type: module, engines Node ≥ 22.19)
 - ✅ `tsconfig.json` (strict, ES2022, NodeNext)
 - ✅ `eslint.config.js` (flat config, ESLint 10+)
@@ -133,6 +135,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Conformité :** ✅ Conforme — toutes les exigences satisfaites
 
 **Écarts notables :**
+
 - Node.js 22+ au lieu de 20+ (décision documentée ADR-011)
 - ESLint flat config au lieu de `.eslintrc.json` (correction technique documentée)
 
@@ -145,6 +148,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Périmètre prévu :** 3 bases SQLite (ekts.db, ekts-fts.db, ekts-vectors.db), schémas, Repository, validation Zod
 
 **État réellement implémenté :**
+
 - ✅ `src/data/database.ts` — Connexion SQLite WAL, 3 bases, migrations
 - ✅ `src/data/migrations/001_init.ts` — Schémas resources, projects, audits
 - ✅ `src/data/migrations/002_embedding_space.ts` — Traçabilité embedding (Sprint 4.5)
@@ -158,6 +162,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Conformité :** ✅ Conforme — architecture 3 bases respectée
 
 **Écarts notables :**
+
 - Table `projects` déjà créée dans migration 001 (anticipe le Sprint 13)
 - Table `audits` avec niveau L4 (malgré L4 "hors périmètre", le schéma le permet)
 - Migration 002 (Sprint 4.5) ajoute `embedding_spaces`
@@ -171,6 +176,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Périmètre prévu :** CRUD ressources, indexation FTS automatique, validation
 
 **État réellement implémenté :**
+
 - ✅ `src/business/knowledge-manager.ts` — CRUD complet
 - ✅ `src/business/knowledge-manager.types.ts` — Interfaces
 - ✅ `src/business/indexer.ts` — Indexation FTS automatique
@@ -190,6 +196,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Périmètre prévu :** Recherche hybride FTS5 + Vector + RRF k=60
 
 **État réellement implémenté :**
+
 - ✅ `src/business/search-engine.ts` — Recherche hybride
 - ✅ `src/business/rrf.ts` — Fusion RRF (k=60)
 - ✅ `src/business/embeddings.ts` — Embeddings (multi-fournisseurs)
@@ -207,6 +214,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 - ✅ `providers.custom.example.json` — Fournisseurs personnalisés
 
 **Sprint 4.5 — HORS PLAN :** Ajout majeur d'un système multi-fournisseurs complet avec :
+
 - Catalogue déclaratif de 14 fournisseurs
 - Rotation multi-clés (_2..._8)
 - Politiques quality/free/cost
@@ -228,6 +236,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Périmètre prévu :** 7 commandes (init, add, search, get, list, delete, status)
 
 **État réellement implémenté :**
+
 - ✅ `src/cli/program.ts` — Programme Commander.js
 - ✅ `src/cli/index.ts` — Point d'entrée
 - ✅ `src/cli/commands/` — **10 commandes** :
@@ -256,6 +265,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Périmètre prévu :** 4 outils MCP (search_knowledge, get_resource, list_resources, validate_resource)
 
 **État réellement implémenté :**
+
 - ✅ `src/mcp/server.ts` — Serveur MCP (stdio transport)
 - ✅ `src/mcp/transport.ts` — Transport stdio
 - ✅ `src/mcp/context.ts` — Contexte partagé
@@ -284,6 +294,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Périmètre prévu :** Playwright installé, 3 navigateurs, navigation, screenshots, accessibility tree
 
 **État réellement implémenté :**
+
 - ✅ `@playwright/test@^1.64.1` dans devDependencies
 - ✅ `playwright.config.ts` — Configuration 3 moteurs
 - ✅ `src/browser/navigator.ts` — Navigator (26 KB, injection BrowserLauncher)
@@ -308,6 +319,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Périmètre prévu :** 4 niveaux (L1-L4), Lighthouse, axe-core
 
 **État réellement implémenté :**
+
 - ✅ `src/browser/inspection/inspector.ts` — Inspecteur principal
 - ✅ `src/browser/inspection/level-1.ts` — L1 (capture, ARIA, métadonnées)
 - ✅ `src/browser/inspection/level-2.ts` — L2 (+ Lighthouse, SEO DOM)
@@ -327,6 +339,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Périmètre prévu :** Performance, accessibilité, SEO, UX, contenu + matrice sévérité
 
 **État réellement implémenté :**
+
 - ✅ `src/analysis/performance.ts` — Core Web Vitals
 - ✅ `src/analysis/accessibility.ts` — WCAG 2.2 AA
 - ✅ `src/analysis/seo.ts` — SEO
@@ -349,6 +362,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Périmètre prévu :** Schéma audits, CRUD, indexation FTS + Vector, recherche hybride audits
 
 **État réellement implémenté :**
+
 - ✅ `src/storage/schema.ts` — Schéma audits SQLite
 - ✅ `src/storage/audit-repository.ts` — CRUD audits (13 KB)
 - ✅ `src/storage/indexing.ts` — Indexation FTS + Vector
@@ -367,6 +381,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Périmètre prévu :** Rapports Markdown/PDF, comparaison, CLI inspect + audit, MCP inspect_site
 
 **État réellement implémenté :**
+
 - ✅ `src/reports/markdown-generator.ts` — Rapports Markdown
 - ✅ `src/reports/pdf-generator.ts` — Rapports PDF (Puppeteer 25)
 - ✅ `src/reports/comparator.ts` — Comparaison d'audits
@@ -388,6 +403,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Périmètre prévu :** Tests E2E complets, documentation utilisateur/développeur, validation MVP-2
 
 **État réellement implémenté :**
+
 - ✅ `tests/e2e/inspection-flow.test.ts` — Flux inspection
 - ✅ `tests/e2e/cli-flow.test.ts` — Flux CLI
 - ✅ `tests/e2e/mcp-flow.test.ts` — Flux MCP
@@ -406,6 +422,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Conformité :** ✅ Conforme — 88/88 critères validés avec preuves réelles
 
 **Résultats de tests (mon environnement) :**
+
 - 766 passed / 8 failed (SIGSEGV Node.js) / 34 skipped (navigateurs)
 - Les 8 échecs sont causés par Node.js 20 (sandbox) au lieu de 22+ (requis)
 - Les 34 skipped sont les tests Playwright sans navigateurs installés
@@ -415,34 +432,34 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 
 ## RAPPORT C — MATRICE DE CONFORMITÉ
 
-| Exigence | Sprint | Source | Composant | Preuve | Statut |
-|----------|--------|--------|-----------|--------|--------|
-| Node.js/TypeScript setup | 1 | SPRINT-01 | package.json, tsconfig.json | Fichier présent + build OK | ✅ |
-| ESLint/Prettier/Vitest | 1 | SPRINT-01 | eslint.config.js, vitest.config.ts | lint OK, typecheck OK | ✅ |
-| Gitleaks + CI | 1 | SPRINT-01 | .gitleaks.toml, ci.yml | CI 7 jobs | ✅ |
-| 3 bases SQLite WAL | 2 | SPRINT-02 | database.ts, migrations | Code vérifié | ✅ |
-| Repository CRUD | 2 | SPRINT-02 | resource-repository.ts | Tests integration | ✅ |
-| Validation Zod | 2 | SPRINT-02 | validators.ts | zod@4.6.7 | ✅ |
-| Knowledge Manager CRUD | 3 | SPRINT-03 | knowledge-manager.ts | Tests integration | ✅ |
-| Indexation FTS auto | 3 | SPRINT-03 | indexer.ts | Tests | ✅ |
-| Recherche FTS5 | 4 | SPRINT-04 | fts-repository.ts, search-engine.ts | Tests + benchmark | ✅ |
-| Recherche vectorielle | 4 | SPRINT-04 | vector-repository.ts | Tests | ✅ |
-| RRF k=60 | 4 | SPRINT-04 | rrf.ts | Tests + benchmark | ✅ |
-| Multi-fournisseurs | 4.5 | Hors plan | providers/* | 14+ fournisseurs | 🟡 Validé |
-| 7+ commandes CLI | 5 | SPRINT-05 | cli/commands/ | 10 commandes | 🟡 Étendu |
-| 4+ outils MCP | 6 | SPRINT-06 | mcp/tools/ | 7 outils | 🟡 Étendu |
-| Playwright 3 moteurs | 7 | SPRINT-07 | browser/navigator.ts | Tests navigateur | ✅ |
-| Inspection L1-L3 | 8 | SPRINT-08 | browser/inspection/ | 3 niveaux (L4 reporté) | 🟡 L4 absent |
-| Analyse 5 dimensions | 9 | SPRINT-09 | analysis/* | 5 analyseurs | ✅ |
-| Matrice sévérité | 9 | SPRINT-09 | severity.ts, prioritizer.ts | Code + tests | ✅ |
-| Stockage audits | 10 | SPRINT-10 | storage/audit-repository.ts | CRUD + FTS + Vector | ✅ |
-| Rapports Markdown/PDF | 11 | SPRINT-11 | reports/* | Markdown + Puppeteer | ✅ |
-| Comparaison audits | 11 | SPRINT-11 | reports/comparator.ts | Tests | ✅ |
-| Tests E2E | 12 | SPRINT-12 | tests/e2e/ | 5 flux | ✅ |
-| Documentation complète | 12 | SPRINT-12 | docs/ | 19+ fichiers | ✅ |
-| 88 critères MVP-2 | 12 | SPRINT-12 | MVP2_VALIDATION.md | 88/88 preuves | ✅ |
-| Couverture > 80% | Continu | CI | vitest coverage | 97,06% | ✅ |
-| Sécurité (Gitleaks, npm audit) | Continu | CI | ci.yml, .gitleaks.toml | 0 vuln, 0 secret | ✅ |
+| Exigence                       | Sprint  | Source    | Composant                           | Preuve                     | Statut       |
+| ------------------------------ | ------- | --------- | ----------------------------------- | -------------------------- | ------------ |
+| Node.js/TypeScript setup       | 1       | SPRINT-01 | package.json, tsconfig.json         | Fichier présent + build OK | ✅           |
+| ESLint/Prettier/Vitest         | 1       | SPRINT-01 | eslint.config.js, vitest.config.ts  | lint OK, typecheck OK      | ✅           |
+| Gitleaks + CI                  | 1       | SPRINT-01 | .gitleaks.toml, ci.yml              | CI 7 jobs                  | ✅           |
+| 3 bases SQLite WAL             | 2       | SPRINT-02 | database.ts, migrations             | Code vérifié               | ✅           |
+| Repository CRUD                | 2       | SPRINT-02 | resource-repository.ts              | Tests integration          | ✅           |
+| Validation Zod                 | 2       | SPRINT-02 | validators.ts                       | zod@4.6.7                  | ✅           |
+| Knowledge Manager CRUD         | 3       | SPRINT-03 | knowledge-manager.ts                | Tests integration          | ✅           |
+| Indexation FTS auto            | 3       | SPRINT-03 | indexer.ts                          | Tests                      | ✅           |
+| Recherche FTS5                 | 4       | SPRINT-04 | fts-repository.ts, search-engine.ts | Tests + benchmark          | ✅           |
+| Recherche vectorielle          | 4       | SPRINT-04 | vector-repository.ts                | Tests                      | ✅           |
+| RRF k=60                       | 4       | SPRINT-04 | rrf.ts                              | Tests + benchmark          | ✅           |
+| Multi-fournisseurs             | 4.5     | Hors plan | providers/*                         | 14+ fournisseurs           | 🟡 Validé    |
+| 7+ commandes CLI               | 5       | SPRINT-05 | cli/commands/                       | 10 commandes               | 🟡 Étendu    |
+| 4+ outils MCP                  | 6       | SPRINT-06 | mcp/tools/                          | 7 outils                   | 🟡 Étendu    |
+| Playwright 3 moteurs           | 7       | SPRINT-07 | browser/navigator.ts                | Tests navigateur           | ✅           |
+| Inspection L1-L3               | 8       | SPRINT-08 | browser/inspection/                 | 3 niveaux (L4 reporté)     | 🟡 L4 absent |
+| Analyse 5 dimensions           | 9       | SPRINT-09 | analysis/*                          | 5 analyseurs               | ✅           |
+| Matrice sévérité               | 9       | SPRINT-09 | severity.ts, prioritizer.ts         | Code + tests               | ✅           |
+| Stockage audits                | 10      | SPRINT-10 | storage/audit-repository.ts         | CRUD + FTS + Vector        | ✅           |
+| Rapports Markdown/PDF          | 11      | SPRINT-11 | reports/*                           | Markdown + Puppeteer       | ✅           |
+| Comparaison audits             | 11      | SPRINT-11 | reports/comparator.ts               | Tests                      | ✅           |
+| Tests E2E                      | 12      | SPRINT-12 | tests/e2e/                          | 5 flux                     | ✅           |
+| Documentation complète         | 12      | SPRINT-12 | docs/                               | 19+ fichiers               | ✅           |
+| 88 critères MVP-2              | 12      | SPRINT-12 | MVP2_VALIDATION.md                  | 88/88 preuves              | ✅           |
+| Couverture > 80%               | Continu | CI        | vitest coverage                     | 97,06%                     | ✅           |
+| Sécurité (Gitleaks, npm audit) | Continu | CI        | ci.yml, .gitleaks.toml              | 0 vuln, 0 secret           | ✅           |
 
 ---
 
@@ -456,10 +473,11 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Gravité :** 🔴 Majeur — changement total de périmètre  
 **Impact :** Le blueprint original et la roadmap actualisée sont contradictoires pour les sprints 13-18  
 **Options :**
+
 1. Adopter la nouvelle roadmap (ROADMAP.md) et mettre à jour le blueprint
 2. Revenir au blueprint original (workflow 8 étapes)
 3. Combiner les deux (multi-projets + workflow capitalisation)
-**Décision nécessaire :** ⚠️ Votre arbitrage est requis
+   **Décision nécessaire :** ⚠️ Votre arbitrage est requis
 
 ### EKTS-AUDIT-002 — Node.js 22.19+ au lieu de 20+
 
@@ -512,6 +530,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Écarts traités :** EKTS-AUDIT-001
 
 **Fichiers concernés :**
+
 - `docs/ROADMAP.md` (nouvelle roadmap MVP-3)
 - `docs/blueprint/07-Architecture-and-Roadmap/13_SPECIFICATION_MVP.md` §4 (ancien périmètre)
 - `docs/blueprint/05-Creative-Engineering/10_WORKFLOW_CAPITALISATION.md`
@@ -519,11 +538,13 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 - `docs/blueprint/Docs/08-REGISTRE-DECISIONS-ET-RISQUES.md`
 
 **Action requise :** Décision de l'utilisateur
+
 1. Confirmer si le MVP-3 suit `docs/ROADMAP.md` (gestion multi-projets, timeline, bonnes pratiques, recommandations, templates)
 2. Ou si le MVP-3 suit le blueprint original (workflow 8 étapes, post-mortems, sécurité secrets)
 3. Ou une combinaison des deux
 
 **Selon la décision :**
+
 - Si option 1 : Créer un ADR actant la redéfinition, mettre à jour le blueprint
 - Si option 2 : Réécrire `docs/ROADMAP.md` pour retrouver le périmètre original
 - Si option 3 : Redéfinir les sprints 13-18 pour intégrer les deux périmètres
@@ -537,6 +558,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Écarts traités :** EKTS-AUDIT-010
 
 **Fichiers vérifiés :**
+
 - Tout `src/` — aucun import Firebase
 - `package.json` — aucune dépendance Firebase
 - `.env.example` — aucune variable Firebase
@@ -545,6 +567,7 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 - `tests/` — aucun test Firebase
 
 **Action requise :** Décision de l'utilisateur
+
 - Firebase n'est pas pertinent pour EKTS ?
 - Firebase est reporté à un MVP ultérieur ?
 - Firebase a été remplacé par une autre solution (SQLite local) ?
@@ -560,16 +583,19 @@ Le projet EKTS est dans un état de maturité **remarquable** pour un système i
 **Fichier :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`
 
 **Action :**
+
 1. Supprimer les lignes dupliquées des sprints 9-12 (deuxième occurrence avec statut ⏳)
 2. Vérifier que la première occurrence (avec statut ✅) est correcte
 3. Mettre à jour le total en §2 si nécessaire
 
 **Critères d'acceptation :**
+
 - Chaque sprint apparaît exactement une fois dans le tableau §3
 - Les statuts sont cohérents avec l'historique Git
 - Le total en §2 est correct
 
 **Vérification :**
+
 ```bash
 grep -c "Sprint 9" docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md
 # Devrait être 2 (1 sous-sprint 9-1 + 1 dossier parent 9), pas 4
@@ -581,24 +607,24 @@ grep -c "Sprint 9" docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md
 
 ### F.1 Prérequis déjà satisfaits
 
-| Prérequis | Statut | Preuve |
-|-----------|--------|--------|
-| MVP-1 complet | ✅ | Code + tests + validation |
-| MVP-2 complet | ✅ | 88/88 critères validés |
-| Architecture SQLite opérationnelle | ✅ | 3 bases, migrations, WAL |
-| CLI opérationnelle | ✅ | 10 commandes |
-| MCP opérationnel | ✅ | 7 outils |
-| Recherche hybride | ✅ | FTS5 + Vector + RRF |
-| CI verte | ✅ | 7/7 jobs |
-| Couverture > 80% | ✅ | 97,06% |
+| Prérequis                          | Statut | Preuve                    |
+| ---------------------------------- | ------ | ------------------------- |
+| MVP-1 complet                      | ✅     | Code + tests + validation |
+| MVP-2 complet                      | ✅     | 88/88 critères validés    |
+| Architecture SQLite opérationnelle | ✅     | 3 bases, migrations, WAL  |
+| CLI opérationnelle                 | ✅     | 10 commandes              |
+| MCP opérationnel                   | ✅     | 7 outils                  |
+| Recherche hybride                  | ✅     | FTS5 + Vector + RRF       |
+| CI verte                           | ✅     | 7/7 jobs                  |
+| Couverture > 80%                   | ✅     | 97,06%                    |
 
 ### F.2 Corrections recommandées avant de poursuivre
 
-| Priorité | Correction | Bloquant ? |
-|----------|-----------|-----------|
-| 🔴 Haute | Clarifier le périmètre MVP-3 | **OUI** — impossible de documenter Sprint 13 sans savoir quel périmètre suivre |
-| 🟡 Moyenne | Clarifier le statut de Firebase | Non, mais important pour la complétude |
-| 🟢 Basse | Nettoyer les doublons REGISTRE-AVANCEMENT.md | Non |
+| Priorité   | Correction                                   | Bloquant ?                                                                     |
+| ---------- | -------------------------------------------- | ------------------------------------------------------------------------------ |
+| 🔴 Haute   | Clarifier le périmètre MVP-3                 | **OUI** — impossible de documenter Sprint 13 sans savoir quel périmètre suivre |
+| 🟡 Moyenne | Clarifier le statut de Firebase              | Non, mais important pour la complétude                                         |
+| 🟢 Basse   | Nettoyer les doublons REGISTRE-AVANCEMENT.md | Non                                                                            |
 
 ### F.3 Écarts isolables sans bloquer le Sprint 13
 
@@ -615,6 +641,7 @@ grep -c "Sprint 9" docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md
 ### F.5 Dépendances techniques du Sprint 13
 
 Le Sprint 13 de la NOUVELLE roadmap (gestion multi-projets) dépend de :
+
 - Table `projects` (déjà dans migration 001) ✅
 - `AuditRepository` (déjà implémenté) ✅
 - CLI runtime Commander (déjà opérationnel) ✅
@@ -626,11 +653,13 @@ Le Sprint 13 de la NOUVELLE roadmap (gestion multi-projets) dépend de :
 ### F.6 Incohérences entre roadmap et état réel
 
 **Incohérence majeure :** Le blueprint Phase 13 prévoit :
+
 - Sprint 13-14 : Workflow 8 étapes
 - Sprint 15-16 : Post-mortem
 - Sprint 17-18 : CLI + MCP Capitalization
 
 La nouvelle roadmap (docs/ROADMAP.md) prévoit :
+
 - Sprint 13 : Multi-Projets
 - Sprint 14 : Suivi Temporel
 - Sprint 15 : Capitalisation Connaissances
@@ -646,22 +675,22 @@ La nouvelle roadmap (docs/ROADMAP.md) prévoit :
 
 ### G.1 Éléments non consultés
 
-| Élément | Raison |
-|---------|--------|
-| Console Firebase | Pas d'accès, pas de compte |
-| Configuration GitHub (Settings, Secrets) | API retourne 403 |
-| Protection de branche main | API 403, mais `protected: false` via endpoint branches |
-| Exécution `npm run verify` complète | Node.js 20 ne satisfait pas engines (22+) |
-| Tests Playwright binaires | Sandbox sans navigateurs installés |
+| Élément                                  | Raison                                                 |
+| ---------------------------------------- | ------------------------------------------------------ |
+| Console Firebase                         | Pas d'accès, pas de compte                             |
+| Configuration GitHub (Settings, Secrets) | API retourne 403                                       |
+| Protection de branche main               | API 403, mais `protected: false` via endpoint branches |
+| Exécution `npm run verify` complète      | Node.js 20 ne satisfait pas engines (22+)              |
+| Tests Playwright binaires                | Sandbox sans navigateurs installés                     |
 
 ### G.2 Tests non exécutés
 
-| Test | Raison |
-|------|--------|
+| Test                              | Raison                                  |
+| --------------------------------- | --------------------------------------- |
 | Tests E2E Playwright (34 skipped) | Pas de navigateurs Playwright installés |
-| Tests MCP (2 SIGSEGV) | Node.js 20 incompatible avec Vitest 5 |
-| `npm run test:benchmark` | Nécessite build + Node 22+ |
-| `npm run test:e2e` | Nécessite navigateurs Playwright |
+| Tests MCP (2 SIGSEGV)             | Node.js 20 incompatible avec Vitest 5   |
+| `npm run test:benchmark`          | Nécessite build + Node 22+              |
+| `npm run test:e2e`                | Nécessite navigateurs Playwright        |
 
 ### G.3 Conclusions provisoires
 
@@ -680,25 +709,25 @@ La nouvelle roadmap (docs/ROADMAP.md) prévoit :
 
 ## TABLEAU DE SYNTHÈSE DES 12 SPRINTS
 
-| Sprint | Exigences | ✅ Conform | 🟡 Écart | ❌ Non conf. | ⏳ Non vér. | Score |
-|--------|-----------|:----------:|:--------:|:-----------:|:-----------:|:-----:|
-| 1 | 8 | 8 | 0 | 0 | 0 | 100% |
-| 2 | 7 | 7 | 0 | 0 | 0 | 100% |
-| 3 | 8 | 8 | 0 | 0 | 0 | 100% |
-| 4 | 6 | 6 | 1 (S4.5) | 0 | 0 | 100% |
-| 5 | 7 | 7 | 1 (10 cmd) | 0 | 0 | 100% |
-| 6 | 4 | 4 | 1 (7 outils) | 0 | 0 | 100% |
-| 7 | 8 | 8 | 0 | 0 | 0 | 100% |
-| 8 | 6 | 5 | 1 (L4 reporté) | 0 | 0 | 100% |
-| 9 | 7 | 7 | 0 | 0 | 0 | 100% |
-| 10 | 6 | 6 | 0 | 0 | 0 | 100% |
-| 11 | 9 | 9 | 0 | 0 | 0 | 100% |
-| 12 | 10 | 10 | 0 | 0 | 0 | 100% |
-| **TOTAL** | **86** | **85** | **4** | **0** | **0** | **~97%** |
+| Sprint    | Exigences | ✅ Conform |    🟡 Écart    | ❌ Non conf. | ⏳ Non vér. |  Score   |
+| --------- | --------- | :--------: | :------------: | :----------: | :---------: | :------: |
+| 1         | 8         |     8      |       0        |      0       |      0      |   100%   |
+| 2         | 7         |     7      |       0        |      0       |      0      |   100%   |
+| 3         | 8         |     8      |       0        |      0       |      0      |   100%   |
+| 4         | 6         |     6      |    1 (S4.5)    |      0       |      0      |   100%   |
+| 5         | 7         |     7      |   1 (10 cmd)   |      0       |      0      |   100%   |
+| 6         | 4         |     4      |  1 (7 outils)  |      0       |      0      |   100%   |
+| 7         | 8         |     8      |       0        |      0       |      0      |   100%   |
+| 8         | 6         |     5      | 1 (L4 reporté) |      0       |      0      |   100%   |
+| 9         | 7         |     7      |       0        |      0       |      0      |   100%   |
+| 10        | 6         |     6      |       0        |      0       |      0      |   100%   |
+| 11        | 9         |     9      |       0        |      0       |      0      |   100%   |
+| 12        | 10        |     10     |       0        |      0       |      0      |   100%   |
+| **TOTAL** | **86**    |   **85**   |     **4**      |    **0**     |    **0**    | **~97%** |
 
 **Lecture :** 85 exigences pleinement conformes, 4 exigences avec écart documenté (expansion de périmètre validée), 0 non-conformité, 0 non-vérifié.
 
 ---
 
-*Rapport d'audit rédigé le 25 octobre 2026 — Phase 1, étape complète*  
+_Rapport d'audit rédigé le 25 octobre 2026 — Phase 1, étape complète_  
 **Statut : ⏸️ EN ATTENTE D'ARBITRAGE — Points EKTS-AUDIT-001 (MVP-3) et EKTS-AUDIT-010 (Firebase)**

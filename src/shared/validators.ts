@@ -29,6 +29,11 @@ const TagsSchema = z
 
 const MetadataSchema = z.record(z.string(), z.unknown());
 
+/** Identifiant de projet (UUID), utilisé par le Sprint 13 (multi-projets). */
+const ProjectIdSchema = z.uuid({
+  error: 'L’identifiant de projet doit être un UUID',
+});
+
 /** Schéma de création d'une ressource. */
 export const CreateResourceSchema = z.object({
   type: ResourceTypeSchema,
@@ -37,6 +42,7 @@ export const CreateResourceSchema = z.object({
   tags: TagsSchema.default([]),
   metadata: MetadataSchema.default({}),
   content: z.string().optional(),
+  projectId: ProjectIdSchema.optional(),
 });
 
 /** Schéma de mise à jour partielle (`null` efface un champ nullable). */
@@ -59,6 +65,7 @@ export const ResourceFiltersSchema = z.object({
   tags: z.array(z.string()).optional(),
   limit: z.number().int().positive().max(1000).optional(),
   offset: z.number().int().nonnegative().optional(),
+  projectId: ProjectIdSchema.optional(),
 });
 
 /** Schéma d'une ressource persistée. */
@@ -71,8 +78,54 @@ export const ResourceSchema = z.object({
   metadata: z.record(z.string(), z.unknown()),
   content: z.string().optional(),
   embeddingModel: z.string().optional(),
+  projectId: ProjectIdSchema.nullable().optional(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
+});
+
+/** Statuts de projet (aligné sur la contrainte SQL `CHECK` de `projects`). */
+export const ProjectStatusSchema = z.enum(['active', 'completed', 'archived']);
+
+/** Schéma d'un projet persisté (table `projects`, Sprint 13). */
+export const ProjectSchema = z.object({
+  id: z.uuid(),
+  name: z.string().trim().min(1).max(200),
+  description: z.string().max(2000).nullable(),
+  status: ProjectStatusSchema,
+  startedAt: z.iso.datetime().nullable(),
+  completedAt: z.iso.datetime().nullable(),
+  metadata: MetadataSchema,
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+});
+
+/**
+ * Schéma de création d'un projet.
+ *
+ * `status` vaut `active` par défaut ; `metadata` porte notamment l'URL du
+ * projet (la table `projects` n'a pas de colonne `url` — écart connu du
+ * livrable documentaire Sprint 13).
+ */
+export const CreateProjectSchema = z.object({
+  name: TitleSchema.max(200, 'Le nom ne peut pas dépasser 200 caractères'),
+  description: z.string().max(2000).nullish(),
+  status: ProjectStatusSchema.default('active'),
+  startedAt: z.iso.datetime().nullish(),
+  completedAt: z.iso.datetime().nullish(),
+  metadata: MetadataSchema.default({}),
+});
+
+/** Schéma de mise à jour partielle d'un projet (`null` efface un champ). */
+export const UpdateProjectSchema = CreateProjectSchema.partial().refine(
+  (value) => Object.keys(value).length > 0,
+  { message: 'Aucun champ à mettre à jour' },
+);
+
+/** Schéma de filtrage de la liste des projets. */
+export const ProjectFiltersSchema = z.object({
+  status: ProjectStatusSchema.optional(),
+  limit: z.number().int().positive().max(1000).optional(),
+  offset: z.number().int().nonnegative().optional(),
 });
 
 /**
@@ -86,3 +139,10 @@ export type ResourceFilters = z.input<typeof ResourceFiltersSchema>;
 /** Sorties validées : `z.output` reflète l'état réellement persisté. */
 export type ResourceType = z.infer<typeof ResourceTypeSchema>;
 export type Resource = z.infer<typeof ResourceSchema>;
+
+/** Projet (Sprint 13) : mêmes conventions que les ressources. */
+export type ProjectStatus = z.infer<typeof ProjectStatusSchema>;
+export type Project = z.infer<typeof ProjectSchema>;
+export type CreateProjectInput = z.input<typeof CreateProjectSchema>;
+export type UpdateProjectInput = z.input<typeof UpdateProjectSchema>;
+export type ProjectFilters = z.input<typeof ProjectFiltersSchema>;
