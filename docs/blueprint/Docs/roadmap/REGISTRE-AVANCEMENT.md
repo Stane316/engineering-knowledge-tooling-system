@@ -110,10 +110,30 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 12 | 12-2 | Documentation (Semaine 23, Jours 5-7) | ✅ Rédigée | ✅ Livré le 25/10/2026 | ✅ 5 guides (USER, DEV, API, TROUBLE, CONTRIB) |
 | Sprint 12 | 12-3 | Validation MVP-2 + Préparation MVP-3 (Semaine 24, Jours 8-10) | ✅ Rédigée | ✅ Livré le 25/10/2026 | ✅ 88/88 critères, MVP2_VALIDATION.md |
 | Sprint 12 | Dossier parent | Tests + Documentation MVP-2 | ✅ Rédigée | ✅ Validé le 25/10/2026 | ✅ 88/88 critères, couverture 97,06 % |
-| Sprint 13 | 13-1 | Migration 003 + ProjectRepository + ProjectManager (Semaine 25, Jours 1-3) | ✅ Rédigée | ✅ Livré le 25/10/2026 | ✅ 003, repos, manager, 1247 tests, schéma v3 |
-| Sprint 13 | 13-2 | CLI `ekts project` + filtre `--project` (Semaine 25-26, Jours 4-6) | ✅ Rédigée | ✅ Livré le 25/10/2026 | ✅ 4 commandes + filtres, 1313 tests, codes 0/1/3 validés |
-| Sprint 13 | 13-3 | MCP projets + tests + documentation (Semaine 26, Jours 7-10) | ✅ Rédigée | ✅ Livré le 25/10/2026 | ✅ 11 outils MCP, CLI/MCP/API/guide PROJECTS, CI 7/7 |
-| Sprint 13 | Dossier parent | Gestion Multi-Projets (MVP-3, ADR-031) | ✅ Rédigée le 25/10/2026 | ✅ Validé le 25/10/2026 | ✅ Multi-projets CLI+MCP, SPRINT-13-RESULTAT.md |
+| Sprint 13 | 13-1 | Migration 003 + ProjectRepository + ProjectManager (Semaine 25, Jours 1-3) | ✅ Rédigée | ⏳ Non commencé | — |
+| Sprint 13 | 13-2 | CLI `ekts project` + filtre `--project` (Semaine 25-26, Jours 4-6) | ✅ Rédigée | ⏳ Non commencé | — |
+| Sprint 13 | 13-3 | MCP projets + tests + documentation (Semaine 26, Jours 7-10) | ✅ Rédigée | ⏳ Non commencé | — |
+| Sprint 13 | Dossier parent | Gestion Multi-Projets (MVP-3, ADR-031) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 14 | 14-1 | TimelineAnalyzer + TrendDetector (Semaine 27, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 14 | 14-2 | AlertManager + ChartGenerator (Semaine 27, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 14 | 14-3 | CLI `ekts timeline` + MCP `get_timeline` + Tests + Documentation (Semaine 28, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 14 | Dossier parent | Suivi Temporel (MVP-3, ADR-031, ADR-032) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 15 | 15-1 | Types + Migration + BestPracticeRepository + BestPracticeSearch (Semaine 29, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 15 | 15-2 | BestPracticeExtractor + BestPracticeService + associations (Semaine 29, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 15 | 15-3 | CLI `ekts bestpractice` + MCP `search/add_best_practice` + Tests + Documentation (Semaine 30, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 15 | Dossier parent | Capitalisation Connaissances (MVP-3, ADR-033 à ADR-035) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 16 | 16-1 | Types + Migration + RecommendationRules + Repository + Engine (Semaine 31, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 16 | 16-2 | RecommendationContext + Scoring contextuel + Intégration rapports Markdown/PDF (Semaine 31, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 16 | 16-3 | CLI `ekts recommend` + MCP `get_recommendations` + Tests intégration + Documentation (Semaine 32, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 16 | Dossier parent | Recommandations Contextuelles (MVP-3, ADR-036 à ADR-038) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 17 | 17-1 | Types + Migration + TemplateRepository + TemplateService (Semaine 33, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 17 | 17-2 | 10 templates prédéfinis + TemplateApplier + Personnalisation (Semaine 33, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 17 | 17-3 | CLI `ekts template` (7 cmd) + MCP (2 outils) + Export/Import + Tests + Documentation (Semaine 34, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 17 | Dossier parent | Templates Projets (MVP-3, ADR-039 à ADR-041) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 18 | 18-1 | Tests E2E MVP-3 (6 flux, 93 tests, CI) (Semaine 35, Jours 1-4) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 18 | 18-2 | Documentation MVP-3 (Guide utilisateur + Architecture + Extension) (Semaine 35, Jours 5-7) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 18 | 18-3 | Validation 87 critères + README/CHANGELOG + Préparation MVP-4 (Semaine 36, Jours 8-10) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 18 | Dossier parent | Tests + Documentation MVP-3 (ADR-042 à ADR-044) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 
 ---
 
