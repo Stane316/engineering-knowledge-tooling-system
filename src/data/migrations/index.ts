@@ -4,6 +4,7 @@ import { TABLES } from '../../shared/constants.js';
 import { migration001Init } from './001_init.js';
 import { migration002EmbeddingSpace } from './002_embedding_space.js';
 import { migration003ProjectAudits } from './003_project_audits.js';
+import { migration004Alerts } from './004_alerts.js';
 
 export interface Migration {
   version: number;
@@ -19,6 +20,7 @@ export const migrations: readonly Migration[] = [
   { version: 1, name: 'init', up: migration001Init },
   { version: 2, name: 'embedding-space', up: migration002EmbeddingSpace },
   { version: 3, name: 'project-audits', up: migration003ProjectAudits },
+  { version: 4, name: 'alerts', up: migration004Alerts },
 ];
 
 interface MigrationRow {

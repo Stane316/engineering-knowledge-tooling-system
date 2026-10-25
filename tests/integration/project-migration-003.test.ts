@@ -67,7 +67,7 @@ describe('Migration 003 — project_id (C13.1.1, C13.1.2)', () => {
 
     // 2. Migration 003 sur cette base existante.
     const executed = runMigrations(database.connection);
-    expect(executed).toEqual([3]);
+    expect(executed).toEqual([3, 4]);
 
     // 3. Colonnes et index présents, ligne historique intacte.
     expect(columnNames(legacy, 'audit_metadata')).toContain('project_id');
