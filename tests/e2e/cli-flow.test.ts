@@ -55,7 +55,9 @@ function cli(dataDir: string, ...args: string[]): CliResult {
     const stdout = execFileSync(process.execPath, [CLI, ...args], {
       encoding: 'utf8',
       env: { ...process.env, EKTS_DATA_DIR: dataDir, EKTS_OFFLINE: '1' },
-      timeout: 60_000,
+      // 120 s : premier lancement de Chrome + Lighthouse sur poste Windows
+      // sous charge (antivirus) dépassait 60 s, masquant la vraie cause.
+      timeout: 120_000,
     });
 
     return { status: 0, stdout, stderr: '' };
@@ -68,6 +70,14 @@ function cli(dataDir: string, ...args: string[]): CliResult {
       stderr: failure.stderr ?? '',
     };
   }
+}
+
+/** Échec parlant : la sortie d'erreur complète (sinon « status 1 » muet). */
+function expectOk(result: CliResult): void {
+  expect(
+    result.status,
+    `CLI en échec (${String(result.status)}) — stderr:\n${result.stderr}\nstdout:\n${result.stdout}`,
+  ).toBe(0);
 }
 
 describe.skipIf(!CHROMIUM_OK)('E2E — cli-flow', () => {
@@ -107,17 +117,17 @@ describe.skipIf(!CHROMIUM_OK)('E2E — cli-flow', () => {
   it('inspect une page locale et affiche le bilan', () => {
     const result = cli(dataDir, 'inspect', fixture.url, '--format', 'md', '--output', outputDir);
 
-    expect(result.status).toBe(0);
+    expectOk(result);
     expect(result.stdout).toContain('Inspection');
     expect(result.stdout).toContain(fixture.url);
     expect(result.stdout).toContain('Score global');
     expect(result.stdout).toContain('Audit #');
     expect(result.stdout).toContain('MARKDOWN');
-  }, 60_000);
+  }, 120_000);
 
   it('liste les audits et expose le JSON standardisé', () => {
     const human = cli(dataDir, 'audit', 'list');
-    expect(human.status).toBe(0);
+    expectOk(human);
     expect(human.stdout).toContain(fixture.url);
     expect(human.stdout).toContain('Score');
 
