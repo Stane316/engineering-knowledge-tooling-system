@@ -22,7 +22,8 @@ export type ReportSection =
   | 'ux'
   | 'content'
   | 'findings'
-  | 'recommendations';
+  | 'recommendations'
+  | 'context-recommendations';
 
 /** Options de génération d'un rapport. */
 export interface ReportOptions {
@@ -34,6 +35,9 @@ export interface ReportOptions {
   includeSections?: ReportSection[];
   /** Titre du document (défaut : « Rapport d'audit »). */
   title?: string;
+  /** Projet ciblé pour la section « context-recommendations » (Sprint 16).
+   *  Défaut : `audit.metadata.projectId` quand la section est demandée. */
+  projectId?: string;
 }
 
 /** Rapport généré (contenu toujours présent, fichier si demandé). */
