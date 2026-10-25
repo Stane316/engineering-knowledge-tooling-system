@@ -454,4 +454,4 @@ Cas élargis : `docs/TROUBLESHOOTING.md`.
 
 ---
 
-**Version :** 2.0.0 (MVP-2) · **Dernière mise à jour :** 25 octobre 2026
+**Version :** 0.1.0 (MVP-2) · **Dernière mise à jour :** 25 octobre 2026
