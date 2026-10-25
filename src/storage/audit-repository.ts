@@ -307,6 +307,36 @@ export class AuditRepository {
   }
 
   /**
+   * Liste les audits d'un projet dans l'ordre chronologique
+   * (Sprint 14 — entrée de la timeline par projet).
+   *
+   * S'appuie sur l'index `idx_audit_metadata_project_id` (migration 003).
+   * Les audits sans projet ne sont jamais retournés.
+   *
+   * @param projectId - Identifiant UUID du projet.
+   * @param limit - Nombre maximal d'audits (défaut : 500, ≥ 1).
+   * @returns Audits du projet du plus ancien au plus récent
+   *   (tableau vide si le projet n'existe pas ou n'a aucun audit).
+   * @throws {ValidationError} `limit` invalide.
+   */
+  listByProject(projectId: string, limit = 500): Audit[] {
+    if (!Number.isInteger(limit) || limit <= 0) {
+      throw new ValidationError([`limit invalide (${String(limit)})`]);
+    }
+
+    const rows = this.db
+      .prepare(
+        `SELECT * FROM audit_metadata
+          WHERE project_id = ?
+          ORDER BY timestamp ASC, id ASC
+          LIMIT ?`,
+      )
+      .all(projectId, limit) as MetadataRow[];
+
+    return rows.map((row) => this.hydrate(row));
+  }
+
+  /**
    * Supprime un audit (dimensions et constats via `ON DELETE CASCADE`),
    * ainsi que ses lignes dans l'index plein texte `audit_fts`.
    *
