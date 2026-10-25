@@ -10,6 +10,7 @@ import {
   DeleteProjectInput,
   GetProjectInput,
   GetResourceInput,
+  GetTimelineInput,
   InspectSiteInput,
   ListProjectsInput,
   ListResourcesInput,
@@ -22,6 +23,7 @@ import { executeAuditReport } from '../tools/audit-report.js';
 import { executeCreateProject } from '../tools/create-project.js';
 import { executeDeleteProject } from '../tools/delete-project.js';
 import { executeGetProject } from '../tools/get-project.js';
+import { executeGetTimeline } from '../tools/get-timeline.js';
 import { executeGetResource } from '../tools/get-resource.js';
 import { executeInspectSite } from '../tools/inspect-site.js';
 import { executeListProjects } from '../tools/list-projects.js';
@@ -42,7 +44,7 @@ export interface ToolDefinition {
   readonly description: string;
 }
 
-/** Les onze outils (MVP-2 + projets Sprint 13), dans l'ordre de `tools/list`. */
+/** Les douze outils (MVP-2 + projets S13 + timeline S14), ordre de `tools/list`. */
 export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   { name: 'search_knowledge', description: TOOL_DESCRIPTIONS.search_knowledge },
   { name: 'get_resource', description: TOOL_DESCRIPTIONS.get_resource },
@@ -55,6 +57,7 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   { name: 'list_projects', description: TOOL_DESCRIPTIONS.list_projects },
   { name: 'get_project', description: TOOL_DESCRIPTIONS.get_project },
   { name: 'delete_project', description: TOOL_DESCRIPTIONS.delete_project },
+  { name: 'get_timeline', description: TOOL_DESCRIPTIONS.get_timeline },
 ];
 
 /**
@@ -97,13 +100,15 @@ export async function dispatchTool(
       return executeGetProject(context, parse(GetProjectInput, name, args));
     case 'delete_project':
       return executeDeleteProject(context, parse(DeleteProjectInput, name, args));
+    case 'get_timeline':
+      return executeGetTimeline(context, parse(GetTimelineInput, name, args));
     default:
       throw invalidParams(`Outil inconnu : « ${name} ». Outils disponibles : ${toolNames()}.`);
   }
 }
 
 /**
- * Enregistre les onze outils sur un serveur MCP.
+ * Enregistre les douze outils sur un serveur MCP.
  *
  * Chaque gestionnaire attrape ses erreurs et renvoie un résultat `isError`
  * avec la charge utile standardisée : le SDK, lui, remplacerait un `throw` par
@@ -240,6 +245,17 @@ export function registerTools(server: McpServer, context: McpToolContext, logger
     },
     async (args) =>
       run('delete_project', logger, () => dispatchTool(context, 'delete_project', args)),
+  );
+
+  server.registerTool(
+    'get_timeline',
+    {
+      title: 'Analyser la timeline',
+      description: TOOL_DESCRIPTIONS.get_timeline,
+      inputSchema: GetTimelineInput,
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async (args) => run('get_timeline', logger, () => dispatchTool(context, 'get_timeline', args)),
   );
 }
 

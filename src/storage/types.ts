@@ -245,3 +245,57 @@ export interface TopIssue {
   /** Part des audits touchés (0-100). */
   percentage: number;
 }
+
+/** Alerte de régression persistée (Sprint 14). */
+export interface Alert {
+  /** Identifiant UUIDv4. */
+  id: string;
+  /** Projet concerné. */
+  projectId: string;
+  /** Audit de référence (plus ancien). */
+  auditIdFrom: number;
+  /** Audit comparé (plus récent). */
+  auditIdTo: number;
+  /** Dimension touchée, ou `overall` (score global). */
+  dimension: AnalysisDimension | 'overall';
+  /** Score avant régression (0-100). */
+  scoreBefore: number;
+  /** Score après régression (0-100). */
+  scoreAfter: number;
+  /** Points perdus (> seuil de création). */
+  regressionPoints: number;
+  /** Horodatage ISO 8601 de création. */
+  createdAt: string;
+  /** Horodatage ISO 8601 de résolution, `null` si active. */
+  resolvedAt: string | null;
+}
+
+/** Entrée de création d'une alerte. */
+export interface CreateAlertInput {
+  /** Projet concerné (FK `projects`). */
+  projectId: string;
+  /** Audit de référence. */
+  auditIdFrom: number;
+  /** Audit comparé. */
+  auditIdTo: number;
+  /** Dimension touchée ou `overall`. */
+  dimension: AnalysisDimension | 'overall';
+  /** Score avant régression. */
+  scoreBefore: number;
+  /** Score après régression. */
+  scoreAfter: number;
+  /** Points perdus. */
+  regressionPoints: number;
+}
+
+/** Filtres de liste d'alertes. */
+export interface AlertFilters {
+  /** Projet (UUID) à filtrer. */
+  projectId?: string;
+  /** `true` : résolues ; `false` : actives ; omis : toutes. */
+  resolved?: boolean;
+  /** Dimension (ou `overall`) à filtrer. */
+  dimension?: AnalysisDimension | 'overall';
+  /** Nombre maximal de résultats (≥ 1). */
+  limit?: number;
+}

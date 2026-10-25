@@ -69,7 +69,7 @@ describe('CLI — programme', () => {
     it('crée les trois bases et le signale', async () => {
       expect(await run(runtime, 'init')).toBe(0);
       expect(runtime.output.stdout).toContain('Bases créées.');
-      expect(runtime.output.stdout).toContain('schéma       v3');
+      expect(runtime.output.stdout).toContain('schéma       v4');
     });
 
     it('conserve les bases existantes', async () => {
@@ -88,7 +88,7 @@ describe('CLI — programme', () => {
       expect(json(runtime)).toMatchObject({
         existed: true,
         reinitialized: true,
-        schemaVersion: 3,
+        schemaVersion: 4,
         resources: 0,
       });
     });

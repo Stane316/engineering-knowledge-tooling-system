@@ -688,3 +688,41 @@ ekts search "bonnes pratiques" --mode fts --project $p.id
 | 3 | projet introuvable (`PROJECT_NOT_FOUND`), audit hors projet |
 | 4 | validation Zod (nom vide, nom > 200 caractères, `--status` atteint via API) |
 
+## 13. Commande timeline (Sprint 14-3)
+
+> Guide complet : [`guides/TIMELINE.md`](guides/TIMELINE.md).
+
+`ekts timeline` regroupe les sous-commandes `analyze`, `trends`, `alerts` et
+`chart` (Sprint 14, C14.6).
+
+```bash
+# Analyse chronologique par dimension (période, audits, notes min/max/moyenne)
+npx ekts timeline analyze <projectId|nom> --json
+npx ekts timeline analyze <id> --start 2026-10-01 --end 2026-10-15
+npx ekts timeline analyze                # tous les projets
+
+# Tendances (régression linéaire) et régressions > seuil
+npx ekts timeline trends <id> --lookback 90 --threshold 10 --json
+
+# Alertes : --check crée celles qui manquent (idempotent), --all inclut les
+# résolues, --resolve <alertId> en résout une (code 4 si déjà résolue)
+npx ekts timeline alerts <id> --check --json
+npx ekts timeline alerts <id> --all
+npx ekts timeline alerts --resolve <alertId> --json
+
+# Graphique SVG (défaut) ou PNG ; --dimension limité aux 5 dimensions + overall
+npx ekts timeline chart <id> --output evolution.svg
+npx ekts timeline chart <id> --format png --dimension performance \
+  --width 1200 --height 600 --output perf.png --json
+```
+
+| Sous-commande | Codes retour | Notes |
+| --- | --- | --- |
+| `analyze` | 0, 1, 2 (usage), 3 (projet), 4 (date/entier, `start > end`) | Analyse vide = `0` ; `--min-audits` informatif. |
+| `trends` | 0, 1, 3, 4 (`--lookback`/`--threshold` bornés) | Séries fenêtrées, `regressions[]` affichées. |
+| `alerts` | 0, 1, 3, 4 (`--threshold` borné, `--resolve` UUID/déjà résolu) | `--check` ajoute la détection manquante (spec : lecture seule — écart assumé, voir §8). |
+| `chart` | 0, 1 (I/O), 2 (projet absent d'arg, choix `--format`/`--dimension`), 3, 4 (tailles) | Écriture fichier ; sortie par défaut `timeline-chart.svg` dans le répertoire courant. |
+
+Sortie : humaine par défaut, structurée avec `--json` (mêmes contrats que
+`tools/MCP`). Les entrées invalides sont rejetées avant toute écriture base.
+

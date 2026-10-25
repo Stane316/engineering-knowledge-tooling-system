@@ -3,7 +3,7 @@
 **Sprint :** 14 sur 18  
 **MVP :** MVP-3 (Capitalisation de Projets)  
 **Durée estimée :** 2 semaines (10 jours ouvrables)  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ (25/10/2026 — voir `SPRINT-14-RESULTAT.md`)
 
 ---
 

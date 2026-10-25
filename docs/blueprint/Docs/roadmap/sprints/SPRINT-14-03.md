@@ -2,7 +2,7 @@
 
 **Sprint :** 14-03 sur 14 (Sous-sprint 3/3)  
 **Durée :** 3 jours  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ (25/10/2026 — voir `SPRINT-14-RESULTAT.md`)
 
 ---
 
