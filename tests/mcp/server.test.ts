@@ -109,7 +109,7 @@ describe('serveur MCP — handshake et catalogue', () => {
     }
   });
 
-  it('liste les douze outils avec leur schéma JSON', async () => {
+  it('liste les quatorze outils avec leur schéma JSON', async () => {
     const { tools } = await harness.client.listTools();
 
     expect(tools.map((tool) => tool.name)).toEqual([...TOOL_NAMES]);
@@ -119,10 +119,15 @@ describe('serveur MCP — handshake et catalogue', () => {
     expect(search?.inputSchema).toMatchObject({ type: 'object' });
     expect(search?.inputSchema.required).toContain('query');
 
-    const WRITING_TOOLS = new Set(['inspect_site', 'create_project', 'delete_project']);
+    const WRITING_TOOLS = new Set([
+      'inspect_site',
+      'create_project',
+      'delete_project',
+      'add_best_practice',
+    ]);
     for (const tool of tools) {
-      // Trois outils écrivent (inspection réseau, création/suppression de
-      // projet) ; les neuf autres sont strictement en lecture.
+      // Quatre outils écrivent (inspection réseau, création/suppression de
+      // projet, ajout de bonne pratique) ; les dix autres sont en lecture.
       expect(tool.annotations?.readOnlyHint).toBe(!WRITING_TOOLS.has(tool.name));
     }
   });
@@ -339,9 +344,9 @@ describe('startStdioServer', () => {
 
     try {
       await client.connect(clientTransport);
-      expect(Object.keys((await client.listTools()).tools)).toHaveLength(12);
+      expect(Object.keys((await client.listTools()).tools)).toHaveLength(14);
       expect(lines.join('')).toContain('Serveur MCP EKTS démarré');
-      expect(lines.join('')).toContain('"tools":12');
+      expect(lines.join('')).toContain('"tools":14');
     } finally {
       await client.close();
       await handle.close();

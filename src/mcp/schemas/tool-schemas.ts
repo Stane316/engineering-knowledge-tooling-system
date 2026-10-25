@@ -258,6 +258,10 @@ export const TOOL_DESCRIPTIONS = {
     'Supprime un projet par son UUID. Les audits et ressources associés sont conservés avec project_id à NULL (aucune suppression en cascade).',
   get_timeline:
     "Analyse la timeline d'un projet (période, scores par dimension, tendances par régression linéaire, régressions au-dessus du seuil et alertes actives) ; résumé Markdown + JSON structuré.",
+  search_best_practices:
+    'Recherche les bonnes pratiques capitalisées (FTS5 + filtres catégorie/tag/projet, tri par pertinence) ; résumé Markdown + résultats JSON.',
+  add_best_practice:
+    'Crée manuellement une bonne pratique (titre ≥ 3 caractères, description ≥ 10, catégorie, tags optionnels) ; retourne la pratique créée.',
 } as const;
 
 /** Noms des outils, dans l'ordre de `tools/list`. */
@@ -274,6 +278,8 @@ export const TOOL_NAMES = [
   'get_project',
   'delete_project',
   'get_timeline',
+  'search_best_practices',
+  'add_best_practice',
 ] as const;
 
 /** Nom d'un outil MCP. */
@@ -291,4 +297,47 @@ export type CreateProjectParams = z.output<typeof CreateProjectInput>;
 export type ListProjectsParams = z.output<typeof ListProjectsInput>;
 export type GetProjectParams = z.output<typeof GetProjectInput>;
 export type GetTimelineParams = z.output<typeof GetTimelineInput>;
+
+/** Catégories de bonnes pratiques (5 dimensions + général), Sprint 15. */
+export const BEST_PRACTICE_CATEGORIES = [
+  'performance',
+  'accessibility',
+  'seo',
+  'ux',
+  'content',
+  'general',
+] as const;
+
+/** Entrée de `search_best_practices` (lecture seule). */
+export const SearchBestPracticesInput = z.object({
+  query: z.string().min(1, 'requête vide').optional(),
+  category: z.enum(BEST_PRACTICE_CATEGORIES).optional(),
+  tag: z.string().min(1).optional(),
+  project_id: ProjectIdInput.optional(),
+  limit: z
+    .number()
+    .int('la limite doit être un entier')
+    .min(0, 'la limite ne peut pas être négative')
+    .max(500, 'la limite ne peut pas dépasser 500')
+    .default(10),
+});
+
+/** Entrée de `add_best_practice` (écriture). */
+export const AddBestPracticeInput = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(3, 'titre trop court (3 caractères minimum)')
+    .max(200, 'titre trop long (200 caractères maximum)'),
+  description: z
+    .string()
+    .trim()
+    .min(10, 'description trop courte (10 caractères minimum)')
+    .max(4000, 'description trop longue (4000 caractères maximum)'),
+  category: z.enum(BEST_PRACTICE_CATEGORIES),
+  tags: z.array(z.string().trim().min(1)).max(30).optional(),
+});
+
+export type SearchBestPracticesParams = z.output<typeof SearchBestPracticesInput>;
+export type AddBestPracticeParams = z.output<typeof AddBestPracticeInput>;
 export type DeleteProjectParams = z.output<typeof DeleteProjectInput>;

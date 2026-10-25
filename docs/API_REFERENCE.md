@@ -138,7 +138,7 @@ ekts project delete <id> [-f|--force]
 ## MCP
 
 Serveur stdio : `node dist/mcp/server.js` (config client, voir
-`docs/MCP.md`). **12 outils** — entrées validées par Zod, erreurs renvoyées en
+`docs/MCP.md`). **14 outils** — entrées validées par Zod, erreurs renvoyées en
 payload structuré (`isError: true`, codes MCP : `-32602` paramètres,
 `-32000` ressource).
 
@@ -385,6 +385,34 @@ const png = charts.generateDimensionChart(analysis, 'performance', 'png');
 
 **Entrées CLI** : sous-commandes `ekts timeline analyze|trends|alerts|chart`
 (`src/cli/commands/timeline.ts`).
+
+### API best-practices (Sprint 15)
+
+Module `src/best-practices/**` + migration `src/data/migrations/005_best_practices.ts`
+(tables `best_practices`, `best_practices_fts`, `finding_best_practice`).
+
+```typescript
+import { BestPracticeService } from './src/best-practices/best-practice-service.js';
+
+// Façade synchrone (façade = création manuelle, extraction, recherche, liens)
+const service = new BestPracticeService(connection, { minOccurrences: 2 });
+
+const practice = service.create({ title, description, category, tags });
+service.list({ category: 'performance', tag: 'webp', limit: 20 });
+service.searchPractices({ query: 'images', limit: 10 }); // FTS5 (+ RRF si ranker)
+const report = service.extractFromProject(projectId);     // ExtractionReport
+service.linkToFinding(practice.id, 'finding title', 'performance', 0.9);
+service.findByFinding('finding title', 'performance');     // BestPractice[]
+service.findLinkedFindings(practice.id);                  // FindingBestPracticeLink[]
+service.count({ isManual: true });
+```
+
+Sous-modules (utilisables directement) : `BestPracticeRepository` (CRUD +
+associations), `BestPracticeSearch` (FTS5/RRF), `BestPracticeExtractor`
+(critères configurables), types dans `best-practice.types.ts`.
+
+**Entrées CLI** : `ekts bestpractice|bp …` (`src/cli/commands/best-practice.ts`).
+**Entrées MCP** : `SearchBestPracticesInput` / `AddBestPracticeInput`.
 
 ### Types principaux
 

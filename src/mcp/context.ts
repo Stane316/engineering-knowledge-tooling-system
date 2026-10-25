@@ -9,6 +9,7 @@ import { fromInspection } from '../analysis/adapter.js';
 import { Inspector } from '../browser/inspection/inspector.js';
 import type { InspectionLevel, L3InspectionResult } from '../browser/inspection/types.js';
 import { createSearchEngine, openCliServices, type CliServices } from '../cli/services.js';
+import { BestPracticeService } from '../best-practices/best-practice-service.js';
 import { AlertManager } from '../timeline/alert-manager.js';
 import { ChartGenerator } from '../timeline/chart-generator.js';
 import { TimelineAnalyzer } from '../timeline/timeline-analyzer.js';
@@ -103,6 +104,8 @@ export interface McpToolContext {
   readonly projects: IProjectManager;
   /** Suivi temporel (Sprint 14). */
   readonly timeline: TimelineToolServices;
+  /** Capitalisation des bonnes pratiques (Sprint 15). */
+  readonly bestPractices: BestPracticeService;
 }
 
 /** Contexte complet, avec la fermeture des ressources ouvertes. */
@@ -188,6 +191,7 @@ export function openMcpServices(options: OpenMcpOptions = {}): McpServices {
     audits,
     projects: services.projects,
     timeline: buildTimelineServices(connection),
+    bestPractices: new BestPracticeService(connection),
     dataDir,
     embeddingsAvailable: services.embeddings !== undefined,
     close: services.close,
