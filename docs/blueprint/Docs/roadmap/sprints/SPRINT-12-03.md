@@ -3,7 +3,7 @@
 **Durée :** 3 jours  
 **Objectif :** Valider les 88 critères MVP-2 et préparer le MVP-3  
 **Dépendance :** Sprint 12-2 (Documentation) ✅
-**Statut :** ⏳ NON COMMENCÉ  
+**Statut :** ✅ TERMINÉ (voir `SPRINT-12-03-RESULTAT.md`)  
 
 ---
 
