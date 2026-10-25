@@ -755,3 +755,33 @@ npx ekts bestpractice extract <projectId> --min-occurrences 2 --min-audits 2
 Entrées invalides rejetées avant écriture ; sortie `human`/`--json` via
 `execute`.
 
+## 15. Commande recommend (Sprint 16-03)
+
+> Guide complet : [`guides/RECOMMENDATIONS.md`](guides/RECOMMENDATIONS.md).
+
+`ekts recommend` (alias `rec`) — 6 sous-commandes (C16.8 → C16.11) :
+
+```bash
+npx ekts recommend generate <projectId> -n 10 --min-score 0.3 --json
+npx ekts rec generate <projectId> --dimensions performance,seo --no-rules
+npx ekts recommend list <projectId> -n 20
+npx ekts rec rules list -d performance --active --json
+npx ekts rec rules add -n "Images WebP" --dimension performance --severity 2 \
+  --pattern "images non optimisées" --rec-title "Optimiser les images" \
+  --rec-desc "Convertir en WebP" --effort 2 --impact 4 --priority high
+npx ekts rec rules toggle <ruleId>
+npx ekts rec rules delete <ruleId> --yes
+```
+
+| Sous-commande | Codes retour | Notes |
+| --- | --- | --- |
+| `generate <projectId>` | 0, 3, 4 | Options validées avant la ressource ; rapport vide = 0 non bloquant (C16.20). |
+| `list [projectId]` | 0, 3, 4 | `projectId` requis (4 si absent) ; lecture des reco persistées. |
+| `rules list` | 0, 4 | Filtres `--dimension`, `--active`, `--limit` 1-500. |
+| `rules add` | 0, 2, 4 | Champs requis ; dimension/priorité/sevérité 0-4/effort-impact 1-5 validés. |
+| `rules delete <id>` | 0, 1, 4 | `--yes` obligatoire (aligné `bestpractice delete`); règle absente = 4. |
+| `rules toggle <id>` | 0, 4 | Active/désactive via `updateRule(isActive)`. |
+
+Sortie `human`/`--json` via `execute` ; moteur injecté avec
+`BestPracticeService` (bonnes pratiques proposées en bonus C16.12).
+

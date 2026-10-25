@@ -10,6 +10,8 @@ import { Inspector } from '../browser/inspection/inspector.js';
 import type { InspectionLevel, L3InspectionResult } from '../browser/inspection/types.js';
 import { createSearchEngine, openCliServices, type CliServices } from '../cli/services.js';
 import { BestPracticeService } from '../best-practices/best-practice-service.js';
+import { RecommendationContext } from '../recommendations/recommendation-context.js';
+import { RecommendationEngine } from '../recommendations/recommendation-engine.js';
 import { AlertManager } from '../timeline/alert-manager.js';
 import { ChartGenerator } from '../timeline/chart-generator.js';
 import { TimelineAnalyzer } from '../timeline/timeline-analyzer.js';
@@ -106,6 +108,8 @@ export interface McpToolContext {
   readonly timeline: TimelineToolServices;
   /** Capitalisation des bonnes pratiques (Sprint 15). */
   readonly bestPractices: BestPracticeService;
+  /** Moteur de recommandations contextuelles (Sprint 16). */
+  readonly recommendations: RecommendationEngine;
 }
 
 /** Contexte complet, avec la fermeture des ressources ouvertes. */
@@ -185,13 +189,20 @@ export function openMcpServices(options: OpenMcpOptions = {}): McpServices {
     },
   };
 
+  const bestPracticeService = new BestPracticeService(connection);
+
   return {
     manager: services.manager,
     search: createSearchEngine(connection, services.embeddings),
     audits,
     projects: services.projects,
     timeline: buildTimelineServices(connection),
-    bestPractices: new BestPracticeService(connection),
+    bestPractices: bestPracticeService,
+    recommendations: new RecommendationEngine(
+      connection,
+      new RecommendationContext(connection, bestPracticeService),
+      bestPracticeService,
+    ),
     dataDir,
     embeddingsAvailable: services.embeddings !== undefined,
     close: services.close,

@@ -2,7 +2,7 @@
 
 **Sprint :** 16-03 sur 16 (Sous-sprint 3/3)  
 **Durée :** 3 jours  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ
 
 ---
 
@@ -1094,4 +1094,4 @@ npm run verify
 ---
 
 **Document rédigé le 25 octobre 2026 — Sprint 16-03 du projet EKTS**  
-**Statut : ⏳ Dossier Sprint 16-03 prêt pour implémentation**
+**Statut : ✅ Sprint 16-03 implémenté et validé**

@@ -250,7 +250,7 @@ describe('binaire MCP (intégration stdio)', () => {
     expect(init?.result?.instructions).toContain('search_knowledge');
   });
 
-  it('liste les quatorze outils', async () => {
+  it('liste les quinze outils', async () => {
     const response = await client.request('tools/list', {});
     const tools = response.result?.tools as { name: string; inputSchema: unknown }[];
 
@@ -269,6 +269,7 @@ describe('binaire MCP (intégration stdio)', () => {
       'get_timeline',
       'search_best_practices',
       'add_best_practice',
+      'get_recommendations',
     ]);
     expect(tools[0]?.inputSchema).toMatchObject({ type: 'object' });
   });

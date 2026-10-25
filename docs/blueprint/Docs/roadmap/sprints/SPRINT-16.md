@@ -3,7 +3,7 @@
 **Sprint :** 16 sur 18  
 **MVP :** MVP-3 (Capitalisation de Projets)  
 **Durée estimée :** 2 semaines (9 jours ouvrables)  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ
 
 ---
 
@@ -442,4 +442,4 @@ Sprint 16-03 (CLI + MCP + Docs)
 ---
 
 **Document rédigé le 25 octobre 2026 — Sprint 16 du projet EKTS**  
-**Statut : ⏳ Dossier Sprint 16 prêt pour implémentation**
+**Statut : ✅ Sprint 16 implémenté et validé (16-01/02/03)**

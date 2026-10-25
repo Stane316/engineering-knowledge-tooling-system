@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 25 octobre 2026 — Sprint 15 (Capitalisation des connaissances)  
+**Dernière mise à jour :** 25 octobre 2026 — Sprint 16 (Recommandations contextuelles)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -122,10 +122,10 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 15 | 15-2 | BestPracticeExtractor + BestPracticeService + associations (Semaine 29, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ 66 tests module, verify 0 |
 | Sprint 15 | 15-3 | CLI `ekts bestpractice` + MCP `search/add_best_practice` + Tests + Documentation (Semaine 30, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ guide BEST_PRACTICES.md, catalogue 14 outils |
 | Sprint 15 | Dossier parent | Capitalisation Connaissances (MVP-3, ADR-033 à ADR-035) | ✅ Rédigée le 25/10/2026 | ✅ Validé le 25/10/2026 | ✅ `SPRINT-15-RESULTAT.md` (12 écarts P3) |
-| Sprint 16 | 16-1 | Types + Migration + RecommendationRules + Repository + Engine (Semaine 31, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
-| Sprint 16 | 16-2 | RecommendationContext + Scoring contextuel + Intégration rapports Markdown/PDF (Semaine 31, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
-| Sprint 16 | 16-3 | CLI `ekts recommend` + MCP `get_recommendations` + Tests intégration + Documentation (Semaine 32, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
-| Sprint 16 | Dossier parent | Recommandations Contextuelles (MVP-3, ADR-036 à ADR-038) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 16 | 16-1 | Types + Migration + RecommendationRules + Repository + Engine (Semaine 31, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ 47 tests, migration 006 (schéma v6) |
+| Sprint 16 | 16-2 | RecommendationContext + Scoring contextuel + Intégration rapports Markdown/PDF (Semaine 31, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ 20 tests, sections C16.6/C16.7 |
+| Sprint 16 | 16-3 | CLI `ekts recommend` + MCP `get_recommendations` + Tests intégration + Documentation (Semaine 32, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 25/10/2026 | ✅ guide RECOMMENDATIONS.md, catalogue 15 outils |
+| Sprint 16 | Dossier parent | Recommandations Contextuelles (MVP-3, ADR-036 à ADR-038) | ✅ Rédigée le 25/10/2026 | ✅ Validé le 25/10/2026 | ✅ `SPRINT-16-RESULTAT.md` (écarts P3) |
 | Sprint 17 | 17-1 | Types + Migration + TemplateRepository + TemplateService (Semaine 33, Jours 1-3) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 17 | 17-2 | 10 templates prédéfinis + TemplateApplier + Personnalisation (Semaine 33, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 17 | 17-3 | CLI `ekts template` (7 cmd) + MCP (2 outils) + Export/Import + Tests + Documentation (Semaine 34, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |

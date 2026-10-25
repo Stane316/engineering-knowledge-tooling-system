@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import type { RecommendationEngine } from '../recommendations/recommendation-engine.js';
 import type { Audit } from '../storage/types.js';
 
 import { MarkdownTemplate } from './templates/markdown.js';
@@ -27,6 +28,13 @@ export class MarkdownReportGenerator {
   private readonly template = new MarkdownTemplate();
 
   /**
+   * @param recommendationEngine - Moteur de recommandations (Sprint 16).
+   *   Absent (défaut) = aucune section contextuelle : comportement historique
+   *   strictement conservé (pas de breaking change).
+   */
+  constructor(private readonly recommendationEngine?: RecommendationEngine) {}
+
+  /**
    * Génère le rapport Markdown complet d'un audit.
    *
    * @param audit - Audit à représenter (jamais modifié).
@@ -38,12 +46,93 @@ export class MarkdownReportGenerator {
     this.assertAudit(audit);
     const includeSections = options?.includeSections;
 
-    const content = this.template.generateReport(
+    let content = this.template.generateReport(
       audit,
       includeSections ? { includeSections } : undefined,
     );
 
+    const contextSection = this.buildContextRecommendationsSection(audit, options);
+    if (contextSection !== undefined) {
+      content = `${content}\n${contextSection}`;
+    }
+
     return this.finish(audit, content, options);
+  }
+
+  /**
+   * Construit la section « Recommandations contextuelles » (Sprint 16,
+   * C16.6) si les conditions sont réunies.
+   *
+   * Conditions : moteur injecté + projet résolu (option `projectId`,
+   * sinon `audit.metadata.projectId`) + section autorisée par
+   * `includeSections` (si fourni) + au moins une recommandation après
+   * `minRelevanceScore: 0.5` (5 max).
+   *
+   * Publique pour testabilité directe (écart P3 : `private` dans le spec).
+   * Échec du moteur = silencieux : la section est optionnelle, jamais
+   * bloquante (critère du spec §3.3).
+   */
+  buildContextRecommendationsSection(
+    audit: Audit,
+    options?: Partial<ReportOptions>,
+  ): string | undefined {
+    if (this.recommendationEngine === undefined) {
+      return undefined;
+    }
+
+    const projectId = options?.projectId ?? audit.metadata.projectId ?? undefined;
+    if (projectId === undefined || projectId === null || projectId === '') {
+      return undefined;
+    }
+
+    const sections = options?.includeSections;
+    if (sections !== undefined && !sections.includes('context-recommendations')) {
+      return undefined;
+    }
+
+    let recommendationReport;
+    try {
+      recommendationReport = this.recommendationEngine.generateRecommendations(projectId, {
+        maxRecommendations: 5,
+        minRelevanceScore: 0.5,
+      });
+    } catch {
+      // Recommandations optionnelles : jamais bloquant pour le rapport.
+      return undefined;
+    }
+
+    if (recommendationReport.recommendations.length === 0) {
+      return undefined;
+    }
+
+    const lines: string[] = ['## 🧭 Recommandations contextuelles', ''];
+    lines.push(
+      `> ${String(recommendationReport.recommendations.length)} recommandation(s) ` +
+        `générée(s) en ${String(recommendationReport.durationMs)} ms`,
+    );
+    lines.push('');
+
+    recommendationReport.recommendations.forEach((recommendation, index) => {
+      const scorePercent = (recommendation.relevanceScore * 100).toFixed(0);
+      const effortStars = '⭐'.repeat(recommendation.effort);
+      const impactStars = '💥'.repeat(recommendation.impact);
+
+      lines.push(`### ${String(index + 1)}. ${recommendation.recommendationTitle}`, '');
+      lines.push(
+        `**Pertinence :** ${scorePercent}% | **Priorité :** \`${recommendation.priority}\` ` +
+          `| **Effort :** ${effortStars} | **Impact :** ${impactStars}`,
+        '',
+      );
+      lines.push(recommendation.recommendationDescription, '');
+
+      if (recommendation.findingTitle !== null && recommendation.findingTitle !== undefined) {
+        lines.push(`*Constat associé : ${recommendation.findingTitle}*`, '');
+      }
+
+      lines.push('---', '');
+    });
+
+    return lines.join('\n').trimEnd();
   }
 
   /**

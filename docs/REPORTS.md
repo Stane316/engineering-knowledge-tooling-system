@@ -138,6 +138,23 @@ const report = await new MarkdownReportGenerator().generateComparison(comparison
 4. **Détail par dimension** : score + recommandations associées (top 5)
 5. **Constats** : regroupés par priorité décroissante
 6. **Top 5 recommandations** : actions prioritaires (sévérité × impact)
+7. **🧭 Recommandations contextuelles** (Sprint 16, *optionnelle*) : section
+   « context-recommendations » ajoutée en fin de **Markdown** (fin de page) et
+   de **PDF** (nouvelle page, bordure colorée par priorité) lorsque le
+   générateur reçoit le moteur et que l'audit porte un `projectId` :
+
+```typescript
+const generator = new MarkdownReportGenerator(recommendationEngine);
+const report = await generator.generate(audit); // ajoute la section si éligible
+// ou contrôle explicite : includeSections: ['header', 'context-recommendations']
+```
+
+- 5 recommandations maximales avec pertinence ≥ 0.5 ;
+- jamais bloquante : moteur absent/en échec, projet absent ou aucune reco
+  éligible → section simplement omise ;
+- HTML du PDF échappé (titres/descriptions de reco neutralisés) ;
+- sans moteur injecté, le rapport est strictement identique au comportement
+  historique (pas de breaking change).
 
 ---
 

@@ -565,19 +565,57 @@ créé est alors rattaché au projet. Omis → audit sans projet.
 { "url": "https://example.com", "level": "L3", "project_id": "550e8400-…" }
 ```
 
-### Vérification (14 outils)
+### Vérification (15 outils)
 
 ```bash
 # Après npm run build, avec le serveur configuré (voir § 4) :
-# tools/list doit retourner les 14 noms de TOOL_NAMES dans l'ordre :
+# tools/list doit retourner les 15 noms de TOOL_NAMES dans l'ordre :
 # search_knowledge, get_resource, list_resources, validate_resource,
 # inspect_site, audit_history, audit_report, create_project, list_projects,
 # get_project, delete_project, get_timeline, search_best_practices,
-# add_best_practice
+# add_best_practice, get_recommendations
 ```
 
-Les tests `tests/mcp/**` vérifient le catalogue (14 noms, 14 descriptions
+Les tests `tests/mcp/**` vérifient le catalogue (15 noms, 15 descriptions
 distinctes), les entrées Zod et les codes d'erreur sur une base SQLite réelle.
+
+## 19. Outil recommandations (Sprint 16-03)
+
+> Guide complet : [`guides/RECOMMENDATIONS.md`](guides/RECOMMENDATIONS.md).
+
+### `get_recommendations` — génération contextuelle (C16.10)
+
+Génère les recommandations d'un projet (règles + scoring statistique +
+ajustements), les **persiste** (régénération idempotente) et renvoie résumé
+Markdown + JSON.
+
+**Entrée** (`project_id` obligatoire) :
+
+```json
+{ "project_id": "550e8400-…", "max_recommendations": 10,
+  "min_relevance_score": 0.3, "dimensions": ["performance"],
+  "include_rules": true, "include_statistical": true }
+```
+
+| Champ | Type | Défaut | Rejet (`-32602`) |
+| --- | --- | --- | --- |
+| `project_id` | UUID | — (requis) | format/absent |
+| `max_recommendations` | entier 1-500 | `10` | 0, décimal, > 500 |
+| `min_relevance_score` | nombre 0-1 | `0.3` | hors bornes |
+| `dimensions` | enum 5 dimensions[] | toutes | valeur hors liste |
+| `include_rules` / `include_statistical` | bool | `true` | non booléen |
+
+**Réponse** : `{ projectId, totalRecommendations, rulesApplied,
+statisticalRecommendations, durationMs, recommendations[{id, projectId,
+ruleId, findingTitle, recommendationTitle, recommendationDescription,
+dimension, relevanceScore, effort, impact, priority, generatedAt}],
+summary }` — `ruleId: null` = source statistique (📊), sinon règle (📏).
+
+**Références** : `GetRecommendationsInput` (`tool-schemas.ts`),
+`TOOL_NAMES` (15), dispatch `handlers/tools.ts`, `executeGetRecommendations`,
+`McpToolContext.recommendations` (engine + contexte + BestPracticeService
+construits dans `openMcpServices`), annotation `readOnlyHint: true`
+(générations reproductibles).
 
 ## 18. Outils bonnes pratiques (Sprint 15-03)
 

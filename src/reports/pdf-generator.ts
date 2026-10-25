@@ -3,6 +3,7 @@ import { existsSync, readdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
 
+import type { RecommendationEngine } from '../recommendations/recommendation-engine.js';
 import type { Audit } from '../storage/types.js';
 
 import { HtmlTemplate } from './templates/html.js';
@@ -10,6 +11,32 @@ import type { ComparisonReport, GeneratedReport, ReportOptions } from './types.j
 
 /** Format des rapports produits par ce générateur. */
 const FORMAT = 'pdf' as const;
+
+/** Couleur HTML par priorité (section recommandations contextuelles). */
+function priorityColorOf(priority: string): string {
+  switch (priority) {
+    case 'critical':
+      return '#c53030';
+    case 'high':
+      return '#c05621';
+    case 'medium':
+      return '#b7791f';
+    case 'low':
+      return '#2f855a';
+    default:
+      return '#718096';
+  }
+}
+
+/** Échappement HTML minimal (titres/descriptions de recommandations). */
+function escapeHtmlHtml(value: string): string {
+  return value
+    .replace(/&/gu, '&amp;')
+    .replace(/</gu, '&lt;')
+    .replace(/>/gu, '&gt;')
+    .replace(/"/gu, '&quot;')
+    .replace(/'/gu, '&#39;');
+}
 
 /** Marge haute/basse du PDF (mm). */
 const MARGIN_VERT = '20mm';
@@ -52,6 +79,13 @@ export class PDFReportGenerator {
   private readonly template = new HtmlTemplate();
 
   /**
+   * @param recommendationEngine - Moteur de recommandations (Sprint 16).
+   *   Absent (défaut) = aucune section contextuelle : comportement historique
+   *   strictement conservé (pas de breaking change).
+   */
+  constructor(private readonly recommendationEngine?: RecommendationEngine) {}
+
+  /**
    * Génère le rapport PDF complet d'un audit.
    *
    * @param audit - Audit à représenter (jamais modifié).
@@ -67,8 +101,91 @@ export class PDFReportGenerator {
       throw new Error('Audit invalide : métadonnées ou score global manquant.');
     }
 
-    const html = this.template.generateReport(audit);
+    let html = this.template.generateReport(audit);
+    const contextSection = this.buildContextRecommendationsHtml(audit, options);
+    if (contextSection !== undefined) {
+      html = html.replace('<footer>', `${contextSection}\n<footer>`);
+    }
     return this.render(html, audit, options);
+  }
+
+  /**
+   * Construit le bloc HTML « Recommandations contextuelles » (Sprint 16,
+   * C16.7) : nouvelle page, bordure colorée par priorité, HTML échappé.
+   *
+   * Mêmes conditions que la variante Markdown (moteur, projet, section
+   * autorisée, ≥ 1 reco ≥ 0.5, 5 max) et même tolérance d'échec (section
+   * optionnelle, jamais bloquante). Publique pour testabilité directe
+   * (écart P3 : `private` dans le spec).
+   */
+  buildContextRecommendationsHtml(
+    audit: Audit,
+    options?: Partial<ReportOptions>,
+  ): string | undefined {
+    if (this.recommendationEngine === undefined) {
+      return undefined;
+    }
+
+    const projectId = options?.projectId ?? audit.metadata.projectId ?? undefined;
+    if (projectId === undefined || projectId === null || projectId === '') {
+      return undefined;
+    }
+
+    const sections = options?.includeSections;
+    if (sections !== undefined && !sections.includes('context-recommendations')) {
+      return undefined;
+    }
+
+    let recommendationReport;
+    try {
+      recommendationReport = this.recommendationEngine.generateRecommendations(projectId, {
+        maxRecommendations: 5,
+        minRelevanceScore: 0.5,
+      });
+    } catch {
+      return undefined;
+    }
+
+    if (recommendationReport.recommendations.length === 0) {
+      return undefined;
+    }
+
+    const items = recommendationReport.recommendations
+      .map((recommendation, index) => {
+        const scorePercent = (recommendation.relevanceScore * 100).toFixed(0);
+        const priorityColor = priorityColorOf(recommendation.priority);
+        const findingLine =
+          recommendation.findingTitle === null || recommendation.findingTitle === undefined
+            ? ''
+            : `<div style="font-size: 12px; color: #718096; margin-top: 4px;">Constat : ${escapeHtmlHtml(recommendation.findingTitle)}</div>`;
+
+        return `
+        <div style="margin-bottom: 16px; padding: 12px; border-left: 4px solid ${priorityColor}; background: #f9fafb;">
+          <h3 style="margin: 0 0 8px 0; color: #1a1a2e;">${String(index + 1)}. ${escapeHtmlHtml(recommendation.recommendationTitle)}</h3>
+          <p style="margin: 0 0 8px 0; color: #4a5568; font-size: 14px;">${escapeHtmlHtml(recommendation.recommendationDescription)}</p>
+          <div style="font-size: 12px; color: #718096;">
+            <span style="color: ${priorityColor}; font-weight: bold;">${recommendation.priority.toUpperCase()}</span> ·
+            Pertinence : ${scorePercent}% ·
+            Effort : ${String(recommendation.effort)}/5 ·
+            Impact : ${String(recommendation.impact)}/5
+          </div>
+          ${findingLine}
+        </div>
+      `;
+      })
+      .join('\n');
+
+    return `
+      <div style="page-break-before: always; margin-top: 32px;">
+        <h2 style="color: #1a1a2e; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">
+          🧭 Recommandations contextuelles
+        </h2>
+        <p style="color: #718096; font-size: 13px; margin-bottom: 16px;">
+          ${String(recommendationReport.recommendations.length)} recommandation(s) générée(s) en ${String(recommendationReport.durationMs)} ms
+        </p>
+        ${items}
+      </div>
+    `;
   }
 
   /**

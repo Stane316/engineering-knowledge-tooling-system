@@ -138,7 +138,7 @@ ekts project delete <id> [-f|--force]
 ## MCP
 
 Serveur stdio : `node dist/mcp/server.js` (config client, voir
-`docs/MCP.md`). **14 outils** — entrées validées par Zod, erreurs renvoyées en
+`docs/MCP.md`). **15 outils** — entrées validées par Zod, erreurs renvoyées en
 payload structuré (`isError: true`, codes MCP : `-32602` paramètres,
 `-32000` ressource).
 
@@ -385,6 +385,49 @@ const png = charts.generateDimensionChart(analysis, 'performance', 'png');
 
 **Entrées CLI** : sous-commandes `ekts timeline analyze|trends|alerts|chart`
 (`src/cli/commands/timeline.ts`).
+
+### API recommendations (Sprint 16)
+
+Module `src/recommendations/**` + migration `src/data/migrations/006_recommendations.ts`
+(tables `recommendation_rules`, `generated_recommendations` ; schéma v6).
+
+```typescript
+import { RecommendationEngine } from './src/recommendations/recommendation-engine.js';
+import { RecommendationContext } from './src/recommendations/recommendation-context.js';
+
+// Moteur hybride (ADR-036/037) : règles explicites + scoring statistique
+const engine = new RecommendationEngine(
+  connection,
+  new RecommendationContext(connection, bestPracticeService),
+  bestPracticeService,
+);
+
+engine.addRule({ /* CreateRecommendationRuleInput (effort/impact/priority optionnels) */ });
+engine.listRules({ dimension: 'performance', isActive: true, limit: 50 });
+engine.updateRule(id, { isActive: false });
+engine.deleteRule(id);
+
+const report = engine.generateRecommendations(projectId, {
+  maxRecommendations: 10,   // 1-500 côté CLI
+  minRelevanceScore: 0.3,
+  includeRules: true,
+  includeStatistical: true,
+  dimensions: ['performance'],
+});
+// report : { projectId, totalRecommendations, rulesApplied,
+//            statisticalRecommendations, durationMs, recommendations[] }
+
+engine.repositoryAccess.getRecommendations(projectId, 20); // lecture persistée
+```
+
+Sous-modules : `recommendation-rules.ts` (purs : `normalizeFindingTitle`,
+`matchFindingPattern`, `scoreToPriority`, `clampScore`,
+`DEFAULT_ENGINE_CONFIG`), `RecommendationRepository` (CRUD),
+`RecommendationContext.buildContext` (audits, fréquences, tendances ±5, taux
+de résolution, BP associées), types dans `recommendation.types.ts`.
+
+**Entrées CLI** : `ekts recommend|rec …` (`src/cli/commands/recommend.ts`).
+**Entrée MCP** : `GetRecommendationsInput` (`project_id`).
 
 ### API best-practices (Sprint 15)
 

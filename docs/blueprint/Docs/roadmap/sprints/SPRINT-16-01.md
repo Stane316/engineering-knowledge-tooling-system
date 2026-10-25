@@ -2,7 +2,7 @@
 
 **Sprint :** 16-01 sur 16 (Sous-sprint 1/3)  
 **Durée :** 3 jours  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ
 
 ---
 
@@ -1571,4 +1571,4 @@ Sprint 16-02 : Contexte + Scoring + Intégration rapports
 ---
 
 **Document rédigé le 25 octobre 2026 — Sprint 16-01 du projet EKTS**  
-**Statut : ⏳ Dossier Sprint 16-01 prêt pour implémentation**
+**Statut : ✅ Sprint 16-01 implémenté et validé**
