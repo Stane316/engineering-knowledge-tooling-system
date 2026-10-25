@@ -138,6 +138,7 @@ describe('serveur MCP — appels d’outils', () => {
   });
 
   afterEach(async () => {
+    vi.restoreAllMocks();
     await harness.close();
     fixture.cleanup();
   });
@@ -210,6 +211,104 @@ describe('serveur MCP — appels d’outils', () => {
 
     expect(result.isError).toBe(true);
     expect(firstText(result)).toContain('-32602');
+  });
+
+  it('exécute audit_history sur une base vide', async () => {
+    const result = (await harness.client.callTool({
+      name: 'audit_history',
+      arguments: { limit: 5 },
+    })) as CallToolResult;
+    const payload = JSON.parse(firstText(result)) as { audits: unknown[] };
+
+    expect(result.isError).toBeFalsy();
+    expect(payload.audits).toEqual([]);
+  });
+
+  it('exécute audit_report qui renvoie une erreur de ressource absente', async () => {
+    const result = (await harness.client.callTool({
+      name: 'audit_report',
+      arguments: { audit_id: 999 },
+    })) as CallToolResult;
+    const payload = JSON.parse(firstText(result)) as {
+      error: { code: number; data?: { resource?: string } };
+    };
+
+    expect(result.isError).toBe(true);
+    expect(payload.error.code).toBe(-32000);
+    expect(firstText(result)).toContain('audit #999');
+  });
+
+  it('exécute inspect_site sans navigation en déléguant au service d’inspection', async () => {
+    vi.spyOn(fixture.services.audits, 'inspectAndAudit').mockResolvedValue({
+      audit: {
+        metadata: {
+          id: 7,
+          url: 'https://example.com',
+          timestamp: '2026-10-25T00:00:00.000Z',
+          overallScore: 78,
+          totalFindings: 0,
+          criticalFindings: 0,
+          highFindings: 0,
+          mediumFindings: 0,
+          lowFindings: 0,
+        },
+        dimensions: [],
+        findings: [],
+      },
+      report: {
+        url: 'https://example.com',
+        timestamp: '2026-10-25T00:00:00.000Z',
+        dimensions: {
+          performance: {
+            dimension: 'performance',
+            score: 78,
+            findings: [],
+            summary: 'Score performance : 78/100.',
+          },
+          accessibility: {
+            dimension: 'accessibility',
+            score: 78,
+            findings: [],
+            summary: 'Score accessibility : 78/100.',
+          },
+          seo: { dimension: 'seo', score: 78, findings: [], summary: 'Score seo : 78/100.' },
+          ux: { dimension: 'ux', score: 78, findings: [], summary: 'Score ux : 78/100.' },
+          content: {
+            dimension: 'content',
+            score: 78,
+            findings: [],
+            summary: 'Score content : 78/100.',
+          },
+        },
+        findings: [],
+        priorityFindings: [],
+        summary: {
+          totalFindings: 0,
+          criticalFindings: 0,
+          highFindings: 0,
+          mediumFindings: 0,
+          lowFindings: 0,
+          overallScore: 78,
+        },
+      },
+    });
+
+    const result = (await harness.client.callTool({
+      name: 'inspect_site',
+      arguments: { url: 'https://example.com' },
+    })) as CallToolResult;
+    const payload = JSON.parse(firstText(result)) as {
+      inspection_url: string;
+      audit_id: number;
+      score: number;
+      dimensions: { performance: number };
+    };
+
+    expect(result.isError).toBeFalsy();
+    expect(payload.inspection_url).toBe('https://example.com');
+    expect(payload.audit_id).toBe(7);
+    expect(payload.score).toBe(78);
+    expect(payload.dimensions.performance).toBe(78);
   });
 });
 

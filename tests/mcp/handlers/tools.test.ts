@@ -100,4 +100,21 @@ describe('dispatchTool', () => {
     // invalide, pas une liste de filtres.
     expect((error as McpError).code).toBe(McpErrorCode.InvalidParams);
   });
+
+  it('achemine vers audit_history (base vide)', async () => {
+    const result = (await dispatchTool(fixture.services, 'audit_history', {
+      limit: 5,
+    })) as { audits: readonly unknown[] };
+
+    expect(result.audits).toEqual([]);
+  });
+
+  it('achemine vers audit_report qui signale un audit absent', async () => {
+    const error = await dispatchTool(fixture.services, 'audit_report', { audit_id: 999 }).catch(
+      (caught: unknown) => caught,
+    );
+
+    expect(error).toBeInstanceOf(ResourceNotFoundError);
+    expect((error as ResourceNotFoundError).message).toContain('audit #999');
+  });
 });

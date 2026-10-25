@@ -79,13 +79,20 @@ function makeComparison(): ComparisonReport {
 /**
  * Reproduit la résolution Chrome du générateur pour deciding `skipIf`
  * (poste sans Chromium : les tests de rendu sont sautés, les contrôles restent).
+ *
+ * `puppeteer.executablePath()` renvoie une `Promise<string>` (contrat de
+ * puppeteer-core ≥ 23, vérifié sur 25.16) : une lecture synchrone passait
+ * un `Promise` à `existsSync` (faux, avec un DeprecationWarning Node) et
+ * forçait le skip **même avec Chrome installé** — d'où `await`.
  */
-function resolveTestChromium(): string | undefined {
+async function resolveTestChromium(): Promise<string | undefined> {
   const envPath = process.env.PUPPETEER_EXECUTABLE_PATH ?? process.env.EKTS_CHROME_PATH;
   if (envPath !== undefined && envPath.length > 0 && existsSync(envPath)) return envPath;
   try {
     const require = createRequire(import.meta.url);
-    const bundled = (require('puppeteer') as { executablePath(): string }).executablePath();
+    const bundled = await (
+      require('puppeteer') as { executablePath(): Promise<string> }
+    ).executablePath();
     if (existsSync(bundled)) return bundled;
   } catch {
     // puppeteer absent ou Chrome non téléchargé.
@@ -121,7 +128,7 @@ function resolveTestChromium(): string | undefined {
   return undefined;
 }
 
-const chromium = resolveTestChromium();
+const chromium = await resolveTestChromium();
 
 describe("PDFReportGenerator — contrôles d'erreur", () => {
   it('refuse un audit sans métadonnées', async () => {
