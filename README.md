@@ -4,7 +4,9 @@
 
 > « Ne pas repartir de zéro : retrouver, comprendre, exécuter, vérifier et capitaliser sur ce qui a déjà été appris ou construit. »
 
-**Statut :** 🚧 Implémentation en cours — Sprint 4 terminé, en attente de validation
+**Statut :** ✅ **MVP-2 validé — 88/88 critères** (25/10/2026) · détails :
+[`docs/MVP2_VALIDATION.md`](docs/MVP2_VALIDATION.md) · suite :
+[`docs/ROADMAP.md`](docs/ROADMAP.md)
 **Version :** 0.1.0
 **Licence :** MIT
 
@@ -103,7 +105,7 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 | `npm run lint` / `lint:fix`       | ESLint (flat config)                                     |
 | `npm run format` / `format:check` | Prettier                                                 |
 | `npm test` / `test:watch`         | Tests Vitest                                             |
-| `npm run coverage`                | Couverture (atteint 100 %)                               |
+| `npm run coverage`                | Couverture (actuellement **97,06 %** lignes)             |
 | `npm run test:benchmark`          | Benchmark recherche (Recall@5, p95, 100K docs)           |
 | `npm run verify`                  | typecheck + lint + format + build + couverture           |
 | `npm run setup`                   | Hooks Git + vérification de l'environnement              |
@@ -115,7 +117,8 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 | `npm run cli -- <args>`           | Interface CLI `ekts` (voir [`docs/CLI.md`](docs/CLI.md)) |
 | `npm run mcp`                     | Serveur MCP stdio (voir [`docs/MCP.md`](docs/MCP.md))    |
 | `npm run test:browser`            | Tests du module navigateur, sans binaire Playwright      |
-| `npm run test:e2e`                | Tests Playwright sur les 3 moteurs (après installation)  |
+| `npm run test:e2e`                | Tests Playwright legacy (config Playwright)              |
+| `npm test -- tests/e2e/`          | **E2E MVP-2** (5 flux, Vitest, page locale)              |
 | `npm run browsers:install`        | Télécharge Chromium, Firefox et WebKit (~760 Mo)         |
 | `npm run doctor:browsers`         | Ouvre une page dans chaque moteur et explique les échecs |
 | `npm run security:secrets`        | Scan Gitleaks des fichiers indexés                       |
@@ -137,8 +140,9 @@ npx --no-install ekts reindex --vectors
 > bannière. En script, préférer `node dist\cli\index.js …` ou
 > `npm run --silent cli -- …`.
 
-Sept commandes (`init`, `add`, `get`, `search`, `list`, `delete`, `status`),
-deux formats de sortie (`--json` ou humain), cinq codes de sortie documentés.
+Dix commandes (`init`, `add`, `get`, `search`, `list`, `delete`, `status`,
+`reindex`, `inspect`, `audit …`), deux formats de sortie (`--json` ou
+humain), cinq codes de sortie documentés (0/1/2/3/4).
 `npm link` expose la commande `ekts` globalement. Guide complet :
 [`docs/CLI.md`](docs/CLI.md).
 
@@ -149,8 +153,10 @@ npm run build
 npm run mcp                        # transport stdio, JSON-RPC 2.0
 ```
 
-Quatre outils en lecture seule : `search_knowledge`, `get_resource`,
-`list_resources`, `validate_resource`. Claude Code détecte le serveur via le
+**Sept outils** : `search_knowledge`, `get_resource`, `list_resources`,
+`validate_resource` (lecture/validation) + `inspect_site`, `audit_history`,
+`audit_report` (inspection et rapports, Sprint 11). Claude Code détecte le
+serveur via le
 `.mcp.json` du dépôt ; Cursor et GitHub Copilot se configurent dans
 [`docs/MCP.md`](docs/MCP.md) §4. Les journaux sont écrits en JSON sur `stderr`
 (`MCP_LOG_LEVEL`), `stdout` restant réservé au protocole. Compatibilité et
@@ -225,14 +231,15 @@ Voir `docs/guides/PROVIDERS.md` et `docs/guides/SEARCH_ENGINE.md`.
 
 ```
 engineering-knowledge-tooling-system/
-├── src/                     # code source (src/data, src/business, src/cli, src/mcp, src/browser)
-├── tests/                   # unit / integration / benchmark
+├── src/                     # code source (browser, analysis, storage, reports, business, data, cli, mcp, shared)
+├── tests/                   # unit / browser / analysis / storage / integration / reports / cli / mcp / e2e
 ├── migrations/              # migrations SQLite (Sprint 2)
 ├── docs/
 │   ├── blueprint/           # documentation de conception (15 phases, 48 sprints)
 │   ├── guides/              # guides projet (SETUP, DATA_LAYER, KNOWLEDGE_MANAGER, SEARCH_ENGINE, PROVIDERS)
-│   └── audit/               # audits (état des lieux de démarrage)
-├── .github/workflows/       # CI (qualité + secrets)
+│   ├── audit/               # audits (état des lieux de démarrage)
+│   └── *.md                 # guides produit et technique (19 fichiers, voir §9)
+├── .github/workflows/       # CI (qualité ×4, secrets, audit deps, benchmark)
 ├── AGENTS.md                # règles pour les agents IA
 └── package.json
 ```
@@ -241,16 +248,25 @@ engineering-knowledge-tooling-system/
 
 ## 8. Qualité et sécurité
 
-- **CI** sur chaque push : lint, typecheck, build, tests, couverture (Node 22.x et 24.x), benchmark de recherche + scan Gitleaks de l'historique.
+- **CI** sur chaque push : lint, typecheck, build, tests, couverture (Node 22.x et 24.x), benchmark de recherche + scan Gitleaks de l'historique (**7/7 jobs**).
+- **`npm run verify`** : typecheck + lint + format + build + couverture (code 0 attendu avant chaque push).
 - **Hook pre-commit** versionné (`.husky/pre-commit`) : scan Gitleaks des fichiers indexés.
 - **Aucun secret** dans le dépôt ; `.env`, `*.db`, `data/`, `dist/`, `coverage/` ignorés.
-- **Couverture** : seuils 80 % configurés dans `vitest.config.ts`.
+- **Couverture** : seuils 80 % configurés dans `vitest.config.ts` — actuellement **97,06 % lignes** (1 260 tests).
+- **E2E MVP-2** : `npm test -- tests/e2e/` (5 flux, page locale, zéro réseau externe).
 - **Pull requests interdites** : le travail est poussé sur une branche dédiée et fusionné localement après validation (voir [`docs/blueprint/Docs/06-GUIDE-GIT-GITHUB.md`](docs/blueprint/Docs/06-GUIDE-GIT-GITHUB.md)).
 
 ## 9. Documentation
 
 | Document                                                                                                                     | Contenu                                              |
 | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md)                                                                                   | Guide utilisateur (installation → MCP)               |
+| [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md)                                                                         | Guide développeur (architecture, couches, tests)     |
+| [`docs/API_REFERENCE.md`](docs/API_REFERENCE.md)                                                                             | Référence API (CLI + MCP + types TS)                 |
+| [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md)                                                                         | Dépannage (23 cas)                                   |
+| [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)                                                                               | Workflow de contribution                             |
+| [`docs/MVP2_VALIDATION.md`](docs/MVP2_VALIDATION.md)                                                                         | Validation 88/88 critères MVP-2                      |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md)                                                                                         | Roadmap MVP-3 et horizon                             |
 | [`docs/blueprint/INDEX.md`](docs/blueprint/INDEX.md)                                                                         | Index de la conception (15 phases)                   |
 | [`docs/blueprint/Docs/00-REFERENCE-GLOBALE-PROJET.md`](docs/blueprint/Docs/00-REFERENCE-GLOBALE-PROJET.md)                   | Référence globale                                    |
 | [`docs/blueprint/Docs/02-ARCHITECTURE-TECHNIQUE.md`](docs/blueprint/Docs/02-ARCHITECTURE-TECHNIQUE.md)                       | Architecture cible                                   |
@@ -264,6 +280,10 @@ engineering-knowledge-tooling-system/
 | [`docs/CLI.md`](docs/CLI.md)                                                                                                 | Interface en ligne de commande (Sprint 5)            |
 | [`docs/PLAYWRIGHT.md`](docs/PLAYWRIGHT.md)                                                                                   | Socle navigateur, bac à sable, dépannage (Sprint 7)  |
 | [`docs/INSPECTOR.md`](docs/INSPECTOR.md)                                                                                     | Inspecteur L1-L3, scores, écarts (Sprint 8)          |
+| [`docs/ANALYSIS.md`](docs/ANALYSIS.md)                                                                                       | Analyse 5 dimensions (Sprint 9)                      |
+| [`docs/STORAGE.md`](docs/STORAGE.md)                                                                                         | Stockage et indexation (Sprint 10)                   |
+| [`docs/REPORTS.md`](docs/REPORTS.md)                                                                                         | Rapports Markdown/PDF et comparaison (Sprint 11)     |
+| [`docs/MCP.md`](docs/MCP.md) · [`docs/MCP-EXAMPLES.md`](docs/MCP-EXAMPLES.md)                                                | Serveur MCP et exemples d'appels                     |
 | [`AGENTS.md`](AGENTS.md)                                                                                                     | Règles de travail des agents                         |
 
 ## 10. Licence
