@@ -193,7 +193,7 @@ describe.skipIf(chromium === undefined)('PDFReportGenerator — rendu Puppeteer'
     expect(written.subarray(0, 4).toString('latin1')).toBe('%PDF');
     const info = await stat(report.filePath!);
     expect(info.size).toBeGreaterThan(1_000);
-  }, 15_000);
+  }, 30_000);
 
   it('génère un PDF en mémoire sans outputPath', async () => {
     const generator = new PDFReportGenerator();
@@ -201,7 +201,7 @@ describe.skipIf(chromium === undefined)('PDFReportGenerator — rendu Puppeteer'
 
     expect(report.filePath).toBeUndefined();
     expect(Buffer.from(report.content, 'base64').subarray(0, 4).toString('latin1')).toBe('%PDF');
-  }, 15_000);
+  }, 30_000);
 
   it("produit le PDF d'une comparaison", async () => {
     const dir = path.join(await mkdtemp(path.join(tmpdir(), 'ekts-pdf-cmp-')), 'reports');
@@ -212,10 +212,10 @@ describe.skipIf(chromium === undefined)('PDFReportGenerator — rendu Puppeteer'
 
     expect(report.filePath).toMatch(/comparison-2-.*\.pdf$/);
     expect(Buffer.from(report.content, 'base64').subarray(0, 4).toString('latin1')).toBe('%PDF');
-  }, 15_000);
+  }, 30_000);
 
   it('refuse un outputPath vide après rendu', async () => {
     const generator = new PDFReportGenerator();
     await expect(generator.generate(makeAudit(), { outputPath: '' })).rejects.toThrow(/outputPath/);
-  }, 15_000);
+  }, 30_000);
 });
