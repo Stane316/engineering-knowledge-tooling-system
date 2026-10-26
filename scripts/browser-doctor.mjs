@@ -434,6 +434,10 @@ writeFileSync(
 
 console.log(`\nRapport : artifacts/browser-doctor.json`);
 
-if (failures.length > 0) {
+// Contrat d'exit (aligné sur le message « aucune action n'est nécessaire ») :
+// 0 = chaque moteur ouvre une page, éventuellement via le repli « sans bac à
+// sable » (cas Firefox sous Windows, supporté par le projet) ; 1 = au moins un
+// moteur reste inutilisable (aucun repli), donc une réparation est requise.
+if (failures.some((failure) => failure.sandboxRetry !== 'ok')) {
   process.exitCode = 1;
 }

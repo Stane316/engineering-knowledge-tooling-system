@@ -97,6 +97,14 @@ npm run verify
 - Aucune clé, `.env` ou sortie `providers`/keyring en dépôt ou en log.
 - Gitleaks en pré-commit et en CI — en cas de doute sur un secret :
   **rotation immédiate** + issue, jamais de commit suspect.
+- Installation du binaire `gitleaks` (le hook pré-commit le signale et le
+  contourne, la CI le bloque toujours ; `npm run security:secrets` exige le
+  binaire) :
+  - Windows : `winget install Gitleaks.Gitleaks` (ou `scoop install gitleaks`)
+    puis **nouveau terminal** et `gitleaks version` pour vérifier ;
+  - macOS : `brew install gitleaks` ;
+  - Linux : `brew install gitleaks`, ou binaire officiel
+    `github.com/gitleaks/gitleaks/releases`.
 - `npm audit` : le CI refuse les vulnérabilités ; mettre à jour
   avec justification dans le commit.
 

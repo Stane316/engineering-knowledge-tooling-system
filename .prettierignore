@@ -6,3 +6,5 @@ coverage/
 docs/
 package-lock.json
 *.db
+# Config personnelle de l'éditeur (JSON volontairement non formaté)
+.obsidian/
