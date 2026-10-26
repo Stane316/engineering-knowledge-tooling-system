@@ -114,9 +114,21 @@ npm run verify
   binaire) :
   - Windows : `winget install Gitleaks.Gitleaks` (ou `scoop install gitleaks`)
     puis **nouveau terminal** et `gitleaks version` pour vérifier ;
+    installation manuelle (asset officiel des releases GitHub) possible via
+    extraction dans `%LOCALAPPDATA%\gitleaks` + ajout au PATH **utilisateur** ;
   - macOS : `brew install gitleaks` ;
   - Linux : `brew install gitleaks`, ou binaire officiel
     `github.com/gitleaks/gitleaks/releases`.
+  - **Piège Windows** : ni `winget install` ni `SetEnvironmentVariable(…,"User")`
+    ne rechargent le PATH de la session PowerShell **en cours** — dans ce cas
+    « gitleaks n'est pas reconnu » persiste malgré une installation réussie.
+    Recharger dans la session courante (ou ouvrir un nouveau terminal) :
+
+    ```powershell
+    $env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")
+    ```
+
+    Puis `gitleaks version` et `npm run security:secrets` (exit `0` attendu).
 - `npm audit` : le CI refuse les vulnérabilités ; mettre à jour
   avec justification dans le commit.
 
