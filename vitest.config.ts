@@ -1,3 +1,5 @@
+import os from 'node:os';
+
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -10,6 +12,14 @@ export default defineConfig({
     // Un vrai blocage reste détecté, simplement plus tard.
     testTimeout: 20_000,
     hookTimeout: 30_000,
+    // Concurrence bornée (Sprint 18-03) : la parallélisation par défaut
+    // (≈ un worker par cœur) sature le CPU dès que les fichiers E2E
+    // navigateur (Playwright + Lighthouse, inspections L3) croisent les
+    // tests qui spawn la CLI (100+ processus `node dist/cli`). Symptômes
+    // mesurés sur le poste : inspections L3 > 60 s et Lighthouse renvoyé
+    // `null` (echecs inspection-flow / mcp-flow). 4 workers au maximum
+    // préservent les budgets navigateur sans pénaliser le reste.
+    maxWorkers: Math.min(4, Math.max(2, os.availableParallelism())),
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],

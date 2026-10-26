@@ -136,7 +136,9 @@ describe('E2E MVP-3 — Templates (Sprint 17, C17.x)', () => {
     const exportedFiles = await readdir(outDir);
     expect(exportedFiles.length).toBeGreaterThanOrEqual(10);
     expect(exportedFiles.every((name) => name.endsWith('.json'))).toBe(true);
-  });
+    // 10 exports = 10 spawns CLI séquentiels : le délai par défaut (20 s)
+    // est franchi sur poste chargé (mesuré), d'où une enveloppe explicite.
+  }, 60_000);
 
   it('C17.13-C17.16 : applique un template (projet + configuration + rapports)', async () => {
     const started = Date.now();

@@ -118,7 +118,7 @@ describe.skipIf(!CHROMIUM_OK)('E2E — mcp-flow', () => {
     expect(payload.score).toBeLessThanOrEqual(100);
     expect(payload.audit_id).toBeGreaterThan(0);
     expect(Object.keys(payload.dimensions)).toHaveLength(5);
-  }, 60_000);
+  }, 180_000);
 
   it('audit_history restitue l’audit créé avec ses filtres', async () => {
     const result = (await serveur.client.callTool({
