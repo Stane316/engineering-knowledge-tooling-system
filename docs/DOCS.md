@@ -23,6 +23,7 @@ celui-ci indexe l'ensemble et documente en détail le module d'audits
 | `docs/guides/KNOWLEDGE_MANAGER.md` | Gestion des connaissances | 3 |
 | `docs/guides/PROVIDERS.md` | Fournisseurs IA (clés, routage, embeddings) | 4.5 |
 | `docs/blueprint/` | Plans, roadmap de sprints, registres de décisions | — |
+| `docs/audit/produit/` | **Audit produit (26/10/2026)** : capacités réelles, limites, intégrabilité CLI/MCP, premier projet, feuille de route | 18+ |
 
 ## 2. Module Audit (Sprint 10)
 
@@ -112,3 +113,15 @@ close();
    locaux et déterministes ; sans magasin, la recherche reste plein texte.
 5. **Aucune nouvelle dépendance** — `better-sqlite3` et la RRF maison
    (`src/business/rrf.ts`) suffisent.
+
+---
+
+## 4. Audit produit (26 octobre 2026)
+
+Le dossier **[`docs/audit/produit/`](audit/produit/README.md)** documente
+l'état réel du produit au commit `3156147` (version 0.2.0) : ce qui est
+utilisable aujourd'hui (capacités `CAP-xx` avec preuves `EV-xx`), ce qui ne
+l'est pas (limites `LIM-xx`), les verdicts d'intégration CLI/MCP, un runbook
+de premier projet réel et la feuille de route vers une version d'usage.
+Lire d'abord [`00_PRODUCT_OVERVIEW.md`](audit/produit/00_PRODUCT_OVERVIEW.md),
+puis [`11_AUDIT_SUMMARY.md`](audit/produit/11_AUDIT_SUMMARY.md).
