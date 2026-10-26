@@ -45,10 +45,17 @@ sur le dépôt (23 → 25 octobre 2026, historique git vérifiable)
 
 ---
 
-## MVP-3 — Capitalisation Projets (planifié)
+## MVP-3 — Capitalisation Projets ✅ Terminé
 
-**Durée estimée :** 12 semaines (Sprints 13–18)
+**Durée réelle :** sprints 13–18 livrés le 26 octobre 2026
+**Statut :** ✅ **Validé — 97/97 lignes-critères** ([`docs/MVP3_VALIDATION.md`](MVP3_VALIDATION.md))
 **Objectif :** Capitaliser les connaissances et bonnes pratiques entre projets
+
+> **Résultat** : 5 fonctionnalités (multi-projets, suivi temporel, bonnes
+> pratiques, recommandations, templates), 16 modules/commandes CLI de plus,
+> catalogue MCP à **17 outils**, migrations 003→008, 1 656 tests
+> (couverture 96,40 %), E2E MVP-3 **29,8 s** (< 120 s), guides
+> `docs/MVP3_*.md`. Détail : [`SPRINT-18-RESULTAT.md`](blueprint/Docs/roadmap/sprints/SPRINT-18-RESULTAT.md).
 
 ### Vision
 
@@ -60,10 +67,11 @@ Permettre aux équipes de :
 - Partager les connaissances entre projets
 - Générer des recommandations contextuelles
 
-> **Validation explicite requise** : chaque sprint MVP-3 fera l'objet d'un
-> feu vert (règle maison) avant démarrage, comme pour MVP-2.
+> **Validation explicite appliquée** : chaque sprint MVP-3 a fait l'objet
+> d'un feu vert utilisateur (S13→S18, dernier le 26/10/2026) — règle maison
+> maintenue pour MVP-4.
 
-### Sprints planifiés
+### Sprints (tous livrés ✅)
 
 #### Sprint 13 — Gestion Multi-Projets (2 semaines)
 

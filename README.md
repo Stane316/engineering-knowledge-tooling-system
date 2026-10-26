@@ -54,11 +54,11 @@ Décisions détaillées : [`docs/blueprint/Docs/03-STACK-ET-DECISIONS-TECHNOLOGI
 
 ## 3. Périmètre par MVP
 
-| MVP       | Contenu                                                 | Sprints |
-| --------- | ------------------------------------------------------- | ------- |
-| **MVP-1** | Bibliothèque, recherche hybride, CLI, serveur MCP       | 1 → 6   |
-| **MVP-2** | Inspection navigateur, analyse 5 dimensions, rapports   | 7 → 12  |
-| **MVP-3** | Capitalisation projets, post-mortems, workflow 8 étapes | 13 → 18 |
+| MVP       | Contenu                                                                               | Sprints    |
+| --------- | ------------------------------------------------------------------------------------- | ---------- |
+| **MVP-1** | Bibliothèque, recherche hybride, CLI, serveur MCP                                     | 1 → 6      |
+| **MVP-2** | Inspection navigateur, analyse 5 dimensions, rapports                                 | 7 → 12     |
+| **MVP-3** | Multi-projets, suivi temporel, bonnes pratiques, recommandations, templates (ADR-031) | 13 → 18 ✅ |
 
 État d'avancement : [`docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`](docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md).
 
@@ -105,7 +105,7 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 | `npm run lint` / `lint:fix`       | ESLint (flat config)                                     |
 | `npm run format` / `format:check` | Prettier                                                 |
 | `npm test` / `test:watch`         | Tests Vitest                                             |
-| `npm run coverage`                | Couverture (actuellement **97,06 %** lignes)             |
+| `npm run coverage`                | Couverture (actuellement **96,40 %** lignes)             |
 | `npm run test:benchmark`          | Benchmark recherche (Recall@5, p95, 100K docs)           |
 | `npm run verify`                  | typecheck + lint + format + build + couverture           |
 | `npm run setup`                   | Hooks Git + vérification de l'environnement              |
@@ -118,11 +118,30 @@ Le guide complet (dépannage Windows, hooks, variables d'environnement) est dans
 | `npm run mcp`                     | Serveur MCP stdio (voir [`docs/MCP.md`](docs/MCP.md))    |
 | `npm run test:browser`            | Tests du module navigateur, sans binaire Playwright      |
 | `npm run test:e2e`                | Tests Playwright legacy (config Playwright)              |
+| `npm run test:e2e:mvp3`           | **E2E MVP-3** (6 flux, CLI compilée, < 120 s)            |
 | `npm test -- tests/e2e/`          | **E2E MVP-2** (5 flux, Vitest, page locale)              |
 | `npm run browsers:install`        | Télécharge Chromium, Firefox et WebKit (~760 Mo)         |
 | `npm run doctor:browsers`         | Ouvre une page dans chaque moteur et explique les échecs |
 | `npm run security:secrets`        | Scan Gitleaks des fichiers indexés                       |
 | `npm run clean`                   | Supprime `dist/`                                         |
+
+### Fonctionnalités MVP-3 — Capitalisation de projets ✅ (Sprints 13-18)
+
+EKTS capitalise désormais les connaissances **entre projets** :
+
+| Fonctionnalité          | Aperçu                                                                                       | Guide                                                              |
+| ----------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 🏗️ **Multi-projets**    | `ekts project create/list/show/delete`, audits rattachés et filtrables (`-p`)                | [`docs/guides/PROJECTS.md`](docs/guides/PROJECTS.md)               |
+| 📈 **Suivi temporel**   | `ekts timeline analyze/trends/alerts/chart` — tendances, régressions > 10 pts, SVG/PNG       | [`docs/guides/TIMELINE.md`](docs/guides/TIMELINE.md)               |
+| 💡 **Bonnes pratiques** | `ekts bestpractice extract/list/search/add` — extraction des constats **résolus**, FTS + RRF | [`docs/guides/BEST_PRACTICES.md`](docs/guides/BEST_PRACTICES.md)   |
+| 🎯 **Recommandations**  | `ekts recommend generate/rules` — moteur hybride règles + statistique, priorités             | [`docs/guides/RECOMMENDATIONS.md`](docs/guides/RECOMMENDATIONS.md) |
+| 📋 **Templates**        | `ekts template list/apply/export/import` — 10 modèles immuables, application en un appel     | [`docs/guides/TEMPLATES.md`](docs/guides/TEMPLATES.md)             |
+
+Flux type : `template apply` → `inspect` → `bestpractice extract` →
+`recommend generate` → `timeline trends` → `audit report`.
+**Guide complet** : [`docs/MVP3_GUIDE.md`](docs/MVP3_GUIDE.md) ·
+**Validation 97/97** : [`docs/MVP3_VALIDATION.md`](docs/MVP3_VALIDATION.md) ·
+**E2E** : `npm run test:e2e:mvp3` (26 tests, < 30 s).
 
 ### CLI `ekts`
 

@@ -2,7 +2,7 @@
 
 **Sprint :** 18-01 sur 18 (Sous-sprint 1/3)  
 **Durée :** 4 jours  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ (26/10/2026)
 
 ---
 

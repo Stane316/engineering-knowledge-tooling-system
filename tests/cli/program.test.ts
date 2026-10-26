@@ -61,7 +61,7 @@ describe('CLI — programme', () => {
 
     it('affiche la version', async () => {
       expect(await run(runtime, '--version')).toBe(0);
-      expect(runtime.output.stdout).toContain('0.1.0');
+      expect(runtime.output.stdout).toContain('0.2.0');
     });
   });
 
