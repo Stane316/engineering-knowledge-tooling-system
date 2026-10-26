@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 25 octobre 2026 — Sprint 17 (Templates projets)  
+**Dernière mise à jour :** 26 octobre 2026 — Sprint 18-01 (Tests E2E MVP-3)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -134,7 +134,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 17 | 17-2 | 10 templates prédéfinis + TemplateApplier + Personnalisation (Semaine 33, Jours 4-6) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 17 | 17-3 | CLI `ekts template` (7 cmd) + MCP (2 outils) + Export/Import + Tests + Documentation (Semaine 34, Jours 7-9) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 17 | Dossier parent | Templates Projets (MVP-3, ADR-039 à ADR-041) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
-| Sprint 18 | 18-1 | Tests E2E MVP-3 (6 flux, 93 tests, CI) (Semaine 35, Jours 1-4) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 18 | 18-1 | Tests E2E MVP-3 (6 flux, 93 tests, CI) (Semaine 35, Jours 1-4) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 26/10/2026 | ✅ 6 fichiers, 26 tests, 29,8 s ; script `test:e2e:mvp3` + job CI (ADR-042) |
 | Sprint 18 | 18-2 | Documentation MVP-3 (Guide utilisateur + Architecture + Extension) (Semaine 35, Jours 5-7) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 18 | 18-3 | Validation 87 critères + README/CHANGELOG + Préparation MVP-4 (Semaine 36, Jours 8-10) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 18 | Dossier parent | Tests + Documentation MVP-3 (ADR-042 à ADR-044) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
@@ -183,6 +183,7 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 25/10/2026 | Sprint 17 : module templates `src/templates/` (types, repository CRUD + protection builtin ADR-040, service orchestrateur), migration 007 `project_templates` (v7) | `797c110` |
 | 25/10/2026 | Sprint 17 : 10 templates prédéfinis + leurs 37 règles (seed idempotent au démarrage), `TemplateApplier` (merge profond ADR-041, `project_config`), migration 008 (v8) | `ddaedad` |
 | 25/10/2026 | Sprint 17 : CLI `ekts template` (7 sous-commandes, alias `tpl`), MCP `list_templates`/`apply_template` (catalogue 17 outils), guide `TEMPLATES.md`, CLI.md §16, MCP.md §20 | `sprint-17` |
+| 26/10/2026 | Sprint 18-01 : tests E2E MVP-3 (`tests/e2e/mvp3/` : helper execFile + 6 fichiers, 26 tests, 29,8 s < 120 s), script `test:e2e:mvp3`, job CI `e2e-mvp3` (timeout 5 min, ADR-042) ; `SPRINT-18-01-RESULTAT.md` (9 écarts P3, dont section Recommandations non injectée en produit) | `sprint-18-01` |
 ---
 
 ## 5. Prochaines étapes

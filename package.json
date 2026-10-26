@@ -37,6 +37,7 @@
     "cli": "node dist/cli/index.js",
     "mcp": "node dist/mcp/server.js",
     "test:e2e": "playwright test",
+    "test:e2e:mvp3": "vitest run tests/e2e/mvp3/",
     "browsers:install": "playwright install chromium firefox webkit",
     "doctor:browsers": "node scripts/browser-doctor.mjs",
     "inspect": "node scripts/inspect.mjs",

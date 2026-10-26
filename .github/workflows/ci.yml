@@ -86,6 +86,31 @@ jobs:
       - name: Audit des dépendances (production incluse)
         run: npm run audit:ci
 
+  e2e-mvp3:
+    name: Tests E2E MVP-3 (CLI compilée)
+    runs-on: ubuntu-latest
+    # ADR-042 : budget 5 minutes (suite E2E cible < 120 s).
+    timeout-minutes: 5
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Tests E2E MVP-3
+        run: npm run test:e2e:mvp3
+
   benchmark:
     name: Benchmark recherche (100K documents)
     runs-on: ubuntu-latest
