@@ -22,7 +22,9 @@ export default defineConfig({
     maxWorkers: Math.min(4, Math.max(2, os.availableParallelism())),
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'lcov'],
+      // json-summary : permet de relire l'agrégat (seuils) sans rouvrir le
+      // rapport HTML — voir docs/CONTRIBUTING.md (lecture de la couverture).
+      reporter: ['text', 'lcov', 'json-summary'],
       include: ['src/**/*.ts'],
       exclude: [
         'src/index.ts',
