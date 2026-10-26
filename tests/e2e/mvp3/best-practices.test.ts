@@ -95,9 +95,7 @@ describe('E2E MVP-3 — Bonnes practices (Sprint 15, C15.x)', () => {
   it('C15.7-C15.9 : liste et recherche les pratiques (FTS)', async () => {
     const listed = await runCli(sandbox.dataDir, ['bestpractice', 'list', '--json']);
     expect(listed.status).toBe(0);
-    const all = parseJson<{ practices: { id: string; title: string }[]; count: number }>(
-      listed,
-    );
+    const all = parseJson<{ practices: { id: string; title: string }[]; count: number }>(listed);
     expect(all.count).toBeGreaterThanOrEqual(2);
     extractedId = all.practices[0]!.id;
     expect(all.practices.some((bp) => /images/i.test(bp.title))).toBe(true);
@@ -151,10 +149,14 @@ describe('E2E MVP-3 — Bonnes practices (Sprint 15, C15.x)', () => {
   });
 
   it('C15.14-C15.20 : codes retour et contrats de suppression', async () => {
-    const listManual = await runCli(sandbox.dataDir, ['bestpractice', 'list', '--manual', '--json']);
+    const listManual = await runCli(sandbox.dataDir, [
+      'bestpractice',
+      'list',
+      '--manual',
+      '--json',
+    ]);
     expect(listManual.status).toBe(0);
-    const manualId = parseJson<{ practices: { id: string }[] }>(listManual).practices[0]!
-      .id;
+    const manualId = parseJson<{ practices: { id: string }[] }>(listManual).practices[0]!.id;
 
     // Suppression sans confirmation → 1.
     const refused = await runCli(sandbox.dataDir, ['bestpractice', 'delete', manualId]);
@@ -167,12 +169,7 @@ describe('E2E MVP-3 — Bonnes practices (Sprint 15, C15.x)', () => {
     expect(gone.status).toBe(3);
 
     // Catégorie invalide → 4.
-    const invalidCategory = await runCli(sandbox.dataDir, [
-      'bestpractice',
-      'list',
-      '-c',
-      'bogus',
-    ]);
+    const invalidCategory = await runCli(sandbox.dataDir, ['bestpractice', 'list', '-c', 'bogus']);
     expect(invalidCategory.status).toBe(4);
   });
 });

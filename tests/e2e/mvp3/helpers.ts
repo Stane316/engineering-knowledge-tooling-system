@@ -85,7 +85,7 @@ export function runCli(dataDir: string, args: string[]): Promise<CliResult> {
           error === null
             ? 0
             : typeof (error as { code?: unknown }).code === 'number'
-              ? ((error as { code: number }).code)
+              ? (error as { code: number }).code
               : 1;
         resolve({ status, stdout, stderr });
       },

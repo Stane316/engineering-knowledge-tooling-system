@@ -9,7 +9,14 @@ import { readFile } from 'node:fs/promises';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { createSandbox, listProjectIds, parseJson, runCli, seedAudit, type Sandbox } from './helpers.js';
+import {
+  createSandbox,
+  listProjectIds,
+  parseJson,
+  runCli,
+  seedAudit,
+  type Sandbox,
+} from './helpers.js';
 
 describe('E2E MVP-3 — Recommandations (Sprint 16, C16.x)', () => {
   let sandbox: Sandbox;
@@ -104,12 +111,7 @@ describe('E2E MVP-3 — Recommandations (Sprint 16, C16.x)', () => {
     expect(ruleId).toMatch(/^[0-9a-f-]{36}$/);
 
     const started = Date.now();
-    const generated = await runCli(sandbox.dataDir, [
-      'recommend',
-      'generate',
-      projectId,
-      '--json',
-    ]);
+    const generated = await runCli(sandbox.dataDir, ['recommend', 'generate', projectId, '--json']);
     const duration = Date.now() - started;
     expect(generated.status).toBe(0);
     const report = parseJson<{
@@ -185,7 +187,7 @@ describe('E2E MVP-3 — Recommandations (Sprint 16, C16.x)', () => {
       sandbox.dir,
     ]);
     expect(reportHuman.status).toBe(0);
-    expect(reportHuman.stdout).toContain('Rapports pour l\'audit');
+    expect(reportHuman.stdout).toContain("Rapports pour l'audit");
 
     // Écart P3 (S16, à soumettre) : la section « Recommandations
     // contextuelles » exige un moteur injecté (`recommendationEngine`),

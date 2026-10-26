@@ -70,9 +70,7 @@ describe('E2E MVP-3 — Templates (Sprint 17, C17.x)', () => {
     expect(created.status).toBe(0);
     manualId = parseJson<{ template: { id: string; isBuiltin: boolean } }>(created).template.id;
     expect(manualId).toMatch(/^[0-9a-f-]{36}$/);
-    expect(parseJson<{ template: { isBuiltin: boolean } }>(created).template.isBuiltin).toBe(
-      false,
-    );
+    expect(parseJson<{ template: { isBuiltin: boolean } }>(created).template.isBuiltin).toBe(false);
 
     // Export fichier (signature maison : arguments positionnels id + fichier).
     const exported = path.join(sandbox.dir, 'template-e2e.json');
@@ -93,12 +91,7 @@ describe('E2E MVP-3 — Templates (Sprint 17, C17.x)', () => {
     expect(content.template.name).toContain('Template E2E');
 
     // Import (suffixe « (importé) » maison).
-    const imported = await runCli(sandbox.dataDir, [
-      'template',
-      'import',
-      exported,
-      '--json',
-    ]);
+    const imported = await runCli(sandbox.dataDir, ['template', 'import', exported, '--json']);
     expect(imported.status).toBe(0);
     const importedPayload = parseJson<{ template: { id: string; name: string } }>(imported);
     const importedId = importedPayload.template.id;
@@ -127,7 +120,10 @@ describe('E2E MVP-3 — Templates (Sprint 17, C17.x)', () => {
       listed,
     ).templates;
     for (const template of templates.filter((t) => t.isBuiltin)) {
-      const file = path.join(outDir, `${template.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.json`);
+      const file = path.join(
+        outDir,
+        `${template.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.json`,
+      );
       const result = await runCli(sandbox.dataDir, [
         'template',
         'export',

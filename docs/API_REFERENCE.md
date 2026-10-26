@@ -133,6 +133,62 @@ ekts project delete <id> [-f|--force]
   `audit list`, `audit show`, `search`, `list` ; assignation sur `add` et
   `inspect` (projet absent → code 3).
 
+### `ekts timeline` (Sprint 14)
+
+```
+ekts timeline analyze [uuid] [--start AAAA-MM-JJ] [--end AAAA-MM-JJ] [--json]
+ekts timeline trends  [uuid] [--lookback <jours=90>] [--threshold <1..100=10>] [--json]
+ekts timeline alerts  [uuid] [--check] [--threshold] [--clear] [--json]
+ekts timeline chart   <uuid> [-f svg|png] [-o fichier] [-d <dimension>] [--width] [--height]
+```
+
+JSON `analyze` : `{projectId, projectName, audits[], startDate, endDate,
+totalAudits, dimensionScores, minAudits}` ; JSON `trends` : `{trends[],
+overallTrend, recommendations, regressions[], threshold, lookbackDays}`.
+Projet absent → 3 ; fenêtre `--start > --end` → 4.
+
+### `ekts bestpractice` — `bp` (Sprint 15)
+
+```
+ekts bp list [-c catégorie] [-t tag] [-p projet] [--manual] [--json]
+ekts bp search <requête> [--json]
+ekts bp add -t <titre 3-200> -d <description 10-4000> -c <catégorie> [--tags a,b] [--json]
+ekts bp show <uuid> [--json] · ekts bp delete <uuid> [--yes]   # sans --yes → 1
+ekts bp extract <projet-uuid> [--json]   # constats résolus ≥ 2 → {practicesExtracted, linksCreated}
+```
+
+JSON `list` : `{count, total, practices[]}` ; `show` :
+`{practice: {…, sourceAuditIds[]}, linkedFindings[]}`.
+
+### `ekts recommend` — `rec` (Sprint 16)
+
+```
+ekts rec generate <projet-uuid> [-n max=10] [--min-score 0-1] [--dimensions a,b] [--no-rules] [--no-statistical] [--json]
+ekts rec list [projet-uuid] [--json]
+ekts rec rules add -n <nom> --dimension <dim> --severity <0-4> --pattern <texte>
+        --rec-title <texte> --rec-desc <texte> [--effort] [--impact] [--priority] [--inactive] [--json]
+ekts rec rules list|show <uuid>|toggle <uuid>|delete <uuid> [--yes]
+```
+
+JSON `generate` : `{projectId, totalRecommendations, rulesApplied,
+statisticalRecommendations, durationMs, recommendations[]}` — pas d'option
+`--force` (régénération implicite, toujours code 0).
+
+### `ekts template` — `tpl` (Sprint 17)
+
+```
+ekts tpl list [--category] [--builtin] [--json]
+ekts tpl show <uuid> [--json]                # {template: {…, config: {tags…}}}
+ekts tpl apply <uuid> --name <nom> --url <url> [--json]
+ekts tpl create -n <nom> -d <description> -c <catégorie> [--config <json>] [--bp-ids] [--rule-ids] [--json]
+ekts tpl export <uuid> <fichier> [--json]    # arguments positionnels (pas -o ni --all)
+ekts tpl import <fichier> [--json]           # nouvel id, noms non uniques admis
+ekts tpl delete <uuid> [--json]              # personnels seulement ; builtin → 4 (ADR-040)
+```
+
+JSON `apply` : `{projectId, projectName, templateId,
+bestPracticesAssociated, rulesCreated, durationMs}`.
+
 ---
 
 ## MCP

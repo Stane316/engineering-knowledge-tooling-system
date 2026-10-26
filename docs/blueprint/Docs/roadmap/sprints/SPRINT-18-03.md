@@ -2,7 +2,7 @@
 
 **Sprint :** 18-03 sur 18 (Sous-sprint 3/3 — dernier sous-sprint MVP-3)  
 **Durée :** 3 jours  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ (26/10/2026)
 
 ---
 

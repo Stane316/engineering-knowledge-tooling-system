@@ -3,7 +3,7 @@
 **Sprint :** 18 sur 18 (dernier sprint MVP-3)  
 **MVP :** MVP-3 (Capitalisation de Projets)  
 **Durée estimée :** 2 semaines (10 jours ouvrables)  
-**Statut :** ⏳ NON COMMENCÉ
+**Statut :** ✅ TERMINÉ — MVP-3 VALIDÉ (26/10/2026)
 
 ---
 
@@ -335,16 +335,16 @@ Sprint 18-03 (Validation + README/CHANGELOG + MVP-4)
 
 Après le Sprint 18, vérifier :
 
-- [ ] Tous les sprints 13-17 sont terminés et documentés
-- [ ] Tests E2E MVP-3 passent (< 120s)
-- [ ] Couverture > 85%
-- [ ] Documentation MVP-3 complète
-- [ ] Critères C13.1 → C17.20 validés
-- [ ] README.md mis à jour
-- [ ] CHANGELOG.md mis à jour
-- [ ] ROADMAP.md mis à jour (MVP-3 terminé)
-- [ ] `npm run verify` passe sans erreur
-- [ ] Rapport final MVP-3 rédigé
+- [x] Tous les sprints 13-17 sont terminés et documentés
+- [x] Tests E2E MVP-3 passent (< 120s → 29,8 s mesurés)
+- [x] Couverture > 85% (96,40 % lignes)
+- [x] Documentation MVP-3 complète (3 guides + API + CHANGELOG 0.2.0)
+- [x] Critères validés (97/97 lignes-critères — comptage réel, P3 notés)
+- [x] README.md mis à jour
+- [x] CHANGELOG.md mis à jour
+- [x] ROADMAP.md mis à jour (MVP-3 terminé)
+- [x] `npm run verify` passe sans erreur (EXIT 0)
+- [x] Rapport final MVP-3 rédigé (SPRINT-18-RESULTAT.md)
 
 ---
 

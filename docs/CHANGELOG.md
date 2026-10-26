@@ -7,6 +7,83 @@ versioning : [Semantic Versioning](https://semver.org/lang/fr/spec/v2.0.0.html).
 Les versions suivent `package.json` (la libellé de phase « MVP » est
 informatif). Dates vérifiées dans l'historique git du dépôt.
 
+## [0.2.0] - 2026-10-26
+
+### MVP-3 — Capitalisation de Projets (Sprints 13–18)
+
+#### Ajouté — Sprint 13 : multi-projets
+
+- Module projets (`src/business/project-manager*`,
+  `src/data/repositories/project-repository.ts`), migration 003
+  (`projects`, `audit_metadata.project_id` nullable)
+- CLI `ekts project` (create, list, show, delete `-f`) + filtre `-p` transversal
+- Outils MCP `create_project`, `list_projects`, `get_project`, `delete_project`
+- Documentation `docs/guides/PROJECTS.md`
+
+#### Ajouté — Sprint 14 : suivi temporel
+
+- Module `src/timeline/` (analyse, tendances, alertes, graphiques),
+  migration 004 (`alerts`)
+- CLI `ekts timeline` (analyze, trends `--lookback`, alerts `--check`,
+  chart `-f svg|png`)
+- Outil MCP `get_timeline` · guide `docs/guides/TIMELINE.md`
+
+#### Ajouté — Sprint 15 : capitalisation des connaissances
+
+- Module `src/best-practices/` (extractor de constats **résolus**,
+  recherche hybride FTS5 + RRF), migration 005 (+ `best_practices_fts`
+  external content par triggers)
+- CLI `ekts bestpractice` (list, search, add, show, delete, extract)
+- Outils MCP `search_best_practices`, `add_best_practice`
+- Guide `docs/guides/BEST_PRACTICES.md`
+
+#### Ajouté — Sprint 16 : recommandations contextuelles
+
+- Module `src/recommendations/` (engine hybride règles 0,8 + scoring
+  statistique, contexte projet), migration 006
+  (`recommendation_rules`, `generated_recommendations`)
+- CLI `ekts recommend` (generate, list, rules add|toggle|delete)
+- Outil MCP `get_recommendations` · sections optionnelles Markdown/PDF
+- Guide `docs/guides/RECOMMENDATIONS.md`
+
+#### Ajouté — Sprint 17 : templates de projets
+
+- Module `src/templates/` (repository, applier merge profond ADR-041,
+  service), migrations 007 `project_templates` + 008 `project_config`
+- 10 templates prédéfinis (seed idempotent, builtins immuables ADR-040)
+- CLI `ekts template` (list, show, apply, create, delete, export, import)
+- Outils MCP `list_templates`, `apply_template` (catalogue **17** outils)
+- Guide `docs/guides/TEMPLATES.md`
+
+#### Ajouté — Sprint 18 : tests et documentation
+
+- Tests E2E MVP-3 : `tests/e2e/mvp3/` (7 fichiers, **26 tests, 29,8 s**),
+  script `npm run test:e2e:mvp3`, job CI `e2e-mvp3` (timeout 5 min, ADR-042)
+- Guides : `docs/MVP3_GUIDE.md`, `docs/MVP3_ARCHITECTURE.md`,
+  `docs/MVP3_EXTENSION.md` (synthèse ADR-043, sans duplication)
+- Validation : `docs/MVP3_VALIDATION.md` — **97/97** lignes-critères
+  (94 avec preuve, 3 P3 tranchés, 0 rejet)
+- Préparation MVP-4 : `docs/MVP4_PREPARATION.md` (4 options, ADR-044 —
+  documenté, non implémenté)
+- API_REFERENCE : +6 outils MCP, catalogue 17 ; README, ROADMAP à jour
+
+### Changed
+
+- Version `0.1.0` → `0.2.0` (MVP-3 livré)
+- Catalogue MCP : 11 → **17 outils** ; CLI : 8 → **15 commandes** racine
+- Couverture mesurée au 26/10/2026 : **96,40 %** lignes, 90,92 %
+  branches, 97,70 % fonctions (1 656 tests, 34 skips)
+- Espace de stockage : `ekts.db` + `ekts-fts.db` + `ekts-vectors.db`
+  (migrations 001→008, `user_version` 8)
+
+### Limites documentées (P3 — `docs/MVP3_VALIDATION.md`)
+
+- Section « Recommandations contextuelles » non injectée dans les
+  rapports CLI/MCP (C16.6/7) ; unicité des noms de projet non contrainte
+  (C17.12) ; 1 000 règles de charge testée au lieu de 10 000 (C16.14)
+
+---
+
 ## [0.1.0] - 2026-10-25
 
 ### MVP-2 — Inspection, analyse et rapports (Sprints 7–12)

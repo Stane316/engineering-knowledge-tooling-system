@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 26 octobre 2026 — Sprint 18-02 (Documentation MVP-3)  
+**Dernière mise à jour :** 26 octobre 2026 — Sprint 18-03 (**MVP-3 VALIDÉ — clôture**)  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -40,9 +40,9 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 |-----------|---------|---------------|----------------|-------|
 | **MVP-1** — Bibliothèque, recherche, CLI, MCP | 1 à 6 | ✅ 24 dossiers | ✅ Sprints 1 à 6 terminés | ✅ 1 260 tests, couverture 97,06 % |
 | **MVP-2** — Inspection navigateur, analyse, rapports | 7 à 12 | ✅ 24 dossiers | ✅ Sprints 7 à 12 terminés | ✅ 88/88 critères validés |
-| **MVP-3** — Multi-projets, capitalisation, recommandations | 13 à 18 | ⏳ non documentés | ⏳ | — |
+| **MVP-3** — Multi-projets, capitalisation, recommandations | 13 à 18 | ✅ 26 dossiers | ✅ Sprints 13 à 18 terminés | ✅ 1 656 tests, couverture 96,40 %, **97/97 critères** |
 
-**Total documenté :** 48 dossiers de sprint (43 369 lignes) ; **implémenté :** Sprints 1 à 12 au 25 octobre 2026 (1 260 tests, couverture 97,06 %, MVP-2 validé 88/88).
+**Total documenté :** 52 dossiers de sprint ; **implémenté :** Sprints 1 à 18 au 26 octobre 2026 (1 656 tests, couverture 96,40 %, **MVP-2 validé 88/88, MVP-3 validé 97/97**).
 
 > **Note (25/10/2026) :** Le périmètre du MVP-3 a été redéfini (ADR-031). Il ne s'agit plus du workflow 8 étapes initial, mais de : Multi-Projets (S13), Suivi Temporel (S14), Capitalisation Connaissances (S15), Recommandations (S16), Templates (S17), Tests+Docs (S18). Voir `docs/ROADMAP.md`.
 
@@ -136,8 +136,8 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | Sprint 17 | Dossier parent | Templates Projets (MVP-3, ADR-039 à ADR-041) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
 | Sprint 18 | 18-1 | Tests E2E MVP-3 (6 flux, 93 tests, CI) (Semaine 35, Jours 1-4) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 26/10/2026 | ✅ 6 fichiers, 26 tests, 29,8 s ; script `test:e2e:mvp3` + job CI (ADR-042) |
 | Sprint 18 | 18-2 | Documentation MVP-3 (Guide utilisateur + Architecture + Extension) (Semaine 35, Jours 5-7) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 26/10/2026 | ✅ 3 guides `docs/MVP3_*.md` (ADR-043) + API_REFERENCE +6 outils MCP |
-| Sprint 18 | 18-3 | Validation 87 critères + README/CHANGELOG + Préparation MVP-4 (Semaine 36, Jours 8-10) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
-| Sprint 18 | Dossier parent | Tests + Documentation MVP-3 (ADR-042 à ADR-044) | ✅ Rédigée le 25/10/2026 | ⏳ Non commencé | — |
+| Sprint 18 | 18-3 | Validation critères + README/CHANGELOG + Préparation MVP-4 (Semaine 36, Jours 8-10) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 26/10/2026 | ✅ `MVP3_VALIDATION.md` (97/97), CHANGELOG 0.2.0, MVP4 (ADR-044) |
+| Sprint 18 | Dossier parent | Tests + Documentation MVP-3 (ADR-042 à ADR-044) | ✅ Rédigée le 25/10/2026 | ✅ Validé le 26/10/2026 | ✅ `SPRINT-18-RESULTAT.md` (clôture MVP-3, checklist 10/10) |
 
 ---
 
@@ -185,14 +185,17 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 | 25/10/2026 | Sprint 17 : CLI `ekts template` (7 sous-commandes, alias `tpl`), MCP `list_templates`/`apply_template` (catalogue 17 outils), guide `TEMPLATES.md`, CLI.md §16, MCP.md §20 | `sprint-17` |
 | 26/10/2026 | Sprint 18-01 : tests E2E MVP-3 (`tests/e2e/mvp3/` : helper execFile + 6 fichiers, 26 tests, 29,8 s < 120 s), script `test:e2e:mvp3`, job CI `e2e-mvp3` (timeout 5 min, ADR-042) ; `SPRINT-18-01-RESULTAT.md` (9 écarts P3, dont section Recommandations non injectée en produit) | `sprint-18-01` |
 | 26/10/2026 | Sprint 18-02 : documentation MVP-3 — `docs/MVP3_GUIDE.md`, `MVP3_ARCHITECTURE.md`, `MVP3_EXTENSION.md` (synthèse ADR-043, liens vers les 5 guides S13-S17) ; `API_REFERENCE.md` : +6 outils MCP (catalogue 17) ; `SPRINT-18-02-RESULTAT.md` (7 écarts P3) | `sprint-18-02` |
+| 26/10/2026 | Sprint 18-03 : validation `docs/MVP3_VALIDATION.md` (97/97 lignes-critères, comptage réel ≠ 87 du spec), README section MVP-3, CHANGELOG **0.2.0**, ROADMAP MVP-3 ✅, API_REFERENCE §CLI ×4, `MVP4_PREPARATION.md` (ADR-044), `SPRINT-18-RESULTAT.md` + checklist 10/10 ; **MVP-3 clôturé** | `sprint-18-03` |
 ---
 
 ## 5. Prochaines étapes
 
-1. **Sprints 1 à 17 terminés** — templates de projets livrés (10 prédéfinis,
-   CLI, MCP catalogue 17 outils, `guides/TEMPLATES.md`).
-2. **Sprint 18** — en attente du **feu vert explicite de l'utilisateur**.
-   Aucun fichier du Sprint 18 n'est créé avant cet accord.
+1. **Sprints 1 à 18 terminés** — **MVP-3 validé (97/97)** le 26/10/2026 ;
+   1 656 tests, couverture 96,40 %, E2E MVP-3 29,8 s, catalogues CLI 15
+   commandes / MCP 17 outils.
+2. **MVP-4** — 4 options documentées (`docs/MVP4_PREPARATION.md`,
+   ADR-044) : décision et **feu vert explicite** de l'utilisateur requis
+   avant toute spec ; la branche `develop` reste la cible d'intégration.
 3. Validation manuelle restante (poste Windows connecté) : `npm run test:e2e`
    (12 tests, 3 moteurs), `npm test` pour activer les 15 tests d'intégration, puis
    une inspection réelle L1/L2/L3 sur une page publique pour confirmer les budgets.

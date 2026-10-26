@@ -10,7 +10,14 @@ import { readFile } from 'node:fs/promises';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { createSandbox, listProjectIds, parseJson, runCli, seedAudit, type Sandbox } from './helpers.js';
+import {
+  createSandbox,
+  listProjectIds,
+  parseJson,
+  runCli,
+  seedAudit,
+  type Sandbox,
+} from './helpers.js';
 
 describe('E2E MVP-3 — Flux intégral', () => {
   let sandbox: Sandbox;
@@ -129,12 +136,7 @@ describe('E2E MVP-3 — Flux intégral', () => {
     expect(ruleAdded.status).toBe(0);
 
     // 4. Génération des recommandations (règles du template + engine).
-    const generated = await runCli(sandbox.dataDir, [
-      'recommend',
-      'generate',
-      projectId,
-      '--json',
-    ]);
+    const generated = await runCli(sandbox.dataDir, ['recommend', 'generate', projectId, '--json']);
     expect(generated.status).toBe(0);
     const recReport = parseJson<{
       totalRecommendations: number;
@@ -148,12 +150,7 @@ describe('E2E MVP-3 — Flux intégral', () => {
     ).toBe(true);
 
     // 5. Suivi temporel du projet.
-    const analyzed = await runCli(sandbox.dataDir, [
-      'timeline',
-      'analyze',
-      projectId,
-      '--json',
-    ]);
+    const analyzed = await runCli(sandbox.dataDir, ['timeline', 'analyze', projectId, '--json']);
     expect(analyzed.status).toBe(0);
     const analysis = parseJson<{ totalAudits: number; startDate: string; endDate: string }>(
       analyzed,
