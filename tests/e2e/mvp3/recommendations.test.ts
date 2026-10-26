@@ -126,8 +126,8 @@ describe('E2E MVP-3 — Recommandations (Sprint 16, C16.x)', () => {
         (r) => r.recommendationTitle === 'Déplacer les ressources critiques',
       ),
     ).toBe(true);
-    // Génération quasi instantanée.
-    expect(duration).toBeLessThan(3_000);
+    // Budget spec < 5 s (la durée mesurée inclut le spawn de la CLI).
+    expect(duration).toBeLessThan(5_000);
 
     const human = await runCli(sandbox.dataDir, ['recommend', 'generate', projectId, '--json']);
     expect(human.status).toBe(0);

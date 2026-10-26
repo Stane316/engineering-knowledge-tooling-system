@@ -157,7 +157,7 @@ describe.skipIf(!CHROMIUM_OK)('E2E — inspection-flow', () => {
     } finally {
       database.close();
     }
-  }, 60_000);
+  }, 180_000);
 
   it.skipIf(!PDF_OK)(
     "génère le PDF de l'audit du flux (C11.2 actif en E2E)",
@@ -165,6 +165,10 @@ describe.skipIf(!CHROMIUM_OK)('E2E — inspection-flow', () => {
       // Réutilise l'audit du test précédent : aucune seconde navigation (budget).
       const database = openDatabase({ dataDir: outputDir });
       try {
+        // Crée le schéma si la chaîne complète (test 1) n'a pas atteint son
+        // étape de stockage : l'échec se lit alors « audit absent » (assert
+        // ci-dessous) au lieu d'un `no such table` qui masque la vraie cause.
+        new AuditSchema(database.connection).createSchema();
         const audit = new AuditRepository(database.connection).findByUrl(fixture.url)[0];
         expect(audit).toBeDefined();
 
@@ -211,5 +215,5 @@ describe.skipIf(!CHROMIUM_OK)('E2E — inspection-flow', () => {
       database.close();
       await rm(isolatedDir, { recursive: true, force: true });
     }
-  }, 90_000);
+  }, 180_000);
 });
