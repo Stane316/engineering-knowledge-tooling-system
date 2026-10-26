@@ -43,6 +43,18 @@ npm run verify
 - `describe.skipIf` pour les capacités d'environnement — jamais de skip silencieux
   : chaque saut doit être justifié dans le test.
 - Couverture minimale **80 %** (4 métriques) — vérifiée par `npm run coverage`.
+  Lecture rapide du verdict après un run (PowerShell, sans rouvrir l'HTML) :
+
+  ```powershell
+  $c = Get-Content coverage/coverage-summary.json -Raw | ConvertFrom-Json
+  $c.total.statements.pct
+  $c.total.branches.pct
+  $c.total.functions.pct
+  $c.total.lines.pct
+  ```
+
+  Chaque valeur doit être **≥ 80** (la ligne « All files » du tableau texte
+  donne le même agrégat ; l'exit code de `npm run verify` doit être `0`).
 - Les E2E vivent dans `tests/e2e/` (budget < 60 s, navigation minimale).
 
 ## Processus de contribution (workflow maison)
