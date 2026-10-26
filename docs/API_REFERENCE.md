@@ -138,7 +138,8 @@ ekts project delete <id> [-f|--force]
 ## MCP
 
 Serveur stdio : `node dist/mcp/server.js` (config client, voir
-`docs/MCP.md`). **15 outils** — entrées validées par Zod, erreurs renvoyées en
+`docs/MCP.md`). **17 outils** (catalogue complet MVP-1 → MVP-3) — entrées
+validées par Zod (`src/mcp/schemas/tool-schemas.ts`), erreurs renvoyées en
 payload structuré (`isError: true`, codes MCP : `-32602` paramètres,
 `-32000` ressource).
 
@@ -237,6 +238,53 @@ Sorties : `create`/`get` → `{ project }` ; `list_projects` →
 Projet absent → erreur `-32000` (`PROJECT_NOT_FOUND`) ; entrée invalide →
 `-32602`. `inspect_site` accepte en plus `project_id?: uuid` (assignation de
 l'audit créé).
+
+### `get_timeline` (Sprint 14)
+
+Entrée : `{ project_id: uuid, start_date?: AAAA-MM-JJ, end_date?: AAAA-MM-JJ,
+lookback_days?: 1..entier (défaut 90), threshold?: 1..100 (défaut 10),
+include_alerts?: booléen (défaut true), include_charts?: booléen (défaut
+false) }`.
+
+Sortie (`GetTimelineResult`) : `{ projectId, projectName, period, totalAudits,
+dimensions, trends, overallTrend, recommendations[], regressions[],
+alerts?, charts?, summary }`.
+
+### `search_best_practices` (Sprint 15)
+
+Entrée : `{ query?: 1-…, category?, tag?, project_id?: uuid, limit?: 0..500
+(défaut 10) }` · Sortie : `{ count, practices[] }` (recherche FTS5).
+
+### `add_best_practice` (Sprint 15) — écriture
+
+Entrée : `{ title: 3-200 car., description: 10-4000 car., category: enum,
+tags?: string[≤30] }` · Sortie : la pratique créée (`isManual: true`).
+
+### `get_recommendations` (Sprint 16)
+
+Entrée : `{ project_id: uuid, max_recommendations?: 1..500 (défaut 10),
+min_relevance_score?: 0..1 (défaut 0.3), dimensions?: enum[5],
+include_rules?: booléen (défaut true), include_statistical?: booléen
+(défaut true) }`.
+
+Sortie : `{ projectId, totalRecommendations, rulesApplied,
+statisticalRecommendations, durationMs, recommendations[] }`.
+
+### `list_templates` (Sprint 17)
+
+Entrée : `{ category?: enum (10 + custom), builtin_only?: booléen (défaut
+false), limit?: 1..500 (défaut 20) }` · Sortie : `{ count, templates[] }`
+(catalogue maison : 10 builtins).
+
+### `apply_template` (Sprint 17) — écriture
+
+Entrée : `{ template_id: uuid, project_name: 1-…, project_url: URL,
+project_description?, overrides?: { config?, additional_best_practice_ids?,
+additional_rule_ids? } (merge profond ADR-041) }`.
+
+Sortie : `{ projectId, projectName, templateId, bestPracticesAssociated,
+rulesCreated, durationMs }` · template builtin → erreur `-32000`
+(manutabilité ADR-040) ; entrée invalide → `-32602`.
 
 ---
 
@@ -543,4 +591,4 @@ templates.importTemplate(json); // nouveau template vierge
 
 ---
 
-**Version :** 0.1.0 (MVP-2, périmètre MVP-3 ouvert — ADR-031) · **Dernière mise à jour :** 25 octobre 2026
+**Version :** 0.1.0 (MVP-3 : Sprints 13-18 documentés — ADR-031) · **Dernière mise à jour :** 26 octobre 2026
