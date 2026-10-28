@@ -49,31 +49,31 @@ possède déjà (landing page, blog, doc publique), en CLI, sur deux passages.**
 
 ## 4. Parcours complet d'utilisation
 
-| # | Commande | Résultat attendu | Critère de réussite |
-|---|---|---|---|
-| 1 | `npm run check:env` | liste des OK | EXIT 0 |
-| 2 | `ekts init` | 3 bases créées | EXIT 0, chemins affichés |
-| 3 | `ekts project create --name "mon-site" --url <URL>` | projet UUID | EXIT 0 |
-| 4 | `ekts inspect <URL>` | score 0–100 + N constats, audit stocké | EXIT 0 ; `score ≥ 0` ; ≥ 1 finding **ou** score élevé justifié |
-| 5 | `ekts audit list --json` | 1 audit pour l'URL | `count ≥ 1` |
-| 6 | `ekts audit report <id>` (MD) + `--format pdf` | fichiers générés | fichiers non vides, MD contient score + sections 5 dimensions |
-| 7 | *Bonus capitalisation* : `ekts bp extract` puis `ekts search "…"` | bonnes pratiques listées | EXIT 0 |
-| 8 | **Corrections sur le site** (humain) | site déployé | déploiement fait |
-| 9 | `ekts inspect <URL>` (2ᵉ) | 2ᵉ audit | EXIT 0 |
-| 10 | `ekts audit compare <id1> <id2>` | deltas + recommandations | **2ᵉ score ≥ 1ᵉr score − bruit** ET le rapport cite des deltas non nuls si des corrections ont été faites |
-| 11 | Archivage | rapports + comparaison conservés | revue humaine finale |
+| #   | Commande                                                          | Résultat attendu                       | Critère de réussite                                                                                       |
+| --- | ----------------------------------------------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1   | `npm run check:env`                                               | liste des OK                           | EXIT 0                                                                                                    |
+| 2   | `ekts init`                                                       | 3 bases créées                         | EXIT 0, chemins affichés                                                                                  |
+| 3   | `ekts project create --name "mon-site" --url <URL>`               | projet UUID                            | EXIT 0                                                                                                    |
+| 4   | `ekts inspect <URL>`                                              | score 0–100 + N constats, audit stocké | EXIT 0 ; `score ≥ 0` ; ≥ 1 finding **ou** score élevé justifié                                            |
+| 5   | `ekts audit list --json`                                          | 1 audit pour l'URL                     | `count ≥ 1`                                                                                               |
+| 6   | `ekts audit report <id>` (MD) + `--format pdf`                    | fichiers générés                       | fichiers non vides, MD contient score + sections 5 dimensions                                             |
+| 7   | *Bonus capitalisation* : `ekts bp extract` puis `ekts search "…"` | bonnes pratiques listées               | EXIT 0                                                                                                    |
+| 8   | **Corrections sur le site** (humain)                              | site déployé                           | déploiement fait                                                                                          |
+| 9   | `ekts inspect <URL>` (2ᵉ)                                         | 2ᵉ audit                               | EXIT 0                                                                                                    |
+| 10  | `ekts audit compare <id1> <id2>`                                  | deltas + recommandations               | **2ᵉ score ≥ 1ᵉr score − bruit** ET le rapport cite des deltas non nuls si des corrections ont été faites |
+| 11  | Archivage                                                         | rapports + comparaison conservés       | revue humaine finale                                                                                      |
 
 ## 5. Critères de qualité mesurables du livrable
 
-| # | Critère | Mesure | Seuil |
-|---|---|---|---|
-| Q1 | Le rapport mentionne les 5 dimensions | grep sections MD | 5/5 |
-| Q2 | Le score est dans la plage | lecture | 0 ≤ score ≤ 100 |
-| Q3 | **Justesse indicative** : parmi les 3 premiers constats, ≥ 2 sont réellement observables sur la page (humain) | revue | ≥ 2/3 |
-| Q4 | Le PDF s'ouvre et contient le même score que le MD | lecture | identique |
-| Q5 | La comparaison affiche au moins un delta explicable | lecture | ≥ 1 delta lié aux corrections |
-| Q6 | Temps d'audit L3 (page publique simple) | chronomètre | ≤ 120 s (budgets E2E observés : 16–35 s en local — EV-24 ; marge volontaire pour réseau variable) |
-| Q7 | Reprise en cas d'erreur de saisie | commande invalide | code 2/4 + message actionnable (EV-09) |
+| #   | Critère                                                                                                       | Mesure            | Seuil                                                                                             |
+| --- | ------------------------------------------------------------------------------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------- |
+| Q1  | Le rapport mentionne les 5 dimensions                                                                         | grep sections MD  | 5/5                                                                                               |
+| Q2  | Le score est dans la plage                                                                                    | lecture           | 0 ≤ score ≤ 100                                                                                   |
+| Q3  | **Justesse indicative** : parmi les 3 premiers constats, ≥ 2 sont réellement observables sur la page (humain) | revue             | ≥ 2/3                                                                                             |
+| Q4  | Le PDF s'ouvre et contient le même score que le MD                                                            | lecture           | identique                                                                                         |
+| Q5  | La comparaison affiche au moins un delta explicable                                                           | lecture           | ≥ 1 delta lié aux corrections                                                                     |
+| Q6  | Temps d'audit L3 (page publique simple)                                                                       | chronomètre       | ≤ 120 s (budgets E2E observés : 16–35 s en local — EV-24 ; marge volontaire pour réseau variable) |
+| Q7  | Reprise en cas d'erreur de saisie                                                                             | commande invalide | code 2/4 + message actionnable (EV-09)                                                            |
 
 ## 6. Erreurs acceptables vs bloquantes
 
