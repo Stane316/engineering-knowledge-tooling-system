@@ -12,7 +12,7 @@
 |---|---|---|---|---|---|
 | **C1** | Objectif & scénario | Le scénario principal est écrit et accepté | Runbook `05` exists, propriétaire lu | `05` | ✅ (document) / ⏳ validation humaine |
 | **C2** | Prérequis | Prérequis connus, vérifiables en 1 commande | `check:env` = 0 sur poste cible | EV-25, EV-32 | ✅ |
-| **C3** | Lancement | Le produit démarre dans un environnement identifié | `init` + `--help` = 0 (Node ≥ 22.19) | EV-07, EV-08 | ✅ |
+| **C3** | Lancement | Le produit démarre dans un environnement identifié | `init` + `--help` = 0 (Node ≥ 22.19) via `node dist/cli/index.js` (le binaire `ekts` global n'existe pas sans `npm link`) | EV-07, EV-08, EV-35 | ✅ |
 | **C4** | Entrées | L'utilisateur/agent fournit les entrées attendues (URL, requête, projet) | types validés, erreurs 4 actionnables | EV-06, EV-09 | ✅ |
 | **C5** | Parcours | Le parcours prévu s'exécute sans manipulation cachée | 11/11 étapes `05` | PV CH-P0-1 **à produire** | ❌ **à faire (P0)** |
 | **C6** | Sorties | Sorties récupérables et interprétables | MD/PDF présents non vides, JSON conforme | EV-08 (JSON), CAP-16/17 | 🟡 (morceaux prouvés, réuni au PV) |

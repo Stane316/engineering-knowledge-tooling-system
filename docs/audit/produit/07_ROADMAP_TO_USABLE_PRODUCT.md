@@ -104,6 +104,9 @@
 | **CH-P2-4** Mode vectoriel : guide fournisseur gratuit + test live opt-in (GAP-07) | LIM-04 | parcours « 1 clé gratuite → hybride actif » | test live vert (manuel) OU doc « FTS par défaut » affirmée |
 | **CH-P2-5** Rejouer les preuves résiduelles (GAP-09) | codes 1 + chaîne MCP | intégrées au PV CH-P0-1 | PV complété |
 | **CH-P2-6** Documentation des écarts MVP-3 restants | C16.6/C16.7/C17.12 (H-04) | soit clos, soit report explicite dans `MVP3_VALIDATION` | statut mis à jour |
+| **CH-P2-7** Exactitude exécutable des runbooks (GAP-13) | 4 commandes fausses dans `05` v1.0 | Chaque commande documentée est **exécutée** avant publication | `05` v1.1 sans erreur de syntaxe (EV-35) — fait ; règle : test avant doc |
+| **CH-P2-8** Hygiène de sortie CLI (GAP-14) | Bannière npm (LIM-17), `reports/` non ignoré (LIM-18) | `--json` pur quel que soit le lanceur ; livrables hors git | Doc en place ; `.gitignore` +`reports/` **à valider** par le propriétaire |
+
 
 ## P3 — Évolution future (après la « version d'usage »)
 

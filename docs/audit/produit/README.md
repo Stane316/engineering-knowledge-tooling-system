@@ -58,3 +58,14 @@
 `GAP-xx` écart · `CH-Px-y` chantier de la feuille de route · `DEC-xx`
 décision à arbitrer · `Cx` / `Bx` critères d'acceptation · `H-xx` réserve
 d'historique · `Qx` critères de qualité du runbook.
+
+## Journal de révision
+
+| Version | Date | Changement | Déclencheur |
+|---|---|---|---|
+| 1.0 | 26/10/2026 | Création des 12 documents (commit `19a4688`, CI 8/8) | Mission d'audit |
+| **1.1** | 26/10/2026 | **`05` corrigé** : invocation réelle de la CLI (§3.1), `npm run browsers:install`, `project create` positionnel sans `--url`, `bp extract` après 2 audits, `-o artifacts/reports`, table de dépannage ; + LIM-17/LIM-18, GAP-13/GAP-14, EV-35 ; `02/04/08` alignés | **Exécution réelle du runbook par le propriétaire** : 3 erreurs de commandes constatées (`ekts` introuvable, `npx playwright browsers:install`, `--name`) |
+
+> Leçon retenue (CH-P2-7) : un runbook doit être **exécuté** avant d'être
+> publié — les défauts trouvés venaient de commandes rédigées de mémoire,
+> pas du produit.

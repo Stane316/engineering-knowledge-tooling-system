@@ -12,9 +12,9 @@
 
 | Élément | État | Preuve |
 |---|---|---|
-| Prérequis connus et vérifiables | `check:env`, `doctor`, `doctor:browsers`, `browsers:install` | EV-25, EV-32 |
+| Prérequis connus et vérifiables | `check:env`, `doctor`, `doctor:browsers`, **`npm run browsers:install`** (script npm — pas une commande Playwright) | EV-25, EV-32, EV-35 |
 | Parcours clone → build → init | documenté (`docs/guides/SETUP.md`, USER_GUIDE §Installation) et **exécuté** dans l'audit (`npm ci`→`build`→`init` isolé) | EV-08 |
-| Entrée fournie | `ekts inspect <url>` / `ekts add …` / `ekts search …` | EV-07, EV-08 |
+| Entrée fournie | `node dist/cli/index.js inspect <url>` (ou `ekts …` après `npm link`) / `add …` / `search …` | EV-07, EV-08, EV-35 |
 | Récupération des sorties | tables lisibles, `--json`, fichiers rapports MD/PDF | EV-08, CAP-16/17 |
 | Compréhension de ce qui s'est passé | codes 0–4 documentés, messages d'erreur FR structurés (`VALIDATION_FAILED`, `RESOURCE_NOT_FOUND`) | EV-09 |
 | **Résidu** | Aucun « runbook premier projet » unique validé comme tel (voir `05`) ; doc d'entrée périmée (LIM-07) | `06` GAP-04 |
@@ -32,7 +32,7 @@ parcours consolidé exécuté proprement (CH-P0-1) et la réconciliation README
 | Critère | Constat | Preuve |
 |---|---|---|
 | Commande exécutable | `bin: ekts` → `dist/cli/index.js` ; `npm run cli` | EV-07 |
-| Installation/lancement | clone + `npm ci` + `build` **uniquement** (pas de `-g`) | EV-14 |
+| Installation/lancement | clone + `npm ci` + `build` **uniquement** (pas de `-g`) ; invocation `node dist/cli/index.js` ou `npm run cli --`, `ekts` global seulement après `npm link` | EV-14, EV-35 |
 | Commandes/options réelles | **15 commandes racine**, alias `bp/rec/tpl`, sous-commandes (`audit list\|show\|report\|compare`, `timeline analyze\|trends\|alerts\|chart`…) | EV-07 |
 | Aide intégrée | `--help` par commande, messages d'erreur avec suggestion `(ajoutez --help…)` | EV-09 |
 | Sorties lisibles | tables colorées (chalk) **et** `--json` global (contrats JSON stables : `query/mode/count/elapsedMs/results`, enveloppe `error.code`) | EV-08, EV-09 |
