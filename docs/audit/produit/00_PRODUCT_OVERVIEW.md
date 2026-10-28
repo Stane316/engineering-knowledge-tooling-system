@@ -67,15 +67,15 @@ répondre en conversation (il n'a pas d'assistant LLM intégré) — voir
 
 ## 3. Modes d'utilisation actuellement disponibles
 
-| Mode | Verdict (détail dans `04`) | Preuve principale |
-|---|---|---|
-| CLI (`ekts`) | ✅ **Disponible et validé** — 15 commandes, codes 0/2/3/4 vérifiés en exécution réelle pendant l'audit | EV-07, EV-08, EV-09 |
-| Serveur MCP — connaissance (17 outils) | ✅ **Disponible et validé** — handshake + `tools/list` + `tools/call` exécutés pendant l'audit | EV-04, EV-05, EV-06 |
-| Serveur MCP — navigateur (5 outils `browser_*`) | ⚠️ **Code + tests, sans commande de lancement** (fonction exportée, jamais câblée dans un bin/script) | EV-27 |
-| Utilisation autonome (humain sans agent) | ✅ Via CLI, sous réserve des prérequis navigateur/chrome | EV-08, EV-25 |
-| API/bibliothèque npm | ❌ **Absente** : pas d'`exports`, paquet `ekts` non publié (404 registry) | EV-14 |
-| Consommation de MCP externes par EKTS | ❌ Aucun appel sortant vers un serveur MCP tiers n'a été trouvé dans `src/` | EV-26b (voir `04`) |
-| Installation par `npm install -g` | ❌ Impossible aujourd'hui (clone + `npm ci` + `build`) | EV-14 |
+| Mode                                            | Verdict (détail dans `04`)                                                                            | Preuve principale   |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------- |
+| CLI (`ekts`)                                    | ✅ **Disponible et validé** — 15 commandes, codes 0/2/3/4 vérifiés en exécution réelle pendant l'audit | EV-07, EV-08, EV-09 |
+| Serveur MCP — connaissance (17 outils)          | ✅ **Disponible et validé** — handshake + `tools/list` + `tools/call` exécutés pendant l'audit         | EV-04, EV-05, EV-06 |
+| Serveur MCP — navigateur (5 outils `browser_*`) | ⚠️ **Code + tests, sans commande de lancement** (fonction exportée, jamais câblée dans un bin/script) | EV-27               |
+| Utilisation autonome (humain sans agent)        | ✅ Via CLI, sous réserve des prérequis navigateur/chrome                                               | EV-08, EV-25        |
+| API/bibliothèque npm                            | ❌ **Absente** : pas d'`exports`, paquet `ekts` non publié (404 registry)                              | EV-14               |
+| Consommation de MCP externes par EKTS           | ❌ Aucun appel sortant vers un serveur MCP tiers n'a été trouvé dans `src/`                            | EV-26b (voir `04`)  |
+| Installation par `npm install -g`               | ❌ Impossible aujourd'hui (clone + `npm ci` + `build`)                                                 | EV-14               |
 
 ---
 
