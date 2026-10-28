@@ -84,6 +84,89 @@ npm run verify
 - [ ] Message de commit : type juste, portée explicite, pas de mélange
       « fix + feature + reformat » dans un même commit.
 
+### Réconcilier `develop` et une branche de session (anti-conflit)
+
+**Objectif** : intégrer une branche de session dans `develop` sans conflit
+résiduel ni perte de travail local.
+**Prérequis** : dépôt à jour (`git fetch`), savoir sur quelle branche on est.
+**Résultat attendu** : merge propre, `git status` vide, `develop` poussé.
+
+0. **Diagnostiquer avant d'agir** (ne jamais résoudre à l'aveugle) :
+
+   ```powershell
+   git status
+   git log --oneline -5
+   git diff --name-only --diff-filter=U     # fichiers réellement en conflit
+   ```
+
+1. **Vérifier que le conflit ne vient pas des branches distantes** : simuler
+   le merge sans rien modifier.
+
+   ```powershell
+   git merge-tree --write-tree --name-only origin/develop origin/arena/079e2f26-engineering-knowledge-tooling
+   ```
+
+   Sortie = un seul empreinte d'arbre et code 0 → **aucun conflit entre les
+   branches distantes** : le conflit est **local** (fichiers modifiés non
+   commités, ou commits locaux non poussés).
+
+2. **Chemin sûr** (sauvegarde d'abord, jamais de perte) :
+
+   ```powershell
+   $d = Get-Date -Format "yyyyMMdd-HHmm"
+   git branch "backup/develop-$d"          # filet de sécurité
+   git merge --abort                        # si un merge est en cours
+   git stash push -u -m "avant merge $d"    # met de côté le travail local
+   git checkout develop
+   git pull --ff-only origin develop        # aligne sur le distant
+   git merge origin/arena/079e2f26-engineering-knowledge-tooling
+   $LASTEXITCODE
+   git push origin develop
+   $LASTEXITCODE
+   git stash pop                            # réapplique le travail local
+   git status --short
+   ```
+
+   Si `git pull --ff-only` échoue : des commits locaux existent → les
+   inspecter (`git log --oneline origin/develop..develop`) puis soit les
+   fusionner, soit repartir de `origin/develop` (la branche `backup/…`
+   créée à l'étape 2 conserve tout).
+
+3. **Si le merge est déjà en cours avec conflits** : trancher **par preuve
+   de diff**, jamais « au plus récent ». Règle maison vérifiée le 26/10 :
+
+   ```powershell
+   git diff --stat origin/develop origin/arena/079e2f26-engineering-knowledge-tooling
+   ```
+
+   - Si le diff ne contient **que** des ajouts de la branche de session
+     (cas des documents `docs/audit/produit/*` en v1.1) → garder la branche :
+
+     ```powershell
+     git checkout --theirs -- docs/audit/produit
+     git add docs/audit/produit
+     ```
+
+   - Si `develop` contient du travail propre au porteur → fusionner le
+     contenu à la main, puis `git add <fichier>` (jamais `git add -A` sans
+     `git log --oneline -1` vérifié au préalable).
+
+4. **Vérifier après résolution** :
+
+   ```powershell
+   git status --short                    # doit être vide
+   git log --oneline -1                  # merge commit attendu
+   git rev-list --count origin/develop..develop   # 0 après push
+   ```
+
+5. **Récupération en cas d'erreur** : `git merge --abort` (merge en cours)
+   ou `git reset --hard backup/develop-<date>` (retour à l'état sauvegardé),
+   puis recommencer à l'étape 1. Jamais de `git push --force` sur `develop`.
+
+6. **Ne pas committer les sorties générées** : `reports/` n'est pas ignoré
+   (LIM-18) → utiliser `-o artifacts/reports`, ou ajouter `reports/` au
+   `.gitignore` après accord du porteur.
+
 ### Ce qui est interdit
 
 - Fusions sur `main` ou `develop` par le contributeur agent (le porteur
