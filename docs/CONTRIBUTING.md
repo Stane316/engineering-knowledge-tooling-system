@@ -97,7 +97,13 @@ résiduel ni perte de travail local.
    git status
    git log --oneline -5
    git diff --name-only --diff-filter=U     # fichiers réellement en conflit
+   git ls-remote origin develop             # état RÉEL du distant (faisant foi)
    ```
+
+   > ⚠️ **Piège vérifié le 28/10** : `git log origin/develop` peut être périmé
+   > si le refspec local ne suit pas cette branche (cas des clones partiels).
+   > `git ls-remote` interroge le serveur et ne ment pas. Si l'écart persiste,
+   > forcer la mise à jour : `git fetch origin develop:refs/remotes/origin/develop`.
 
 1. **Vérifier que le conflit ne vient pas des branches distantes** : simuler
    le merge sans rien modifier.
@@ -150,6 +156,15 @@ résiduel ni perte de travail local.
    - Si `develop` contient du travail propre au porteur → fusionner le
      contenu à la main, puis `git add <fichier>` (jamais `git add -A` sans
      `git log --oneline -1` vérifié au préalable).
+
+   > **Cas réel documenté (28/10/2026)** — conflit unique sur
+   > `docs/audit/produit/05_FIRST_REAL_PROJECT.md`. `develop` (`345796b`)
+   > avait réaligné les tableaux Markdown de `00` et `05` ; la branche
+   > apportait la v1.1 du runbook (corrections de commandes). Arbitrage
+   > appliqué : **garder la branche sur `05`** (son contenu est un sur-ensemble
+   > corrigé), **conserver `develop` sur `00`** (réalignement cosmétique sans
+   > conflit). Vérifications faites : 6 marqueurs v1.1 présents dans `05`,
+   > alignement de `00` intact, `git diff origin/arena HEAD` = `00` seulement.
 
 4. **Vérifier après résolution** :
 
