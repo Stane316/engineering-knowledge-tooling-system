@@ -224,10 +224,43 @@
 - **Statut** : **limite de l'audit, pas du produit** — notée pour
   honnêteté (la mission l'exige).
 
+### LIM-17 — `npm run cli -- … --json` pollue stdout (I) 🟡
+- **Description** : via npm, la bannière `> ekts@0.2.0 cli` + `> node
+  dist/cli/index.js …` est écrite **sur stdout** avant le JSON ; `jq`,
+  `ConvertFrom-Json` ou un parseur d'agent reçoivent alors un flux invalide.
+- **Conséquence** : un script qui appelle la CLI par `npm run cli` casse en
+  mode `--json` ; seul `node dist/cli/index.js` (ou `npm run --silent cli --`)
+  produit un JSON pur.
+- **Cause** : comportement standard de npm (bannière sur stdout) — **ce
+  n'est pas un défaut d'EKTS** : le piège est déjà documenté côté produit
+  (`docs/CLI.md` §2) ; il manquait seulement dans la v1.0 du runbook `05`.
+- **Contournement** : invocation directe `node dist/cli/index.js`.
+- **Travail pour lever** : aligner le runbook sur `docs/CLI.md` §2
+  (**fait le 26/10**) ; option P2 : script dédié sans bannière.
+- **Critère de résolution** : doc présente + exemple `--json` exécutable.
+- **Preuves** : EV-35.
+
+### LIM-18 — Les rapports par défaut (`./reports`) ne sont pas ignorés (O) 🟡
+- **Description** : `inspect`/`audit report` écrivent par défaut dans
+  `./reports`, dossier **non ignoré** par `.gitignore` ; `doctor` comptant
+  aussi les fichiers non suivis, l'arbre paraît « modifié » après chaque
+  audit.
+- **Conséquence** : bruit dans `git status`, risque de commit accidentel de
+  livrables générés.
+- **Cause** : `.gitignore` couvre `/data/` et `/artifacts/` mais pas
+  `/reports/`.
+- **Contournement immédiat (documenté)** : `-o artifacts/reports`
+  (`/artifacts/` est ignoré) — utilisé dans `05` §4.
+- **Travail pour lever** : une ligne `reports/` dans `.gitignore` (ou
+  changer le défaut) — **proposé, non appliqué** (modification hors audit,
+  à valider par le propriétaire).
+- **Critère de résolution** : `git status` propre après un runbook complet.
+- **Preuves** : EV-35.
+
 ---
 
-**Synthèse des gravités** 🔴 1 (LIM-07 doc d'entrée) · 🟠 5 (LIM-03,
-LIM-05, LIM-12, LIM-01, LIM-03b, LIM-04 contexte) · 🟡 8 · ⚪ 2 (L4,
+**Synthèse des gravités** 🔴 1 (LIM-07 doc d'entrée) · 🟠 6 (LIM-03,
+LIM-05, LIM-12, LIM-01, LIM-03b, LIM-04 contexte) · 🟡 10 · ⚪ 2 (L4,
 interaction — périmètre assumé).
 **Aucune limite de sécurité bloquante** n'a été identifiée : garde-fous URL
 testés, secrets absents du dépôt, gitleaks+CI verts (EV-29, CAP-46/47).

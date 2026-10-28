@@ -34,7 +34,7 @@
 | CAP-16 | Rapport Markdown | `audit report <id>` | audit ID | fichier `.md` | — | ✅ | E2E + tests reports (10) | M2 | — | EV-21, EV-24 |
 | CAP-17 | Rapport PDF | `audit report --format pdf` | idem | fichier PDF (2–4 s) | **Chrome Puppeteer à installer** | ✅ | Tests PDF réels (7, rendu Puppeteer) + E2E (PDF C11.2) | M2 | Dépendance Chrome système (LIM-14) ; non « relu à l'œil » ici (NV-5) | EV-21 |
 | CAP-18 | Comparaison de 2 audits | `audit compare <a> <b>` | 2 IDs | deltas + recommandations d'évolution, MD/PDF | — | ✅ | E2E comparison (2/2) + tests comparator (17) | M2 | Même URL seulement (contrat documenté) | EV-21, EV-24 |
-| CAP-19 | Ouverture/fermeture navigateur | multi-moteurs Chromium/Firefox/WebKit, repli sandbox Windows | option moteur | session pilotée | `browsers:install` | ✅ | 54/54 E2E utilisateur + `doctor:browsers` | M2 | Firefox sandbox = repli automatique (supporté) | EV-24, EV-25 |
+| CAP-19 | Ouverture/fermeture navigateur | multi-moteurs Chromium/Firefox/WebKit, repli sandbox Windows | option moteur | session pilotée | `npm run browsers:install` | ✅ | 54/54 E2E utilisateur + `doctor:browsers` | M2 | Firefox sandbox = repli automatique (supporté) | EV-24, EV-25 |
 | CAP-20 | Capture d'écran et PDF de page | via inspection / Navigator | URL | fichiers artefacts | idem | ✅ | Tests browser (12 fichiers, navigator screenshot/pdf) | M2 | — | EV-21 |
 
 ## Domaine C — Projets et capitalisation (MVP-3)
@@ -52,7 +52,7 @@
 
 | ID | Capacité | Faisable concrètement | Entrées | Résultat | Statut | Validation | Version | Limites | Preuves |
 |---|---|---|---|---|---|---|---|---|---|
-| CAP-40 | **CLI complète** | 15 commandes racine, alias (`bp`,`rec`,`tpl`), `--json` global, `--no-colors` | argv | tables lisibles OU JSON ; codes **0/1/2/3/4** | ✅ | Exécution réelle (aide, parcours, 3 codes d'erreur) + 14 fichiers tests CLI + E2E | M1→M3 | Installation = clone (LIM-01) | EV-07, EV-08, EV-09 |
+| CAP-40 | **CLI complète** | 15 commandes racine, alias (`bp`,`rec`,`tpl`), `--json` global, `--no-colors` — invocation `node dist/cli/index.js …` (binaire `ekts` global seulement après `npm link`) | argv | tables lisibles OU JSON ; codes **0/1/2/3/4** | ✅ | Exécution réelle (aide, parcours, 3 codes d'erreur) + 14 fichiers tests CLI + E2E | M1→M3 | Installation = clone (LIM-01) | EV-07, EV-08, EV-09 |
 | CAP-41 | **Serveur MCP connaissance** | 17 outils typés (Zod), stdio, instructions handshake | client MCP | résultats JSON structurés, erreurs `-32000` contextualisées | ✅ | **Handshake + tools/list + tools/call exécutés pendant l'audit** ; 22 fichiers tests MCP ; E2E mcp-flow 4/4 | M1→M3 | Hôte réel non instrumenté (NV-3) ; spec 2025-11-25 (LIM-08) | EV-04, EV-05, EV-06, EV-24 |
 | CAP-42 | Config hôte prête | `.mcp.json` (commande + args) | — | ajoutable tel quel à un hôte MCP | 🟡 | Fichier présent et cohérent ; **non consommé par un vrai hôte pendant l'audit** | M1 | Dépend du build (`dist/`) | EV-13 |
 | CAP-43 | **Serveur MCP navigateur** (5 outils `browser_navigate/screenshot/pdf/accessibility/close`) | ouvrir une page pour un agent, artefacts confinés, garde-fous URL (http(s) seul, pas d'hôtes privés par défaut) | import programmatique `createBrowserMcpServer` | outils MCP navigateur | 🟠 | 53 tests unit **mais aucun point d'entrée** (pas de commande/script) | M2 (S7) | **Non lançable sans écrire le câblage** (LIM-03) | EV-27 |
