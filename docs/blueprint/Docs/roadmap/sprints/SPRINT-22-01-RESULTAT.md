@@ -2,7 +2,7 @@
 
 **Sprint parent :** [SPRINT-22](SPRINT-22.md) · **Sous-sprint :** [SPRINT-22-01](SPRINT-22-01.md)
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
-**Base de départ :** `47bdca4` · **Commit d'implémentation :** _à renseigner_
+**Base de départ :** `47bdca4` · **Commit d'implémentation :** `70c6971`
 **Statut :** ✅ **C-R01, C-R02 et C-R05 satisfaits** ; 3 écarts de méthode déclarés (§ 7).
 
 ## 1. Décisions humaines reçues avant le code (30/10/2026)
