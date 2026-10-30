@@ -2,7 +2,7 @@
 
 **Sprint parent :** [SPRINT-20](SPRINT-20.md) · **Sous-sprint :** [SPRINT-20-02](SPRINT-20-02.md)
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
-**Base de départ :** `ba54632` · **Statut :** ✅ C-W09 et C-W11 satisfaits et testés ; ✅ C-W12 re-vérifié (livré au 19-02) ; 38 cas d'environnement toujours ignorés.
+**Base de départ :** `ba54632` · **Commit d'implémentation :** `c850ff8` · **Statut :** ✅ C-W09 et C-W11 satisfaits et testés ; ✅ C-W12 re-vérifié (livré au 19-02) ; 38 cas d'environnement toujours ignorés.
 
 ## 1. Décisions humaines reçues avant code
 
