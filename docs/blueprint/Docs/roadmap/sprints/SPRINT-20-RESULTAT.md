@@ -3,7 +3,7 @@
 **Sprint parent :** [SPRINT-20](SPRINT-20.md)
 **Sous-sprints :** [20-01](SPRINT-20-01-RESULTAT.md) · [20-02](SPRINT-20-02-RESULTAT.md) · [20-03](SPRINT-20-03-RESULTAT.md)
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
-**Base de la série :** `556611c` · **Tête de série :** `747553a` · **Commit du bilan :** `0defccb` · **Commit du mode opératoire :** `f3284fc` (+ `57e9394`, `e3f87d5`)
+**Base de la série :** `556611c` · **Tête de série :** `747553a` · **Commit du bilan :** `0defccb` · **Commit du mode opératoire :** `f3284fc` (+ `57e9394`, `e3f87d5`) · **Commit de clôture :** `b5c8652`
 **Statut :** ✅ **série close et validée par le propriétaire le 30/10/2026** — 7/7 critères couverts : C-W10 accepté « préparé », C-W14 accepté sur **2 formats sur 3** (preuve PDF non bloquante). **Sprint 21 non engagé : feu vert distinct attendu.**
 
 ## 1. Objectif et périmètre réellement traité
