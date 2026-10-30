@@ -3,8 +3,8 @@
 **Sprint parent :** [SPRINT-20](SPRINT-20.md) · **Sous-sprint :** [SPRINT-20-01](SPRINT-20-01.md)
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
 **Base de départ :** `556611c` · **Commit d'implémentation :** `ff31dc3` · **Contrat amont :** [SPRINT-20-01-CONTRAT-PROPOSITION.md](SPRINT-20-01-CONTRAT-PROPOSITION.md)
-**Statut :** ✅ critères C-W08 satisfaits et testés ; ⚠️ C-W10 **préparé mais non certifié** — la revue humaine reste due.
-**Décision du propriétaire (30/10/2026) :** C-W10 accepté à l'état « préparé » ; le sous-sprint 20-02 est engagé sous sa responsabilité, la revue des trois rendus restant due avant clôture de la série 20.
+**Statut :** ✅ critères C-W08 satisfaits et testés ; ✅ C-W10 **clos à l'état « préparé », validé par le propriétaire le 30/10/2026**.
+**Décision du propriétaire (30/10/2026) :** C-W10 accepté à l'état « préparé » — décision **confirmée en clôture de série** le même jour. La revue des trois rendus reste utile comme amélioration, mais elle ne conditionne plus la clôture de la série 20.
 
 ## 1. Décisions humaines reçues avant code
 
@@ -106,7 +106,7 @@ export interface WebVitals { lcp; inp; fid; maxPotentialFid; tbt; cls; ttfb; fcp
 | Critère | Statut | Preuve |
 | --- | --- | --- |
 | **C-W08 / W04** (5/5) | ✅ | `tests/analysis/metric-identity.test.ts` : U1 (INP seul), U2 (FID absent + max-potential-fid), U3 (max-potential-fid seul), U4 (TBT seul), U5 (les quatre absentes) — 5/5 verts |
-| **C-W10 / W05** (3/3, revue humaine) | ⚠️ **préparé** | `tests/e2e/score-limitations.test.ts` : 3 rapports synthétiques (axe 0, UX 100, axe indisponible) ; les rendus signalent la limite. La **certification humaine** des 3 rendus reste due |
+| **C-W10 / W05** (3/3, revue humaine) | ✅ **accepté « préparé »** | `tests/e2e/score-limitations.test.ts` : 3 rapports synthétiques (axe 0, UX 100, axe indisponible) ; les rendus signalent la limite. Propriétaire : « je valide la décision C-W10 et j'accepte le statut préparé » (30/10/2026) |
 
 ## 7. Fichiers modifiés (31)
 

@@ -2,7 +2,7 @@
 
 **Sprint parent :** [SPRINT-20](SPRINT-20.md) · **Sous-sprint :** [SPRINT-20-03](SPRINT-20-03.md)
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
-**Base de départ :** `a4ef3fa` · **Commit d'implémentation :** `e2ee455` · **Statut :** ✅ C-W13 et C-W14 satisfaits et testés ; 38 cas d'environnement toujours ignorés.
+**Base de départ :** `a4ef3fa` · **Commit d'implémentation :** `e2ee455` · **Statut :** ✅ C-W13 (6/6) et C-W14 satisfaits et testés ; C-W14 **accepté sur 2 formats sur 3** par le propriétaire le 30/10/2026 (preuve PDF non bloquante) ; 38 cas d'environnement toujours ignorés.
 
 ## 1. Décisions humaines reçues avant code
 
@@ -90,7 +90,7 @@ npm run verify → EXIT=0
 | Critère | Statut | Preuve |
 | --- | --- | --- |
 | **C-W13 / W05+O06** | ✅ | `tests/cli/inspect-url-policy.test.ts` (6) : URL publique admise, schéma interdit, privé/loopback refusé par défaut, exception `--allow-private-hosts`, nom résolu vers une adresse privée refusé, échec DNS explicite. `tests/mcp/tools/inspect-site-policy.test.ts` (4) : mêmes décisions côté `inspect_site`, avec `allow_private_hosts`. `tests/browser/inspection/inspector.test.ts` : verrou dans le composant qui navigue + refus d'une **redirection** vers un hôte privé, session refermée |
-| **C-W14 / W05+O06** | ✅ | `tests/reports/safe-render.test.ts` (2) : un constat dont titre/description/recommandation contiennent `<script>` et `<img onerror>` ne produit **aucune** balise brute, ni en Markdown ni en HTML ; la forme échappée est présente |
+| **C-W14 / W05+O06** | ✅ **2/3 formats, accepté** | `tests/reports/safe-render.test.ts` (2) : un constat dont titre/description/recommandation contiennent `<script>` et `<img onerror>` ne produit **aucune** balise brute, ni en Markdown ni en HTML ; la forme échappée est présente. **PDF** non mesuré ici (Chromium absent) : décision du propriétaire du 30/10/2026 — accepté, preuve couplée à la suite via `npm run browsers:install` |
 
 ## 6. Fichiers (23)
 

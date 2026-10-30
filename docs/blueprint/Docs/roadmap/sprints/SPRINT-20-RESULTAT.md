@@ -3,7 +3,8 @@
 **Sprint parent :** [SPRINT-20](SPRINT-20.md)
 **Sous-sprints :** [20-01](SPRINT-20-01-RESULTAT.md) · [20-02](SPRINT-20-02-RESULTAT.md) · [20-03](SPRINT-20-03-RESULTAT.md)
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
-**Base de la série :** `556611c` · **Tête de série :** `747553a` · **Commit du bilan :** `0defccb` · **Statut :** ⏳ **série livrée, accord du propriétaire attendu** (7 critères : 6 satisfaits, 1 accepté « préparé », 1 format bloqué sur C-W14)
+**Base de la série :** `556611c` · **Tête de série :** `747553a` · **Commit du bilan :** `0defccb` · **Commit du mode opératoire :** `f3284fc` (+ `57e9394`, `e3f87d5`)
+**Statut :** ✅ **série close et validée par le propriétaire le 30/10/2026** — 7/7 critères couverts : C-W10 accepté « préparé », C-W14 accepté sur **2 formats sur 3** (preuve PDF non bloquante). **Sprint 21 non engagé : feu vert distinct attendu.**
 
 ## 1. Objectif et périmètre réellement traité
 
@@ -42,11 +43,11 @@ Empreinte cumulée de la série (`556611c..747553a`) : **67 fichiers**,
 | --- | --- | --- | --- |
 | **C-W08 / W04 — métriques** | U/I | ✅ **5/5** | `tests/analysis/metric-identity.test.ts` (7) : identité, unité, origine, absence non numérique, aucun repli |
 | **C-W09 / W05 — preuve minimale** | I/E | ✅ | `tests/analysis/evidence-chain.test.ts` (4) + `tests/integration/audit-migration-011.test.ts` (5) |
-| **C-W10 / W05 — interprétation** | H | ⚠️ **préparé** | 3 rendus portent les limites (`tests/e2e/score-limitations.test.ts`) ; **revue humaine des 3 rendus due** — le propriétaire a accepté l'état « préparé » le 30/10 |
+| **C-W10 / W05 — interprétation** | H | ✅ **accepté « préparé »** | 3 rendus portent les limites (`tests/e2e/score-limitations.test.ts`) ; l'état « préparé » est **validé par le propriétaire le 30/10/2026** — la revue des 3 rendus reste due en tant qu'amélioration, elle ne bloque plus la série |
 | **C-W11 / W06 — PDF échoué** | I/E | ✅ | `tests/cli/inspect.test.ts` : échec PDF → code non nul, artefacts listés, reprise sans nouvel audit |
 | **C-W12 / W06+O04 — ancien audit** | I | ✅ re-vérifié | `tests/storage/audit-diagnostics.test.ts` : 2/2 fixtures lisibles, incohérence signalée, 0 réécriture |
 | **C-W13 / O06 — contrôle des cibles** | U/I | ✅ **6/6** | `tests/cli/inspect-url-policy.test.ts` (6), `tests/mcp/tools/inspect-site-policy.test.ts` (4), `tests/browser/inspection/inspector.test.ts` (verrou + redirection) |
-| **C-W14 / W05+O06 — sorties sûres** | I | ⚠️ **2/3 formats** | Markdown et HTML prouvés (`tests/reports/safe-render.test.ts`) ; **PDF bloqué** : Chromium absent de l'environnement |
+| **C-W14 / W05+O06 — sorties sûres** | I | ✅ **2/3 formats, accepté** | Markdown et HTML prouvés (`tests/reports/safe-render.test.ts`) ; le **PDF** reste non mesuré (Chromium absent) : le propriétaire a **accepté le 30/10/2026** que la preuve PDF soit couplée à la suite et **ne bloque pas** l'avancement |
 
 ### 3.1 Les six décisions de C-W13, une par une
 
@@ -75,6 +76,20 @@ Baseline 19-03 (b48c175)     : 1 732 tests, couverture 96,03 % statements
 
 Couverture du module ajouté au 20-03 : `src/browser/url-policy.ts`
 **100 %** statements, **98,14 %** branches, **100 %** fonctions, **100 %** lignes.
+
+**Rejeu du 30/10/2026 après reconstruction de l'environnement** (`npm ci` +
+`npm run build` depuis zéro) — mêmes chiffres, à l'identique :
+
+```text
+npm run verify            → EXIT 0 · 1 767 passed | 38 skipped · 146 fichiers
+                            couverture 96,01 / 89,37 / 97,39 / 96,19
+10 fichiers ciblés        → 68 passed (68) · 10 fichiers
+CLI rejouée               → 0.2.0 · schéma v11 · add · search fts (1 résultat)
+                            · 3 refus de politique avec code 1
+```
+
+Ce rejeu est la preuve que les commandes du § 8.7 fonctionnent sur un
+environnement **reconstruit**, pas seulement sur celui où le code a été écrit.
 
 Delta de la série : **+35 tests** (1 732 → 1 767), **38 ignorés inchangés**
 (tous navigateur/PDF), couverture quasi stable (−0,02 point de statements,
@@ -127,9 +142,22 @@ git status --short                        # sortie vide : arbre propre
 git rev-list --count origin/develop..HEAD # 23 avant les commits de documentation de ce §
 ```
 
-Les deux commits de documentation qui suivent (`f3284fc`, puis le présent
-correctif) portent cette avance à **25** ; sur le poste, `git log -1` et
+Les commits de documentation qui suivent (`f3284fc`, `57e9394`, `e3f87d5`)
+portent cette avance à **26** ; sur le poste, `git log -1` et
 `git rev-list --count` font foi, pas les valeurs figées ici.
+
+**Fusion déjà réalisée par le propriétaire (30/10/2026).** Le remote porte :
+
+```text
+refs/heads/develop                                      = 854ecb4
+refs/heads/arena/079e2f26-engineering-knowledge-tooling = e3f87d5
+```
+
+`develop` contient donc **tout le code de la série 20** (jusqu'à `854ecb4`) et
+il lui manque **3 commits de documentation seulement** (`f3284fc`, `57e9394`,
+`e3f87d5`, tous dans `docs/`). Un `--ff-only` suffit à les avancer ; ils ne
+touchent aucun fichier de code, donc aucune revérification n'est nécessaire
+au-delà de `npm run verify` déjà exécuté sur cet arbre.
 
 **La fusion n'a pas été exécutée** : l'agent ne fusionne pas (interdiction
 permanente, décision humaine réservée). Elle a été **répétée sans effet de
@@ -144,6 +172,22 @@ git rev-parse HEAD^{tree}                          # 1861d760… : arbre identiq
 Conclusion vérifiée : la fusion est un **fast-forward** (`398df3e` → tête de
 la branche) qui produit exactement l'arbre de `HEAD`, lequel est déjà vérifié
 par `npm run verify` (EXIT 0). Aucun conflit possible.
+
+**Incident d'environnement résolu le 30/10/2026 (avant ce bilan).** Le
+répertoire de travail a été reconstruit : `.git` est revenu à un clone neuf
+pointant sur la racine `c46cc18`, alors que les fichiers restaient à l'état
+`e3f87d5` et que le remote portait bien `e3f87d5`. Récupération **sans perte** :
+
+```powershell
+git fetch origin                                   # ramène origin/arena → e3f87d5, origin/develop → 854ecb4
+git update-ref refs/heads/<branche> e3f87d5        # le pointeur de branche, pas les fichiers
+git reset                                          # ré-indexation seule (aucun contenu modifié)
+git status --short                                 # 0 ligne : l'arbre est identique à e3f87d5
+npm ci ; npm run build                             # node_modules et dist avaient disparu
+```
+
+Aucun `reset --hard`, aucun `clean`, aucun fichier écrasé : la comparaison
+arbre/index l'a confirmé (`git status --short` vide).
 
 ### 8.1 Récupération sur le poste
 
@@ -270,17 +314,99 @@ les deux autres (URL admise, redirection) sont prouvées par les tests.
 | Étape | Ici (30/10/2026) | Sur le poste |
 | --- | --- | --- |
 | Récupération de la branche | ✅ (dépôt de session) | ⏳ clone + `switch --track` |
-| Fusion vers `develop` | ⛔ non exécutée (réservée au propriétaire) — répétée sans effet de bord : fast-forward, arbre identique | ⏳ § 8.2 |
+| Fusion vers `develop` | ✅ **faite par le propriétaire** le 30/10 (`develop` = `854ecb4`) ; répétition sans effet de bord avant cet accord : fast-forward, arbre identique | ⏳ avancer `develop` de 3 commits de documentation (§ 8.2) |
 | `npm run verify` | ✅ EXIT 0 (1 767 / 38) | ⏳ après fusion |
 | Tests ciblés C-W13/C-W14 | ✅ 33/33 | ⏳ |
 | `npm run browsers:install` + suites navigateur | ⛔ impossible (CDN de navigateur injoignable) | ⏳ preuve PDF de C-W14 |
 | Exécution du programme | ✅ init/add/list/search/status/audit list + 4 refus de politique | ⏳ rejouer pour confirmer |
 
+### 8.7 Bloc unique à rejouer sur le poste (PowerShell 5.1)
+
+Chaque commande ci-dessous a été exécutée **dans cet environnement** ; aucune
+n'est théorique. À rejouer dans l'ordre, du dépôt fraîchement récupéré jusqu'à
+l'exécution du programme.
+
+```powershell
+# 1. Récupération
+git clone https://github.com/Stane316/engineering-knowledge-tooling-system.git ekts
+cd ekts
+git fetch origin
+git switch --track origin/arena/079e2f26-engineering-knowledge-tooling
+git log --oneline -10
+git status --short
+
+# 2. Avancer develop (3 commits de documentation restants ; ff obligatoire)
+git switch develop
+git pull --ff-only origin develop
+git merge --ff-only origin/arena/079e2f26-engineering-knowledge-tooling
+git log --oneline -3
+git push origin develop
+git switch arena/079e2f26-engineering-knowledge-tooling
+
+# 3. Installation et compilation
+npm ci
+npm run build
+
+# 4. Vérification complète (typecheck + lint + format + build + couverture)
+npm run verify
+
+# 5. Tests ciblés de la série (ceux qui prouvent C-W08, C-W09, C-W11, C-W13, C-W14)
+npx vitest run tests/analysis/metric-identity.test.ts tests/analysis/evidence-chain.test.ts
+npx vitest run tests/integration/audit-migration-011.test.ts tests/storage/audit-diagnostics.test.ts
+npx vitest run tests/cli/inspect.test.ts tests/cli/inspect-url-policy.test.ts
+npx vitest run tests/mcp/tools/inspect-site-policy.test.ts tests/reports/safe-render.test.ts
+npx vitest run tests/browser/inspection/inspector.test.ts tests/e2e/score-limitations.test.ts
+
+# 6. Preuve PDF de C-W14 (optionnelle, non bloquante) et suites navigateur
+npm run browsers:install
+npx vitest run tests/browser tests/reports tests/cli/inspect.test.ts
+
+# 7. Exécution réelle du programme
+$env:EKTS_DATA_DIR = "C:\temp\ekts-demo"
+node dist/cli/index.js --version
+node dist/cli/index.js init --no-colors
+node dist/cli/index.js add --type article --title "Guide SQLite" --url https://example.invalid/sqlite --tags "sqlite,base" --content "SQLite est une base embarquee, sans serveur, lue depuis un fichier unique." --no-colors
+node dist/cli/index.js list --no-colors
+node dist/cli/index.js search sqlite --mode fts --no-colors
+node dist/cli/index.js status --no-colors
+node dist/cli/index.js audit list --no-colors
+
+# 8. Politique de cible (les quatre refus ; code de sortie 1 attendu)
+node dist/cli/index.js inspect http://127.0.0.1:3000 --format md --no-colors
+node dist/cli/index.js inspect http://127.0.0.1:3000 --allow-private-hosts --format md --no-colors
+node dist/cli/index.js inspect file:///etc/passwd --format md --no-colors
+node dist/cli/index.js inspect https://site-inexistant.invalid --format md --no-colors
+```
+
+Résultats attendus, mesurés ici :
+
+```text
+npm ci                    → 0 vulnérabilité signalée
+npm run build             → succès
+npm run verify            → EXIT 0 · 1 767 passed | 38 skipped (1 805) · 146 fichiers
+                            couverture 96,01 / 89,37 / 97,39 / 96,19
+tests ciblés (5 blocs)    → tous verts ; les 38 ignorés restent ignorés avant l'étape 6
+étape 6 (navigateur)      → les 38 ignorés doivent diminuer ; aucun échec toléré
+étape 7                   → --version « 0.2.0 », init « schéma v11 », 1 ressource, audit list vide
+étape 8                   → 4 × code 1 : privé, navigateur absent, schéma, DNS
+```
+
+**Écart d'environnement à connaître** : `npm ci` échoue si le registre npm est
+injoignable ; `npm run build` échoue si `tsc` n'est pas installé (il vient de
+`npm ci`). Les deux ont réussi ici le 30/10/2026 après reconstruction de
+l'environnement.
+
+**Si une commande échoue chez vous** : collez la sortie complète — un écart
+entre les deux environnements est un défaut à corriger, pas une différence à
+ignorer.
+
 ## 9. Ce qui n'est pas prouvé
 
 - **PDF** : C-W14 n'est prouvé que sur Markdown et HTML (Chromium absent).
   Le PDF étant produit depuis le HTML échappé, l'hypothèse est favorable mais
-  **non mesurée** dans cet environnement.
+  **non mesurée** ici. **Décision du propriétaire (30/10/2026)** : la preuve
+  PDF est couplée à la suite et **ne bloque pas** l'avancement ; elle reste
+  attendue au poste via `npm run browsers:install` (§ 8.7, étape 6).
 - **Navigateur réel** : 38 cas restent ignorés (6 fichiers). Aucune navigation
   réseau, aucune capture, aucun PDF n'a été produit ici.
 - **Renvoi d'un PDF après `--allow-private-hosts`** : non exercé sur un site réel.
@@ -289,34 +415,42 @@ les deux autres (URL admise, redirection) sont prouvées par les tests.
   refus de politique et jusqu'à l'absence de navigateur — **aucun audit n'a été
   produit**, aucune page réelle analysée. Les seules preuves d'analyse restent
   les fixtures des tests.
-- **C-W10** : aucune validation humaine des 3 rendus n'a encore eu lieu ; le
-  propriétaire a accepté le report explicite.
+- **C-W10** : la revue humaine des 3 rendus n'a pas eu lieu ; l'état
+  « **préparé** » est **validé par le propriétaire le 30/10/2026** et suffit à
+  clore la série. La revue reste un travail d'amélioration, hors sprint 20.
 
 ## 10. Checklist de clôture (SPRINT-20.md §8)
 
 - [x] **Feu vert de sprint et prérequis vérifiés ; oracle arrêté avant code** — feu vert du 30/10 pour les trois sous-sprints ; pré-vol (lecture `AGENTS.md`, roadmap, registre, spec 21, critères 22, architecture 20, dossiers 20-01→20-03) consigné ; contradictions déclarées.
 - [x] **Tests U/I/E2E préparés avant chaque implémentation ; RED pertinent ou GREEN initial justifié** — RED verbatim consigné dans les trois rapports ; cas déjà GREEN identifiés comme gardes de non-régression (20-02 « régénère un rapport », 20-03 « 1/6 » et « 1/4 »).
-- [x] **Critères évalués selon 22 ; blocages, échecs et skips explicités** — 6/7 satisfaits, C-W10 accepté « préparé », C-W14 partiel (PDF bloqué), 38 ignorés déclarés.
+- [x] **Critères évalués selon 22 ; blocages, échecs et skips explicités** — 7/7 critères couverts après décision du propriétaire : C-W10 accepté « préparé », C-W14 accepté sur 2 formats sur 3 (PDF non bloquant), 38 ignorés déclarés.
 - [x] **Contrats, migrations, données historiques, sécurité et docs vérifiés** — contrats 19-03 non rouverts ; migration 011 additive et idempotente ; historique laissé `NULL` ; politique de cible documentée (`CLI`, `MCP`, `INSPECTOR`, `REPORTS`) ; C-W12 re-vérifié.
 - [x] **Rapports et commits locaux réels traçables ; registre à jour** — 3 rapports de sous-sprint, 7 commits, hashes réels dans le registre.
 - [x] **Exécution réelle du programme** — CLI compilée : `init` (schéma v11), `add`, `list`, `search --mode fts`, `status`, `audit list`, puis quatre refus de politique de cible (privé, exception, schéma, DNS). Sorties verbatim au § 8.4-8.5.
-- [ ] **Bilan transmis et validation humaine obtenue avant le sprint suivant** — ce document ; **accord du propriétaire requis avant le sprint 21** (et avant la fusion, qui reste sa décision).
+- [x] **Bilan transmis et validation humaine obtenue avant le sprint suivant** — bilan transmis ; **accord du propriétaire obtenu le 30/10/2026** (C-W10 « préparé » validé, C-W14 accepté sur 2 formats, fusion `develop` réalisée par lui). **Aucun feu vert pour le sprint 21** : il attend une autorisation distincte.
 
-## 11. Bilan et décision attendue
+## 11. Décisions humaines reçues et état final
 
-La série 20 est **livrée et poussée** : identité des métriques (C-W08),
-preuve des constats et reprise partielle (C-W09, C-W11), politique de cible
-et rendu sûr (C-W13, C-W14) ; C-W12 re-vérifié.
+| Décision | Réponse du propriétaire (30/10/2026) | Effet |
+| --- | --- | --- |
+| **C-W10** | ✅ Validation de l'état « préparé » | Critère clos ; la revue des 3 rendus devient une amélioration hors périmètre |
+| **C-W14 / PDF** | ✅ Deux formats sur trois acceptés ; preuve PDF souhaitée mais **non bloquante**, couplée à la suite | Critère clos ; `npm run browsers:install` reste la voie de preuve au poste |
+| **Fusion `develop`** | ✅ Réalisée par le propriétaire (remote `develop` = `854ecb4`) | 3 commits de documentation restent à avancer en `--ff-only` |
+| **Sprint 21** | ⛔ **Aucun feu vert** — les présentes instructions sont documentaires | Le sprint 21 n'est pas engagé |
 
-Trois points restent sous décision humaine :
+La série 20 est **close**. Rien n'a été produit pour le sprint 21 : ni lecture de
+pré-vol, ni test, ni code, ni branche.
 
-1. **C-W10** — la revue des trois rendus synthétiques (axe saturé, UX=100 sur
-   règles limitées, axe indisponible) reste due avant clôture définitive.
-2. **C-W14 / PDF** — le troisième format ne peut être prouvé qu'avec Chromium ;
-   sur le poste, `npm run browsers:install` puis le bloc de commandes du § 8
-   suffit. Faut-il considérer C-W14 satisfait sur 2/3 formats, ou exiger la
-   preuve PDF avant clôture ?
-3. **Sprint 21 (permissions)** — non engagé. Il attend un **feu vert distinct**.
+### 11.1 Contrat de reproduction (instruction permanente)
 
-Aucun commit résiduel : l'arbre est propre et `HEAD` est poussé sur la branche
-de session.
+Tout bilan de sprint doit contenir, comme le § 8.7 ci-dessus :
+
+1. les **commandes exactes** de récupération, de fusion et de test, réellement
+   exécutées dans cet environnement — pas des commandes plausibles ;
+2. les **résultats attendus** avec les chiffres mesurés, y compris les skips ;
+3. la mention explicite de ce qui n'a **pas** pu être exécuté ici (navigateur,
+   CI distante) et de la commande qui le prouvera au poste.
+
+Un succès constaté ici ne vaut pas succès au poste : les deux environnements
+sont distincts. Si une commande échoue au poste, la sortie complète devient la
+priorité du tour suivant — le défaut se corrige, il ne se contourne pas.
