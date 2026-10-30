@@ -3,6 +3,8 @@ import path from 'node:path';
 import type { Command } from 'commander';
 
 import { AuditComparator } from '../../reports/comparator.js';
+import { HtmlReportGenerator } from '../../reports/html-generator.js';
+import { AuditDiagnostics, type AuditDiagnostic } from '../../storage/audit-diagnostics.js';
 import { MarkdownReportGenerator } from '../../reports/markdown-generator.js';
 import { PDFReportGenerator } from '../../reports/pdf-generator.js';
 import type { ComparisonReport, GeneratedReport } from '../../reports/types.js';
@@ -19,7 +21,14 @@ import { renderTable } from '../output.js';
 import type { CliRuntime } from '../runtime.js';
 
 /** Formats de rapport acceptés. */
-const FORMATS = ['md', 'pdf', 'both'] as const;
+/**
+ * Formats de rapport acceptés.
+ *
+ * `html` et `all` ont été ajoutés au Sprint 19-02 (C-W03) : le critère exige
+ * que Markdown, HTML et PDF soient **réellement produits** pour un même audit.
+ * `both` reste `md + pdf` (contrat historique inchangé).
+ */
+const FORMATS = ['md', 'html', 'pdf', 'both', 'all'] as const;
 
 /** Poids de tri des priorités (décroissant). */
 const PRIORITY_ORDER: Record<string, number> = {
@@ -96,9 +105,32 @@ function parseId(raw: string, label: string): number {
  * @returns Format normalisé.
  * @throws {ValidationError} Valeur hors `md|pdf|both`.
  */
-function parseFormat(value: string): 'md' | 'pdf' | 'both' {
-  if ((FORMATS as readonly string[]).includes(value)) return value as 'md' | 'pdf' | 'both';
-  throw new ValidationError([`format invalide « ${value} » (valeurs : md, pdf, both)`]);
+function parseFormat(value: string): (typeof FORMATS)[number] {
+  if ((FORMATS as readonly string[]).includes(value)) return value as (typeof FORMATS)[number];
+  throw new ValidationError([`format invalide « ${value} » (valeurs : ${FORMATS.join(', ')})`]);
+}
+
+/** Formats acceptés par `audit compare` (aucun rendu HTML de comparaison). */
+const COMPARISON_FORMATS = ['md', 'pdf', 'both'] as const;
+
+/**
+ * Analyse `--format` pour `audit compare`.
+ *
+ * `html` et `all` sont refusés explicitement plutôt que silencieusement
+ * ignorés : C-W03 porte sur le rapport d'un audit, et annoncer un format non
+ * produit serait une affirmation fausse.
+ *
+ * @param value - Valeur saisie.
+ * @returns Format de comparaison validé.
+ */
+function parseComparisonFormat(value: string): (typeof COMPARISON_FORMATS)[number] {
+  if ((COMPARISON_FORMATS as readonly string[]).includes(value)) {
+    return value as (typeof COMPARISON_FORMATS)[number];
+  }
+
+  throw new ValidationError([
+    `format invalide « ${value} » pour une comparaison (valeurs : ${COMPARISON_FORMATS.join(', ')})`,
+  ]);
 }
 
 /**
@@ -111,14 +143,34 @@ function parseFormat(value: string): 'md' | 'pdf' | 'both' {
  */
 async function generateReports(
   audit: Audit,
-  format: 'md' | 'pdf' | 'both',
+  format: (typeof FORMATS)[number],
   outputDir: string,
+  diagnostics: readonly AuditDiagnostic[] = [],
 ): Promise<GeneratedReport[]> {
+  const wantsMarkdown = format === 'md' || format === 'both' || format === 'all';
+  const wantsHtml = format === 'html' || format === 'all';
+  const wantsPdf = format === 'pdf' || format === 'both' || format === 'all';
+
   const reports: GeneratedReport[] = [];
-  if (format === 'md' || format === 'both') {
-    reports.push(await new MarkdownReportGenerator().generate(audit, { outputPath: outputDir }));
+  const sharedOptions =
+    diagnostics.length === 0
+      ? {}
+      : ({ diagnostics } as { diagnostics: readonly AuditDiagnostic[] });
+
+  if (wantsMarkdown) {
+    reports.push(
+      await new MarkdownReportGenerator().generate(audit, {
+        outputPath: outputDir,
+        ...sharedOptions,
+      }),
+    );
   }
-  if (format === 'pdf' || format === 'both') {
+  if (wantsHtml) {
+    reports.push(
+      await new HtmlReportGenerator().generate(audit, { outputPath: outputDir, ...sharedOptions }),
+    );
+  }
+  if (wantsPdf) {
     reports.push(await new PDFReportGenerator().generate(audit, { outputPath: outputDir }));
   }
   return reports;
@@ -320,8 +372,8 @@ export function registerAudit(program: Command, runtime: CliRuntime): void {
   withOutputFlags(
     audit
       .command('report <id>')
-      .description("générer les rapports Markdown/PDF d'un audit")
-      .option('-f, --format <format>', 'format (md, pdf, both)', 'both')
+      .description("générer les rapports Markdown/HTML/PDF d'un audit")
+      .option('-f, --format <format>', 'format (md, html, pdf, both, all)', 'both')
       .option('-o, --output <path>', 'dossier de sortie', './reports'),
   ).action(async (id: string, options: Record<string, string | undefined>, command: Command) => {
     await execute(command, runtime, async (palette): Promise<CommandResult> => {
@@ -330,7 +382,11 @@ export function registerAudit(program: Command, runtime: CliRuntime): void {
         const found = requireAudit(services, parseId(id, 'id'));
         const format = parseFormat(options.format ?? 'both');
         const outputDir = path.resolve(options.output ?? './reports');
-        const reports = await generateReports(found, format, outputDir);
+
+        // C-W12 : les anomalies historiques sont signalées dans les rapports,
+        // jamais corrigées ni réécrites.
+        const diagnostics = new AuditDiagnostics(services.database.connection).inspect(found);
+        const reports = await generateReports(found, format, outputDir, diagnostics);
 
         const human = [
           `${palette.success('✔')} Rapports pour l'audit #${String(found.metadata.id)} (${format})`,
@@ -338,6 +394,13 @@ export function registerAudit(program: Command, runtime: CliRuntime): void {
             (entry) =>
               `  ${palette.bold(entry.format.toUpperCase())} : ${entry.filePath ?? '(contenu en mémoire)'}`,
           ),
+          ...(diagnostics.length === 0
+            ? []
+            : [
+                '',
+                palette.bold(`  ⚠️ ${String(diagnostics.length)} réserve(s) sur les données :`),
+                ...diagnostics.map((diagnostic) => `    - ${diagnostic.message}`),
+              ]),
         ].join('\n');
 
         return {
@@ -348,6 +411,7 @@ export function registerAudit(program: Command, runtime: CliRuntime): void {
               format: entry.format,
               filePath: entry.filePath ?? null,
             })),
+            diagnostics,
           },
         };
       } finally {
@@ -375,7 +439,7 @@ export function registerAudit(program: Command, runtime: CliRuntime): void {
         try {
           const auditA = requireAudit(services, parseId(id1, 'id1'));
           const auditB = requireAudit(services, parseId(id2, 'id2'));
-          const format = parseFormat(options.format ?? 'both');
+          const format = parseComparisonFormat(options.format ?? 'both');
           const outputDir = path.resolve(options.output ?? './reports');
 
           const comparison = new AuditComparator().compare(auditA, auditB);

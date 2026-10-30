@@ -9,8 +9,14 @@ import type { Audit, AuditFinding } from '../storage/types.js';
  * Puppeteer), ainsi que des comparaisons avant/après.
  */
 
-/** Formats de sortie demandés par l'appelant. */
-export type ReportFormat = 'markdown' | 'pdf' | 'both';
+/**
+ * Formats de sortie demandés par l'appelant.
+ *
+ * `html` a été ajouté au Sprint 19-02 (C-W03, trois formats réellement
+ * produits) ; `both` reste `markdown + pdf` pour ne pas modifier le contrat
+ * historique, `all` produit les trois.
+ */
+export type ReportFormat = 'markdown' | 'html' | 'pdf' | 'both' | 'all';
 
 /** Sections reconnaissables d'un rapport d'audit. */
 export type ReportSection =
@@ -27,7 +33,7 @@ export type ReportSection =
 
 /** Options de génération d'un rapport. */
 export interface ReportOptions {
-  /** Format demandé (`markdown`, `pdf`, `both`). */
+  /** Format demandé (`markdown`, `html`, `pdf`, `both`, `all`). */
   format: ReportFormat;
   /** Dossier de sortie ; absent = contenu en mémoire uniquement. */
   outputPath?: string;
@@ -38,6 +44,13 @@ export interface ReportOptions {
   /** Projet ciblé pour la section « context-recommendations » (Sprint 16).
    *  Défaut : `audit.metadata.projectId` quand la section est demandée. */
   projectId?: string;
+  /**
+   * Anomalies de données historiques à signaler dans le rapport (C-W12).
+   *
+   * Toujours **affichées**, jamais corrigées : le rapport ne réécrit aucune
+   * donnée et n'attribue aucune mesure rétroactive.
+   */
+  diagnostics?: readonly import('../storage/audit-diagnostics.js').AuditDiagnostic[];
 }
 
 /** Rapport généré (contenu toujours présent, fichier si demandé). */
@@ -45,7 +58,7 @@ export interface GeneratedReport {
   /** Identifiant de l'audit source. */
   auditId: number;
   /** Format produit. */
-  format: 'markdown' | 'pdf';
+  format: 'markdown' | 'html' | 'pdf';
   /** Contenu : texte Markdown, ou base64 pour le PDF. */
   content: string;
   /** Chemin du fichier écrit, si `outputPath` était fourni. */

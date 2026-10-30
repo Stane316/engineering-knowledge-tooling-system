@@ -2,6 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import type { RecommendationEngine } from '../recommendations/recommendation-engine.js';
+import type { AuditDiagnostic } from '../storage/audit-diagnostics.js';
 import type { Audit } from '../storage/types.js';
 
 import { MarkdownTemplate } from './templates/markdown.js';
@@ -56,7 +57,39 @@ export class MarkdownReportGenerator {
       content = `${content}\n${contextSection}`;
     }
 
+    // C-W12 : les anomalies de données sont signalées, jamais corrigées.
+    content = `${content}\n${this.buildReservationsSection(options?.diagnostics ?? [])}`;
+
     return this.finish(audit, content, options);
+  }
+
+  /**
+   * Construit la section « Réserves sur les données » (Sprint 19-02, C-W12).
+   *
+   * Les anomalies historiques sont **affichées**, jamais réparées : le rapport
+   * ne réécrit aucune donnée et n'attribue aucune mesure rétroactive.
+   *
+   * @param diagnostics - Anomalies détectées par `AuditDiagnostics`.
+   * @returns Section Markdown, ou chaîne vide si aucune réserve.
+   */
+  buildReservationsSection(diagnostics: readonly AuditDiagnostic[]): string {
+    if (diagnostics.length === 0) {
+      return '';
+    }
+
+    const lines: string[] = [
+      '## ⚠️ Réserves sur les données',
+      '',
+      '> Ces anomalies sont **constatées** sur des données existantes. Elles ne sont',
+      '> ni corrigées ni réécrites par la génération du rapport.',
+      '',
+    ];
+
+    for (const diagnostic of diagnostics) {
+      lines.push(`- \`${diagnostic.code}\` — ${diagnostic.message}`);
+    }
+
+    return lines.join('\n');
   }
 
   /**
