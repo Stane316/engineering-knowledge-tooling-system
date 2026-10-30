@@ -162,7 +162,7 @@ Les rapports `*-RESULTAT.md` ne seront créés qu'après des travaux réellement
 | Sprint 19 | 19-2 | Cohérence stockage et rendus (C-W03, C-W12) | ✅ Rédigée le 30/10/2026 | ✅ Livré le 30/10/2026 | ✅ `696e165`, `SPRINT-19-02-RESULTAT.md` |
 | Sprint 19 | 19-3 | Mesures absentes et score global (C-W05, C-W06, C-W07) | ✅ Rédigée le 30/10/2026 | ✅ Livré le 30/10/2026 | ✅ `b48c175` + `2e24cb5`, `SPRINT-19-03-RESULTAT.md` |
 | Sprint 19 | Dossier parent | Fiabilité des priorités et intégrité des scores web | ✅ Rédigée le 30/10/2026 | ✅ Terminé le 30/10/2026 — bilan soumis | ✅ `SPRINT-19-RESULTAT.md` (checklist : 5 ✅, 2 partielles déclarées, 1 en attente d'accord) |
-| Sprint 20 | 20-1 | Identité des métriques et interprétation (C-W08, C-W10) | ✅ Rédigée le 30/10/2026 | ⏳ En cours — C-W08 ✅, C-W10 préparé | ✅ `SPRINT-20-01-RESULTAT.md`, commit `ff31dc3` (C-W10 : revue humaine due) |
+| Sprint 20 | 20-1 | Identité des métriques et interprétation (C-W08, C-W10) | ✅ Rédigée le 30/10/2026 | ⏳ En cours — C-W08 ✅, C-W10 préparé | ✅ `SPRINT-20-01-RESULTAT.md`, commit `ff31dc3` (C-W10 accepté « préparé » par le propriétaire le 30/10, revue des 3 rendus due) |
 
 ---
 

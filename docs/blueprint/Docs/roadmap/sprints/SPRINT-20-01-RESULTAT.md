@@ -4,6 +4,7 @@
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
 **Base de départ :** `556611c` · **Commit d'implémentation :** `ff31dc3` · **Contrat amont :** [SPRINT-20-01-CONTRAT-PROPOSITION.md](SPRINT-20-01-CONTRAT-PROPOSITION.md)
 **Statut :** ✅ critères C-W08 satisfaits et testés ; ⚠️ C-W10 **préparé mais non certifié** — la revue humaine reste due.
+**Décision du propriétaire (30/10/2026) :** C-W10 accepté à l'état « préparé » ; le sous-sprint 20-02 est engagé sous sa responsabilité, la revue des trois rendus restant due avant clôture de la série 20.
 
 ## 1. Décisions humaines reçues avant code
 
