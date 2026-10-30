@@ -2,7 +2,7 @@
 
 **Sprint parent :** [SPRINT-21](SPRINT-21.md) · **Sous-sprint :** [SPRINT-21-03](SPRINT-21-03.md)
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
-**Base de départ :** `0dbf037` · **Commit d'implémentation :** _à renseigner_
+**Base de départ :** `0dbf037` · **Commit d'implémentation :** `8fd6fce`
 **Statut :** ⚠️ **C-P05 satisfait · C-O01 partiel (applicatif) · C-P06 et C-P07 BLOQUÉS** — sous-sprint **non clôturable comme réussi**.
 
 ## 1. Décisions humaines reçues à l'entrée du sous-sprint (30/10/2026)

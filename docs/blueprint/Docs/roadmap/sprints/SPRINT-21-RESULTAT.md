@@ -2,7 +2,7 @@
 
 **Sprint :** [SPRINT-21](SPRINT-21.md) · **Exigences :** P01, P02, P03, O01
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
-**Base de départ :** `3eceac0` · **Commits :** `3370912`, `64abd6e`, `28df509`, `0dbf037`, puis le présent bilan
+**Base de départ :** `3eceac0` · **Commits :** `3370912`, `64abd6e`, `28df509`, `0dbf037`, `8fd6fce`, puis le présent bilan
 **Statut :** ⚠️ **NON CLÔTURABLE COMME RÉUSSI** — 6 critères satisfaits, 1 partiel, 2 bloqués (P3).
 
 ## 1. Périmètre livré
