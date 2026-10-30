@@ -2,7 +2,7 @@
 
 **Statut :** ✅ Actif  
 **Date de création :** 21 octobre 2026  
-**Dernière mise à jour :** 26 octobre 2026 — Sprint 18-03 (**MVP-3 VALIDÉ — clôture**)  
+**Dernière mise à jour :** 30 octobre 2026 — Série 19 terminée (19-01 → 19-03), bilan soumis  
 **Emplacement :** `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`  
 **Source de vérité :** ce registre + les dossiers `Docs/roadmap/sprints/`
 
@@ -40,7 +40,7 @@ La [roadmap](../../../ROADMAP.md) et la décomposition en sprints 19–24 ont é
 
 | Sprint planifié | Documentation | Implémentation | Référence |
 |---|---|---|---|
-| 19 — Priorités et scores web | 📄 Décomposition lue et prérequis vérifiés | 🚧 **19-01 et 19-02 terminés** (`ad5cd35` + `693fced` ; `696e165`) ; 19-03 à suivre | [SPRINT-19](sprints/SPRINT-19.md) · [rapport 19-01](sprints/SPRINT-19-01-RESULTAT.md) · [rapport 19-02](sprints/SPRINT-19-02-RESULTAT.md) |
+| 19 — Priorités et scores web | 📄 Décomposition lue et prérequis vérifiés | ✅ **19-01, 19-02 et 19-03 terminés** (`ad5cd35` + `693fced` ; `696e165` ; `b48c175` + `2e24cb5`) — bilan soumis, accord attendu | [SPRINT-19](sprints/SPRINT-19.md) · [bilan 19](sprints/SPRINT-19-RESULTAT.md) · [19-01](sprints/SPRINT-19-01-RESULTAT.md) · [19-02](sprints/SPRINT-19-02-RESULTAT.md) · [19-03](sprints/SPRINT-19-03-RESULTAT.md) |
 | 20 — Métriques, preuves et sécurité web | 📄 Décomposition validée ; détails à vérifier avant lancement | ⏳ Non commencée | [SPRINT-20](sprints/SPRINT-20.md) |
 | 21 — Profil de lecture et confinement | 📄 Décomposition validée ; détails à vérifier avant lancement | ⏳ Non commencée | [SPRINT-21](sprints/SPRINT-21.md) |
 | 22 — Provenance et FTS | 📄 Décomposition validée ; détails à vérifier avant lancement | ⏳ Non commencée | [SPRINT-22](sprints/SPRINT-22.md) |
@@ -58,6 +58,7 @@ Les rapports `*-RESULTAT.md` ne seront créés qu'après des travaux réellement
 | **MVP-1** — Bibliothèque, recherche, CLI, MCP | 1 à 6 | ✅ 24 dossiers | ✅ Sprints 1 à 6 terminés | ✅ 1 260 tests, couverture 97,06 % |
 | **MVP-2** — Inspection navigateur, analyse, rapports | 7 à 12 | ✅ 24 dossiers | ✅ Sprints 7 à 12 terminés | ✅ 88/88 critères validés |
 | **MVP-3** — Multi-projets, capitalisation, recommandations | 13 à 18 | ✅ 26 dossiers | ✅ Sprints 13 à 18 terminés | ✅ 1 656 tests, couverture 96,40 %, **97/97 critères** |
+| **MVP-4** — Priorités et intégrité des scores (démarrage) | 19 | 📄 Dossiers 19-01 à 19-03 | ✅ Série 19 terminée le 30/10/2026 | ✅ 1 732 tests, couverture 96,03 % |
 
 **Total documenté :** 52 dossiers de sprint ; **implémenté :** Sprints 1 à 18 au 26 octobre 2026 (1 656 tests, couverture 96,40 %, **MVP-2 validé 88/88, MVP-3 validé 97/97**).
 
@@ -157,6 +158,10 @@ Les rapports `*-RESULTAT.md` ne seront créés qu'après des travaux réellement
 | Sprint 18 | 18-2 | Documentation MVP-3 (Guide utilisateur + Architecture + Extension) (Semaine 35, Jours 5-7) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 26/10/2026 | ✅ 3 guides `docs/MVP3_*.md` (ADR-043) + API_REFERENCE +6 outils MCP |
 | Sprint 18 | 18-3 | Validation critères + README/CHANGELOG + Préparation MVP-4 (Semaine 36, Jours 8-10) | ✅ Rédigée le 25/10/2026 | ✅ Livré le 26/10/2026 | ✅ `MVP3_VALIDATION.md` (97/97), CHANGELOG 0.2.0, MVP4 (ADR-044) |
 | Sprint 18 | Dossier parent | Tests + Documentation MVP-3 (ADR-042 à ADR-044) | ✅ Rédigée le 25/10/2026 | ✅ Validé le 26/10/2026 | ✅ `SPRINT-18-RESULTAT.md` (clôture MVP-3, checklist 10/10) |
+| Sprint 19 | 19-1 | Priorité canonique et comptage (C-W01, C-W02, C-W04) | ✅ Rédigée le 30/10/2026 | ✅ Livré le 30/10/2026 | ✅ `ad5cd35` + `693fced`, `SPRINT-19-01-RESULTAT.md` |
+| Sprint 19 | 19-2 | Cohérence stockage et rendus (C-W03, C-W12) | ✅ Rédigée le 30/10/2026 | ✅ Livré le 30/10/2026 | ✅ `696e165`, `SPRINT-19-02-RESULTAT.md` |
+| Sprint 19 | 19-3 | Mesures absentes et score global (C-W05, C-W06, C-W07) | ✅ Rédigée le 30/10/2026 | ✅ Livré le 30/10/2026 | ✅ `b48c175` + `2e24cb5`, `SPRINT-19-03-RESULTAT.md` |
+| Sprint 19 | Dossier parent | Fiabilité des priorités et intégrité des scores web | ✅ Rédigée le 30/10/2026 | ✅ Terminé le 30/10/2026 — bilan soumis | ✅ `SPRINT-19-RESULTAT.md` (checklist : 5 ✅, 2 partielles déclarées, 1 en attente d'accord) |
 
 ---
 
@@ -202,6 +207,8 @@ Les rapports `*-RESULTAT.md` ne seront créés qu'après des travaux réellement
 | 30/10/2026 | **Sprint 19-01** : priorité canonique (C-W01) et cinquième compteur `info` (C-W02), ordre de recommandation nommé (C-W04) ; migration 009 additive et idempotente ; 13 tests U/I ; `verify` = 0, 1 669 tests, couverture 96,41 % | `ad5cd35` |
 | 30/10/2026 | **Sprint 19-02** : trois formats réellement produits (Markdown, HTML, PDF) et décompte vérifié dans le texte extrait du PDF (C-W03) ; diagnostic en lecture seule des données historiques, anomalies signalées sans réécriture (C-W12) ; `pdfjs-dist` en devDependency ; `verify` = 0, 1 695 tests, couverture 96,65 % | `696e165` |
 | 30/10/2026 | **Sprint 19-01 — niveau E2E** : parcours d'audit local synthétique via la CLI compilée ; discrimination prouvée sur `861a07d` (3 échecs sur les défauts visés) ; `verify` = 0, 132 fichiers verts | `693fced` |
+| 30/10/2026 | **Sprint 19-03** : mesures indisponibles (C-W05), quatre états axe-core (C-W06), score global nullable avec raison (C-W07) ; migration 010 par `ALTER` sur `audit_metadata` **et** `audit_dimensions` (extension validée le 30/10) ; `verify` = 0, 1 732 tests, couverture 96,03 % | `b48c175` + `2e24cb5` |
+| 30/10/2026 | **Série 19 — bilan** : `SPRINT-19-RESULTAT.md` (3 sous-sprints, critères C-W01 à C-W07 et C-W12, écarts E19-1 à E19-5, commandes de fusion/test/exécution) ; 12 commits d'avance sur `develop`, 102 fichiers ; accord du propriétaire attendu avant le sprint 20 | à renseigner |
 | 23/10/2026 | Sprint 8 : inspecteur multi-niveaux `src/browser/inspection/` (L1 capture + arbre ARIA + photographie du DOM, L2 + Lighthouse, L3 + axe-core + UX + contenu), `src/browser/lighthouse.ts` (port CDP réservé, conversion du rapport), `src/browser/axe.ts` (WCAG 2.2 AA, score pondéré `100 − Σ poids × nœuds`), `InspectionError` (`INSPECTION_FAILED`) ; 122 tests unitaires sans navigateur, `src/browser/` à 99,2 %, suite à 989 cas ; ADR-026 (Lighthouse 12.8.2), ADR-027 (axe-core), risques R-8.1 à R-8.9, `docs/INSPECTOR.md` (écarts E8-1 à E8-12) | `sprint-8` |
 | 23/10/2026 | Sprint 6 : serveur MCP `src/mcp/` (SDK 1.32.1, transport stdio), 4 outils en lecture seule (`search_knowledge`, `get_resource`, `list_resources`, `validate_resource`), journal JSON sur stderr, codes `-32000`/`-32001`/`-32602`/`-32603` ; 99 tests MCP dont 8 sur le binaire, `src/mcp/**` à 100 %, suite à 649 tests ; ADR-022, risques R-6.1 à R-6.7, `docs/MCP.md`, `docs/MCP-EXAMPLES.md`, `.mcp.json`, `MCP-COMPATIBILITY.md` | `sprint-6` |
 | 25/10/2026 | Sprint 17 : module templates `src/templates/` (types, repository CRUD + protection builtin ADR-040, service orchestrateur), migration 007 `project_templates` (v7) | `797c110` |
@@ -214,6 +221,11 @@ Les rapports `*-RESULTAT.md` ne seront créés qu'après des travaux réellement
 
 ## 5. Prochaines étapes
 
+> **Note du 30/10/2026 — série 19 terminée :** 19-01, 19-02 et 19-03 sont livrés
+> et leurs bilans sont écrits. Le bilan de série est soumis au propriétaire ; il
+> n'autorise ni le sprint 20, ni une fusion, ni un pilote. Les points ci-dessous
+> restent l'instantané du 26/10 pour l'historique.
+>
 > **Note de révision documentaire — 30/10/2026 :** la liste ci-dessous est l'instantané du 26/10. Sa demande de décision avant toute spécification au point 2 est désormais historiquement dépassée : le propriétaire a validé vision, architecture, spécification et seuils, et autorisé la révision de la [roadmap](../../../ROADMAP.md). La collaboration est reportée ; aucun feu vert pour développement, pilote, publication ou nouveau sprint n'en découle. Les vérifications manuelles du point 3 restent des actions historiques à réévaluer selon leur objet ; elles ne sont pas réputées exécutées ici.
 
 1. **Sprints 1 à 18 terminés** — **MVP-3 validé (97/97)** le 26/10/2026 ;
