@@ -3,7 +3,7 @@
 **Sprint parent :** [SPRINT-20](SPRINT-20.md)
 **Sous-sprints :** [20-01](SPRINT-20-01-RESULTAT.md) · [20-02](SPRINT-20-02-RESULTAT.md) · [20-03](SPRINT-20-03-RESULTAT.md)
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
-**Base de la série :** `556611c` · **Tête de série :** `747553a` · **Commit du bilan :** _à consigner_ · **Statut :** ⏳ **série livrée, accord du propriétaire attendu** (7 critères : 6 satisfaits, 1 accepté « préparé », 1 format bloqué sur C-W14)
+**Base de la série :** `556611c` · **Tête de série :** `747553a` · **Commit du bilan :** `0defccb` · **Statut :** ⏳ **série livrée, accord du propriétaire attendu** (7 critères : 6 satisfaits, 1 accepté « préparé », 1 format bloqué sur C-W14)
 
 ## 1. Objectif et périmètre réellement traité
 
