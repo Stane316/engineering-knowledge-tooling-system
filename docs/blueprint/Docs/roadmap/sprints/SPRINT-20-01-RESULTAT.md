@@ -2,7 +2,7 @@
 
 **Sprint parent :** [SPRINT-20](SPRINT-20.md) · **Sous-sprint :** [SPRINT-20-01](SPRINT-20-01.md)
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
-**Base de départ :** `556611c` · **Contrat amont :** [SPRINT-20-01-CONTRAT-PROPOSITION.md](SPRINT-20-01-CONTRAT-PROPOSITION.md)
+**Base de départ :** `556611c` · **Commit d'implémentation :** `ff31dc3` · **Contrat amont :** [SPRINT-20-01-CONTRAT-PROPOSITION.md](SPRINT-20-01-CONTRAT-PROPOSITION.md)
 **Statut :** ✅ critères C-W08 satisfaits et testés ; ⚠️ C-W10 **préparé mais non certifié** — la revue humaine reste due.
 
 ## 1. Décisions humaines reçues avant code
