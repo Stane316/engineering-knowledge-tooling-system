@@ -2,7 +2,7 @@
 
 **Sprint parent :** [SPRINT-21](SPRINT-21.md) · **Sous-sprint :** [SPRINT-21-02](SPRINT-21-02.md)
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
-**Base de départ :** `64abd6e` · **Commit d'implémentation :** _à renseigner_ · **Statut :** ✅ C-P02, C-P03 et C-P08 satisfaits et mesurés ; un écart de code au niveau protocole déclaré (§ 7, E21-1).
+**Base de départ :** `64abd6e` · **Commit d'implémentation :** `28df509` · **Statut :** ✅ C-P02, C-P03 et C-P08 satisfaits et mesurés ; un écart de code au niveau protocole déclaré (§ 7, E21-1).
 
 ## 1. Objectif
 
