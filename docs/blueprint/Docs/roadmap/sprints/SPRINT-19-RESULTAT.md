@@ -36,7 +36,7 @@ sortant, intégrations, exécution automatique de scripts, fournisseur imposé.
 | 30/10/2026 | 19-03 — migration 010 et persistance | `2e24cb5` |
 | 30/10/2026 | 19-03 — rapport | `5253332` |
 | 30/10/2026 | 19-03 — alignement des types de lecture SQL | `fc6bfa4` |
-| 30/10/2026 | Ce bilan + registre | à renseigner après commit |
+| 30/10/2026 | Ce bilan + registre | `8db411d` |
 
 **État Git vérifié le 30/10/2026 :**
 
