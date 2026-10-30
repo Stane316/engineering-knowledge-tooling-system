@@ -66,6 +66,12 @@ donne `3 × (6 − 3) = 9` → `medium`. Le test échouait avec
 - `tests/integration/audit-migration-009.test.ts` — **3 tests** : migration
   d'une base historique à quatre colonnes, idempotence, absence de réécriture
   des autres colonnes (`0` mesuré, décision du propriétaire du 30/10).
+- `tests/e2e/audit-canonical-flow.test.ts` — **5 tests** (niveau **E2E** exigé
+  par `SPRINT-19-01.md` §4 : « observer liste/compteurs par le parcours
+  d'audit local synthétique »). Parcours réel sans navigateur ni réseau :
+  fixtures synthétiques → `AnalysisPipeline` → `AuditRepository.store` →
+  **CLI compilée** (`dist/cli/index.js`, `--json` et sortie humaine), avec
+  `audit show` et `audit list`.
 
 ### Mise en cohérence des tests existants
 
@@ -73,6 +79,30 @@ donne `3 × (6 − 3) = 9` → `medium`. Le test échouait avec
 - 5 tests figeaient `user_version = 8` : la version attendue est désormais
   **dérivée de la liste des migrations**, ce qui empêche la récidive sans
   affaiblir l'assertion (une migration manquante ou renommée casse le test).
+
+## Niveau E2E — complément et preuve de discrimination
+
+Le niveau E2E a été ajouté après coup (le rapport initial ne signalait que
+U et I : la lacune est reconnue, pas masquée).
+
+**GREEN initial justifié** : la correction U/I étant déjà livrée dans le même
+sous-sprint, un RED aurait exigé de réintroduire le défaut. La discrimination
+du test a donc été **prouvée rétroactivement** : le même fichier a été
+exécuté dans un worktree détaché sur `861a07d` (code d'avant correction,
+build réel, `node_modules` partagé), puis le worktree a été supprimé.
+
+Résultat sur l'ancien code — **3 des 5 tests échouent**, sur les défauts visés :
+
+| Test | Ancien code |
+| ---- | ----------- |
+| priorité canonique publiée par la CLI | ❌ `expected 'high' to be 'medium'` |
+| cinq compteurs = total = détail | ❌ `expected false to be true` (compteur `info` absent) |
+| cinq lignes de compteurs en sortie humaine | ❌ sortie contenant `⚪ Info     : undefined` |
+| deux constats de même titre | ✅ (défaut non visé par ce test) |
+| `audit list` cohérent | ✅ (défaut non visé par ce test) |
+
+Sur le code courant : **5/5 GREEN** (1,7 s). Un test qui ne distingue pas
+l'ancien défaut ne prouve rien ; celui-ci le distingue.
 
 ## Mesures (sorties réelles)
 
@@ -122,10 +152,12 @@ une provisioning de bac à sable, non une dépendance d'exécution.
 
 | Critère | État | Preuve |
 | ------- | ---- | ------ |
-| C-W01 — priorité canonique partout | ✅ | `canonical-priority.test.ts` (3 tests), 100 % des constats vérifiés |
-| C-W02 — cinq compteurs = total | ✅ | `canonical-priority.test.ts` (2), `audit-repository.test.ts` (2), migration 009 (3) |
+| C-W01 — priorité canonique partout | ✅ | `canonical-priority.test.ts` (3 tests), `audit-canonical-flow.test.ts` (E2E, CLI) |
+| C-W02 — cinq compteurs = total | ✅ | `canonical-priority.test.ts` (2), `audit-repository.test.ts` (2), migration 009 (3), E2E CLI (2) |
 | C-W04 — ordre de recommandation distinct | ✅ | `canonical-priority.test.ts` (2) |
 | Tests écrits avant le code | ✅ | RED comportemental conservé (`expected 'high' to be 'medium'`) |
+| Niveau E2E du dossier §4 | ✅ | `audit-canonical-flow.test.ts`, discrimination prouvée sur `861a07d` |
+| Niveau CI du dossier §4 | ✅ | `npm test` (`.github/workflows/ci.yml:51`) inclut la sélection ; **job distant non exécuté** (facturation) |
 | Aucun test ignoré compté comme réussite | ✅ | 34 ignorés comptés séparément |
 | `npm run verify` = 0 | ✅ | sortie du 30/10 |
 | Documentation à jour | ✅ | ce rapport + note 24 |
