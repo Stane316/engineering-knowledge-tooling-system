@@ -12,7 +12,8 @@ export interface TimelineDimensionSeries {
   readonly scores: ReadonlyArray<{
     readonly auditId: number;
     readonly date: string;
-    readonly score: number;
+    /** Score de la dimension, `null` si indisponible (Sprint 19-03). */
+    readonly score: number | null;
     readonly findingsCount: number;
   }>;
 }

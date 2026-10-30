@@ -54,7 +54,7 @@ interface AuditMetadataRow {
   id: number;
   url: string;
   timestamp: string;
-  overall_score: number;
+  overall_score: number | null;
   project_id: string | null;
 }
 

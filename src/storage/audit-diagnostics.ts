@@ -295,7 +295,7 @@ export class AuditDiagnostics {
           id: number;
           url: string;
           timestamp: string;
-          overall_score: number;
+          overall_score: number | null;
           total_findings: number;
           critical_findings: number;
           high_findings: number;
@@ -338,7 +338,7 @@ export class AuditDiagnostics {
       .all(id) as Array<{
       audit_id: number;
       dimension: Audit['dimensions'][number]['dimension'];
-      score: number;
+      score: number | null;
       findings_count: number;
     }>;
 

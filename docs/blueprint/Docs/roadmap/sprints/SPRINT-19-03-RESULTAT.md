@@ -94,6 +94,10 @@ non persistable en l'état (score-absent)`.
   dans `getTrend` (plus de `NaN` ni de moyenne `0` inventée).
 - `src/timeline/{timeline.types,timeline-analyzer,chart-generator}.ts` — un
   point non mesuré n'est ni tracé, ni moyenné, ni utilisé par la régression.
+- Types de lecture alignés sur la base (`overall_score`/`score` `number | null`) :
+  `src/storage/audit-diagnostics.ts`, `src/best-practices/best-practice-extractor.ts`,
+  `src/mcp/tools/get-timeline.ts`. Sans cela, une ligne `NULL` traversait un
+  type `number` — exactement le mensonge que ce sprint supprime.
 - `src/reports/templates/{markdown,html}.ts` — dimension indisponible affichée
   « ⚪ indisponible — raison ».
 
@@ -193,7 +197,8 @@ Volumes réels : commit A = **64 fichiers** (1 477 insertions), commit B =
 | -------- | ------ |
 | Contrat (C-W05/C-W06/C-W07) | `b48c175` |
 | Migration 010 + persistance | `2e24cb5` |
-| Ce rapport | à renseigner après commit |
+| Ce rapport | `5253332` |
+| Alignement des types de lecture SQL | à renseigner après commit |
 
 ## Prochaine étape
 
