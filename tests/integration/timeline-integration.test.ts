@@ -41,7 +41,7 @@ function makeReport(score: number, timestamp: string): AnalysisReport {
       mediumFindings: 0,
       lowFindings: 0,
       infoFindings: 0,
-      overallScore: score,
+      overallScore: { status: 'measured', value: score },
     },
   };
 }

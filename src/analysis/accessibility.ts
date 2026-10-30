@@ -31,19 +31,63 @@ export class AccessibilityAnalyzer {
    * @param results - Violations et score d'accessibilité.
    * @returns Score, constats et résumé de la dimension accessibilité.
    */
-  analyze(results: AxeResults): DimensionScore {
-    const findings: Finding[] = [];
+  analyze(results: AxeResults | null): DimensionScore {
+    // État 3 (C-W06) : outil indisponible = état explicite, pas « 0 violation ».
+    if (results === null) {
+      return {
+        dimension: 'accessibility',
+        score: null,
+        status: 'unavailable',
+        unavailableReason: 'outil-indisponible',
+        findings: [],
+        summary:
+          "Analyse d'accessibilité indisponible : axe-core n'a pas fourni de résultat. " +
+          'Aucune conclusion sur la conformité ne peut être tirée.',
+      };
+    }
 
+    // État 2 (C-W06) : propriété absente ≠ liste vide.
+    if (results.violations === undefined) {
+      return {
+        dimension: 'accessibility',
+        score: null,
+        status: 'unavailable',
+        unavailableReason: 'violations-absentes',
+        findings: [],
+        summary:
+          "Analyse d'accessibilité incomplète : la liste des violations n'a pas été fournie. " +
+          'Son absence ne signifie pas « aucune violation ».',
+      };
+    }
+
+    // État 1 (C-W06) : une liste vide explicite signifie réellement « aucune violation ».
+    const findings: Finding[] = [];
     for (const violation of results.violations) {
       findings.push(this.analyzeViolation(violation));
     }
 
     const score = results.score;
+
+    // Score absent : les constats restent publiés, le score devient indisponible.
+    if (score === null) {
+      return {
+        dimension: 'accessibility',
+        score: null,
+        status: 'unavailable',
+        unavailableReason: 'score-absent',
+        findings,
+        summary:
+          `${String(findings.length)} violation(s) relevée(s), mais aucun score d'accessibilité ` +
+          "n'a été fourni : le score n'est pas estimé et reste indisponible.",
+      };
+    }
+
     const summary = this.generateSummary(findings, score);
 
     return {
       dimension: 'accessibility',
       score,
+      status: 'measured',
       findings,
       summary,
     };
@@ -55,16 +99,24 @@ export class AccessibilityAnalyzer {
    * @param violation - Violation WCAG.
    * @returns Constat gradué.
    */
-  private analyzeViolation(violation: AxeResults['violations'][number]): Finding {
+  private analyzeViolation(violation: NonNullable<AxeResults['violations']>[number]): Finding {
     const severity = IMPACT_TO_SEVERITY[violation.impact] ?? 2;
     const effort = this.estimateEffort(violation);
+    // Le nombre de nœuds peut être absent (C-W06) : l'impact est alors estimé
+    // sur la seule sévérité, et le décompte n'est pas présenté comme observé.
     const impact = this.calculateImpact(severity, violation.nodes);
+
+    const nodesDescription =
+      violation.nodes === undefined
+        ? `${violation.help} (nombre d'éléments affectés non fourni par axe-core)`
+        : `${violation.help} (${String(violation.nodes)} élément(s) affecté(s))`;
 
     return {
       id: `a11y-${violation.id}`,
       dimension: 'accessibility',
       title: violation.description,
-      description: `${violation.help} (${violation.nodes} élément(s) affecté(s))`,
+      description: nodesDescription,
+      ...(violation.nodes === undefined ? {} : { nodesCount: violation.nodes }),
       severity,
       effort,
       impact,
@@ -80,7 +132,13 @@ export class AccessibilityAnalyzer {
    * @param violation - Violation WCAG.
    * @returns Effort de 1 (un seul élément) à 4 (plus de 20).
    */
-  private estimateEffort(violation: AxeResults['violations'][number]): Effort {
+  private estimateEffort(violation: NonNullable<AxeResults['violations']>[number]): Effort {
+    // Sans décompte fourni (C-W06), l'effort n'est pas extrapolé : effort moyen,
+    // ni minimisé ni maximisé.
+    if (violation.nodes === undefined) {
+      return 3;
+    }
+
     if (violation.nodes === 1) {
       return 1;
     }
@@ -103,8 +161,9 @@ export class AccessibilityAnalyzer {
    * @param nodes - Nombre d'éléments affectés.
    * @returns Impact de 1 à 5.
    */
-  private calculateImpact(severity: Severity, nodes: number): Impact {
-    const nodeFactor = Math.min(2, Math.ceil(nodes / 10));
+  private calculateImpact(severity: Severity, nodes: number | undefined): Impact {
+    // Sans décompte (C-W06), l'impact se fonde sur la seule sévérité.
+    const nodeFactor = nodes === undefined ? 1 : Math.min(2, Math.ceil(nodes / 10));
     const impact = Math.min(5, severity * nodeFactor);
 
     return Math.max(1, impact) as Impact;

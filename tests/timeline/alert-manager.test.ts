@@ -43,7 +43,7 @@ function makeReport(score: number, timestamp: string, url = 'https://example.com
       mediumFindings: 0,
       lowFindings: 0,
       infoFindings: 0,
-      overallScore: score,
+      overallScore: { status: 'measured', value: score },
     },
   };
 }

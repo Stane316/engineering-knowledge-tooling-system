@@ -94,22 +94,32 @@ describe('LighthouseAnalyzer — analyse nominale', () => {
 });
 
 describe('LighthouseAnalyzer — valeurs absentes', () => {
-  it('ramène les métriques manquantes à zéro', async () => {
+  it('laisse les métriques manquantes indisponibles (null, jamais 0)', async () => {
     const { runner } = fakeRunner(lighthouseReport({ audits: {} }));
     const result = await new LighthouseAnalyzer(runner).analyze({
       url: 'https://exemple.fr',
       port: 9222,
     });
 
+    // C-W05 : un `0` de remplacement se lirait comme une excellente mesure.
+    // L'absence est explicite et traversera l'analyse sans devenir un constat.
     expect(result.performance.metrics).toEqual({
-      lcp: 0,
-      inp: 0,
-      cls: 0,
-      ttfb: 0,
-      fcp: 0,
-      speedIndex: 0,
+      lcp: null,
+      inp: null,
+      cls: null,
+      ttfb: null,
+      fcp: null,
+      speedIndex: null,
     });
     expect(result.seo.issues).toEqual([]);
+  });
+
+  it('distingue une mesure réellement nulle d’une mesure absente', async () => {
+    const report = lighthouseReport({
+      audits: { 'cumulative-layout-shift': { numericValue: 0 } },
+    });
+
+    expect(extractCoreWebVitals(report)).toMatchObject({ cls: 0, lcp: null });
   });
 
   it('ignore un audit sans score numérique', async () => {
@@ -141,15 +151,15 @@ describe('LighthouseAnalyzer — valeurs absentes', () => {
     expect(extractCoreWebVitals(report)).toMatchObject({ lcp: 1000, inp: 88 });
   });
 
-  it('vaut zéro sans catégorie déclarée', async () => {
+  it('laisse le score indisponible sans catégorie déclarée', async () => {
     const { runner } = fakeRunner(lighthouseReport({ categories: {} }));
     const result = await new LighthouseAnalyzer(runner).analyze({
       url: 'https://exemple.fr',
       port: 9222,
     });
 
-    expect(result.performance.score).toBe(0);
-    expect(result.seo.score).toBe(0);
+    expect(result.performance.score).toBeNull();
+    expect(result.seo.score).toBeNull();
   });
 });
 

@@ -58,9 +58,12 @@ function makeReport(
       mediumFindings: count('medium'),
       lowFindings: count('low'),
       infoFindings: count('info'),
-      overallScore: Math.round(
-        DIMENSIONS.reduce((sum, name) => sum + scores[name], 0) / DIMENSIONS.length,
-      ),
+      overallScore: {
+        status: 'measured',
+        value: Math.round(
+          DIMENSIONS.reduce((sum, name) => sum + scores[name], 0) / DIMENSIONS.length,
+        ),
+      },
     },
   };
 }

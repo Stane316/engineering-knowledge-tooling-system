@@ -5,6 +5,7 @@ import type {
   LighthouseAnalysis,
   UxAnalysis,
 } from '../browser/inspection/types.js';
+import { toMeasurement } from './measurement.js';
 import type { AxeResults, ContentResults, LighthouseResults, UXResults } from './types.js';
 
 /**
@@ -59,11 +60,13 @@ export function toLighthouseResults(analysis: LighthouseAnalysis): LighthouseRes
   return {
     performance: {
       score: analysis.performance.score,
+      // C-W05 : chaque valeur traverse `toMeasurement` ; une métrique absente
+      // devient `unavailable` et n'est plus convertie en 0.
       metrics: {
-        lcp: analysis.performance.metrics.lcp,
-        fid: analysis.performance.metrics.inp,
-        cls: analysis.performance.metrics.cls,
-        ttfb: analysis.performance.metrics.ttfb,
+        lcp: toMeasurement(analysis.performance.metrics.lcp),
+        fid: toMeasurement(analysis.performance.metrics.inp),
+        cls: toMeasurement(analysis.performance.metrics.cls),
+        ttfb: toMeasurement(analysis.performance.metrics.ttfb),
       },
     },
     seo: {

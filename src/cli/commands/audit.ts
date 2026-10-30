@@ -257,7 +257,9 @@ export function registerAudit(program: Command, runtime: CliRuntime): void {
         const rows = audits.map((result) => [
           String(result.audit.metadata.id ?? ''),
           result.audit.metadata.url,
-          String(result.audit.metadata.overallScore),
+          result.audit.metadata.overallScore === null
+            ? 'indisponible'
+            : String(result.audit.metadata.overallScore),
           String(result.audit.metadata.totalFindings),
           new Date(result.audit.metadata.timestamp).toISOString().substring(0, 10),
         ]);
@@ -331,7 +333,13 @@ export function registerAudit(program: Command, runtime: CliRuntime): void {
           '',
           `  URL            : ${metadata.url}`,
           `  Date           : ${new Date(metadata.timestamp).toISOString().substring(0, 10)}`,
-          `  Score global   : ${palette.accent(`${String(metadata.overallScore)}/100`)}`,
+          `  Score global   : ${
+            metadata.overallScore === null
+              ? palette.warning(
+                  `indisponible${metadata.scoreReason === undefined ? '' : ` — ${metadata.scoreReason}`}`,
+                )
+              : palette.accent(`${String(metadata.overallScore)}/100`)
+          }`,
           '',
           palette.bold('  Scores par dimension'),
           renderTable({
@@ -448,7 +456,9 @@ export function registerAudit(program: Command, runtime: CliRuntime): void {
 
           const human = [
             `${palette.success('🔄')} Comparaison #${String(auditA.metadata.id)} → #${String(auditB.metadata.id)}`,
-            `  Score : ${String(evolution.scoreA)} → ${String(evolution.scoreB)} (${evolution.delta > 0 ? '+' : ''}${String(evolution.delta)} pts, ${evolution.percentage > 0 ? '+' : ''}${evolution.percentage.toFixed(1)}%)`,
+            evolution.status === 'unavailable'
+              ? `  Score : indisponible — ${evolution.scoreA === null ? 'audit ancien' : 'audit récent'} sans score ; aucun écart calculé`
+              : `  Score : ${String(evolution.scoreA)} → ${String(evolution.scoreB)} (${(evolution.delta ?? 0) > 0 ? '+' : ''}${String(evolution.delta)} pts, ${(evolution.percentage ?? 0) > 0 ? '+' : ''}${(evolution.percentage ?? 0).toFixed(1)}%)`,
             `  Tendance : ${evolution.trend}`,
             `  Nouveaux : ${String(comparison.deltaFindings.newFindings.length)} — Résolus : ${String(comparison.deltaFindings.resolvedFindings.length)} — Persistants : ${String(comparison.deltaFindings.persistentFindings.length)}`,
             '',

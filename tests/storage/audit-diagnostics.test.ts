@@ -84,6 +84,7 @@ describe('Sprint 19-02 — C-W12 diagnostic des données historiques', () => {
     const dimension = (name: string) => ({
       dimension: name as 'performance',
       score,
+      status: 'measured' as const,
       findings: [],
       summary: 'Aucun constat.',
     });
@@ -107,7 +108,7 @@ describe('Sprint 19-02 — C-W12 diagnostic des données historiques', () => {
         mediumFindings: 0,
         lowFindings: 0,
         infoFindings: 0,
-        overallScore: score,
+        overallScore: { status: 'measured' as const, value: score },
       },
     } as unknown as Parameters<AuditRepository['store']>[0];
   }

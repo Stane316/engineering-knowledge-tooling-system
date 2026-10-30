@@ -54,6 +54,7 @@ export class ContentAnalyzer {
     return {
       dimension: 'content',
       score,
+      status: 'measured',
       findings,
       summary,
     };

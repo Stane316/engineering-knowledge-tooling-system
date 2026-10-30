@@ -46,13 +46,27 @@ export class SEOAnalyzer {
     }
 
     const score = results.seo.score;
-    const summary = this.generateSummary(findings, score);
+
+    // Score absent : la dimension est indisponible, les constats restent publiés.
+    if (score === null) {
+      return {
+        dimension: 'seo',
+        score: null,
+        status: 'unavailable',
+        unavailableReason: 'score-absent',
+        findings,
+        summary:
+          `${String(findings.length)} problème(s) SEO relevé(s), mais aucun score SEO n'a été ` +
+          'fourni : le score reste indisponible.',
+      };
+    }
 
     return {
       dimension: 'seo',
       score,
+      status: 'measured',
       findings,
-      summary,
+      summary: this.generateSummary(findings, score),
     };
   }
 

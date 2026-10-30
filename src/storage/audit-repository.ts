@@ -78,12 +78,18 @@ function validateAnalysisReport(report: AnalysisReport): void {
   if (report.timestamp.trim().length === 0) {
     issues.push('timestamp vide');
   }
-  if (
-    !Number.isInteger(report.summary.overallScore) ||
-    report.summary.overallScore < 0 ||
-    report.summary.overallScore > 100
-  ) {
-    issues.push(`score global hors 0-100 (${String(report.summary.overallScore)})`);
+  const overallScore = report.summary.overallScore;
+  if (overallScore.status === 'measured') {
+    if (
+      !Number.isInteger(overallScore.value) ||
+      overallScore.value < 0 ||
+      overallScore.value > 100
+    ) {
+      issues.push(`score global hors 0-100 (${String(overallScore.value)})`);
+    }
+  } else if (overallScore.reason.trim().length === 0) {
+    // C-W07 : une indisponibilité sans raison n'est pas acceptable.
+    issues.push('score global indisponible sans raison');
   }
 
   const summary = report.summary;
@@ -107,6 +113,15 @@ function validateAnalysisReport(report: AnalysisReport): void {
       issues.push(`dimension absente : ${dimension}`);
       continue;
     }
+    // Une dimension indisponible porte `score: null` : ce n'est pas une erreur,
+    // mais elle doit alors déclarer sa raison (C-W07).
+    if (score.score === null) {
+      if (score.unavailableReason === undefined || score.unavailableReason.trim().length === 0) {
+        issues.push(`${dimension}: score indisponible sans raison`);
+      }
+      continue;
+    }
+
     if (!Number.isInteger(score.score) || score.score < 0 || score.score > 100) {
       issues.push(`${dimension}: score hors 0-100 (${String(score.score)})`);
     }
@@ -167,6 +182,18 @@ export class AuditRepository {
    */
   store(report: AnalysisReport, options: { readonly projectId?: string | null } = {}): Audit {
     validateAnalysisReport(report);
+
+    // Sprint 19-03 : un score indisponible n'est pas encore persistable
+    // (colonne `overall_score` NOT NULL) — la migration 010 lèvera cette
+    // limite. Refuser est le seul comportement honnête : écrire 0 serait
+    // exactement la valeur de remplacement interdite par C-W07.
+    const overallScore = report.summary.overallScore;
+    if (overallScore.status === 'unavailable') {
+      throw new ValidationError([
+        "score global indisponible : cet audit n'est pas persistable en l'état " +
+          `(${overallScore.reason})`,
+      ]);
+    }
     const projectId = options.projectId ?? null;
 
     const transaction = this.db.transaction((): Audit => {
@@ -181,7 +208,8 @@ export class AuditRepository {
         .run(
           report.url,
           report.timestamp,
-          report.summary.overallScore,
+          // Le garde-fou ci-dessus garantit `status === 'measured'`.
+          overallScore.value,
           report.summary.totalFindings,
           report.summary.criticalFindings,
           report.summary.highFindings,
@@ -244,7 +272,12 @@ export class AuditRepository {
           id: auditId,
           url: report.url,
           timestamp: report.timestamp,
-          overallScore: report.summary.overallScore,
+          // Le score indisponible a été refusé plus haut : ici il est mesuré.
+          overallScore:
+            report.summary.overallScore.status === 'measured'
+              ? report.summary.overallScore.value
+              : null,
+          scoreStatus: 'measured',
           totalFindings: report.summary.totalFindings,
           criticalFindings: report.summary.criticalFindings,
           highFindings: report.summary.highFindings,

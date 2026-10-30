@@ -74,7 +74,15 @@ function runCli(dataDir: string, args: string[]): Promise<CliResult> {
 }
 
 const lighthouse: LighthouseResults = {
-  performance: { score: 72, metrics: { lcp: 3200, fid: 180, cls: 0.2, ttfb: 1100 } },
+  performance: {
+    score: 72,
+    metrics: {
+      lcp: { status: 'measured', value: 3200 },
+      fid: { status: 'measured', value: 180 },
+      cls: { status: 'measured', value: 0.2 },
+      ttfb: { status: 'measured', value: 1100 },
+    },
+  },
   seo: { score: 78, issues: [] },
 };
 

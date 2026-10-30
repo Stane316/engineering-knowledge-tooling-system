@@ -136,7 +136,9 @@ export class HtmlReportGenerator {
    * @throws {Error} Métadonnées absentes ou score global non numérique.
    */
   private assertAudit(audit: Audit): void {
-    if (!audit?.metadata || typeof audit.metadata.overallScore !== 'number') {
+    // Sprint 19-03 (C-W07) : un score `null` est valide — le rapport affiche
+    // « indisponible » et sa raison.
+    if (!audit?.metadata || audit.metadata.overallScore === undefined) {
       throw new Error('Audit invalide : métadonnées ou score global manquant.');
     }
   }

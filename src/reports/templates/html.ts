@@ -28,7 +28,13 @@ export class HtmlTemplate {
           <p class="meta"><strong>URL :</strong> ${this.escape(url)}<br>
           <strong>Date :</strong> ${date} UTC<br>
           <strong>Audit ID :</strong> #${String(audit.metadata.id)}</p>
-          <p class="score ${this.scoreClass(overallScore)}">Score global : ${String(overallScore)}/100</p>
+          ${
+            overallScore === null
+              ? `<p class="score score-unavailable">Score global : indisponible — ${this.escape(
+                  audit.metadata.scoreReason ?? 'aucune raison fournie',
+                )}</p>`
+              : `<p class="score ${this.scoreClass(overallScore)}">Score global : ${String(overallScore)}/100</p>`
+          }
         </header>
         ${this.summarySection(audit)}
         ${this.dimensionsSection(audit)}
@@ -51,10 +57,10 @@ export class HtmlTemplate {
         (delta) => `
           <tr>
             <td>${this.escape(delta.dimension)}</td>
-            <td>${String(delta.scoreA)}</td>
-            <td>${String(delta.scoreB)}</td>
-            <td class="${delta.delta > 0 ? 'score-good' : delta.delta < 0 ? 'score-poor' : ''}">${delta.delta > 0 ? '+' : ''}${String(delta.delta)}</td>
-            <td>${delta.percentage > 0 ? '+' : ''}${delta.percentage.toFixed(1)}%</td>
+            <td>${delta.scoreA === null ? 'indisponible' : String(delta.scoreA)}</td>
+            <td>${delta.scoreB === null ? 'indisponible' : String(delta.scoreB)}</td>
+            <td class="${(delta.delta ?? 0) > 0 ? 'score-good' : (delta.delta ?? 0) < 0 ? 'score-poor' : ''}">${delta.delta === null ? '—' : `${delta.delta > 0 ? '+' : ''}${String(delta.delta)}`}</td>
+            <td>${delta.percentage === null ? '—' : `${delta.percentage > 0 ? '+' : ''}${delta.percentage.toFixed(1)}%`}</td>
           </tr>`,
       )
       .join('');
@@ -70,11 +76,19 @@ export class HtmlTemplate {
           <h1>🔄 Comparaison d'audits</h1>
           <p class="meta"><strong>A (ancien) :</strong> ${this.escape(auditA.metadata.url)} — #${String(auditA.metadata.id)}<br>
           <strong>B (récent) :</strong> ${this.escape(auditB.metadata.url)} — #${String(auditB.metadata.id)}</p>
-          <p class="score ${this.scoreClass(evolution.scoreB)}">
+          ${
+            evolution.status === 'unavailable'
+              ? `<p class="score score-unavailable">
+            Score global indisponible — ${
+              evolution.scoreA === null ? 'audit ancien' : 'audit récent'
+            } sans score ; aucun écart n'est calculé.
+          </p>`
+              : `<p class="score ${this.scoreClass(evolution.scoreB ?? 0)}">
             ${String(evolution.scoreA)} → ${String(evolution.scoreB)}
-            (${evolution.delta > 0 ? '+' : ''}${String(evolution.delta)},
-            ${evolution.percentage > 0 ? '+' : ''}${evolution.percentage.toFixed(1)}%)
-          </p>
+            (${(evolution.delta ?? 0) > 0 ? '+' : ''}${String(evolution.delta)},
+            ${(evolution.percentage ?? 0) > 0 ? '+' : ''}${(evolution.percentage ?? 0).toFixed(1)}%)
+          </p>`
+          }
         </header>
         <section>
           <h2>🎯 Deltas par dimension</h2>

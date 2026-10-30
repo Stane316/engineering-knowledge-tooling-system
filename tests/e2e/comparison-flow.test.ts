@@ -133,16 +133,19 @@ describe('E2E — comparison-flow', () => {
       const auditAfter: Audit = repository.store(reportAfter);
       expect(auditBefore.metadata.id).toBeGreaterThan(0);
       expect(auditAfter.metadata.id).toBeGreaterThan(0);
-      expect(auditAfter.metadata.overallScore).toBeGreaterThan(auditBefore.metadata.overallScore);
+      const scoreBefore = auditBefore.metadata.overallScore;
+      const scoreAfter = auditAfter.metadata.overallScore;
+      expect(scoreBefore).not.toBeNull();
+      expect(scoreAfter).not.toBeNull();
+      expect(scoreAfter ?? 0).toBeGreaterThan(scoreBefore ?? 0);
 
       // 2. Comparaison.
       const comparison = new AuditComparator().compare(auditBefore, auditAfter);
 
       expect(comparison.evolution.scoreA).toBe(auditBefore.metadata.overallScore);
       expect(comparison.evolution.scoreB).toBe(auditAfter.metadata.overallScore);
-      expect(comparison.evolution.delta).toBe(
-        auditAfter.metadata.overallScore - auditBefore.metadata.overallScore,
-      );
+      expect(comparison.evolution.status).toBe('measured');
+      expect(comparison.evolution.delta).toBe((scoreAfter ?? 0) - (scoreBefore ?? 0));
       expect(comparison.evolution.trend).toBe('improving');
       expect(comparison.deltaFindings.newFindings).toEqual([]);
       expect(comparison.deltaFindings.resolvedFindings.length).toBeGreaterThan(0);

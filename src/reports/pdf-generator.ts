@@ -97,7 +97,9 @@ export class PDFReportGenerator {
     audit: Audit,
     options?: Partial<ReportOptions> & { readonly executablePath?: string },
   ): Promise<GeneratedReport> {
-    if (!audit?.metadata || typeof audit.metadata.overallScore !== 'number') {
+    // Sprint 19-03 (C-W07) : un score `null` est valide (indisponibilité
+    // assumée) ; seul l'absence de métadonnées est invalide.
+    if (!audit?.metadata || audit.metadata.overallScore === undefined) {
       throw new Error('Audit invalide : métadonnées ou score global manquant.');
     }
 

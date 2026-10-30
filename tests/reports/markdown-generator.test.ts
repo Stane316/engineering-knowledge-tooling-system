@@ -64,7 +64,14 @@ function makeComparison(): ComparisonReport {
       persistentFindings: [],
       improvedFindings: [],
     },
-    evolution: { scoreA: 74, scoreB: 78, delta: 4, percentage: 5.4, trend: 'stable' },
+    evolution: {
+      status: 'measured',
+      scoreA: 74,
+      scoreB: 78,
+      delta: 4,
+      percentage: 5.4,
+      trend: 'stable',
+    },
     recommendations: ['Corriger les messages de contraste'],
   };
 }

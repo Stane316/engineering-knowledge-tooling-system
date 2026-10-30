@@ -267,13 +267,14 @@ export class MarkdownReportGenerator {
    * @throws {Error} Audit absent, métadonnées absentes ou scores invalides.
    */
   private assertAudit(audit: Audit): void {
-    if (!audit?.metadata || typeof audit.metadata.overallScore !== 'number') {
+    if (!audit?.metadata || audit.metadata.overallScore === undefined) {
       throw new Error('Audit invalide : métadonnées ou score global manquant.');
     }
-    if (audit.metadata.overallScore < 0 || audit.metadata.overallScore > 100) {
-      throw new Error(
-        `Audit invalide : score global ${String(audit.metadata.overallScore)} hors [0, 100].`,
-      );
+    // Sprint 19-03 (C-W07) : `null` est un score indisponible assumé, restitué
+    // tel quel par le rapport — ce n'est pas un audit invalide.
+    const score = audit.metadata.overallScore;
+    if (score !== null && (!Number.isFinite(score) || score < 0 || score > 100)) {
+      throw new Error(`Audit invalide : score global ${String(score)} hors [0, 100].`);
     }
     if (!Array.isArray(audit.dimensions) || audit.dimensions.length === 0) {
       throw new Error('Audit invalide : aucune dimension renseignée.');

@@ -39,7 +39,9 @@ export class ComparisonMarkdownTemplate {
     const lines: string[] = [
       `# 📋 Résumé de comparaison — ${auditA.metadata.url} (#${String(auditA.metadata.id)}) → ${auditB.metadata.url} (#${String(auditB.metadata.id)})`,
       '',
-      `- **Score** : ${this.trendEmoji(evolution.trend)} ${String(evolution.scoreA)} → ${String(evolution.scoreB)} (${evolution.delta > 0 ? '+' : ''}${String(evolution.delta)} pts, ${evolution.percentage > 0 ? '+' : ''}${evolution.percentage.toFixed(1)}%)`,
+      evolution.status === 'unavailable'
+        ? `- **Score** : ⚪ indisponible — ${evolution.scoreA === null ? 'audit ancien' : 'audit récent'} sans score ; aucun écart n'est calculé`
+        : `- **Score** : ${this.trendEmoji(evolution.trend)} ${String(evolution.scoreA)} → ${String(evolution.scoreB)} (${(evolution.delta ?? 0) > 0 ? '+' : ''}${String(evolution.delta)} pts, ${(evolution.percentage ?? 0) > 0 ? '+' : ''}${(evolution.percentage ?? 0).toFixed(1)}%)`,
       `- **Tendance** : ${this.trendEmoji(evolution.trend)} ${evolution.trend}`,
       '',
       '## 🔍 Constats clés',

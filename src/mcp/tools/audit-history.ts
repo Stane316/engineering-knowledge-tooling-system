@@ -7,7 +7,8 @@ export interface AuditHistoryResult {
     readonly id: number;
     readonly url: string;
     readonly timestamp: string;
-    readonly overall_score: number;
+    /** Score global, `null` si indisponible (Sprint 19-03). */
+    readonly overall_score: number | null;
     readonly total_findings: number;
     readonly critical_findings: number;
     readonly high_findings: number;
@@ -15,7 +16,8 @@ export interface AuditHistoryResult {
     readonly low_findings: number;
     readonly dimensions: readonly {
       readonly dimension: string;
-      readonly score: number;
+      /** Score de la dimension, `null` si indisponible (Sprint 19-03). */
+      readonly score: number | null;
       readonly findings_count: number;
     }[];
   }[];

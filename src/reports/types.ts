@@ -69,30 +69,40 @@ export interface GeneratedReport {
 
 /** Évolution du score global entre deux audits. */
 export interface ScoreEvolution {
-  /** Score de l'audit A (ancien). */
-  scoreA: number;
-  /** Score de l'audit B (récent). */
-  scoreB: number;
-  /** Écart en points (B − A). */
-  delta: number;
-  /** Écart relatif en pourcent (0 si A ≤ 0). */
-  percentage: number;
-  /** Tendance : `+5` franchi à la hausse/baisse, sinon stable. */
-  trend: 'improving' | 'degrading' | 'stable';
+  /**
+   * État de la comparaison (Sprint 19-03, C-W07).
+   *
+   * `unavailable` signifie qu'au moins un des deux audits n'a pas de score :
+   * aucun écart n'est alors calculé, ni présenté comme une progression.
+   */
+  status: 'measured' | 'unavailable';
+  /** Score de l'audit A (ancien), `null` si indisponible. */
+  scoreA: number | null;
+  /** Score de l'audit B (récent), `null` si indisponible. */
+  scoreB: number | null;
+  /** Écart en points (B − A), `null` si non calculable. */
+  delta: number | null;
+  /** Écart relatif en pourcent (0 si A ≤ 0), `null` si non calculable. */
+  percentage: number | null;
+  /**
+   * Tendance : `+5` franchi à la hausse/baisse, sinon stable ;
+   * `unavailable` quand un score manque.
+   */
+  trend: 'improving' | 'degrading' | 'stable' | 'unavailable';
 }
 
 /** Delta de score d'une dimension. */
 export interface DimensionDelta {
   /** Dimension comparée. */
   dimension: AnalysisDimension;
-  /** Score dans l'audit A. */
-  scoreA: number;
-  /** Score dans l'audit B. */
-  scoreB: number;
-  /** Écart en points (B − A). */
-  delta: number;
-  /** Écart relatif en pourcent (0 si A ≤ 0). */
-  percentage: number;
+  /** Score dans l'audit A, `null` si la dimension est indisponible. */
+  scoreA: number | null;
+  /** Score dans l'audit B, `null` si la dimension est indisponible. */
+  scoreB: number | null;
+  /** Écart en points (B − A), `null` si non calculable. */
+  delta: number | null;
+  /** Écart relatif en pourcent, `null` si non calculable. */
+  percentage: number | null;
 }
 
 /** Regroupement des constats entre deux audits. */

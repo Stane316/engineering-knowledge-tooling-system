@@ -103,18 +103,25 @@ export class TrendDetector {
         dimension: AnalysisDimension | 'overall';
         before: number;
         after: number;
-      }> = [
-        {
-          dimension: 'overall',
-          before: previous.metadata.overallScore,
-          after: current.metadata.overallScore,
-        },
-        ...timeline.dimensionScores.map((dimensionTimeline) => ({
-          dimension: dimensionTimeline.dimension,
-          before: dimensionTimeline.scores[index - 1]?.score ?? 0,
-          after: dimensionTimeline.scores[index]?.score ?? 0,
-        })),
-      ];
+      }> = [];
+
+      // Sprint 19-03 (C-W05) : un score indisponible n'est jamais remplacé par
+      // `0`. La paire est ignorée — comparer 0 à une valeur réelle fabriquerait
+      // une régression inexistante.
+      const overallBefore = previous.metadata.overallScore;
+      const overallAfter = current.metadata.overallScore;
+      if (overallBefore !== null && overallAfter !== null) {
+        pairs.push({ dimension: 'overall', before: overallBefore, after: overallAfter });
+      }
+
+      for (const dimensionTimeline of timeline.dimensionScores) {
+        const before = dimensionTimeline.scores[index - 1]?.score;
+        const after = dimensionTimeline.scores[index]?.score;
+        if (before === null || before === undefined || after === null || after === undefined) {
+          continue;
+        }
+        pairs.push({ dimension: dimensionTimeline.dimension, before, after });
+      }
 
       for (const pair of pairs) {
         const lost = pair.before - pair.after;

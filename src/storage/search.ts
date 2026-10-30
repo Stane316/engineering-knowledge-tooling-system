@@ -101,10 +101,13 @@ export class AuditSearch {
         if (projectId !== undefined && audit.metadata.projectId !== projectId) {
           return false;
         }
-        if (scoreMin !== undefined && audit.metadata.overallScore < scoreMin) {
+        // Un score indisponible (`null`) ne satisfait aucun filtre de score :
+        // il n'est ni « au-dessus » ni « en-dessous » d'un seuil.
+        const score = audit.metadata.overallScore;
+        if (scoreMin !== undefined && (score === null || score < scoreMin)) {
           return false;
         }
-        if (scoreMax !== undefined && audit.metadata.overallScore > scoreMax) {
+        if (scoreMax !== undefined && (score === null || score > scoreMax)) {
           return false;
         }
         if (

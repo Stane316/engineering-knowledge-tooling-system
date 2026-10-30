@@ -49,7 +49,7 @@ function makeReport(url: string, score: number): AnalysisReport {
       mediumFindings: findings.length,
       lowFindings: 0,
       infoFindings: 0,
-      overallScore: score,
+      overallScore: { status: 'measured', value: score },
     },
   };
 }

@@ -85,6 +85,7 @@ function makeReport(url: string): AnalysisReport {
   const dim = (name: 'performance' | 'accessibility' | 'seo' | 'ux' | 'content') => ({
     dimension: name,
     score: 78,
+    status: 'measured' as const,
     findings: [],
     summary: `Score ${name} : 78/100.`,
   });
@@ -107,7 +108,7 @@ function makeReport(url: string): AnalysisReport {
       mediumFindings: 0,
       lowFindings: 0,
       infoFindings: 0,
-      overallScore: 78,
+      overallScore: { status: 'measured' as const, value: 78 },
     },
   };
 }
@@ -188,7 +189,7 @@ describe('audits.inspectAndAudit', () => {
         level: 'L3',
       });
 
-      expect(report.summary.overallScore).toBe(78);
+      expect(report.summary.overallScore).toEqual({ status: 'measured', value: 78 });
       expect(audit.metadata.url).toBe(url);
       expect(audit.metadata.id).toBeGreaterThan(0);
       expect(fixture.services.audits.repository.findById(audit.metadata.id!)).not.toBeNull();

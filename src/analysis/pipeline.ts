@@ -5,15 +5,26 @@ import { FindingPrioritizer } from './prioritizer.js';
 import { SEOAnalyzer } from './seo.js';
 import { UXAnalyzer } from './ux.js';
 import type {
+  AnalysisDimension,
   AnalysisReport,
   AxeResults,
   ContentResults,
   DimensionScore,
   Finding,
   LighthouseResults,
+  OverallScore,
   Priority,
   UXResults,
 } from './types.js';
+
+/** Les cinq dimensions requises, dans l'ordre de la pondération. */
+const DIMENSIONS: readonly AnalysisDimension[] = [
+  'performance',
+  'accessibility',
+  'seo',
+  'ux',
+  'content',
+];
 
 /**
  * Pondération du score global (somme = 1).
@@ -86,13 +97,13 @@ export class AnalysisPipeline {
     // Classement prioritaire : mêmes priorités, triées (C-W01).
     const priorityFindings = this.prioritizer.prioritize(allFindings);
 
-    const overallScore = this.calculateOverallScore(
-      performance.score,
-      accessibility.score,
-      seo.score,
-      ux.score,
-      content.score,
-    );
+    const overallScore = this.calculateOverallScore({
+      performance: performance.score,
+      accessibility: accessibility.score,
+      seo: seo.score,
+      ux: ux.score,
+      content: content.score,
+    });
 
     return Promise.resolve({
       url,
@@ -146,29 +157,53 @@ export class AnalysisPipeline {
   }
 
   /**
-   * Calcule le score global : moyenne pondérée des cinq dimensions.
+   * Calcule le score global (Sprint 19-03, C-W07).
    *
-   * @param performance - Score performance (0-100).
-   * @param accessibility - Score accessibilité (0-100).
-   * @param seo - Score SEO (0-100).
-   * @param ux - Score UX (0-100).
-   * @param content - Score contenu (0-100).
-   * @returns Score global arrondi (0-100).
+   * Formule pour des données complètes : moyenne pondérée des cinq dimensions
+   * — performance 0,25, accessibilité 0,25, SEO 0,20, UX 0,15, contenu 0,15 —
+   * arrondie à l'entier.
+   *
+   * Si **une seule** dimension requise n'a pas de score, aucun score global
+   * n'est produit : pas de renormalisation sur les dimensions restantes, pas de
+   * zéro de remplacement. Le rapport expose une indisponibilité motivée et la
+   * liste des dimensions manquantes.
+   *
+   * @param scores - Scores par dimension (`null` = non mesuré).
+   * @returns Score global mesuré, ou indisponible avec sa raison.
    */
-  private calculateOverallScore(
-    performance: number,
-    accessibility: number,
-    seo: number,
-    ux: number,
-    content: number,
-  ): number {
-    const score =
-      performance * OVERALL_WEIGHTS.performance +
-      accessibility * OVERALL_WEIGHTS.accessibility +
-      seo * OVERALL_WEIGHTS.seo +
-      ux * OVERALL_WEIGHTS.ux +
-      content * OVERALL_WEIGHTS.content;
+  private calculateOverallScore(scores: Record<AnalysisDimension, number | null>): OverallScore {
+    const missingDimensions = DIMENSIONS.filter((dimension) => scores[dimension] === null);
 
-    return Math.round(score);
+    if (missingDimensions.length === DIMENSIONS.length) {
+      return {
+        status: 'unavailable',
+        code: 'aucune-dimension',
+        reason:
+          'Aucune des cinq dimensions requises n’a fourni de score : le score global ne peut ' +
+          'pas être calculé.',
+        missingDimensions,
+      };
+    }
+
+    if (missingDimensions.length > 0) {
+      return {
+        status: 'unavailable',
+        code: 'dimensions-indisponibles',
+        reason:
+          `${String(missingDimensions.length)} dimension(s) requise(s) sans score ` +
+          `(${missingDimensions.join(', ')}) : le score global n’est pas calculé et n’est pas ` +
+          'renormalisé sur les dimensions restantes.',
+        missingDimensions,
+      };
+    }
+
+    const score =
+      (scores.performance as number) * OVERALL_WEIGHTS.performance +
+      (scores.accessibility as number) * OVERALL_WEIGHTS.accessibility +
+      (scores.seo as number) * OVERALL_WEIGHTS.seo +
+      (scores.ux as number) * OVERALL_WEIGHTS.ux +
+      (scores.content as number) * OVERALL_WEIGHTS.content;
+
+    return { status: 'measured', value: Math.round(score) };
   }
 }

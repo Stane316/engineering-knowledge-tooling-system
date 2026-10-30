@@ -4,6 +4,7 @@ import { ValidationError } from '../../../src/shared/errors.js';
 import { InspectSiteInput } from '../../../src/mcp/schemas/tool-schemas.js';
 import { dispatchTool } from '../../../src/mcp/handlers/tools.js';
 import { executeInspectSite } from '../../../src/mcp/tools/inspect-site.js';
+import { overallScoreValue } from '../../../src/analysis/measurement.js';
 import type { AnalysisReport } from '../../../src/analysis/types.js';
 import type { Audit } from '../../../src/storage/types.js';
 import { openTestServices, seedResources, type TestServices } from '../helpers.js';
@@ -13,6 +14,7 @@ function makeReport(score = 78): AnalysisReport {
   const dim = (name: 'performance' | 'accessibility' | 'seo' | 'ux' | 'content') => ({
     dimension: name,
     score,
+    status: 'measured' as const,
     findings: [],
     summary: `Score ${name} : ${String(score)}/100.`,
   });
@@ -35,9 +37,21 @@ function makeReport(score = 78): AnalysisReport {
       mediumFindings: 0,
       lowFindings: 0,
       infoFindings: 0,
-      overallScore: score,
+      overallScore: { status: 'measured' as const, value: score },
     },
   };
+}
+
+/**
+ * Score de dimension mesuré.
+ *
+ * @param score - Score du rapport, potentiellement indisponible.
+ * @returns Le score, jamais substitué.
+ * @throws {Error} Si la fixture porte un score indisponible.
+ */
+function requireMeasuredScore(score: number | null): number {
+  if (score === null) throw new Error('fixture incohérente : score de dimension indisponible');
+  return score;
 }
 
 /** Audit minimal correspondant au rapport. */
@@ -48,7 +62,7 @@ function makeAudit(): Audit {
       id: 11,
       url: report.url,
       timestamp: report.timestamp,
-      overallScore: report.summary.overallScore,
+      overallScore: overallScoreValue(report.summary.overallScore),
       totalFindings: 0,
       criticalFindings: 0,
       highFindings: 0,
@@ -59,7 +73,7 @@ function makeAudit(): Audit {
     dimensions: Object.values(report.dimensions).map((dim) => ({
       auditId: 11,
       dimension: dim.dimension,
-      score: dim.score,
+      score: requireMeasuredScore(dim.score),
       findingsCount: 0,
     })),
     findings: [],

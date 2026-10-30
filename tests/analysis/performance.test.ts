@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { toMeasurement } from '../../src/analysis/measurement.js';
 import { PerformanceAnalyzer } from '../../src/analysis/performance.js';
 import type { LighthouseResults } from '../../src/analysis/types.js';
 
@@ -15,7 +16,16 @@ function lighthouseResults(
   metrics: { lcp: number; fid: number; cls: number; ttfb: number },
 ): LighthouseResults {
   return {
-    performance: { score, metrics },
+    performance: {
+      score,
+      // Sprint 19-03 : une métrique est désormais une mesure typée.
+      metrics: {
+        lcp: toMeasurement(metrics.lcp),
+        fid: toMeasurement(metrics.fid),
+        cls: toMeasurement(metrics.cls),
+        ttfb: toMeasurement(metrics.ttfb),
+      },
+    },
     seo: { score: 90, issues: [] },
   };
 }

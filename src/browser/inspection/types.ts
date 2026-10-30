@@ -132,20 +132,27 @@ export interface AccessibilitySummary {
   readonly counts: Readonly<Record<'minor' | 'moderate' | 'serious' | 'critical', number>>;
 }
 
-/** Métrique Core Web Vitals. */
+/**
+ * Métrique Core Web Vitals.
+ *
+ * Depuis le Sprint 19-03 (C-W05), une métrique absente vaut `null` et non `0` :
+ * le zéro de remplacement se lisait comme une excellente mesure. La conversion
+ * en `Measurement` (`src/analysis/measurement.ts`) conserve cette distinction
+ * jusqu'au rapport.
+ */
 export interface CoreWebVitals {
-  /** Largest Contentful Paint (ms). */
-  readonly lcp: number;
-  /** Interaction to Next Paint (ms) — successeur du FID, mesuré en laboratoire. */
-  readonly inp: number;
-  /** Cumulative Layout Shift (sans unité). */
-  readonly cls: number;
-  /** Time to First Byte (ms). */
-  readonly ttfb: number;
-  /** First Contentful Paint (ms). */
-  readonly fcp: number;
-  /** Speed Index (ms). */
-  readonly speedIndex: number;
+  /** Largest Contentful Paint (ms), `null` si Lighthouse ne l'a pas fourni. */
+  readonly lcp: number | null;
+  /** Interaction to Next Paint (ms), `null` si absente — successeur du FID. */
+  readonly inp: number | null;
+  /** Cumulative Layout Shift (sans unité), `null` si absent. */
+  readonly cls: number | null;
+  /** Time to First Byte (ms), `null` si absent. */
+  readonly ttfb: number | null;
+  /** First Contentful Paint (ms), `null` si absent. */
+  readonly fcp: number | null;
+  /** Speed Index (ms), `null` si absent. */
+  readonly speedIndex: number | null;
 }
 
 /** Problème détecté par Lighthouse (SEO ou performance). */
@@ -164,12 +171,14 @@ export interface LighthouseIssue {
 export interface LighthouseAnalysis {
   /** Score performance (0-100). */
   readonly performance: {
-    readonly score: number;
+    /** Score performance (0-100), `null` si la catégorie est absente. */
+    readonly score: number | null;
     readonly metrics: CoreWebVitals;
   };
   /** Score SEO (0-100) et audits en échec. */
   readonly seo: {
-    readonly score: number;
+    /** Score SEO (0-100), `null` si la catégorie est absente. */
+    readonly score: number | null;
     readonly issues: readonly LighthouseIssue[];
   };
   /** URL réellement analysée par Lighthouse. */

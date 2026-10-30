@@ -42,7 +42,9 @@ function makeReport(
 
   const dimensionOf = (name: AnalysisReport['dimensions']['performance']['dimension']) => ({
     dimension: name,
+    // Sprint 19-03 : un score de dimension est désormais accompagné de son état.
     score,
+    status: 'measured' as const,
     findings: findings.filter((f) => f.dimension === name),
     summary: `Score ${name} : ${String(score)}/100.`,
   });
@@ -66,7 +68,7 @@ function makeReport(
       mediumFindings: count('medium'),
       lowFindings: count('low'),
       infoFindings: count('info'),
-      overallScore: score,
+      overallScore: { status: 'measured' as const, value: score },
     },
   };
 }

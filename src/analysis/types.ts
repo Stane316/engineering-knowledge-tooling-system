@@ -15,6 +15,8 @@
 /**
  * Dimensions d'analyse.
  */
+import type { Measurement } from './measurement.js';
+
 export type AnalysisDimension = 'performance' | 'accessibility' | 'seo' | 'ux' | 'content';
 
 /**
@@ -70,6 +72,13 @@ export interface Finding {
   references: string[];
   /** Sélecteurs CSS des éléments concernés. */
   elements?: string[];
+  /**
+   * Nombre d'éléments affectés, quand l'outil l'a réellement fourni
+   * (Sprint 19-03, C-W06).
+   *
+   * Absent = non fourni : à ne jamais présenter comme un décompte observé.
+   */
+  nodesCount?: number;
   /** Métrique mesurée à l'origine du constat. */
   metric?: {
     /** Nom de la métrique (`LCP`, `Word count`…). */
@@ -89,12 +98,60 @@ export interface Finding {
 export interface DimensionScore {
   /** Dimension analysée. */
   dimension: AnalysisDimension;
-  /** Score de 0 à 100. */
-  score: number;
+  /**
+   * Score de 0 à 100, ou `null` si la dimension n'a pas pu être mesurée
+   * (Sprint 19-03, C-W07). Aucune valeur de remplacement.
+   */
+  score: number | null;
+  /**
+   * État de la dimension : `unavailable` signifie « aucune mesure
+   * exploitable », jamais « score nul ».
+   */
+  status: 'measured' | 'unavailable';
+  /**
+   * Raison de l'indisponibilité, obligatoire quand `status` vaut
+   * `unavailable` (code stable et court).
+   */
+  unavailableReason?: string;
   /** Constats de la dimension. */
   findings: Finding[];
   /** Résumé lisible. */
   summary: string;
+  /**
+   * Mesures brutes de la dimension, quand elle en produit (performance).
+   * Une mesure absente y figure en `unavailable` plutôt que d'être omise.
+   */
+  measurements?: Record<string, Measurement>;
+}
+
+/**
+ * Score global d'un audit (Sprint 19-03, C-W07).
+ *
+ * Deux états seulement : une valeur réellement calculée sur les cinq
+ * dimensions, ou une indisponibilité motivée. Le type interdit par
+ * construction le `0` de remplacement et la renormalisation implicite.
+ */
+export type OverallScore = MeasuredOverallScore | UnavailableOverallScore;
+
+/** Score global calculé : les cinq dimensions étaient mesurées. */
+export interface MeasuredOverallScore {
+  readonly status: 'measured';
+  /** Valeur pondérée arrondie (0-100). */
+  readonly value: number;
+}
+
+/** Raison d'indisponibilité du score global. */
+export type OverallScoreUnavailableCode = 'dimensions-indisponibles' | 'aucune-dimension';
+
+/** Score global indisponible, avec sa raison et les dimensions manquantes. */
+export interface UnavailableOverallScore {
+  readonly status: 'unavailable';
+  /** Code stable de la raison. */
+  readonly code: OverallScoreUnavailableCode;
+  /** Message lisible en français. */
+  readonly reason: string;
+  /** Dimensions requises qui n'ont pas fourni de score. */
+  readonly missingDimensions: AnalysisDimension[];
 }
 
 /**
@@ -136,8 +193,14 @@ export interface AnalysisReport {
      * égaler `totalFindings` et les constats `info` disparaissaient du résumé.
      */
     infoFindings: number;
-    /** Score global pondéré (0-100). */
-    overallScore: number;
+    /**
+     * Score global : mesuré, ou indisponible **avec sa raison** (Sprint 19-03,
+     * C-W07).
+     *
+     * Aucune renormalisation silencieuse et aucune valeur de remplacement : si
+     * une dimension requise manque, le score n'est pas calculé.
+     */
+    overallScore: OverallScore;
   };
 }
 
@@ -147,12 +210,18 @@ export interface AnalysisReport {
 export interface LighthouseResults {
   /** Performance et Core Web Vitals. */
   performance: {
-    /** Score performance (0-100). */
-    score: number;
-    /** Métriques de laboratoire. */
+    /** Score performance (0-100), ou `null` si Lighthouse ne l'a pas fourni. */
+    score: number | null;
+    /**
+     * Métriques de laboratoire.
+     *
+     * Depuis le Sprint 19-03 (C-W05), une métrique absente vaut
+     * `{ status: 'unavailable' }` et non `0` : le zéro de remplacement se
+     * lisait comme une excellente mesure.
+     */
     metrics: {
       /** Largest Contentful Paint (ms). */
-      lcp: number;
+      lcp: Measurement;
       /**
        * First Input Delay (ms).
        *
@@ -160,17 +229,17 @@ export interface LighthouseResults {
        * avec repli sur `max-potential-fid` (voir `extractCoreWebVitals`).
        * Le nom `fid` est conservé pour le contrat du Sprint 9 (critère C9.1).
        */
-      fid: number;
+      fid: Measurement;
       /** Cumulative Layout Shift (sans unité). */
-      cls: number;
+      cls: Measurement;
       /** Time to First Byte (ms). */
-      ttfb: number;
+      ttfb: Measurement;
     };
   };
   /** SEO et audits en échec. */
   seo: {
-    /** Score SEO (0-100). */
-    score: number;
+    /** Score SEO (0-100), ou `null` s'il n'est pas fourni. */
+    score: number | null;
     /** Audits SEO en échec. */
     issues: Array<{
       /** Titre de l'audit. */
@@ -187,8 +256,14 @@ export interface LighthouseResults {
  * Résultats axe-core (entrée de `AccessibilityAnalyzer`).
  */
 export interface AxeResults {
-  /** Violations WCAG relevées. */
-  violations: Array<{
+  /**
+   * Violations WCAG relevées.
+   *
+   * **Optionnel depuis le Sprint 19-03 (C-W06)** : une propriété absente
+   * signifie « données non fournies » et ne doit jamais être lue comme
+   * « aucune violation ». Seul un tableau vide explicite porte ce sens.
+   */
+  violations?: Array<{
     /** Identifiant de la règle (`color-contrast`…). */
     id: string;
     /** Gravité déclarée par axe-core. */
@@ -199,11 +274,16 @@ export interface AxeResults {
     help: string;
     /** Documentation de la règle. */
     helpUrl: string;
-    /** Nombre d'éléments affectés. */
-    nodes: number;
+    /**
+     * Nombre d'éléments affectés.
+     *
+     * Optionnel : absent = non fourni par l'outil, à ne pas présenter comme
+     * un décompte observé.
+     */
+    nodes?: number;
   }>;
-  /** Score d'accessibilité (0-100). */
-  score: number;
+  /** Score d'accessibilité (0-100), ou `null` s'il n'est pas fourni. */
+  score: number | null;
 }
 
 /**

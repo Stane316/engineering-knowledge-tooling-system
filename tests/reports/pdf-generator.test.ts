@@ -72,7 +72,14 @@ function makeComparison(): ComparisonReport {
       persistentFindings: [auditA.findings[0]!],
       improvedFindings: [],
     },
-    evolution: { scoreA: 82, scoreB: 85, delta: 3, percentage: 3.7, trend: 'stable' },
+    evolution: {
+      status: 'measured',
+      scoreA: 82,
+      scoreB: 85,
+      delta: 3,
+      percentage: 3.7,
+      trend: 'stable',
+    },
     recommendations: ['Poursuivre les correctifs SEO'],
   };
 }

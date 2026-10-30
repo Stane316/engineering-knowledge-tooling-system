@@ -17,7 +17,12 @@ function seoResults(
   return {
     performance: {
       score: 90,
-      metrics: { lcp: 1500, fid: 50, cls: 0.05, ttfb: 500 },
+      metrics: {
+        lcp: { status: 'measured', value: 1500 },
+        fid: { status: 'measured', value: 50 },
+        cls: { status: 'measured', value: 0.05 },
+        ttfb: { status: 'measured', value: 500 },
+      },
     },
     seo: { score: seoScore, issues },
   };

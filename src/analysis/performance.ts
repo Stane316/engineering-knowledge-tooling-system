@@ -1,3 +1,4 @@
+import { measuredValueOf } from './measurement.js';
 import type { DimensionScore, Finding, LighthouseResults } from './types.js';
 
 /**
@@ -41,20 +42,54 @@ export class PerformanceAnalyzer {
    */
   analyze(results: LighthouseResults): DimensionScore {
     const findings: Finding[] = [];
+    const metrics = results.performance.metrics;
 
-    findings.push(...this.analyzeLCP(results.performance.metrics.lcp));
-    findings.push(...this.analyzeFID(results.performance.metrics.fid));
-    findings.push(...this.analyzeCLS(results.performance.metrics.cls));
-    findings.push(...this.analyzeTTFB(results.performance.metrics.ttfb));
+    // C-W05 : un constat n'est dérivé que d'une mesure réellement disponible.
+    // Une métrique indisponible est conservée comme telle dans `measurements`
+    // et ne devient jamais « 0 ms », qui se lirait comme une bonne mesure.
+    const lcp = measuredValueOf(metrics.lcp);
+    const fid = measuredValueOf(metrics.fid);
+    const cls = measuredValueOf(metrics.cls);
+    const ttfb = measuredValueOf(metrics.ttfb);
+
+    if (lcp !== undefined) findings.push(...this.analyzeLCP(lcp));
+    if (fid !== undefined) findings.push(...this.analyzeFID(fid));
+    if (cls !== undefined) findings.push(...this.analyzeCLS(cls));
+    if (ttfb !== undefined) findings.push(...this.analyzeTTFB(ttfb));
 
     const score = results.performance.score;
+    const measurements = {
+      lcp: metrics.lcp,
+      fid: metrics.fid,
+      cls: metrics.cls,
+      ttfb: metrics.ttfb,
+    };
+
+    // Le score est absent : la dimension est déclarée indisponible, sans
+    // estimation de remplacement (C-W07).
+    if (score === null) {
+      return {
+        dimension: 'performance',
+        score: null,
+        status: 'unavailable',
+        unavailableReason: 'score-absent',
+        findings,
+        summary:
+          `${String(findings.length)} constat(s) de performance relevé(s), mais aucun score ` +
+          "n'a été fourni par Lighthouse : le score reste indisponible.",
+        measurements,
+      };
+    }
+
     const summary = this.generateSummary(findings, score);
 
     return {
       dimension: 'performance',
       score,
+      status: 'measured',
       findings,
       summary,
+      measurements,
     };
   }
 

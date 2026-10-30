@@ -39,7 +39,13 @@ function makeReport(score: number, timestamp: string, findingTitle?: string): An
     dimensions: Object.fromEntries(
       DIMENSIONS.map((name) => [
         name,
-        { dimension: name, score, findings: [], summary: `${name} ${score}` },
+        {
+          dimension: name,
+          score,
+          status: 'measured' as const,
+          findings: [],
+          summary: `${name} ${score}`,
+        },
       ]),
     ) as unknown as AnalysisReport['dimensions'],
     findings,
@@ -55,7 +61,7 @@ function makeReport(score: number, timestamp: string, findingTitle?: string): An
       mediumFindings: findings.length,
       lowFindings: 0,
       infoFindings: 0,
-      overallScore: score,
+      overallScore: { status: 'measured', value: score },
     },
   } as unknown as AnalysisReport;
 }

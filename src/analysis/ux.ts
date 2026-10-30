@@ -59,6 +59,7 @@ export class UXAnalyzer {
     return {
       dimension: 'ux',
       score,
+      status: 'measured',
       findings,
       summary,
     };

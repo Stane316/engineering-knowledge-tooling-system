@@ -83,10 +83,22 @@ describe('pont inspection → analyse', () => {
       const result = toLighthouseResults(lighthouseFixture);
 
       expect(result.performance.score).toBe(100);
-      expect(result.performance.metrics.lcp).toBe(220);
-      expect(result.performance.metrics.fid).toBe(36); // ← inp du Sprint 8
-      expect(result.performance.metrics.cls).toBe(0.004);
-      expect(result.performance.metrics.ttfb).toBe(92);
+      expect(result.performance.metrics.lcp).toEqual({
+        status: 'measured',
+        value: 220,
+      });
+      expect(result.performance.metrics.fid).toEqual({
+        status: 'measured',
+        value: 36,
+      }); // ← inp du Sprint 8
+      expect(result.performance.metrics.cls).toEqual({
+        status: 'measured',
+        value: 0.004,
+      });
+      expect(result.performance.metrics.ttfb).toEqual({
+        status: 'measured',
+        value: 92,
+      });
       expect(result.seo.score).toBe(80);
       expect(result.seo.issues).toEqual([
         {
@@ -126,7 +138,7 @@ describe('pont inspection → analyse', () => {
           nodes: 3,
         },
       ]);
-      expect('tags' in result.violations[0]!).toBe(false);
+      expect('tags' in result.violations![0]!).toBe(false);
     });
   });
 
@@ -165,7 +177,7 @@ describe('pont inspection → analyse', () => {
         content: contentFixture,
       });
 
-      expect(inputs.lighthouse.performance.metrics.fid).toBe(36);
+      expect(inputs.lighthouse.performance.metrics.fid).toEqual({ status: 'measured', value: 36 });
       expect(inputs.axe.score).toBe(73);
       expect(inputs.ux.score).toBe(85);
       expect(inputs.content.metrics.wordCount).toBe(133);

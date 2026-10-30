@@ -1,3 +1,4 @@
+import { overallScoreValue } from '../../analysis/measurement.js';
 import type { AnalysisDimension } from '../../analysis/types.js';
 import type { McpToolContext } from '../context.js';
 import type { InspectSiteParams } from '../schemas/tool-schemas.js';
@@ -6,13 +7,15 @@ import type { InspectSiteParams } from '../schemas/tool-schemas.js';
 export interface InspectSiteResult {
   readonly inspection_url: string;
   readonly level: string;
-  readonly score: number;
+  /** Score global pondéré, `null` si une dimension requise est indisponible. */
+  readonly score: number | null;
   readonly total_findings: number;
   readonly critical_findings: number;
   readonly high_findings: number;
   readonly audit_id: number;
   readonly timestamp: string;
-  readonly dimensions: Record<AnalysisDimension, number>;
+  /** Scores par dimension, `null` pour une dimension indisponible. */
+  readonly dimensions: Record<AnalysisDimension, number | null>;
 }
 
 /**
@@ -41,7 +44,7 @@ export async function executeInspectSite(
   return {
     inspection_url: params.url,
     level: params.level,
-    score: report.summary.overallScore,
+    score: overallScoreValue(report.summary.overallScore),
     total_findings: report.summary.totalFindings,
     critical_findings: report.summary.criticalFindings,
     high_findings: report.summary.highFindings,

@@ -51,7 +51,9 @@ function makeReport(
 
   const dimensionOf = (name: AnalysisReport['dimensions']['performance']['dimension']) => ({
     dimension: name,
+    // Sprint 19-03 : un score de dimension est désormais accompagné de son état.
     score,
+    status: 'measured' as const,
     findings: findings.filter((f) => f.dimension === name),
     summary: `Score ${name} : ${String(score)}/100.`,
   });
@@ -75,7 +77,7 @@ function makeReport(
       mediumFindings: count('medium'),
       lowFindings: count('low'),
       infoFindings: count('info'),
-      overallScore: score,
+      overallScore: { status: 'measured' as const, value: score },
     },
   };
 }
@@ -137,7 +139,15 @@ function pipelineInputs(): {
 } {
   return {
     lighthouse: {
-      performance: { score: 75, metrics: { lcp: 3000, fid: 150, cls: 0.15, ttfb: 1000 } },
+      performance: {
+        score: 75,
+        metrics: {
+          lcp: { status: 'measured' as const, value: 3000 },
+          fid: { status: 'measured' as const, value: 150 },
+          cls: { status: 'measured' as const, value: 0.15 },
+          ttfb: { status: 'measured' as const, value: 1000 },
+        },
+      },
       seo: {
         score: 80,
         issues: [

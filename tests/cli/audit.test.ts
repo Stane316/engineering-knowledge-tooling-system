@@ -93,7 +93,7 @@ function makeReport(score = 70, withSecondFinding = false): AnalysisReport {
       mediumFindings: 0,
       lowFindings: 0,
       infoFindings: 0,
-      overallScore: score,
+      overallScore: { status: 'measured', value: score },
     },
   };
 }

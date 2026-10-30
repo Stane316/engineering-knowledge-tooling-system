@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import type { AnalysisReport, Finding, Priority } from '../../src/analysis/types.js';
+import type { AnalysisReport, Finding, OverallScore, Priority } from '../../src/analysis/types.js';
 import { ValidationError } from '../../src/shared/errors.js';
 import { AuditRepository } from '../../src/storage/audit-repository.js';
 import { AuditSchema } from '../../src/storage/schema.js';
@@ -35,7 +35,9 @@ function makeReport(
 
   const dimensionOf = (name: AnalysisReport['dimensions']['performance']['dimension']) => ({
     dimension: name,
+    // Sprint 19-03 : un score de dimension est désormais accompagné de son état.
     score,
+    status: 'measured' as const,
     findings: findings.filter((f) => f.dimension === name),
     summary: `Score ${name} : ${String(score)}/100.`,
   });
@@ -59,7 +61,7 @@ function makeReport(
       mediumFindings: count('medium'),
       lowFindings: count('low'),
       infoFindings: count('info'),
-      overallScore: score,
+      overallScore: { status: 'measured' as const, value: score },
     },
   };
 }
@@ -194,7 +196,11 @@ describe('AuditRepository', () => {
 
     it('rejette un score global non entier', () => {
       const report = makeReport();
-      (report.summary as { overallScore: number }).overallScore = 70.5;
+      // Sprint 19-03 : le score global est une union discriminée.
+      (report.summary as { overallScore: OverallScore }).overallScore = {
+        status: 'measured',
+        value: 70.5,
+      };
 
       expect(() => repo.store(report)).toThrow(/score global hors 0-100/);
     });

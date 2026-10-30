@@ -50,7 +50,7 @@ function makeReport(url = 'https://example.com'): AnalysisReport {
       mediumFindings: 0,
       lowFindings: 0,
       infoFindings: 0,
-      overallScore: 72,
+      overallScore: { status: 'measured', value: 72 },
     },
   };
 }

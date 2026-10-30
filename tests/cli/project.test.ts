@@ -31,7 +31,13 @@ function sampleReport(url: string): AnalysisReport {
     dimensions: Object.fromEntries(
       (['performance', 'accessibility', 'seo', 'ux', 'content'] as const).map((dimension) => [
         dimension,
-        { dimension, score: 80, findings: [], summary: `Score ${dimension} : 80/100.` },
+        {
+          dimension,
+          score: 80,
+          status: 'measured' as const,
+          findings: [],
+          summary: `Score ${dimension} : 80/100.`,
+        },
       ]),
     ),
     findings: [],
@@ -43,7 +49,7 @@ function sampleReport(url: string): AnalysisReport {
       mediumFindings: 0,
       lowFindings: 0,
       infoFindings: 0,
-      overallScore: 80,
+      overallScore: { status: 'measured', value: 80 },
     },
   } as unknown as AnalysisReport;
 }

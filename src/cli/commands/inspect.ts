@@ -4,6 +4,7 @@ import { Option, type Command } from 'commander';
 
 import { AnalysisPipeline } from '../../analysis/pipeline.js';
 import { fromInspection } from '../../analysis/adapter.js';
+import { overallScoreReason, overallScoreValue } from '../../analysis/measurement.js';
 import { Inspector } from '../../browser/inspection/inspector.js';
 import type { InspectionLevel, L3InspectionResult } from '../../browser/inspection/types.js';
 import { MarkdownReportGenerator } from '../../reports/markdown-generator.js';
@@ -39,7 +40,8 @@ export interface InspectReportJson {
   readonly url: string;
   readonly level: InspectionLevel;
   readonly auditId: number;
-  readonly score: number;
+  /** Score global pondéré, `null` si une dimension requise est indisponible. */
+  readonly score: number | null;
   readonly totalFindings: number;
   readonly reports: readonly { readonly format: string; readonly filePath: string }[];
   readonly durationMs: number;
@@ -133,7 +135,7 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
           url,
           level,
           auditId: audit.metadata.id ?? 0,
-          score: report.summary.overallScore,
+          score: overallScoreValue(report.summary.overallScore),
           totalFindings: report.summary.totalFindings,
           reports: reports.map((entry) => ({
             format: entry.format,
@@ -144,7 +146,11 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
 
         const lines = [
           `${palette.success('✔')} ${palette.bold('Inspection')} ${url} (${level}) en ${String(durationMs)} ms`,
-          `${palette.success('✔')} ${palette.bold('Score global')} : ${String(report.summary.overallScore)}/100 — ${String(report.summary.totalFindings)} constat(s)`,
+          `${palette.success('✔')} ${palette.bold('Score global')} : ${
+            overallScoreValue(report.summary.overallScore) === null
+              ? `indisponible — ${overallScoreReason(report.summary.overallScore) ?? 'raison non fournie'}`
+              : `${String(overallScoreValue(report.summary.overallScore))}/100`
+          } — ${String(report.summary.totalFindings)} constat(s)`,
           `${palette.success('✔')} ${palette.bold('Audit')} #${String(audit.metadata.id)} stocké (index FTS : ${outcome.ftsRows > 0 ? `${String(outcome.ftsRows)} ligne(s)` : 'à jour'})`,
           ...reports.map(
             (entry) =>

@@ -134,8 +134,7 @@ describe('intégration de l’analyse (fixtures d’inspection réelles)', () =>
     expect(report.findings.length).toBeGreaterThan(0);
     expect(report.priorityFindings.length).toBeGreaterThan(0);
     expect(report.summary.totalFindings).toBeGreaterThan(0);
-    expect(report.summary.overallScore).toBeGreaterThanOrEqual(0);
-    expect(report.summary.overallScore).toBeLessThanOrEqual(100);
+    expect(report.summary.overallScore.status).toBe('measured');
 
     // INP du Sprint 8 alimente bien le constat FID du contrat d'analyse.
     const perfDimension = report.dimensions.performance;
@@ -197,8 +196,7 @@ describe.skipIf(process.env.EKTS_BROWSER_ONLINE !== '1')(
       );
 
       expect(report.summary.totalFindings).toBeGreaterThan(0);
-      expect(report.summary.overallScore).toBeGreaterThanOrEqual(0);
-      expect(report.summary.overallScore).toBeLessThanOrEqual(100);
+      expect(report.summary.overallScore.status).toBe('measured');
       expectSortedByPriority(report.priorityFindings.map((f) => f.priority));
     });
   },

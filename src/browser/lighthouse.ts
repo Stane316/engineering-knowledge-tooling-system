@@ -209,13 +209,19 @@ export async function loadLighthouse(): Promise<LighthouseModule> {
 /** Nombre d'audits retenus par catégorie (les rapports peuvent en compter 200). */
 const MAX_ISSUES = 25;
 
-/** Lit une valeur numérique d'audit, `0` si absente. */
-function numericValue(report: LighthouseReport, id: string): number {
+/**
+ * Lit une valeur numérique d'audit, `null` si absente.
+ *
+ * Sprint 19-03 (C-W05) : l'ancien `0` de repli rendait une mesure absente
+ * indistinguable d'une mesure réellement nulle, et se lisait comme une bonne
+ * performance. L'absence est désormais explicite.
+ */
+function numericValue(report: LighthouseReport, id: string): number | null {
   const value = report.audits?.[id]?.numericValue;
 
   // Pas d'arrondi : le rapport doit rester fidèle à la mesure (CLS = 0,054
   // et non 0,05), l'arrondi d'affichage appartient au rapport.
-  return typeof value === 'number' && Number.isFinite(value) ? value : 0;
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
 /**
@@ -282,11 +288,16 @@ export function extractSeoIssues(report: LighthouseReport): readonly LighthouseI
   return issues;
 }
 
-/** Score d'une catégorie, ramené sur 0-100. */
-function categoryScore(report: LighthouseReport, category: string): number {
+/**
+ * Score d'une catégorie, ramené sur 0-100, `null` si absent.
+ *
+ * Sprint 19-03 (C-W05) : un score de catégorie manquant ne vaut plus `0` ; il
+ * reste indisponible jusqu'au rapport (aucune estimation de remplacement).
+ */
+function categoryScore(report: LighthouseReport, category: string): number | null {
   const score = report.categories?.[category]?.score;
 
-  return typeof score === 'number' ? Math.round(Math.max(0, Math.min(1, score)) * 100) : 0;
+  return typeof score === 'number' ? Math.round(Math.max(0, Math.min(1, score)) * 100) : null;
 }
 
 /**

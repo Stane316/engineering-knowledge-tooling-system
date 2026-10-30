@@ -20,8 +20,20 @@ export interface AuditMetadata {
   url: string;
   /** Horodatage ISO 8601 de l'analyse. */
   timestamp: string;
-  /** Score global pondéré (0-100). */
-  overallScore: number;
+  /**
+   * Score global pondéré (0-100), ou `null` si l'audit est incomplet et que le
+   * score n'a pas pu être calculé (Sprint 19-03, C-W07).
+   *
+   * Un `0` de remplacement n'existe pas : `null` signifie « non calculé ».
+   */
+  overallScore: number | null;
+  /**
+   * État du score global : `measured` (valeur réelle) ou `unavailable`
+   * (`overallScore` vaut alors `null` et `scoreReason` explique pourquoi).
+   */
+  scoreStatus?: 'measured' | 'unavailable';
+  /** Raison de l'indisponibilité du score, quand `scoreStatus` vaut `unavailable`. */
+  scoreReason?: string;
   /** Nombre total de constats. */
   totalFindings: number;
   /** Constats de priorité `critical`. */

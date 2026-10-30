@@ -56,7 +56,9 @@ export class AuditComparator {
    *          (score manquant traité comme 0).
    */
   calculateDeltaScores(auditA: Audit, auditB: Audit): DimensionDelta[] {
-    const byDimension = (audit: Audit): Map<string, number> =>
+    // `null` = dimension non mesurée : conservée comme telle, jamais remplacée
+    // par 0 (ce serait fabriquer une mesure).
+    const byDimension = (audit: Audit): Map<string, number | null> =>
       new Map(audit.dimensions.map((dim) => [dim.dimension, dim.score]));
 
     const scoresA = byDimension(auditA);
@@ -71,8 +73,19 @@ export class AuditComparator {
         return (indexA === -1 ? order.length : indexA) - (indexB === -1 ? order.length : indexB);
       })
       .map((dimension) => {
-        const scoreA = scoresA.get(dimension) ?? 0;
-        const scoreB = scoresB.get(dimension) ?? 0;
+        const scoreA = scoresA.get(dimension) ?? null;
+        const scoreB = scoresB.get(dimension) ?? null;
+
+        if (scoreA === null || scoreB === null) {
+          return {
+            dimension: dimension as DimensionDelta['dimension'],
+            scoreA,
+            scoreB,
+            delta: null,
+            percentage: null,
+          };
+        }
+
         const delta = scoreB - scoreA;
         return {
           dimension: dimension as DimensionDelta['dimension'],
@@ -142,9 +155,24 @@ export class AuditComparator {
   calculateEvolution(auditA: Audit, auditB: Audit): ScoreEvolution {
     const scoreA = auditA.metadata.overallScore;
     const scoreB = auditB.metadata.overallScore;
+
+    // Un score indisponible interdit tout écart : aucune progression n'est
+    // affirmée à partir d'une absence (C-W07).
+    if (scoreA === null || scoreB === null) {
+      return {
+        status: 'unavailable',
+        scoreA,
+        scoreB,
+        delta: null,
+        percentage: null,
+        trend: 'unavailable',
+      };
+    }
+
     const delta = scoreB - scoreA;
 
     return {
+      status: 'measured',
       scoreA,
       scoreB,
       delta,
@@ -165,6 +193,17 @@ export class AuditComparator {
    */
   generateRecommendations(evolution: ScoreEvolution, deltaFindings: FindingsDelta): string[] {
     const recommendations: string[] = [];
+
+    // C-W07 : sans score sur un des deux audits, aucun écart n'est
+    // interprétable. Parler de « scores stagnants » serait une conclusion
+    // inventée.
+    if (evolution.status === 'unavailable') {
+      return [
+        'Score global indisponible sur au moins un des deux audits : aucun écart de score ne ' +
+          'peut être interprété. Relancer une analyse complète — cinq dimensions mesurées — ' +
+          'avant de conclure sur une évolution.',
+      ];
+    }
 
     if (evolution.trend === 'degrading') {
       recommendations.push(
@@ -237,18 +276,25 @@ export class AuditComparator {
   /**
    * Contrôle d'intégrité d'un audit comparé.
    *
+   * Depuis le Sprint 19-03 (C-W07), un score global `null` est **valide** : il
+   * désigne une indisponibilité assumée, que la comparaison restitue sans écart
+   * plutôt que de la refuser.
+   *
    * @param audit - Audit à contrôler.
    * @param label - Libellé dans le message (`A` ou `B`).
    * @throws {Error} Métadonnées absentes ou score hors bornes.
    */
   private assertAudit(audit: Audit, label: string): void {
-    if (!audit?.metadata || typeof audit.metadata.overallScore !== 'number') {
+    if (!audit?.metadata || audit.metadata.overallScore === undefined) {
       throw new Error(`Audit ${label} invalide : métadonnées ou score global manquant.`);
     }
-    if (audit.metadata.overallScore < 0 || audit.metadata.overallScore > 100) {
-      throw new Error(
-        `Audit ${label} invalide : score global ${String(audit.metadata.overallScore)} hors [0, 100].`,
-      );
+
+    const score = audit.metadata.overallScore;
+
+    if (score === null) return;
+
+    if (!Number.isFinite(score) || score < 0 || score > 100) {
+      throw new Error(`Audit ${label} invalide : score global ${String(score)} hors [0, 100].`);
     }
   }
 }

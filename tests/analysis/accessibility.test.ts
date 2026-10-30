@@ -16,7 +16,7 @@ function violation(partial: {
   help?: string;
   helpUrl?: string;
   nodes?: number;
-}): AxeResults['violations'][number] {
+}): NonNullable<AxeResults['violations']>[number] {
   return {
     help: 'Help',
     helpUrl: 'https://example.com',

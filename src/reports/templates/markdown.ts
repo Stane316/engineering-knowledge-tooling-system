@@ -56,7 +56,9 @@ export class MarkdownTemplate {
       '',
       `- **URL** : ${url}`,
       `- **Date** : ${date} UTC`,
-      `- **Score global** : ${this.scoreEmoji(overallScore)} **${overallScore}/100**`,
+      overallScore === null
+        ? `- **Score global** : ⚪ **indisponible** — ${audit.metadata.scoreReason ?? 'aucune raison fournie'}`
+        : `- **Score global** : ${this.scoreEmoji(overallScore)} **${String(overallScore)}/100**`,
       `- **Audit ID** : #${String(audit.metadata.id)}`,
     ].join('\n');
   }
@@ -218,7 +220,7 @@ export class MarkdownTemplate {
       '',
       `| Score A | Score B | Δ | Relatif | Tendance |`,
       `|---------|---------|---|---------|----------|`,
-      `| ${String(evolution.scoreA)} | ${String(evolution.scoreB)} | ${evolution.delta > 0 ? '+' : ''}${String(evolution.delta)} | ${evolution.percentage > 0 ? '+' : ''}${evolution.percentage.toFixed(1)}% | ${trendEmoji} ${evolution.trend} |`,
+      `| ${evolution.scoreA === null ? 'indisponible' : String(evolution.scoreA)} | ${evolution.scoreB === null ? 'indisponible' : String(evolution.scoreB)} | ${evolution.delta === null ? '—' : `${evolution.delta > 0 ? '+' : ''}${String(evolution.delta)}`} | ${evolution.percentage === null ? '—' : `${evolution.percentage > 0 ? '+' : ''}${evolution.percentage.toFixed(1)}%`} | ${trendEmoji} ${evolution.trend} |`,
       '',
       '## 🎯 Deltas par dimension',
       '',
@@ -228,7 +230,7 @@ export class MarkdownTemplate {
 
     for (const delta of deltaScores) {
       lines.push(
-        `| ${delta.dimension} | ${String(delta.scoreA)} | ${String(delta.scoreB)} | ${delta.delta > 0 ? '+' : ''}${String(delta.delta)} | ${delta.percentage > 0 ? '+' : ''}${delta.percentage.toFixed(1)}% |`,
+        `| ${delta.dimension} | ${delta.scoreA === null ? 'indisponible' : String(delta.scoreA)} | ${delta.scoreB === null ? 'indisponible' : String(delta.scoreB)} | ${delta.delta === null ? '—' : `${delta.delta > 0 ? '+' : ''}${String(delta.delta)}`} | ${delta.percentage === null ? '—' : `${delta.percentage > 0 ? '+' : ''}${delta.percentage.toFixed(1)}%`} |`,
       );
     }
 

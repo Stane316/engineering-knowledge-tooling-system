@@ -15,7 +15,12 @@ describe('AnalysisPipeline', () => {
   const mockLighthouse: LighthouseResults = {
     performance: {
       score: 75,
-      metrics: { lcp: 3000, fid: 150, cls: 0.15, ttfb: 1000 },
+      metrics: {
+        lcp: { status: 'measured', value: 3000 },
+        fid: { status: 'measured', value: 150 },
+        cls: { status: 'measured', value: 0.15 },
+        ttfb: { status: 'measured', value: 1000 },
+      },
     },
     seo: {
       score: 80,
@@ -74,8 +79,10 @@ describe('AnalysisPipeline', () => {
       expect(report.findings.length).toBeGreaterThan(0);
       expect(report.priorityFindings.length).toBeGreaterThan(0);
       expect(report.summary.totalFindings).toBeGreaterThan(0);
-      expect(report.summary.overallScore).toBeGreaterThanOrEqual(0);
-      expect(report.summary.overallScore).toBeLessThanOrEqual(100);
+      expect(report.summary.overallScore.status).toBe('measured');
+      const overall = report.summary.overallScore as { status: 'measured'; value: number };
+      expect(overall.value).toBeGreaterThanOrEqual(0);
+      expect(overall.value).toBeLessThanOrEqual(100);
     });
 
     it('trie les constats par priorité recalculée', async () => {
@@ -114,9 +121,7 @@ describe('AnalysisPipeline', () => {
       );
 
       // 75×0.25 + 70×0.25 + 80×0.20 + 65×0.15 + 60×0.15 = 71.25 → 71
-      expect(report.summary.overallScore).toBeGreaterThan(60);
-      expect(report.summary.overallScore).toBeLessThan(80);
-      expect(report.summary.overallScore).toBe(71);
+      expect(report.summary.overallScore).toEqual({ status: 'measured', value: 71 });
     });
 
     it('compte les constats par priorité finale', async () => {
@@ -141,7 +146,15 @@ describe('AnalysisPipeline', () => {
 
     it('gère des scores parfaits', async () => {
       const perfectLighthouse: LighthouseResults = {
-        performance: { score: 100, metrics: { lcp: 1500, fid: 50, cls: 0.05, ttfb: 500 } },
+        performance: {
+          score: 100,
+          metrics: {
+            lcp: { status: 'measured', value: 1500 },
+            fid: { status: 'measured', value: 50 },
+            cls: { status: 'measured', value: 0.05 },
+            ttfb: { status: 'measured', value: 500 },
+          },
+        },
         seo: { score: 100, issues: [] },
       };
       const perfectAxe: AxeResults = { violations: [], score: 100 };
@@ -160,7 +173,7 @@ describe('AnalysisPipeline', () => {
       );
 
       expect(report.summary.totalFindings).toBe(0);
-      expect(report.summary.overallScore).toBe(100);
+      expect(report.summary.overallScore).toEqual({ status: 'measured', value: 100 });
       expect(report.priorityFindings).toEqual([]);
     });
 
