@@ -1,6 +1,17 @@
+import { readFileSync } from 'node:fs';
+
 import { Option, type Command } from 'commander';
 
 import type { AddResourceInput } from '../../business/knowledge-manager.types.js';
+import { ValidationError } from '../../shared/errors.js';
+import {
+  assessAdmission,
+  extractProvenance,
+  parseProvenance,
+  PROVENANCE_METADATA_KEY,
+  type Admission,
+  type Provenance,
+} from '../../shared/provenance.js';
 import type { Resource, ResourceType } from '../../shared/validators.js';
 import { execute, withOutputFlags } from '../command.js';
 import { truncate } from '../output.js';
@@ -15,6 +26,8 @@ interface AddCliOptions {
   tags?: string;
   content?: string;
   project?: string;
+  /** Fichier JSON de provenance (Sprint 22-01). */
+  provenance?: string;
 }
 
 /** Rapport d'ajout : la ressource et l'état de son indexation. */
@@ -24,6 +37,42 @@ export interface AddReport {
   vectorIndexed: boolean;
   /** Raison de l'absence de vecteur (quota, réseau, embeddings absents). */
   vectorWarning?: string;
+  /** Admission au corpus gouverné (Sprint 22-01). */
+  admission: Admission;
+}
+
+/** Message d'erreur lisible, sans dépendre du type exact. */
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+/**
+ * Lit et valide un fichier de provenance.
+ *
+ * Un fichier illisible, un JSON invalide et un bloc hors contrat sont trois
+ * échecs distincts : le message le dit, et rien n'est écrit dans la base.
+ *
+ * @param path - Chemin du fichier fourni par l'opérateur.
+ * @throws {ValidationError} Fichier illisible, JSON invalide ou provenance hors contrat.
+ */
+function loadProvenanceFile(path: string): Provenance {
+  let raw: string;
+
+  try {
+    raw = readFileSync(path, 'utf8');
+  } catch (error) {
+    throw new ValidationError([`provenance : fichier illisible « ${path} » (${messageOf(error)})`]);
+  }
+
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new ValidationError([`provenance : JSON invalide dans « ${path} »`]);
+  }
+
+  return parseProvenance(parsed);
 }
 
 /**
@@ -42,6 +91,11 @@ export async function collectAdd(runtime: CliRuntime, options: AddCliOptions): P
   const services = runtime.openServices({ dataDir: runtime.dataDir, embeddingsMode: 'auto' });
 
   try {
+    // Provenance validée **avant** d'ouvrir la moindre écriture : un fichier
+    // fautif ne doit pas laisser de ressource partielle.
+    const provenance =
+      options.provenance === undefined ? undefined : loadProvenanceFile(options.provenance);
+
     const input: AddResourceInput = {
       // `type` est validé par Zod dans le manager : le transtypage ne sert
       // qu'à respecter la signature, aucune donnée n'est acceptée sans contrôle.
@@ -51,6 +105,7 @@ export async function collectAdd(runtime: CliRuntime, options: AddCliOptions): P
       ...(options.url === undefined ? {} : { url: options.url }),
       ...(options.content === undefined ? {} : { content: options.content }),
       ...(options.project === undefined ? {} : { projectId: options.project }),
+      ...(provenance === undefined ? {} : { metadata: { [PROVENANCE_METADATA_KEY]: provenance } }),
     };
 
     // Projet assigné : existence vérifiée avant toute écriture (code 3 si
@@ -67,6 +122,7 @@ export async function collectAdd(runtime: CliRuntime, options: AddCliOptions): P
       resource,
       vectorIndexed: outcome?.indexed ?? false,
       ...(outcome?.message === undefined ? {} : { vectorWarning: outcome.message }),
+      admission: assessAdmission(extractProvenance(resource.metadata)),
     };
   } finally {
     services.close();
@@ -96,6 +152,7 @@ function renderAdd(report: AddReport, palette: Palette): string {
 
   lines.push(
     `  indexation  ${report.vectorIndexed ? 'plein texte + vecteurs' : 'plein texte seul'}`,
+    `  corpus      ${report.admission.admitted ? 'admise' : 'exclue'} — ${report.admission.reason}`,
   );
 
   if (!report.vectorIndexed) {
@@ -122,6 +179,10 @@ export function registerAdd(program: Command, runtime: CliRuntime): void {
       .option('--url <url>', 'URL de la ressource')
       .option('--tags <tags>', 'tags séparés par des virgules')
       .option('--content <content>', 'contenu textuel (indexé)')
+      .option(
+        '--provenance <fichier>',
+        'fichier JSON de provenance (source, version, droits, sensibilité, empreinte, revue)',
+      )
       .addOption(
         new Option('-p, --project <id>', 'assigner la ressource à un projet (UUID)').argParser(
           parseProjectId,
@@ -137,6 +198,7 @@ export function registerAdd(program: Command, runtime: CliRuntime): void {
           ...report.resource,
           vectorIndexed: report.vectorIndexed,
           ...(report.vectorWarning === undefined ? {} : { vectorWarning: report.vectorWarning }),
+          admission: report.admission,
         },
       };
     });

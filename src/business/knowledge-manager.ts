@@ -3,6 +3,7 @@ import { ZodError, type ZodType } from 'zod';
 
 import { ResourceRepository } from '../data/repositories/resource-repository.js';
 import { ResourceNotFoundError, ValidationError } from '../shared/errors.js';
+import { assertProvenancePreserved, extractProvenance } from '../shared/provenance.js';
 import {
   CreateResourceSchema,
   ResourceFiltersSchema,
@@ -42,6 +43,11 @@ export class KnowledgeManager implements IKnowledgeManager {
   async addResource(input: AddResourceInput): Promise<Resource> {
     const values = parseInput(CreateResourceSchema, input);
 
+    // Provenance (Sprint 22-01) : un bloc présent est validé **avant** toute
+    // écriture. Un bloc absent reste admis — c'est la ressource historique,
+    // qui ne doit être ni réécrite ni privée de lecture.
+    extractProvenance(values.metadata);
+
     return this.repository.create({
       ...values,
       tags: normalizeTags(values.tags),
@@ -76,6 +82,19 @@ export class KnowledgeManager implements IKnowledgeManager {
   async updateResource(id: string, data: UpdateResourceData): Promise<Resource> {
     // Validation avant toute lecture : une entrée invalide ne doit pas coûter d'accès disque.
     const values = parseInput(UpdateResourceSchema, data);
+
+    if (values.metadata !== undefined) {
+      // Un bloc fourni doit être valide…
+      extractProvenance(values.metadata);
+
+      // …et une provenance enregistrée ne doit pas disparaître par accident :
+      // `metadata` est remplacé en bloc, pas fusionné.
+      const existing = this.repository.getById(id);
+      assertProvenancePreserved(
+        existing === null ? undefined : extractProvenance(existing.metadata),
+        values.metadata,
+      );
+    }
 
     const updated = this.repository.update(id, {
       ...values,

@@ -155,6 +155,7 @@ vecteurs ensuite : `ekts reindex --vectors`.
 | `--url <url>` | URL `http(s)` valide |
 | `--tags <tags>` | Tags séparés par des virgules |
 | `--content <content>` | Texte indexé (fortement recommandé) |
+| `--provenance <fichier>` | Bloc de provenance JSON validé (Sprint 22-01, voir § 3.2.1) |
 
 ```powershell
 npm run cli -- add --type article --title "Introduction à SQLite" --url "https://example.com/sqlite" --tags "sqlite,base" --content "SQLite est une base légère."
@@ -176,9 +177,55 @@ Réponse JSON : la ressource persistée, plus `vectorIndexed`.
 }
 ```
 
+#### 3.2.1 Provenance et corpus gouverné (Sprint 22-01)
+
+`--provenance` prend un **fichier JSON** validé avant toute écriture. Un
+fichier illisible, un JSON invalide ou un bloc hors contrat sortent en **code
+4** et ne créent aucune ressource.
+
+```json
+{
+  "source": "depot://corpus/r01.md",
+  "sourceVersion": "commit-abc123",
+  "rights": { "read": "granted", "redistribute": "refused", "execute": "unknown" },
+  "sensitivity": "synthetic",
+  "fingerprint": { "sha256": "<64 caractères hexadécimaux>" },
+  "review": {
+    "status": "authorized",
+    "decidedAt": "2026-10-30T10:00:00.000Z",
+    "decidedBy": "operateur"
+  }
+}
+```
+
+| Champ | Valeurs | Sens |
+| --- | --- | --- |
+| `rights.read`, `rights.redistribute`, `rights.execute` | `granted`, `refused`, `unknown` | Trois décisions **indépendantes** : accorder la lecture ne dit rien de la redistribution |
+| `sensitivity` | `synthetic`, `internal`, `sensitive` | Étiquette de gouvernance, **pas** un contrôle d'accès |
+| `review.status` | `pending`, `authorized`, `refused`, `unknown` | Décision humaine de revue |
+| `source`, `sourceVersion`, `fingerprint`, `review.decidedAt`, `review.decidedBy` | texte, objet `{sha256}`, date ISO, ou **`null`** | `null` = **explicitement inconnu**, jamais remplacé par une valeur inventée |
+
+Tous les champs sont obligatoires : le rédacteur doit dire ce qu'il ignore.
+**Admission au corpus gouverné** : `review.status = "authorized"` **et**
+`rights.read = "granted"`. Les autres issues excluent la ressource du corpus
+sans la supprimer, et le motif est affiché.
+
+```json
+{"admission": {"admitted": false, "reason": "droit de lecture refusé"}}
+```
+
+Une provenance enregistrée **ne peut pas disparaître** par une mise à jour :
+`ekts` refuse une modification de `metadata` qui retirerait le bloc (elle peut
+être révisée). Les ressources créées avant ce contrat restent lisibles, sans
+provenance inventée, et sont affichées comme non admises.
+
 ### 3.3 `ekts get <id>`
 
 Affiche une ressource par son UUID. Code de sortie **3** si elle n'existe pas.
+
+Depuis le Sprint 22-01, la sortie humaine présente le bloc de provenance et la
+décision d'admission (`admise` / `exclue` + motif) ; `--json` ajoute un champ
+`admission`. Une ressource sans provenance est dite **historique**.
 
 ```powershell
 npm run cli -- get 0d34bf32-b8fe-4415-b9e4-2ceb69b55062
