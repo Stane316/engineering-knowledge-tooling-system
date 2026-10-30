@@ -33,6 +33,7 @@ import { SILENT_LOGGER } from '../mcp/utils/logger.js';
 import { VERSION } from '../shared/version.js';
 import { Accessibility } from './accessibility.js';
 import { ArtifactError, BrowserError, UrlNotAllowedError } from './errors.js';
+import { assertNavigableTarget, type HostResolver } from './url-policy.js';
 import type { AccessibilityNode, AccessibilityReport, BrowserKind } from './types.js';
 
 /**
@@ -135,6 +136,8 @@ export interface BrowserMcpOptions {
   readonly browserKind?: BrowserKind;
   /** Autorise les hôtes privés (défaut : `false`). */
   readonly allowPrivateHosts?: boolean;
+  /** Résolveur DNS injectable (tests hors réseau ; défaut : DNS système). */
+  readonly resolveHost?: HostResolver;
   /** Horloge injectable pour les noms de fichiers par défaut. */
   readonly now?: () => Date;
 }
@@ -198,9 +201,13 @@ export function registerBrowserTools(
     },
     async (args) =>
       run('browser_navigate', logger, async () => {
-        const url = assertNavigableUrl(args.url, {
+        const target = await assertNavigableTarget(args.url, {
           allowPrivateHosts: options.allowPrivateHosts ?? false,
+          ...(options.resolveHost === undefined ? {} : { resolveHost: options.resolveHost }),
         });
+        // L'outil navigateur reçoit l'adresse canonique (`https://a.fr` devient
+        // `https://a.fr/`) : c'est elle que le moteur ouvre réellement.
+        const url = new URL(target).toString();
         await ensureStarted(options, logger);
         const result = await options.session.goto({
           url: url,
@@ -329,96 +336,6 @@ export function registerBrowserTools(
 
         return { closed: true };
       }),
-  );
-}
-
-/**
- * Vérifie qu'une URL peut être ouverte par un agent.
- *
- * @param raw - URL fournie par l'appelant.
- * @param options - Politique réseau.
- * @throws {UrlNotAllowedError} Schéma, identifiants ou hôte refusés.
- */
-export function assertNavigableUrl(
-  raw: string,
-  options: { readonly allowPrivateHosts?: boolean } = {},
-): string {
-  let url: URL;
-
-  try {
-    url = new URL(raw);
-  } catch {
-    throw new UrlNotAllowedError(raw, 'URL absolue invalide.');
-  }
-
-  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-    throw new UrlNotAllowedError(raw, `schéma « ${url.protocol} » refusé (http/https uniquement).`);
-  }
-
-  if (url.username !== '' || url.password !== '') {
-    throw new UrlNotAllowedError(raw, 'identifiants embarqués refusés.');
-  }
-
-  if (options.allowPrivateHosts !== true && isPrivateHost(url.hostname)) {
-    throw new UrlNotAllowedError(
-      raw,
-      `hôte privé « ${url.hostname} » refusé (relancez le serveur avec allowPrivateHosts pour l’autoriser).`,
-      'PRIVATE_NETWORK_BLOCKED',
-    );
-  }
-
-  return url.toString();
-}
-
-/**
- * Reconnaît un hôte non routable publiquement.
- *
- * @param hostname - Nom d'hôte ou adresse littérale (sans crochets pour IPv6).
- */
-export function isPrivateHost(hostname: string): boolean {
-  const host = hostname.toLowerCase().replace(/^\[|\]$/g, '');
-
-  if (
-    host === '' ||
-    host === 'localhost' ||
-    host.endsWith('.localhost') ||
-    host.endsWith('.local')
-  ) {
-    return true;
-  }
-
-  if (host === '::1' || host === '::' || host === '0.0.0.0') {
-    return true;
-  }
-
-  if (host.startsWith('fc') || host.startsWith('fd') || host.startsWith('fe80')) {
-    return host.includes(':');
-  }
-
-  if (host.startsWith('::ffff:')) {
-    return isPrivateHost(host.slice('::ffff:'.length));
-  }
-
-  const octets = host.split('.');
-
-  if (octets.length !== 4 || !octets.every((octet) => /^\d{1,3}$/.test(octet))) {
-    return false;
-  }
-
-  const [first, second] = octets.map((octet) => Number.parseInt(octet, 10)) as [
-    number,
-    number,
-    number,
-    number,
-  ];
-
-  return (
-    first === 10 ||
-    first === 127 ||
-    first === 0 ||
-    (first === 169 && second === 254) ||
-    (first === 172 && second >= 16 && second <= 31) ||
-    (first === 192 && second === 168)
   );
 }
 
@@ -559,3 +476,5 @@ function stamp(date: Date): string {
 function toRelative(directory: string, path: string): string {
   return path.startsWith(`${directory}${sep}`) ? path.slice(directory.length + 1) : path;
 }
+
+export { assertNavigableTarget, assertNavigableUrl, isPrivateHost } from './url-policy.js';

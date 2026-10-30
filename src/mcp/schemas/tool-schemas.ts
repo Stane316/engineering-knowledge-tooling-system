@@ -90,6 +90,12 @@ export const InspectSiteInput = z.object({
     .uuid({ message: 'l’identifiant de projet doit être un UUID' })
     .optional()
     .describe('Projet auquel l’audit est assigné (Sprint 13) ; omis : audit sans projet'),
+  allow_private_hosts: z
+    .boolean()
+    .optional()
+    .describe(
+      'Autorise explicitement une cible privée ou loopback (127.0.0.1, 192.168.x, …) ; refusée par défaut (Sprint 20-03)',
+    ),
 });
 
 /** Entrée de `audit_history`. */

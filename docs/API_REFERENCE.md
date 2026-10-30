@@ -88,7 +88,7 @@ bases (table), ressources et audits.
 ### `ekts inspect <url>`
 
 ```bash
-ekts inspect <url> [-l <L1|L2|L3>] [-o <path>] [-f <md|pdf|both>] [--json] [--no-colors]
+ekts inspect <url> [-l <L1|L2|L3>] [-o <path>] [-f <md|pdf|both>] [--allow-private-hosts] [--json] [--no-colors]
 ```
 
 | Option | Défaut | Notes |
@@ -96,6 +96,7 @@ ekts inspect <url> [-l <L1|L2|L3>] [-o <path>] [-f <md|pdf|both>] [--json] [--no
 | `-l, --level` | `L3` | **L3 obligatoire** pour l'audit (L1/L2 → code 4) |
 | `-o, --output` | `./reports` | Dossier des rapports |
 | `-f, --format` | `both` | `md`, `pdf` ou `both` |
+| `--allow-private-hosts` | — | Exception explicite : autorise une cible privée/loopback (refusée par défaut, Sprint 20-03) |
 | `--json` | — | `{ url, level, auditId, score, totalFindings, reports[], durationMs }` |
 
 ### `ekts audit`

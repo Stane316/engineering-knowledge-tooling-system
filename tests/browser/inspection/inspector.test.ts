@@ -94,6 +94,26 @@ describe('Inspector — niveau 1', () => {
     expect(calls.state.stopped).toBe(true);
   });
 
+  it('refuse une cible interdite avant d’ouvrir la session (C-W13)', async () => {
+    const { inspector, calls } = makeInspector();
+
+    // Dernier verrou, dans le seul composant qui navigue réellement : même un
+    // appel direct à l'inspecteur ne peut pas contourner la politique.
+    await expect(inspector.inspect({ url: 'file:///etc/passwd' })).rejects.toThrow(/schéma/i);
+    expect(calls.start).not.toHaveBeenCalled();
+    expect(calls.goto).not.toHaveBeenCalled();
+  });
+
+  it('refuse une redirection vers un hôte privé (C-W13)', async () => {
+    const { inspector, calls } = makeInspector({
+      navigation: { url: 'http://192.168.1.10/portail', redirected: true },
+    });
+
+    await expect(inspector.inspect({ url: 'https://exemple.fr/guide' })).rejects.toThrow(/privé/i);
+    // La session est refermée : un refus ne laisse pas de processus derrière lui.
+    expect(calls.state.stopped).toBe(true);
+  });
+
   it('ne réserve pas de port CDP pour le niveau 1', async () => {
     const { inspector, calls } = makeInspector();
 

@@ -6,6 +6,7 @@ import { AnalysisPipeline } from '../../analysis/pipeline.js';
 import { fromInspection } from '../../analysis/adapter.js';
 import { overallScoreReason, overallScoreValue } from '../../analysis/measurement.js';
 import { Inspector } from '../../browser/inspection/inspector.js';
+import { assertNavigableTarget } from '../../browser/url-policy.js';
 import type { InspectionLevel, L3InspectionResult } from '../../browser/inspection/types.js';
 import { MarkdownReportGenerator } from '../../reports/markdown-generator.js';
 import { PDFReportGenerator } from '../../reports/pdf-generator.js';
@@ -19,6 +20,17 @@ import { AuditSchema } from '../../storage/schema.js';
 import { execute, withOutputFlags, type CommandResult } from '../command.js';
 import { parseProjectId } from '../options.js';
 import type { CliRuntime } from '../runtime.js';
+
+/**
+ * Options reçues par l'action.
+ *
+ * Commander pose un **booléen** pour un drapeau sans valeur
+ * (`--allow-private-hosts`) et une chaîne pour une option valorisée : le type
+ * le dit, plutôt qu'un transtypage local.
+ */
+type InspectOptions = Record<string, string | undefined> & {
+  readonly allowPrivateHosts?: boolean;
+};
 
 /** Formats de rapport acceptés. */
 const FORMATS = ['md', 'pdf', 'both'] as const;
@@ -68,12 +80,16 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
       .option('-l, --level <level>', "niveau d'inspection (L1, L2, L3)", 'L3')
       .option('-o, --output <path>', 'dossier de sortie des rapports', './reports')
       .option('-f, --format <format>', 'format du rapport (md, pdf, both)', 'both')
+      .option(
+        '--allow-private-hosts',
+        'autoriser les hôtes privés ou loopback (poste de développement uniquement)',
+      )
       .addOption(
         new Option('-p, --project <id>', 'assigner l’audit à un projet (UUID)').argParser(
           parseProjectId,
         ),
       ),
-  ).action(async (url: string, options: Record<string, string | undefined>, command: Command) => {
+  ).action(async (url: string, options: InspectOptions, command: Command) => {
     await execute(command, runtime, async (palette): Promise<CommandResult> => {
       const started = runtime.now();
       const level = parseLevel(options.level ?? AUDIT_LEVEL);
@@ -84,6 +100,15 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
           `le niveau ${level} ne produit pas les entrées d'analyse complètes ; rejouez avec --level ${AUDIT_LEVEL}`,
         ]);
       }
+
+      // Politique de cible (Sprint 20-03, C-W13) : schéma, identifiants, hôte
+      // privé littéral, **puis** résolution DNS — avant toute ouverture de
+      // navigateur. Le refus est explicite ; l'exception est opt-in.
+      const allowPrivateHosts = options.allowPrivateHosts === true;
+      const target = await assertNavigableTarget(url, {
+        allowPrivateHosts,
+        ...(runtime.resolveHost === undefined ? {} : { resolveHost: runtime.resolveHost }),
+      });
 
       // 0. Projet assigné : existence vérifiée avant la navigation (code 3 si
       //    inconnu) — éviter une inspection réseau complète pour un id fautif.
@@ -98,7 +123,13 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
 
       // 1. Inspection (navigateur, réseau autorisé par l'utilisateur).
       const inspector = new Inspector();
-      const inspection = await inspector.inspect({ url, level });
+      const inspection = await inspector.inspect({
+        url: target,
+        level,
+        // L'exception n'est transmise que si elle est demandée : un appel
+        // ordinaire garde exactement la forme historique.
+        ...(allowPrivateHosts ? { allowPrivateHosts: true } : {}),
+      });
 
       // 2. Analyse (conversion Sprint 8 → Sprint 9, erreurs de dégradation
       //    portées par `fromInspection`). Le garde de niveau ci-dessus est
@@ -151,7 +182,7 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
 
         const durationMs = runtime.now() - started;
         const json: InspectReportJson = {
-          url,
+          url: target,
           level,
           auditId: audit.metadata.id ?? 0,
           score: overallScoreValue(report.summary.overallScore),
@@ -165,7 +196,7 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
         };
 
         const lines = [
-          `${palette.success('✔')} ${palette.bold('Inspection')} ${url} (${level}) en ${String(durationMs)} ms`,
+          `${palette.success('✔')} ${palette.bold('Inspection')} ${target} (${level}) en ${String(durationMs)} ms`,
           `${palette.success('✔')} ${palette.bold('Score global')} : ${
             overallScoreValue(report.summary.overallScore) === null
               ? `indisponible — ${overallScoreReason(report.summary.overallScore) ?? 'raison non fournie'}`

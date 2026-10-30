@@ -2,6 +2,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import type { HostResolver } from '../../src/browser/url-policy.js';
 import { EmbeddingsService } from '../../src/business/embeddings.js';
 import type { EmbeddingSpace } from '../../src/business/vector-indexer.js';
 import type { IEmbeddingsService } from '../../src/business/embeddings.js';
@@ -37,6 +38,11 @@ export interface TestRuntimeOptions {
   color?: boolean;
   confirm?: (question: string) => Promise<boolean>;
   now?: () => number;
+  /**
+   * Résolveur DNS des cibles (Sprint 20-03). Défaut : une adresse publique
+   * fixe — aucune commande de test n'atteint le DNS système.
+   */
+  resolveHost?: HostResolver;
   openServices?: (options: OpenServicesOptions) => CliServices;
 }
 
@@ -95,6 +101,7 @@ export function createTestRuntime(dataDir: string, options: TestRuntimeOptions =
       color: options.color ?? false,
       ...(options.confirm === undefined ? {} : { confirm: options.confirm }),
       ...(options.now === undefined ? {} : { now: options.now }),
+      resolveHost: options.resolveHost ?? (async () => [{ address: '93.184.216.34', family: 4 }]),
       openServices:
         options.openServices ??
         ((servicesOptions) =>

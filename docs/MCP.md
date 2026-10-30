@@ -403,6 +403,20 @@ SEO / UX / contenu, **stocke un audit** et renvoie son résumé.
 | --- | --- | --- | --- |
 | `url` | string (URL) | obligatoire | http/https |
 | `level` | `L1` \| `L2` \| `L3` | `L3` | `L1`/`L2` refusés (entrées d'analyse incomplètes) |
+| `allow_private_hosts` | boolean | `false` | Exception explicite : autorise une cible privée/loopback (Sprint 20-03) |
+
+**Politique de cible (Sprint 20-03, C-W13).** `inspect_site` applique la même
+règle que la CLI `ekts inspect` : schéma `http`/`https` seulement, identifiants
+embarqués refusés, hôte privé ou loopback refusé **par défaut**. L'hôte est
+ensuite résolu : une adresse privée (`10/8`, `172.16/12`, `192.168/16`,
+`127/8`, `::1`, lien-local) fait échouer l'appel, et un échec DNS produit une
+erreur explicite (`DNS`) — aucune navigation n'est tentée. Un serveur MCP peut
+donc exposer `inspect_site` à un agent sans lui ouvrir le réseau interne ;
+`allow_private_hosts: true` est la seule façon d'inspecter un poste local, et
+elle doit rester un choix conscient de l'appelant.
+
+Limite déclarée : la résolution précède la navigation ; un rebinding DNS entre
+les deux n'est pas couvert.
 
 **Output :**
 

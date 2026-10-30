@@ -39,6 +39,9 @@ async function connect(overrides: Partial<BrowserMcpOptions> = {}): Promise<Harn
     session,
     logger: SILENT_LOGGER,
     artifactsDir: tempDir('ekts-browser-mcp-'),
+    // Politique de cible (Sprint 20-03) : résolution doublée — aucune requête
+    // DNS réelle dans les tests, quels que soient les noms d'hôte utilisés.
+    resolveHost: async () => [{ address: '93.184.216.34', family: 4 }],
     ...overrides,
   });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();

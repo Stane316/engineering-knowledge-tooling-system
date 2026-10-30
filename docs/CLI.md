@@ -490,6 +490,19 @@ ekts inspect https://example.com --format md --output ./reports
 | `-l, --level <level>` | `L1`, `L2`, `L3` | `L3` |
 | `-o, --output <path>` | dossier de sortie | `./reports` |
 | `-f, --format <format>` | `md`, `pdf`, `both` | `both` |
+| `--allow-private-hosts` | drapeau | absent (hôtes privés refusés) |
+
+**Politique de cible (Sprint 20-03, C-W13) :** avant d'ouvrir le navigateur,
+`inspect` valide la cible — schéma `http`/`https` uniquement (refus de `file:`,
+`ftp:`, `javascript:`), identifiants embarqués refusés, d'où l'URL **résolue**
+par DNS : un nom qui pointe vers une adresse privée (`10/8`, `172.16/12`,
+`192.168/16`, `127/8`, `::1`, lien-local) est refusé, et un échec de résolution
+produit une erreur explicite (`DNS`). `--allow-private-hosts` est l'exception
+explicite, réservée à l'inspection d'un poste de développement ; les mêmes
+règles valent pour l'outil MCP `inspect_site` (`allow_private_hosts`).
+
+Limite déclarée : la résolution précède l'ouverture du navigateur ; un
+changement de DNS entre les deux instants (rebinding) n'est pas couvert.
 
 **Niveau :** seules les inspections **L3** fournissent les entrées
 (`lighthouse`, `axe`, `ux`, `content`) exigées par l'analyse complète.

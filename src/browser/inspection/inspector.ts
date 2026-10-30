@@ -20,6 +20,7 @@ import { findFreePort, LighthouseAnalyzer, type LighthouseRunner } from '../ligh
 import { AxeAnalyzer, type AxeRunner } from '../axe.js';
 import { InspectionError } from '../errors.js';
 import { Navigator } from '../navigator.js';
+import { assertNavigableUrl, isPrivateHost } from '../url-policy.js';
 import type { BrowserKind, BrowserSessionInfo, LaunchOptions } from '../types.js';
 import { inspectLevelOne } from './level-1.js';
 import { inspectLevelTwo } from './level-2.js';
@@ -108,6 +109,7 @@ export function resolveOptions(options: InspectionOptions): ResolvedInspectionOp
     trace: options.trace ?? false,
     pdf: options.pdf ?? false,
     strict: options.strict ?? false,
+    allowPrivateHosts: options.allowPrivateHosts ?? false,
   };
 }
 
@@ -192,6 +194,12 @@ export class Inspector {
     options: InspectionOptions,
   ): Promise<{ result: InspectionResult; options: ResolvedInspectionOptions }> {
     const resolved = resolveOptions(options);
+    // Dernier verrou (Sprint 20-03, C-W13) : le seul composant qui navigue
+    // re-vérifie la cible, même si l'appelant a sauté la frontière. Le contrôle
+    // reste **syntaxique** : la résolution DNS appartient aux frontières (CLI,
+    // MCP), où elle est injectable et où l'intention de l'utilisateur est connue.
+    assertNavigableUrl(resolved.url, { allowPrivateHosts: resolved.allowPrivateHosts });
+
     const startedAt = this.now();
     const needsCdp = resolved.level !== 'L1' && resolved.browserKind === 'chromium';
     const debugPort = needsCdp ? await this.reservePort() : undefined;
@@ -223,6 +231,21 @@ export class Inspector {
         timeout: resolved.timeout,
         waitUntil: 'load',
       });
+
+      // Une redirection peut viser le réseau interne : la cible **effective**
+      // est re-vérifiée (Sprint 20-03, C-W13). La requête a déjà été émise —
+      // ce garde empêche d'analyser et de publier une page interne, il ne
+      // remplace pas une interception réseau (limite déclarée au § 11).
+      if (navigation.redirected && !resolved.allowPrivateHosts) {
+        const finalHost = new URL(navigation.url).hostname;
+
+        if (isPrivateHost(finalHost)) {
+          throw new InspectionError(
+            'navigate',
+            `redirection vers l’hôte privé « ${finalHost} » refusée.`,
+          );
+        }
+      }
 
       if (resolved.trace) {
         const tracePath = join(resolved.outputDir, 'trace.zip');

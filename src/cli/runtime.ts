@@ -1,6 +1,7 @@
 import { createInterface } from 'node:readline/promises';
 
 import { loadConfig } from '../shared/config.js';
+import type { HostResolver } from '../browser/url-policy.js';
 import { openCliServices, type CliServices, type OpenServicesOptions } from './services.js';
 
 /**
@@ -28,6 +29,13 @@ export interface CliRuntime {
   now(): number;
   /** Confirmation interactive ; `false` si le terminal est absent. */
   confirm(question: string): Promise<boolean>;
+  /**
+   * Résolveur DNS des cibles inspectées (Sprint 20-03, C-W13).
+   *
+   * `undefined` = DNS système, comportement de production. Les tests injectent
+   * une réponse fixe : aucune inspection n'atteint le réseau.
+   */
+  readonly resolveHost?: HostResolver;
   openServices(options: OpenServicesOptions): CliServices;
 }
 
@@ -37,6 +45,7 @@ export interface RuntimeOverrides {
   color?: boolean;
   now?: () => number;
   confirm?: (question: string) => Promise<boolean>;
+  resolveHost?: HostResolver;
   openServices?: (options: OpenServicesOptions) => CliServices;
 }
 
@@ -109,6 +118,7 @@ export function createRuntime(
     color: overrides.color ?? isColorSupported(process.stdout.isTTY === true, source),
     now: overrides.now ?? Date.now,
     confirm: overrides.confirm ?? ((question) => confirmWithReadline(question)),
+    ...(overrides.resolveHost === undefined ? {} : { resolveHost: overrides.resolveHost }),
     openServices:
       overrides.openServices ??
       ((options) => openCliServices(env === undefined ? options : { ...options, env })),

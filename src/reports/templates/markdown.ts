@@ -54,12 +54,12 @@ export class MarkdownTemplate {
     const date = new Date(timestamp).toISOString().replace('T', ' ').substring(0, 16);
 
     return [
-      `# 📊 Rapport d'audit — ${url}`,
+      `# 📊 Rapport d'audit — ${this.text(url)}`,
       '',
-      `- **URL** : ${url}`,
+      `- **URL** : ${this.text(url)}`,
       `- **Date** : ${date} UTC`,
       overallScore === null
-        ? `- **Score global** : ⚪ **indisponible** — ${audit.metadata.scoreReason ?? 'aucune raison fournie'}`
+        ? `- **Score global** : ⚪ **indisponible** — ${this.text(audit.metadata.scoreReason ?? 'aucune raison fournie')}`
         : `- **Score global** : ${this.scoreEmoji(overallScore)} **${String(overallScore)}/100**`,
       `- **Audit ID** : #${String(audit.metadata.id)}`,
     ].join('\n');
@@ -97,9 +97,9 @@ export class MarkdownTemplate {
     const rows: string[] = ['| Dimension | Score | Constats |', '|-----------|-------|----------|'];
     for (const dim of audit.dimensions) {
       rows.push(
-        `| ${dim.dimension} | ${
+        `| ${this.text(dim.dimension)} | ${
           dim.score === null
-            ? `⚪ indisponible${dim.scoreReason === undefined ? '' : ` — ${dim.scoreReason}`}`
+            ? `⚪ indisponible${dim.scoreReason === undefined ? '' : ` — ${this.text(dim.scoreReason)}`}`
             : `${this.scoreEmoji(dim.score)} ${String(dim.score)}/100`
         } | ${String(dim.findingsCount)} |`,
       );
@@ -121,7 +121,7 @@ export class MarkdownTemplate {
 
     const lines = ['## ⚠️ Limites d’interprétation', ''];
     for (const note of notes) {
-      lines.push(`- **${note.dimension}** — ${note.message}`);
+      lines.push(`- **${this.text(note.dimension)}** — ${this.text(note.message)}`);
     }
 
     return lines.join('\n');
@@ -144,7 +144,7 @@ export class MarkdownTemplate {
       '',
       `**Score** : ${
         dim.score === null
-          ? `⚪ indisponible${dim.scoreReason === undefined ? '' : ` — ${dim.scoreReason}`}`
+          ? `⚪ indisponible${dim.scoreReason === undefined ? '' : ` — ${this.text(dim.scoreReason)}`}`
           : `${this.scoreEmoji(dim.score)} ${String(dim.score)}/100`
       } — ${String(dim.findingsCount)} constat(s)`,
     ];
@@ -153,7 +153,7 @@ export class MarkdownTemplate {
       lines.push('', '**Recommandations :**');
       for (const finding of related.slice(0, 5)) {
         if (finding.recommendation) {
-          lines.push(`- ${finding.title} → ${finding.recommendation}`);
+          lines.push(`- ${this.text(finding.title)} → ${this.text(finding.recommendation)}`);
         }
       }
     }
@@ -185,7 +185,7 @@ export class MarkdownTemplate {
         `### ${icons[priority] ?? '⚪'} ${priority.toUpperCase()} (${String(group.length)})`,
       );
       for (const finding of group) {
-        lines.push(`- **${finding.title}** (${finding.dimension})`);
+        lines.push(`- **${this.text(finding.title)}** (${this.text(finding.dimension)})`);
       }
       lines.push('');
     }
@@ -222,7 +222,9 @@ export class MarkdownTemplate {
       lines.push('_Aucune recommandation._');
     } else {
       withRecommendation.forEach((finding, index) => {
-        lines.push(`${String(index + 1)}. **${finding.title}** → ${finding.recommendation ?? ''}`);
+        lines.push(
+          `${String(index + 1)}. **${this.text(finding.title)}** → ${this.text(finding.recommendation ?? '')}`,
+        );
       });
     }
 
@@ -243,8 +245,8 @@ export class MarkdownTemplate {
     const lines: string[] = [
       "# 🔄 Comparaison d'audits",
       '',
-      `- **A (ancien)** : ${auditA.metadata.url} — #${String(auditA.metadata.id)} — ${new Date(auditA.metadata.timestamp).toISOString().substring(0, 10)}`,
-      `- **B (récent)** : ${auditB.metadata.url} — #${String(auditB.metadata.id)} — ${new Date(auditB.metadata.timestamp).toISOString().substring(0, 10)}`,
+      `- **A (ancien)** : ${this.text(auditA.metadata.url)} — #${String(auditA.metadata.id)} — ${new Date(auditA.metadata.timestamp).toISOString().substring(0, 10)}`,
+      `- **B (récent)** : ${this.text(auditB.metadata.url)} — #${String(auditB.metadata.id)} — ${new Date(auditB.metadata.timestamp).toISOString().substring(0, 10)}`,
       '',
       '## 📈 Évolution du score',
       '',
@@ -260,7 +262,7 @@ export class MarkdownTemplate {
 
     for (const delta of deltaScores) {
       lines.push(
-        `| ${delta.dimension} | ${delta.scoreA === null ? 'indisponible' : String(delta.scoreA)} | ${delta.scoreB === null ? 'indisponible' : String(delta.scoreB)} | ${delta.delta === null ? '—' : `${delta.delta > 0 ? '+' : ''}${String(delta.delta)}`} | ${delta.percentage === null ? '—' : `${delta.percentage > 0 ? '+' : ''}${delta.percentage.toFixed(1)}%`} |`,
+        `| ${this.text(delta.dimension)} | ${delta.scoreA === null ? 'indisponible' : String(delta.scoreA)} | ${delta.scoreB === null ? 'indisponible' : String(delta.scoreB)} | ${delta.delta === null ? '—' : `${delta.delta > 0 ? '+' : ''}${String(delta.delta)}`} | ${delta.percentage === null ? '—' : `${delta.percentage > 0 ? '+' : ''}${delta.percentage.toFixed(1)}%`} |`,
       );
     }
 
@@ -281,11 +283,28 @@ export class MarkdownTemplate {
       lines.push('_Aucune recommandation._');
     } else {
       recommendations.forEach((recommendation, index) => {
-        lines.push(`${String(index + 1)}. ${recommendation}`);
+        lines.push(`${String(index + 1)}. ${this.text(recommendation)}`);
       });
     }
 
     return lines.join('\n');
+  }
+
+  /**
+   * Neutralise le balisage contenu dans un texte produit par le site audité
+   * (Sprint 20-03, C-W14).
+   *
+   * Le Markdown est souvent rendu en HTML : un titre de constat qui contient
+   * `<script>` s'exécuterait chez le lecteur du rapport. Les chevrons sont donc
+   * échappés en entités ; le texte reste lisible, mais n'est plus du balisage.
+   * Seuls `<` et `>` sont traités — c'est la décision C-W14 : le reste du
+   * Markdown (gras, listes, liens) conserve sa sémantique d'origine.
+   *
+   * @param value - Texte brut, potentiellement hostile.
+   * @returns Texte inoffensif à insérer dans le document.
+   */
+  private text(value: string): string {
+    return value.replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   /**

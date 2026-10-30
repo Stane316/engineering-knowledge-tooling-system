@@ -45,6 +45,7 @@ function makeContext(
       trace: false,
       pdf: false,
       strict: false,
+      allowPrivateHosts: false,
       ...overrides,
     },
     navigation: {

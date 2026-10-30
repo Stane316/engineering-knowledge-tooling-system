@@ -247,6 +247,23 @@ Le détail (options, sorties JSON, codes) est dans
 
 ---
 
+## 8.1 Contenu non fiable et échappement (Sprint 20-03, C-W14)
+
+Un rapport contient des textes qui viennent du site audité — titres de
+constats, recommandations, messages axe — donc d'une source non fiable.
+
+- **HTML** : chaque texte inséré passe par `escape()` (`&`, `<`, `>`, `"`).
+- **Markdown** : `<` et `>` sont échangés contre `&lt;` / `&gt;` avant
+  insertion (titres, descriptions, recommandations, URL, raisons de score
+  indisponible). Un titre qui contient `<script>` s'affiche littéralement au
+  lieu de s'exécuter chez le lecteur du rapport. Le reste du Markdown (gras,
+  listes, liens) conserve sa sémantique.
+- **Périmètre** : la décision porte sur `<`/`>`. Une chaîne `javascript:` en
+  **texte** n'est pas neutralisée : c'est au rendu final (navigateur, moteur
+  Markdown) d'appliquer sa politique de liens.
+
+---
+
 ## 9. Références
 
 - [Puppeteer](https://pptr.dev/)

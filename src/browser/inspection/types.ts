@@ -59,6 +59,14 @@ export interface InspectionOptions {
   readonly userAgent?: string;
   /** Délai maximal de navigation en millisecondes (défaut : 30 000). */
   readonly timeout?: number;
+  /**
+   * Autorise explicitement une cible privée ou loopback (Sprint 20-03, C-W13).
+   *
+   * Défaut `false` : le navigateur refuse `localhost`, `127.0.0.1`, les plages
+   * RFC 1918 et les adresses lien-local. L'option existe pour l'inspection d'un
+   * poste de développement ; elle ne doit jamais être activée par défaut.
+   */
+  readonly allowPrivateHosts?: boolean;
   /** Moteur (défaut : `chromium`). Les niveaux L2 et L3 l'exigent. */
   readonly browserKind?: InspectionBrowserKind;
   /** Dossier des artefacts (défaut : `artifacts/inspections`). */
@@ -352,6 +360,8 @@ export interface ResolvedInspectionOptions {
   readonly trace: boolean;
   readonly pdf: boolean;
   readonly strict: boolean;
+  /** Exception locale transmise par la frontière (défaut : `false`). */
+  readonly allowPrivateHosts: boolean;
 }
 
 /** Ce qu'un niveau reçoit : session ouverte, page chargée, horloge. */

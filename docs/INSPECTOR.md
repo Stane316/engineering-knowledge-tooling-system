@@ -182,6 +182,7 @@ console.log(reportPath);
 | `trace` | `false` | Trace Playwright (ZIP) |
 | `pdf` | `false` | Impression PDF (Chromium seulement) |
 | `strict` | `false` | Échoue au premier outil indisponible |
+| `allowPrivateHosts` | `false` | Autorise explicitement une cible privée/loopback (Sprint 20-03) |
 
 ### 5.3 Ligne de commande
 
@@ -440,8 +441,23 @@ mode à utiliser pour diagnostiquer, pas pour produire un rapport.
 ## 11. Sécurité
 
 - **Aucun secret** n'est lu ni écrit : les analyses ne demandent aucune clé.
-- Les URL sont passées telles quelles à Playwright ; les schémas non HTTP(S)
-  doivent être filtrés **en amont** par l'appelant (CLI, MCP).
+- **Politique de cible (Sprint 20-03, C-W13).** `Inspector` re-vérifie
+  l'URL avant d'ouvrir la session : schéma `http`/`https` uniquement,
+  identifiants embarqués refusés, hôte privé ou loopback refusé sauf
+  `allowPrivateHosts: true`. C'est le **dernier verrou**, dans le seul
+  composant qui navigue : un appel direct à l'inspecteur ne contourne pas la
+  règle. Le contrôle y est volontairement **syntaxique** — la résolution DNS
+  appartient aux frontières (CLI `--allow-private-hosts`, MCP
+  `allow_private_hosts`), où l'intention de l'appelant est connue et où le
+  résolveur reste injectable en test.
+- Les URL validées sont ouvertes par Playwright ; la résolution DNS n'est pas
+  rejouée ici, et un rebinding entre frontière et navigation n'est pas couvert
+  (limite déclarée).
+- **Redirections.** Après navigation, si la réponse a redirigé et que la cible
+  effective est un hôte privé, l'inspection échoue et la session est refermée :
+  aucune page interne n'est analysée ni publiée. La requête, elle, a déjà été
+  émise — sans interception réseau, ce garde est un refus *a posteriori*, pas
+  une prévention complète.
 - Les artefacts sont écrits **uniquement** sous `outputDir` (créé au besoin).
 - Un rapport peut contenir le texte visible d'une page : ne pas inspecter de
   page authentifiée sans conscience de ce que le JSON conserve.

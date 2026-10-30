@@ -26,6 +26,7 @@ export type BrowserErrorCode =
   | 'ARTIFACT_PATH_ESCAPE'
   | 'URL_NOT_ALLOWED'
   | 'PRIVATE_NETWORK_BLOCKED'
+  | 'DNS_RESOLUTION_FAILED'
   | 'INSPECTION_FAILED';
 
 /** Base commune : message français, code stable, cause préservée. */
@@ -144,7 +145,8 @@ export class UrlNotAllowedError extends BrowserError {
   constructor(
     readonly url: string,
     detail: string,
-    code: 'URL_NOT_ALLOWED' | 'PRIVATE_NETWORK_BLOCKED' = 'URL_NOT_ALLOWED',
+    code:
+      'URL_NOT_ALLOWED' | 'PRIVATE_NETWORK_BLOCKED' | 'DNS_RESOLUTION_FAILED' = 'URL_NOT_ALLOWED',
   ) {
     super(`URL refusée « ${url} » : ${detail}`, code);
   }
