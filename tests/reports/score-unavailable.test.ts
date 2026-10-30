@@ -247,6 +247,7 @@ describe('C-W07 — persistance', () => {
 
   beforeEach(() => {
     db = new Database(':memory:');
+    db.exec('CREATE TABLE projects (id TEXT PRIMARY KEY, name TEXT NOT NULL)');
     new AuditSchema(db).createSchema();
     repository = new AuditRepository(db);
   });
@@ -255,7 +256,7 @@ describe('C-W07 — persistance', () => {
     db.close();
   });
 
-  it('refuse un rapport dont le score global est indisponible (avant migration 010)', async () => {
+  it('persiste le score indisponible avec sa raison, jamais 0 (migration 010)', async () => {
     const report = await new AnalysisPipeline().analyze(
       'https://example.com',
       lighthouse,
@@ -264,8 +265,14 @@ describe('C-W07 — persistance', () => {
       content,
     );
 
-    // Écrire 0 serait la valeur de remplacement interdite par C-W07.
-    expect(() => repository.store(report)).toThrow(/score global indisponible/);
-    expect(db.prepare('SELECT COUNT(*) AS n FROM audit_metadata').get()).toEqual({ n: 0 });
+    const stored = repository.store(report);
+
+    expect(stored.metadata.overallScore).toBeNull();
+    expect(stored.metadata.scoreStatus).toBe('unavailable');
+    expect(stored.metadata.scoreReason).toContain('accessibility');
+    // Aucune ligne ne porte un score de remplacement.
+    expect(
+      db.prepare('SELECT COUNT(*) AS n FROM audit_metadata WHERE overall_score = 0').get(),
+    ).toEqual({ n: 0 });
   });
 });

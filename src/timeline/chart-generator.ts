@@ -1,7 +1,24 @@
 import { deflateSync } from 'node:zlib';
 
 import type { AnalysisDimension } from '../analysis/types.js';
-import type { DimensionTimeline, TimelineAnalysis } from './timeline.types.js';
+import type { DimensionScorePoint, DimensionTimeline, TimelineAnalysis } from './timeline.types.js';
+
+/**
+ * Points réellement mesurés d'une série.
+ *
+ * Sprint 19-03 : un score indisponible (`null`) n'est pas tracé — le dessiner à
+ * `0` afficherait une chute de performance qui n'a pas eu lieu.
+ *
+ * @param scores - Série d'une dimension.
+ * @returns Les points dont le score est un nombre.
+ */
+function measuredPoints(
+  scores: readonly DimensionScorePoint[],
+): Array<DimensionScorePoint & { score: number }> {
+  return scores.filter(
+    (point): point is DimensionScorePoint & { score: number } => point.score !== null,
+  );
+}
 
 /** Formats d'export (C14.5 : PNG et SVG). */
 export type ChartFormat = 'svg' | 'png';
@@ -154,7 +171,7 @@ export class ChartGenerator {
     const seriesList = analysis.dimensionScores.length > 0 ? analysis.dimensionScores : [];
     for (const dimTimeline of seriesList) {
       const color = COLORS[dimTimeline.dimension];
-      const points = dimTimeline.scores;
+      const points = measuredPoints(dimTimeline.scores);
       if (points.length === 0) continue;
       const pathPoints = points.map((point, index) => ({
         x: PADDING.left + (chart.innerWidth / Math.max(points.length - 1, 1)) * index,
@@ -219,9 +236,10 @@ export class ChartGenerator {
       );
     }
 
-    if (dimTimeline.scores.length > 0) {
-      const pathPoints = dimTimeline.scores.map((point, index) => ({
-        x: PADDING.left + (chart.innerWidth / Math.max(dimTimeline.scores.length - 1, 1)) * index,
+    const points = measuredPoints(dimTimeline.scores);
+    if (points.length > 0) {
+      const pathPoints = points.map((point, index) => ({
+        x: PADDING.left + (chart.innerWidth / Math.max(points.length - 1, 1)) * index,
         y: PADDING.top + chart.innerHeight - (point.score / 100) * chart.innerHeight,
       }));
       const path = pathPoints
@@ -296,11 +314,12 @@ export class ChartGenerator {
 
     for (const dimTimeline of seriesList) {
       const color = COLORS[dimTimeline.dimension];
-      const count = dimTimeline.scores.length;
+      const points = measuredPoints(dimTimeline.scores);
+      const count = points.length;
       if (count === 0) continue;
       const xs: number[] = [];
       const ys: number[] = [];
-      for (const [index, point] of dimTimeline.scores.entries()) {
+      for (const [index, point] of points.entries()) {
         xs.push(Math.round(PADDING.left + (chart.innerWidth / Math.max(count - 1, 1)) * index));
         ys.push(
           Math.round(PADDING.top + chart.innerHeight - (point.score / 100) * chart.innerHeight),

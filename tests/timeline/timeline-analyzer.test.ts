@@ -147,6 +147,48 @@ describe('TimelineAnalyzer', () => {
     expect(perf?.scores[0]?.findingsCount).toBe(0);
   });
 
+  it('exclut un score de dimension indisponible des séries et des moyennes', async () => {
+    seedAudits([uniformScores(80)]);
+
+    // Deuxième audit dont la dimension SEO est indisponible (migration 010).
+    const report = makeReport(uniformScores(80));
+    auditRepo.store(
+      {
+        ...report,
+        dimensions: {
+          ...report.dimensions,
+          seo: {
+            dimension: 'seo',
+            score: null,
+            status: 'unavailable',
+            unavailableReason: 'score-absent',
+            findings: [],
+            summary: 'Score SEO indisponible.',
+          },
+        },
+        summary: {
+          ...report.summary,
+          overallScore: {
+            status: 'unavailable',
+            code: 'dimensions-indisponibles',
+            reason: 'seo indisponible',
+            missingDimensions: ['seo'],
+          },
+        },
+      },
+      { projectId },
+    );
+
+    const analysis = await analyzer.analyze(projectId);
+    const seo = analysis.dimensionScores.find((dimension) => dimension.dimension === 'seo');
+
+    expect(seo?.scores.map((point) => point.score)).toEqual([80, null]);
+    // Seul le point mesuré compte : ni 0, ni moyenne faussée.
+    expect(seo?.averageScore).toBe(80);
+    expect(seo?.minScore).toBe(80);
+    expect(seo?.maxScore).toBe(80);
+  });
+
   it("lance ProjectNotFoundError si le projet n'existe pas", async () => {
     await expect(analyzer.analyze('00000000-0000-4000-8000-000000000000')).rejects.toThrow(
       ProjectNotFoundError,

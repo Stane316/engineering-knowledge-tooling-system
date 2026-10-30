@@ -53,7 +53,14 @@ const SCORE_RANGES: ReadonlyArray<{ label: string; min: number; max: number }> =
   { label: '81-100', min: 81, max: 100 },
 ];
 
-/** Agrégat SQL → statistiques typées (NULL = table vide). */
+/**
+ * Agrégat SQL → statistiques typées.
+ *
+ * `NULL` provient d'un ensemble vide **ou** — depuis le Sprint 19-03 — d'aucun
+ * score mesuré (tous les audits sont indisponibles). La convention historique
+ * de l'ensemble vide (`0`) est conservée pour les agrégats ; la tendance, elle,
+ * omet les périodes sans mesure (voir `getTrend`).
+ */
 function toStatistics(row: GlobalRow): AuditStatistics {
   return {
     totalAudits: row.totalAudits,
@@ -129,13 +136,21 @@ export class AuditStatisticsManager {
           ORDER BY date DESC
           LIMIT ?`,
       )
-      .all(limit) as Array<{ date: string; averageScore: number; auditCount: number }>;
+      .all(limit) as Array<{ date: string; averageScore: number | null; auditCount: number }>;
 
-    return rows.map((row) => ({
-      date: row.date,
-      averageScore: Math.round(row.averageScore),
-      auditCount: row.auditCount,
-    }));
+    // Sprint 19-03 : une période dont **aucun** audit n'a de score mesuré
+    // n'a pas de moyenne. `Math.round(null)` valait `0` (et `NaN` pour une
+    // valeur absente) : le point est simplement omis plutôt qu'inventé.
+    return rows
+      .filter(
+        (row): row is { date: string; averageScore: number; auditCount: number } =>
+          row.averageScore !== null,
+      )
+      .map((row) => ({
+        date: row.date,
+        averageScore: Math.round(row.averageScore),
+        auditCount: row.auditCount,
+      }));
   }
 
   /**

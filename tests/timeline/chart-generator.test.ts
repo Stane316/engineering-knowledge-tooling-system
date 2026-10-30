@@ -101,6 +101,18 @@ describe('ChartGenerator', () => {
     expect(svg).toContain('Site &amp; &lt;exemple&gt;');
   });
 
+  it('ne trace pas un point dont le score est indisponible', () => {
+    const timeline = makeTimeline({ performance: [60, 80, 90] });
+    const performance = timeline.dimensionScores.find((entry) => entry.dimension === 'performance');
+    if (performance === undefined) throw new Error('série performance absente');
+    performance.scores[1]!.score = null;
+
+    const svg = generator.generateTimelineChart(timeline, 'svg') as string;
+
+    expect(svg).not.toContain('NaN');
+    expect(svg).toContain('path d="M');
+  });
+
   it('génère un SVG pour une dimension spécifique', () => {
     const svg = generator.generateDimensionChart(SAMPLE, 'performance', 'svg') as string;
 

@@ -31,7 +31,9 @@ function makeTimeline(
       id: index + 1,
       url: 'https://example.com',
       timestamp: new Date(base + index * 86_400_000).toISOString(),
-      overallScore: Math.round(dimensions.reduce((sum, d) => sum + d.score, 0) / dimensions.length),
+      overallScore: Math.round(
+        dimensions.reduce((sum, d) => sum + (d.score ?? 0), 0) / dimensions.length,
+      ),
       totalFindings: 0,
       criticalFindings: 0,
       highFindings: 0,

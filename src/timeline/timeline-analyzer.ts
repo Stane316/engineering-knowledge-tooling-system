@@ -127,7 +127,8 @@ export class TimelineAnalyzer {
       return {
         auditId: audit.metadata.id ?? 0,
         date: new Date(audit.metadata.timestamp),
-        score: row?.score ?? 0,
+        // Aucun `0` de remplacement : un score absent ou indisponible reste `null`.
+        score: row?.score ?? null,
         findingsCount: row?.findingsCount ?? 0,
       };
     });
@@ -143,7 +144,28 @@ export class TimelineAnalyzer {
       };
     }
 
-    const total = scores.reduce((sum, point) => sum + point.score, 0);
+    // Seuls les points réellement mesurés participent aux statistiques.
+    const measured = scores
+      .map((point) => point.score)
+      .filter((score): score is number => score !== null);
+
+    if (measured.length === 0) {
+      return {
+        dimension,
+        scores,
+        trend: {
+          direction: 'stable',
+          slope: 0,
+          confidence: 0,
+          description: 'Aucun score mesuré',
+        },
+        averageScore: 0,
+        minScore: 0,
+        maxScore: 0,
+      };
+    }
+
+    const total = measured.reduce((sum, score) => sum + score, 0);
     return {
       dimension,
       scores,
@@ -153,9 +175,9 @@ export class TimelineAnalyzer {
         confidence: 0,
         description: 'À calculer par TrendDetector',
       },
-      averageScore: total / scores.length,
-      minScore: Math.min(...scores.map((point) => point.score)),
-      maxScore: Math.max(...scores.map((point) => point.score)),
+      averageScore: total / measured.length,
+      minScore: Math.min(...measured),
+      maxScore: Math.max(...measured),
     };
   }
 }

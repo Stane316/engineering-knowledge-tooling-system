@@ -10,6 +10,7 @@ import { migration006Recommendations } from './006_recommendations.js';
 import { migration007Templates } from './007_templates.js';
 import { migration008ProjectConfig } from './008_project_config.js';
 import { migration009InfoFindings } from './009_info_findings.js';
+import { migration010ScoreAvailability } from './010_score_availability.js';
 
 export interface Migration {
   version: number;
@@ -31,6 +32,7 @@ export const migrations: readonly Migration[] = [
   { version: 7, name: 'templates', up: migration007Templates },
   { version: 8, name: 'project-config', up: migration008ProjectConfig },
   { version: 9, name: 'info-findings', up: migration009InfoFindings },
+  { version: 10, name: 'score-availability', up: migration010ScoreAvailability },
 ];
 
 interface MigrationRow {

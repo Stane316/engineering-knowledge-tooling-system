@@ -22,7 +22,15 @@ interface MetadataRow {
   id: number;
   url: string;
   timestamp: string;
-  overall_score: number;
+  /**
+   * Score global (migration 010). `null` = score indisponible, jamais `0` de
+   * remplacement.
+   */
+  overall_score: number | null;
+  /** État du score (migration 010) ; absent d'une base antérieure. */
+  score_status?: string | null;
+  /** Raison de l'indisponibilité (migration 010) ; absente d'une base antérieure. */
+  score_reason?: string | null;
   total_findings: number;
   critical_findings: number;
   high_findings: number;
@@ -43,7 +51,12 @@ interface DimensionRow {
   id: number;
   audit_id: number;
   dimension: AnalysisDimension;
-  score: number;
+  /** Score de la dimension (migration 010) ; `null` = indisponible. */
+  score: number | null;
+  /** État du score (migration 010) ; absent d'une base antérieure. */
+  score_status?: string | null;
+  /** Raison de l'indisponibilité (migration 010) ; absente d'une base antérieure. */
+  score_reason?: string | null;
   findings_count: number;
 }
 
@@ -183,33 +196,28 @@ export class AuditRepository {
   store(report: AnalysisReport, options: { readonly projectId?: string | null } = {}): Audit {
     validateAnalysisReport(report);
 
-    // Sprint 19-03 : un score indisponible n'est pas encore persistable
-    // (colonne `overall_score` NOT NULL) — la migration 010 lèvera cette
-    // limite. Refuser est le seul comportement honnête : écrire 0 serait
-    // exactement la valeur de remplacement interdite par C-W07.
+    // Sprint 19-03 (C-W07) : un score indisponible est persisté comme `NULL`
+    // accompagné de sa raison (migration 010) — jamais comme `0`.
     const overallScore = report.summary.overallScore;
-    if (overallScore.status === 'unavailable') {
-      throw new ValidationError([
-        "score global indisponible : cet audit n'est pas persistable en l'état " +
-          `(${overallScore.reason})`,
-      ]);
-    }
+    const overallScoreValue = overallScore.status === 'measured' ? overallScore.value : null;
+    const overallScoreReason = overallScore.status === 'unavailable' ? overallScore.reason : null;
     const projectId = options.projectId ?? null;
 
     const transaction = this.db.transaction((): Audit => {
       const metadataResult = this.db
         .prepare(
           `INSERT INTO audit_metadata (
-             url, timestamp, overall_score, total_findings,
+             url, timestamp, overall_score, score_status, score_reason, total_findings,
              critical_findings, high_findings, medium_findings, low_findings,
              info_findings, project_id
-           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .run(
           report.url,
           report.timestamp,
-          // Le garde-fou ci-dessus garantit `status === 'measured'`.
-          overallScore.value,
+          overallScoreValue,
+          overallScore.status,
+          overallScoreReason,
           report.summary.totalFindings,
           report.summary.criticalFindings,
           report.summary.highFindings,
@@ -222,16 +230,29 @@ export class AuditRepository {
       const auditId = Number(metadataResult.lastInsertRowid);
 
       const dimensionStatement = this.db.prepare(
-        `INSERT INTO audit_dimensions (audit_id, dimension, score, findings_count)
-         VALUES (?, ?, ?, ?)`,
+        `INSERT INTO audit_dimensions
+           (audit_id, dimension, score, score_status, score_reason, findings_count)
+         VALUES (?, ?, ?, ?, ?, ?)`,
       );
       const dimensions: AuditDimension[] = DIMENSIONS.map((dimension) => {
         const score = report.dimensions[dimension];
         const findingsCount = score?.findings.length ?? 0;
-        const effectiveScore = score?.score ?? 0;
-        dimensionStatement.run(auditId, dimension, effectiveScore, findingsCount);
+        // Sprint 19-03 (migration 010) : un score de dimension indisponible est
+        // persisté comme `NULL` avec sa raison — jamais comme `0`.
+        const effectiveScore = score?.score ?? null;
+        const status = effectiveScore === null ? 'unavailable' : 'measured';
+        const reason =
+          effectiveScore === null ? (score?.unavailableReason ?? 'raison non fournie') : null;
+        dimensionStatement.run(auditId, dimension, effectiveScore, status, reason, findingsCount);
 
-        return { auditId, dimension, score: effectiveScore, findingsCount };
+        return {
+          auditId,
+          dimension,
+          score: effectiveScore,
+          scoreStatus: status,
+          ...(reason === null ? {} : { scoreReason: reason }),
+          findingsCount,
+        };
       });
 
       const findingStatement = this.db.prepare(
@@ -272,12 +293,9 @@ export class AuditRepository {
           id: auditId,
           url: report.url,
           timestamp: report.timestamp,
-          // Le score indisponible a été refusé plus haut : ici il est mesuré.
-          overallScore:
-            report.summary.overallScore.status === 'measured'
-              ? report.summary.overallScore.value
-              : null,
-          scoreStatus: 'measured',
+          overallScore: overallScoreValue,
+          scoreStatus: overallScore.status,
+          ...(overallScoreReason === null ? {} : { scoreReason: overallScoreReason }),
           totalFindings: report.summary.totalFindings,
           criticalFindings: report.summary.criticalFindings,
           highFindings: report.summary.highFindings,
@@ -448,6 +466,17 @@ export class AuditRepository {
       url: row.url,
       timestamp: row.timestamp,
       overallScore: row.overall_score,
+      // Une base antérieure à la migration 010 n'a pas les colonnes : l'état se
+      // déduit alors de la présence d'un score.
+      scoreStatus:
+        row.score_status === 'unavailable' || row.score_status === 'measured'
+          ? row.score_status
+          : row.overall_score === null
+            ? 'unavailable'
+            : 'measured',
+      ...(row.score_reason === null || row.score_reason === undefined
+        ? {}
+        : { scoreReason: row.score_reason }),
       totalFindings: row.total_findings,
       criticalFindings: row.critical_findings,
       highFindings: row.high_findings,
@@ -466,6 +495,15 @@ export class AuditRepository {
       auditId: row.audit_id,
       dimension: row.dimension,
       score: row.score,
+      scoreStatus:
+        row.score_status === 'unavailable' || row.score_status === 'measured'
+          ? row.score_status
+          : row.score === null
+            ? 'unavailable'
+            : 'measured',
+      ...(row.score_reason === null || row.score_reason === undefined
+        ? {}
+        : { scoreReason: row.score_reason }),
       findingsCount: row.findings_count,
     };
   }

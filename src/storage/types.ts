@@ -61,7 +61,7 @@ export interface AuditMetadata {
   createdAt?: string;
 }
 
-/** Score d'une dimension spécifique (0-100). */
+/** Score d'une dimension spécifique (0-100), éventuellement indisponible. */
 export interface AuditDimension {
   /** Identifiant de ligne (absent avant insertion). */
   id?: number;
@@ -69,8 +69,20 @@ export interface AuditDimension {
   auditId: number;
   /** Dimension analysée. */
   dimension: AnalysisDimension;
-  /** Score de la dimension (0-100). */
-  score: number;
+  /**
+   * Score de la dimension (0-100).
+   *
+   * Sprint 19-03 (migration 010) : `null` signifie « score indisponible » et
+   * n'est jamais un `0` de remplacement ; `scoreReason` explique alors pourquoi.
+   */
+  score: number | null;
+  /**
+   * État du score : `measured` (valeur réelle) ou `unavailable`
+   * (`score` vaut alors `null`).
+   */
+  scoreStatus?: 'measured' | 'unavailable';
+  /** Raison de l'indisponibilité, quand `scoreStatus` vaut `unavailable`. */
+  scoreReason?: string;
   /** Nombre de constats de la dimension. */
   findingsCount: number;
 }

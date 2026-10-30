@@ -196,7 +196,13 @@ ${body}
         (dim) => `
           <tr>
             <td>${this.escape(dim.dimension)}</td>
-            <td><span class="score ${this.scoreClass(dim.score)}">${String(dim.score)}/100</span></td>
+            <td>${
+              dim.score === null
+                ? `<span class="score score-unavailable">indisponible${
+                    dim.scoreReason === undefined ? '' : ` — ${this.escape(dim.scoreReason)}`
+                  }</span>`
+                : `<span class="score ${this.scoreClass(dim.score)}">${String(dim.score)}/100</span>`
+            }</td>
             <td>${String(dim.findingsCount)}</td>
           </tr>`,
       )

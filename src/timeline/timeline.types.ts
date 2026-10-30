@@ -14,8 +14,13 @@ export interface DimensionScorePoint {
   auditId: number;
   /** Horodatage de l'audit (Date). */
   date: Date;
-  /** Score de la dimension (0-100). */
-  score: number;
+  /**
+   * Score de la dimension (0-100), `null` si indisponible.
+   *
+   * Sprint 19-03 : un score indisponible n'est jamais tracé ni moyenné comme
+   * un `0` ; les points non mesurés sont ignorés par les séries et les calculs.
+   */
+  score: number | null;
   /** Nombre de constats de la dimension. */
   findingsCount: number;
 }

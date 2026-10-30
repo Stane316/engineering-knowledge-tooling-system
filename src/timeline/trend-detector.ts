@@ -151,7 +151,10 @@ export class TrendDetector {
    * @returns Tendance classée (stable si < 2 points).
    */
   private calculateTrend(dimensionTimeline: DimensionTimeline): Trend {
-    const recentScores = dimensionTimeline.scores.slice(-this.config.windowSize);
+    // Sprint 19-03 : un point non mesuré ne participe pas à la régression.
+    const recentScores = dimensionTimeline.scores
+      .slice(-this.config.windowSize)
+      .filter((point): point is DimensionScorePoint & { score: number } => point.score !== null);
     if (recentScores.length < 2) {
       return {
         direction: 'stable',
@@ -236,11 +239,14 @@ function linearRegression(points: readonly DimensionScorePoint[]): {
   slope: number;
   rSquared: number;
 } {
-  const n = points.length;
+  const measured = points.filter(
+    (point): point is DimensionScorePoint & { score: number } => point.score !== null,
+  );
+  const n = measured.length;
   if (n < 2) return { slope: 0, rSquared: 0 };
 
-  const xValues = points.map((_, index) => index);
-  const yValues = points.map((point) => point.score);
+  const xValues = measured.map((_, index) => index);
+  const yValues = measured.map((point) => point.score);
   const xMean = xValues.reduce((sum, x) => sum + x, 0) / n;
   const yMean = yValues.reduce((sum, y) => sum + y, 0) / n;
 

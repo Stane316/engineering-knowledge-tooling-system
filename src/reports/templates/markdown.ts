@@ -95,7 +95,11 @@ export class MarkdownTemplate {
     const rows: string[] = ['| Dimension | Score | Constats |', '|-----------|-------|----------|'];
     for (const dim of audit.dimensions) {
       rows.push(
-        `| ${dim.dimension} | ${this.scoreEmoji(dim.score)} ${String(dim.score)}/100 | ${String(dim.findingsCount)} |`,
+        `| ${dim.dimension} | ${
+          dim.score === null
+            ? `⚪ indisponible${dim.scoreReason === undefined ? '' : ` — ${dim.scoreReason}`}`
+            : `${this.scoreEmoji(dim.score)} ${String(dim.score)}/100`
+        } | ${String(dim.findingsCount)} |`,
       );
     }
     return ['## 🎯 Scores par dimension', '', ...rows].join('\n');
@@ -116,7 +120,11 @@ export class MarkdownTemplate {
     const lines: string[] = [
       `## ${this.dimensionIcon(dimension)} ${this.dimensionLabel(dimension)}`,
       '',
-      `**Score** : ${this.scoreEmoji(dim.score)} ${String(dim.score)}/100 — ${String(dim.findingsCount)} constat(s)`,
+      `**Score** : ${
+        dim.score === null
+          ? `⚪ indisponible${dim.scoreReason === undefined ? '' : ` — ${dim.scoreReason}`}`
+          : `${this.scoreEmoji(dim.score)} ${String(dim.score)}/100`
+      } — ${String(dim.findingsCount)} constat(s)`,
     ];
 
     if (related.length > 0) {

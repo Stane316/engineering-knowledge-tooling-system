@@ -39,13 +39,16 @@ export class AuditSchema {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         url TEXT NOT NULL,
         timestamp TEXT NOT NULL,
-        overall_score INTEGER NOT NULL CHECK (overall_score BETWEEN 0 AND 100),
+        overall_score INTEGER CHECK (overall_score BETWEEN 0 AND 100),
         total_findings INTEGER NOT NULL CHECK (total_findings >= 0),
         critical_findings INTEGER NOT NULL CHECK (critical_findings >= 0),
         high_findings INTEGER NOT NULL CHECK (high_findings >= 0),
         medium_findings INTEGER NOT NULL CHECK (medium_findings >= 0),
         low_findings INTEGER NOT NULL CHECK (low_findings >= 0),
         info_findings INTEGER NOT NULL DEFAULT 0 CHECK (info_findings >= 0),
+        score_status TEXT NOT NULL DEFAULT 'measured'
+          CHECK (score_status IN ('measured', 'unavailable')),
+        score_reason TEXT,
         project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       )
@@ -58,7 +61,10 @@ export class AuditSchema {
         dimension TEXT NOT NULL CHECK (
           dimension IN ('performance', 'accessibility', 'seo', 'ux', 'content')
         ),
-        score INTEGER NOT NULL CHECK (score BETWEEN 0 AND 100),
+        score INTEGER CHECK (score BETWEEN 0 AND 100),
+        score_status TEXT NOT NULL DEFAULT 'measured'
+          CHECK (score_status IN ('measured', 'unavailable')),
+        score_reason TEXT,
         findings_count INTEGER NOT NULL CHECK (findings_count >= 0),
         FOREIGN KEY (audit_id) REFERENCES audit_metadata(id) ON DELETE CASCADE
       )
