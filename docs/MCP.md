@@ -61,11 +61,28 @@ npm run mcp
 | `full` | les dix-sept | `mode` par défaut `hybrid` (comportement historique) |
 
 **Échec fermé.** Le contrôle s'applique à la découverte (`tools/list`) **et** à
-l'exécution : appeler un nom connu mais masqué échoue avec `-32601`
-`MethodNotFound`, distinct d'une entrée invalide (`-32602`). Une valeur vide,
-malformée ou inconnue **refuse le démarrage** (code de sortie non nul, trace
-JSON sur `stderr`) : aucune bascule silencieuse vers le profil complet. Une
-politique sans outil autorisé est refusée à la construction.
+l'exécution : le chemin d'exécution direct refuse un nom connu mais masqué avec
+`-32601` `MethodNotFound` et `data { profile, allowed }`, distinct d'une entrée
+invalide (`-32602`). Une valeur vide, malformée ou inconnue **refuse le
+démarrage** (code de sortie non nul, trace JSON sur `stderr`) : aucune bascule
+silencieuse vers le profil complet. Une politique sans outil autorisé est
+refusée à la construction.
+
+**Mode explicite.** Sous profil `read`, `search_knowledge` exige un `mode`
+valant exactement `"fts"`. Le mode est lu dans les **arguments bruts**, avant
+la validation Zod et donc avant l'application du défaut `hybrid` : un mode omis
+n'est jamais comblé, un `hybrid` ou `vector` demandé n'atteint ni le fournisseur
+d'embeddings ni le réseau. Le refus est un `-32602` portant
+`data { profile, requiredMode: "fts" }` — le champ `requiredMode` distingue ce
+refus d'une entrée simplement mal formée. Aucun repli ni conversion de mode
+n'existe : sous profil complet, le défaut `hybrid` historique reste inchangé.
+
+**Deux codes observables, un seul refus.** Au niveau du protocole, un outil
+masqué n'est pas enregistré : le SDK répond alors lui-même
+`MCP error -32602: Tool <nom> not found`, ce qui est un refus par **absence de
+l'outil**. Le `-32601` apparaît sur le chemin d'exécution direct
+(`dispatchTool`). Les deux sont des refus ; aucun ne dépend d'une entrée
+invalide.
 
 **Limites.** Le profil restreint ce que le serveur expose et exécute. Il ne
 restreint ni les fichiers, ni le réseau, ni les autres processus : l'isolation

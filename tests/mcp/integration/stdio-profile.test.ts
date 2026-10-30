@@ -219,3 +219,196 @@ describe('binaire MCP — profil de lecture (C-P01, C-P04)', () => {
     }
   });
 });
+
+/**
+ * Extrait l'échec d'un `tools/call`.
+ *
+ * Deux formes coexistent et cette différence est mesurée, pas contournée :
+ *
+ * - notre `dispatchTool` renvoie une **charge utile JSON** dans le texte
+ *   (`{ "error": { "code", "message", "data" } }`) ;
+ * - un nom **non enregistré** est refusé par le SDK avant d'atteindre notre
+ *   code, sous la forme brute `MCP error -32602: Tool X not found`.
+ *
+ * Le second cas est l'écart E21-1 : le code du protocole est celui du SDK,
+ * alors que le chemin d'exécution direct rend `-32601` (décision du
+ * propriétaire). C-P02 accepte un refus « à cause du profil **ou de l'absence
+ * de l'outil** » ; les deux formes sont donc conformes, et les distinguer
+ * importe plus que de les confondre.
+ */
+interface ToolFailure {
+  readonly code: number | undefined;
+  readonly message: string;
+  readonly data?: Record<string, unknown>;
+}
+
+function toolFailure(response: JsonRpcResponse): ToolFailure | undefined {
+  const result = response.result as
+    { isError?: boolean; content?: { type?: string; text?: string }[] } | undefined;
+
+  if (result?.isError !== true) {
+    return undefined;
+  }
+
+  const text =
+    result.content
+      ?.map((part) => part.text ?? '')
+      .filter((part) => part.length > 0)
+      .join('\n') ?? '';
+
+  try {
+    const parsed = JSON.parse(text) as {
+      error?: { code?: number; message?: string; data?: Record<string, unknown> };
+    };
+
+    if (parsed.error !== undefined) {
+      return {
+        code: parsed.error.code,
+        message: parsed.error.message ?? text,
+        ...(parsed.error.data === undefined ? {} : { data: parsed.error.data }),
+      };
+    }
+  } catch {
+    // Texte brut du SDK : traité ci-dessous.
+  }
+
+  const match = /MCP error (-?\d+): ([\s\S]*)/.exec(text);
+
+  return {
+    code: match?.[1] === undefined ? undefined : Number(match[1]),
+    message: match?.[2] ?? text,
+  };
+}
+
+describe('binaire MCP — appels directs sous profil de lecture (C-P02, C-P08)', () => {
+  let dataDir: string;
+
+  beforeAll(() => {
+    if (!existsSync(SERVER)) {
+      spawnSync(process.execPath, [TSC, '-p', 'tsconfig.build.json'], { stdio: 'inherit' });
+    }
+
+    expect(existsSync(SERVER)).toBe(true);
+    dataDir = createDataDir();
+  });
+
+  afterAll(() => {
+    removeDataDir(dataDir);
+  });
+
+  /**
+   * Ouvre une session `read` et la ferme systématiquement.
+   *
+   * Les paramètres sont écrits **bruts** : aucun client SDK ne peut réparer un
+   * mode omis ni pré-remplir un défaut avant l'envoi.
+   */
+  async function withReadProfile(body: (probe: StdioProbe) => Promise<void>): Promise<void> {
+    const probe = new StdioProbe({
+      EKTS_DATA_DIR: dataDir,
+      EKTS_MCP_PROFILE: 'read',
+      EKTS_OFFLINE: '1',
+      MCP_LOG_LEVEL: 'debug',
+    });
+
+    try {
+      await probe.initialize();
+      await body(probe);
+    } finally {
+      await probe.close();
+    }
+  }
+
+  it('refuse un outil masqué avec des arguments valides', async () => {
+    await withReadProfile(async (probe) => {
+      const response = await probe.request('tools/call', {
+        name: 'list_projects',
+        arguments: { limit: 5 },
+      });
+      const failure = toolFailure(response);
+
+      expect(failure).toBeDefined();
+      // E21-1 : le nom n'est pas enregistré, donc le SDK répond « not found ».
+      // C-P02 compte ce refus comme « absence de l'outil ».
+      expect(failure?.message).toMatch(/list_projects/);
+      expect(failure?.message).toMatch(/not found/i);
+    });
+  });
+
+  it('refuse « inspect_site » sans tenter le réseau', async () => {
+    await withReadProfile(async (probe) => {
+      const response = await probe.request('tools/call', {
+        name: 'inspect_site',
+        arguments: { url: 'https://example.test/', level: 'L3' },
+      });
+      const failure = toolFailure(response);
+
+      expect(failure).toBeDefined();
+      expect(failure?.message).toMatch(/inspect_site/);
+      expect(failure?.message).toMatch(/not found/i);
+    });
+  });
+
+  it('refuse un mode omis avant que le défaut « hybrid » ne s’applique', async () => {
+    await withReadProfile(async (probe) => {
+      const response = await probe.request('tools/call', {
+        name: 'search_knowledge',
+        arguments: { query: 'SQLite' },
+      });
+      const failure = toolFailure(response);
+
+      expect(response.result?.['isError']).toBe(true);
+      // Sans fournisseur configuré, un défaut `hybrid` aurait produit -32603
+      // (erreur d'embeddings) : -32602 avec `requiredMode` identifie le refus
+      // de politique.
+      expect(failure?.code).toBe(-32602);
+      expect(failure?.data).toMatchObject({ profile: 'read', requiredMode: 'fts' });
+      expect(failure?.message).toMatch(/mode/i);
+    });
+  });
+
+  it('refuse « hybrid » et « vector » explicitement demandés', async () => {
+    await withReadProfile(async (probe) => {
+      for (const mode of ['hybrid', 'vector']) {
+        const response = await probe.request('tools/call', {
+          name: 'search_knowledge',
+          arguments: { query: 'SQLite', mode },
+        });
+        const failure = toolFailure(response);
+
+        expect(failure?.code, mode).toBe(-32602);
+        expect(failure?.data, mode).toMatchObject({ profile: 'read', requiredMode: 'fts' });
+      }
+    });
+  });
+
+  it('accepte « fts » explicite sur la base vide (0 résultat, pas une erreur)', async () => {
+    await withReadProfile(async (probe) => {
+      const response = await probe.request('tools/call', {
+        name: 'search_knowledge',
+        arguments: { query: 'SQLite', mode: 'fts' },
+      });
+
+      expect(response.error).toBeUndefined();
+      expect(response.result?.['isError']).toBeFalsy();
+
+      const text = (response.result?.['content'] as { text?: string }[] | undefined)?.[0]?.text;
+      const payload = JSON.parse(text ?? '{}') as { mode?: string; count?: number };
+
+      expect(payload.mode).toBe('fts');
+      expect(payload.count).toBe(0);
+    });
+  });
+
+  it('un nom qui n’existe dans aucune politique reste refusé (-32602 du SDK)', async () => {
+    await withReadProfile(async (probe) => {
+      const response = await probe.request('tools/call', {
+        name: 'outil_fantome_2027',
+        arguments: {},
+      });
+      const failure = toolFailure(response);
+
+      expect(failure?.message).toMatch(/outil_fantome_2027/);
+      expect(failure?.message).toMatch(/not found/i);
+    });
+  });
+});

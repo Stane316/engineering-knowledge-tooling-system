@@ -60,7 +60,7 @@ export interface ToolDefinition {
   readonly description: string;
 }
 
-/** Les quatorze outils (MVP-2 + S13 projets + S14 timeline + S15 BP), ordre stable. */
+/** Les dix-sept outils (MVP-2 + S13 projets + S14 timeline + S15 BP + S16 + S17), ordre stable. */
 export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   { name: 'search_knowledge', description: TOOL_DESCRIPTIONS.search_knowledge },
   { name: 'get_resource', description: TOOL_DESCRIPTIONS.get_resource },
@@ -80,6 +80,51 @@ export const TOOL_DEFINITIONS: readonly ToolDefinition[] = [
   { name: 'list_templates', description: TOOL_DESCRIPTIONS.list_templates },
   { name: 'apply_template', description: TOOL_DESCRIPTIONS.apply_template },
 ];
+
+/**
+ * Lit le mode déclaré tel quel dans les arguments bruts.
+ *
+ * Volontairement indépendant de Zod : la valeur renvoyée est celle que le
+ * client a écrite, `undefined` s'il n'a rien écrit (ou si `args` n'est pas un
+ * objet). Aucun défaut n'est appliqué.
+ *
+ * @param args - Arguments bruts reçus du client.
+ * @returns Le mode demandé, ou `undefined` s'il est absent.
+ */
+function readRequestedMode(args: unknown): unknown {
+  if (typeof args !== 'object' || args === null || Array.isArray(args)) {
+    return undefined;
+  }
+
+  return (args as Record<string, unknown>)['mode'];
+}
+
+/**
+ * Exige un mode `fts` explicitement fourni (profil de lecture).
+ *
+ * @param profile - Politique en vigueur (pour le contexte de l'erreur).
+ * @param args - Arguments bruts reçus du client.
+ * @throws {McpError} Mode omis, ou différent de `fts` (`-32602`).
+ */
+function assertExplicitFtsMode(profile: McpProfilePolicy, args: unknown): void {
+  const requested = readRequestedMode(args);
+
+  if (requested === 'fts') {
+    return;
+  }
+
+  const data: Record<string, unknown> = { profile: profile.name, requiredMode: 'fts' };
+  const message =
+    requested === undefined
+      ? `Sous le profil « ${profile.name} », le mode de recherche doit être fourni explicitement et valoir « fts » (mode omis).`
+      : `Sous le profil « ${profile.name} », seul le mode « fts » est autorisé (mode reçu : « ${String(requested)} »).`;
+
+  if (requested !== undefined) {
+    data['received'] = requested;
+  }
+
+  throw invalidParams(message, data);
+}
 
 /**
  * Exécute un outil après validation de ses paramètres.
@@ -108,6 +153,14 @@ export async function dispatchTool(
       profile: profile.name,
       allowed: [...profile.tools],
     });
+  }
+
+  // Garde de mode (Sprint 21-02, C-P08) : le mode est lu dans les arguments
+  // **bruts**, avant `parse` et donc avant l'injection du défaut `hybrid`. Un
+  // contrôle placé après validation verrait toujours un mode et ne pourrait
+  // plus distinguer une omission d'un `hybrid` demandé.
+  if (profile?.requireExplicitFtsMode === true && name === 'search_knowledge') {
+    assertExplicitFtsMode(profile, args);
   }
 
   switch (name) {

@@ -1,3 +1,4 @@
+import type { IEmbeddingsService } from '../../src/business/embeddings.js';
 import type { CreateResourceInput, Resource } from '../../src/shared/validators.js';
 import { openMcpServices, type McpServices } from '../../src/mcp/context.js';
 import { createDataDir, fakeEmbeddings, removeDataDir } from '../cli/helpers.js';
@@ -18,8 +19,13 @@ export interface TestServices {
 }
 
 export interface OpenTestServicesOptions {
-  /** Fournit un service d'embeddings déterministe (aucun réseau). */
-  readonly embeddings?: boolean;
+  /**
+   * Fournit un service d'embeddings déterministe (aucun réseau).
+   *
+   * `true` branche le fournisseur factice standard ; passer une instance
+   * permet d'**observer** les appels (Sprint 21-02, C-P08).
+   */
+  readonly embeddings?: boolean | IEmbeddingsService;
 }
 
 /**
@@ -29,10 +35,17 @@ export interface OpenTestServicesOptions {
  */
 export function openTestServices(options: OpenTestServicesOptions = {}): TestServices {
   const dataDir = createDataDir();
+  const embeddings =
+    options.embeddings === undefined || options.embeddings === false
+      ? undefined
+      : options.embeddings === true
+        ? fakeEmbeddings()
+        : options.embeddings;
+
   const services = openMcpServices({
     dataDir,
     env: {},
-    ...(options.embeddings === true ? { embeddings: fakeEmbeddings() } : {}),
+    ...(embeddings === undefined ? {} : { embeddings }),
   });
 
   return {
