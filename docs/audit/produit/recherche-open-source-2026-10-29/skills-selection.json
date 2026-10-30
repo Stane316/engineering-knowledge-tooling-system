@@ -1,0 +1,1464 @@
+{
+  "collected_utc": "2026-10-29T17:04:58.542904+00:00",
+  "method": "Selected SKILL.md read at recorded commit; parsed YAML and simple word signals are not a security or license audit; file content not copied",
+  "total": 42,
+  "skills": [
+    {
+      "repository": "bytedance/deer-flow",
+      "commit": "81e1ab8dcc86574cfac0ecdfe3636b775a08c567",
+      "path": "skills/public/deep-research/SKILL.md",
+      "source": "https://github.com/bytedance/deer-flow/blob/81e1ab8dcc86574cfac0ecdfe3636b775a08c567/skills/public/deep-research/SKILL.md",
+      "status": "ok",
+      "sha256": "04712f4daa7937cc1f8dabc1a086a9549e670eb3fa3f1a8d30abdc3ea8b31a79",
+      "bytes": 7879,
+      "frontmatter": {
+        "name": "deep-research",
+        "description": "Use this skill instead of WebSearch for ANY question requiring web research. Trigger on queries like \"what is X\", \"explain X\", \"compare X and Y\", \"research X\", or before content generation tasks. Provides systematic multi-angle research methodology instead of single superficial searches. Use this proactively when the user's question needs online information."
+      },
+      "headings": [
+        "Deep Research Skill",
+        "Overview",
+        "When to Use This Skill",
+        "Research Questions",
+        "Content Generation (Pre-research)",
+        "Core Principle",
+        "Research Methodology",
+        "Phase 1: Broad Exploration",
+        "Phase 2: Deep Dive",
+        "Phase 3: Diversity & Validation",
+        "Phase 4: Synthesis Check",
+        "Search Strategy Tips",
+        "Effective Query Patterns",
+        "Be specific with context",
+        "Include authoritative source hints",
+        "Search for specific content types",
+        "Use temporal qualifiers — always use the ACTUAL current year from <current_date>",
+        "Temporal Awareness",
+        "When to Use web_fetch",
+        "Iterative Refinement",
+        "Quality Bar",
+        "Common Mistakes to Avoid",
+        "Output"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "bytedance/deer-flow",
+      "commit": "81e1ab8dcc86574cfac0ecdfe3636b775a08c567",
+      "path": "skills/public/github-deep-research/SKILL.md",
+      "source": "https://github.com/bytedance/deer-flow/blob/81e1ab8dcc86574cfac0ecdfe3636b775a08c567/skills/public/github-deep-research/SKILL.md",
+      "status": "ok",
+      "sha256": "b6a19fa2cf70b60a4cc920d8ebee079b6126eaa483eb612abe346dcbb0b02683",
+      "bytes": 5257,
+      "frontmatter": {
+        "name": "github-deep-research",
+        "description": "Conduct multi-round deep research on any GitHub Repo. Use when users request comprehensive analysis, timeline reconstruction, competitive analysis, or in-depth investigation of GitHub. Produces structured markdown reports with executive summaries, chronological timelines, metrics analysis, and Mermaid diagrams. Triggers on Github repository URL or open source projects."
+      },
+      "headings": [
+        "GitHub Deep Research Skill",
+        "Research Workflow",
+        "Core Methodology",
+        "Query Strategy",
+        "Research Rounds",
+        "Report Structure",
+        "Mermaid Diagrams",
+        "Confidence Scoring",
+        "Output",
+        "Formatting Rules",
+        "Best Practices",
+        "Citation Examples"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "bytedance/deer-flow",
+      "commit": "81e1ab8dcc86574cfac0ecdfe3636b775a08c567",
+      "path": "skills/public/code-documentation/SKILL.md",
+      "source": "https://github.com/bytedance/deer-flow/blob/81e1ab8dcc86574cfac0ecdfe3636b775a08c567/skills/public/code-documentation/SKILL.md",
+      "status": "ok",
+      "sha256": "75721d7bc1b294592dc31a1e1d92ff9c390115af4b08ed42e7e0a2b094060676",
+      "bytes": 13877,
+      "frontmatter": {
+        "name": "code-documentation",
+        "description": "Use this skill when the user requests to generate, create, or improve documentation for code, APIs, libraries, repositories, or software projects. Supports README generation, API reference documentation, inline code comments, architecture documentation, changelog generation, and developer guides. Trigger on requests like \"document this code\", \"create a README\", \"generate API docs\", \"write developer guide\", or when analyzing codebases for documentation purposes."
+      },
+      "headings": [
+        "Code Documentation Skill",
+        "Overview",
+        "Core Capabilities",
+        "When to Use This Skill",
+        "Documentation Workflow",
+        "Phase 1: Codebase Analysis",
+        "Get directory structure",
+        "Read key files",
+        "Search for public API surfaces",
+        "Phase 2: Documentation Generation",
+        "Project Name",
+        "Features",
+        "Quick Start",
+        "Prerequisites",
+        "Installation",
+        "Basic Usage",
+        "Documentation",
+        "API Reference",
+        "Configuration",
+        "Examples",
+        "Development",
+        "Setup",
+        "Testing",
+        "Building",
+        "Contributing"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "bytedance/deer-flow",
+      "commit": "81e1ab8dcc86574cfac0ecdfe3636b775a08c567",
+      "path": "skills/public/frontend-design/SKILL.md",
+      "source": "https://github.com/bytedance/deer-flow/blob/81e1ab8dcc86574cfac0ecdfe3636b775a08c567/skills/public/frontend-design/SKILL.md",
+      "status": "ok",
+      "sha256": "f187caf13081bd3b5509f4c7424b7b507e3140020daaf3454b9181d1af4f61ca",
+      "bytes": 7409,
+      "frontmatter": {
+        "name": "frontend-design",
+        "description": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing pages, dashboards, React components, HTML/CSS layouts, or when styling/beautifying any web UI). Generates creative, polished code and UI design that avoids generic AI aesthetics.",
+        "license": "Complete terms in LICENSE.txt"
+      },
+      "headings": [
+        "Output Requirements",
+        "Design Thinking",
+        "Frontend Aesthetics Guidelines",
+        "Branding Requirement"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "bytedance/deer-flow",
+      "commit": "81e1ab8dcc86574cfac0ecdfe3636b775a08c567",
+      "path": "skills/public/skill-reviewer/SKILL.md",
+      "source": "https://github.com/bytedance/deer-flow/blob/81e1ab8dcc86574cfac0ecdfe3636b775a08c567/skills/public/skill-reviewer/SKILL.md",
+      "status": "ok",
+      "sha256": "68cff70a729660fed0fbf01b9ff4ec408bab83ea4e5997811508dc394e1c185d",
+      "bytes": 5500,
+      "frontmatter": {
+        "name": "skill-reviewer",
+        "description": "Reviews DeerFlow skill packages for readiness, triggers, safety boundaries, resources, and evidence. Invoke when users ask to audit, grade, or production-check an existing skill.",
+        "allowed-tools": [
+          "review_skill_package"
+        ]
+      },
+      "headings": [
+        "Skill Reviewer",
+        "When To Use",
+        "When Not To Use",
+        "Required Inspection Path",
+        "Review Workflow",
+        "Readiness Rules",
+        "Assurance Rules",
+        "Output Requirements",
+        "Completion Criteria"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "bytedance/deer-flow",
+      "commit": "81e1ab8dcc86574cfac0ecdfe3636b775a08c567",
+      "path": "skills/public/find-skills/SKILL.md",
+      "source": "https://github.com/bytedance/deer-flow/blob/81e1ab8dcc86574cfac0ecdfe3636b775a08c567/skills/public/find-skills/SKILL.md",
+      "status": "ok",
+      "sha256": "0fccfaeacc4c71bfc93aeabf06d2d5d17480d4a09cb024c643a90b14dc024aba",
+      "bytes": 4910,
+      "frontmatter": {
+        "name": "find-skills",
+        "description": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill."
+      },
+      "headings": [
+        "Find Skills",
+        "When to Use This Skill",
+        "What is the Skills CLI?",
+        "How to Help Users Find Skills",
+        "Step 1: Understand What They Need",
+        "Step 2: Search for Skills",
+        "Step 3: Present Options to the User",
+        "Step 4: Install the Skill",
+        "Common Skill Categories",
+        "Tips for Effective Searches",
+        "When No Skills Are Found"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "bytedance/deer-flow",
+      "commit": "81e1ab8dcc86574cfac0ecdfe3636b775a08c567",
+      "path": "skills/public/web-design-guidelines/SKILL.md",
+      "source": "https://github.com/bytedance/deer-flow/blob/81e1ab8dcc86574cfac0ecdfe3636b775a08c567/skills/public/web-design-guidelines/SKILL.md",
+      "status": "ok",
+      "sha256": "f4647ca866a3accf763777f83e7682954f0187cd6bea7eea0399796652414e8f",
+      "bytes": 1231,
+      "frontmatter": {
+        "name": "web-design-guidelines",
+        "description": "Review UI code for Web Interface Guidelines compliance. Use when asked to \"review my UI\", \"check accessibility\", \"audit design\", \"review UX\", or \"check my site against best practices\"."
+      },
+      "headings": [
+        "Web Interface Guidelines",
+        "How It Works",
+        "Guidelines Source",
+        "Usage"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "NousResearch/hermes-agent",
+      "commit": "fcc26fbd9f1641755e49793d7ed608f3b7214c3d",
+      "path": "skills/research/grounded-citations/SKILL.md",
+      "source": "https://github.com/NousResearch/hermes-agent/blob/fcc26fbd9f1641755e49793d7ed608f3b7214c3d/skills/research/grounded-citations/SKILL.md",
+      "status": "ok",
+      "sha256": "1e022ba6244fc68825127183d4632263f47d64dc857ea8d65c5e86d605b74f38",
+      "bytes": 12644,
+      "frontmatter": {
+        "name": "grounded-citations",
+        "description": "Ground answers and documents in cited, verifiable sources.",
+        "license": "MIT"
+      },
+      "headings": [
+        "Grounded Citations",
+        "When to Use",
+        "Prerequisites",
+        "How to Run",
+        "Quick Reference",
+        "Procedure",
+        "Multi-Platform Sweeps",
+        "Fact-Checking Mode",
+        "Pitfalls",
+        "Verification"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "NousResearch/hermes-agent",
+      "commit": "fcc26fbd9f1641755e49793d7ed608f3b7214c3d",
+      "path": "skills/software-development/github/SKILL.md",
+      "source": "https://github.com/NousResearch/hermes-agent/blob/fcc26fbd9f1641755e49793d7ed608f3b7214c3d/skills/software-development/github/SKILL.md",
+      "status": "ok",
+      "sha256": "9d70e7c842fe7db75b5a50526552a69862f5bcfc1e59aa93785241649a09d5a3",
+      "bytes": 2446,
+      "frontmatter": {
+        "name": "github",
+        "description": "GitHub via gh CLI: PRs, issues, reviews, repos, auth.",
+        "license": "MIT"
+      },
+      "headings": [
+        "GitHub",
+        "Routing",
+        "Core discipline (applies to every workflow)",
+        "Verification"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": false,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "NousResearch/hermes-agent",
+      "commit": "fcc26fbd9f1641755e49793d7ed608f3b7214c3d",
+      "path": "optional-skills/research/scrapling/SKILL.md",
+      "source": "https://github.com/NousResearch/hermes-agent/blob/fcc26fbd9f1641755e49793d7ed608f3b7214c3d/optional-skills/research/scrapling/SKILL.md",
+      "status": "ok",
+      "sha256": "ae44f6f4813c292eb37e83c9f3f545d749b863e68fd7fecb4cc0e0579c81751a",
+      "bytes": 8993,
+      "frontmatter": {
+        "name": "scrapling",
+        "description": "Scrape sites with stealth browsing and Cloudflare bypass.",
+        "license": "MIT"
+      },
+      "headings": [
+        "Scrapling",
+        "When to Use",
+        "Installation",
+        "Quick Reference",
+        "CLI Usage",
+        "Extract Static Page",
+        "Extract JS-Rendered Page",
+        "Extract Cloudflare-Protected Page",
+        "POST Request",
+        "Output Formats",
+        "Python: HTTP Scraping",
+        "Single Request",
+        "Session (Persistent Cookies)",
+        "POST / PUT / DELETE",
+        "With Proxy",
+        "Python: Dynamic Pages (JS-Rendered)",
+        "Wait for Specific Element",
+        "Disable Resources for Speed",
+        "Custom Page Automation",
+        "Python: Stealth Mode (Anti-Bot Bypass)",
+        "Stealth Session",
+        "Element Selection",
+        "CSS Selectors",
+        "XPath",
+        "Find Methods"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "NousResearch/hermes-agent",
+      "commit": "fcc26fbd9f1641755e49793d7ed608f3b7214c3d",
+      "path": "optional-skills/security/oss-forensics/SKILL.md",
+      "source": "https://github.com/NousResearch/hermes-agent/blob/fcc26fbd9f1641755e49793d7ed608f3b7214c3d/optional-skills/security/oss-forensics/SKILL.md",
+      "status": "ok",
+      "sha256": "be59e5d09ac5cef311c3c3f310381a2f96c636b8f4025890f28b15ffac6160c4",
+      "bytes": 19852,
+      "frontmatter": {
+        "name": "oss-forensics",
+        "description": "GitHub supply-chain forensics: recovery, IOCs, reporting.",
+        "license": "MIT"
+      },
+      "headings": [
+        "OSS Security Forensics Skill",
+        "⚠️ Anti-Hallucination Guardrails",
+        "Example Scenarios",
+        "Phase 0: Initialization",
+        "Phase 1: Prompt Parsing and IOC Extraction",
+        "Phase 2: Parallel Evidence Collection",
+        "Investigator 1: Local Git Investigator",
+        "Clone repository",
+        "Full commit log with stats",
+        "Detect force-push evidence (orphaned/dangling commits)",
+        "Check reflog for rewritten history",
+        "List ALL branches including deleted remote refs",
+        "Find suspicious large binary additions",
+        "Check for GPG signature anomalies",
+        "Investigator 2: GitHub API Investigator",
+        "Commits (paginated)",
+        "Pull Requests including closed/deleted",
+        "Issues",
+        "Contributors and collaborator changes",
+        "Repository events (last 300)",
+        "Check specific suspicious commit SHA details",
+        "Releases",
+        "Check if a specific commit exists (force-pushed commits may 404 on commits/ but succeed on git/commits/)",
+        "Investigator 3: Wayback Machine Investigator",
+        "Search for archived snapshots of the repo main page"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "NousResearch/hermes-agent",
+      "commit": "fcc26fbd9f1641755e49793d7ed608f3b7214c3d",
+      "path": "optional-skills/dogfood/adversarial-ux-test/SKILL.md",
+      "source": "https://github.com/NousResearch/hermes-agent/blob/fcc26fbd9f1641755e49793d7ed608f3b7214c3d/optional-skills/dogfood/adversarial-ux-test/SKILL.md",
+      "status": "ok",
+      "sha256": "d687ee7727174fd58acbe638038b207f7fb86ea27603a34cb3b0f1b0889b0dd7",
+      "bytes": 8960,
+      "frontmatter": {
+        "name": "adversarial-ux-test",
+        "description": "Roleplay a hostile user to find and triage UX pain points.",
+        "license": "MIT"
+      },
+      "headings": [
+        "Adversarial UX Test",
+        "Why This Works",
+        "How to Use",
+        "Step 1: Define the Persona",
+        "Good Persona Example",
+        "Bad Persona Example",
+        "Step 2: Become the Asshole (Browse as the Persona)",
+        "Step 3: The Rant (Write Feedback in Character)",
+        "Step 4: The Pragmatism Filter (Critical — Do Not Skip)",
+        "Filter Criteria",
+        "Step 5: Create Tickets",
+        "Step 6: Report",
+        "Tips",
+        "Example Personas by Industry",
+        "Rules"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": false,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "NousResearch/hermes-agent",
+      "commit": "fcc26fbd9f1641755e49793d7ed608f3b7214c3d",
+      "path": "optional-skills/web-development/scrollcraft/SKILL.md",
+      "source": "https://github.com/NousResearch/hermes-agent/blob/fcc26fbd9f1641755e49793d7ed608f3b7214c3d/optional-skills/web-development/scrollcraft/SKILL.md",
+      "status": "ok",
+      "sha256": "c148e88bb7bbca73a73e827ab8c2cf3f7546006f22cacf513fdcbb2228e80f32",
+      "bytes": 11987,
+      "frontmatter": {
+        "name": "scrollcraft",
+        "description": "Premium scroll-driven landing pages; scroll = timeline.",
+        "license": "MIT"
+      },
+      "headings": [
+        "scrollcraft",
+        "What this is not",
+        "Step 0: The interview",
+        "Bootstrap",
+        "Step 1: The brief, journey first",
+        "Step 2: Grammar, gate, then score",
+        "Step 3: Assets",
+        "Step 4: Build the page",
+        "Step 5: Verify by scrolling it",
+        "Hard rules (ship-blockers)",
+        "Output",
+        "Pitfalls"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "affaan-m/ECC",
+      "commit": "25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b",
+      "path": "skills/accessibility/SKILL.md",
+      "source": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/accessibility/SKILL.md",
+      "status": "ok",
+      "sha256": "2762f21d09d199009ed4f95b28c911436b367c30963dc5ddb48b8e1ad7fc1585",
+      "bytes": 6546,
+      "frontmatter": {
+        "name": "accessibility",
+        "description": "Design, implement, and audit accessible UI to WCAG 2.2 Level AA across Web, iOS, and Android — semantic ARIA roles and labels, accessibility traits and hints, focus management, contrast, target size, and screen-reader support. Use when building or auditing UI for accessibility compliance, keyboard navigation, or screen-reader support."
+      },
+      "headings": [
+        "Accessibility (WCAG 2.2)",
+        "When to Use",
+        "Core Concepts",
+        "How It Works",
+        "Step 1: Identify the Component Role",
+        "Step 2: Define Perceivable Attributes",
+        "Step 3: Implement Operable Controls",
+        "Step 4: Ensure Understandable Logic",
+        "Step 5: Verify Robust Compatibility",
+        "Accessibility Architecture Diagram",
+        "Cross-Platform Mapping",
+        "Examples",
+        "Web: Accessible Search",
+        "iOS: Accessible Action Button",
+        "Android: Accessible Toggle",
+        "Anti-Patterns to Avoid",
+        "Best Practices Checklist",
+        "References",
+        "Related Skills"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "affaan-m/ECC",
+      "commit": "25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b",
+      "path": "skills/deep-research/SKILL.md",
+      "source": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/deep-research/SKILL.md",
+      "status": "ok",
+      "sha256": "ca02a97ff8cd794c55a1313ab423a6a165fdf2ce59059a73e08f7cfd957b5319",
+      "bytes": 6057,
+      "frontmatter": {
+        "name": "deep-research",
+        "description": "Produce cited research reports from multiple web sources using firecrawl and exa MCP tools — plan sub-questions, search and deep-read sources, then synthesize findings with inline citations and confidence levels. Use when the user asks to research a topic in depth, run a deep dive or investigation, or do competitive analysis, technology evaluation, market sizing, or due diligence on a company."
+      },
+      "headings": [
+        "Deep Research",
+        "When to Activate",
+        "MCP Requirements",
+        "Untrusted Sources",
+        "Workflow",
+        "Step 1: Understand the Goal",
+        "Step 2: Plan the Research",
+        "Step 3: Execute Multi-Source Search",
+        "Step 4: Deep-Read Key Sources",
+        "Step 5: Synthesize and Write Report",
+        "[Topic]: Research Report",
+        "Executive Summary",
+        "1. [First Major Theme]",
+        "2. [Second Major Theme]",
+        "3. [Third Major Theme]",
+        "Key Takeaways",
+        "Sources",
+        "Methodology",
+        "Step 6: Deliver",
+        "Parallel Research with Subagents",
+        "Quality Rules",
+        "Examples"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "affaan-m/ECC",
+      "commit": "25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b",
+      "path": "skills/documentation-lookup/SKILL.md",
+      "source": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/documentation-lookup/SKILL.md",
+      "status": "ok",
+      "sha256": "81ad2b5b4acbe02259f4b6cbfd9111d81d5cfe51025051b6048959c45f6516c1",
+      "bytes": 4912,
+      "frontmatter": {
+        "name": "documentation-lookup",
+        "description": "Use up-to-date library and framework docs via Context7 MCP instead of training data. Activates for setup questions, API references, code examples, or when the user names a framework (e.g. React, Next.js, Prisma)."
+      },
+      "headings": [
+        "Documentation Lookup (Context7)",
+        "Core Concepts",
+        "When to use",
+        "How it works",
+        "Step 1: Resolve the Library ID",
+        "Step 2: Select the Best Match",
+        "Step 3: Fetch the Documentation",
+        "Step 4: Use the Documentation",
+        "Examples",
+        "Example: Next.js middleware",
+        "Example: Prisma query",
+        "Example: Supabase auth methods",
+        "Best Practices"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "affaan-m/ECC",
+      "commit": "25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b",
+      "path": "skills/e2e-testing/SKILL.md",
+      "source": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/e2e-testing/SKILL.md",
+      "status": "ok",
+      "sha256": "b0e00e7e17cb259101139900816c5528aed18dd10bcf5f9cb42cfc35baf8a755",
+      "bytes": 8170,
+      "frontmatter": {
+        "name": "e2e-testing",
+        "description": "Playwright E2E testing patterns, Page Object Model, configuration, CI/CD integration, artifact management, and flaky test strategies. Use when writing Playwright tests, structuring page objects, or fixing flaky E2E runs in CI."
+      },
+      "headings": [
+        "E2E Testing Patterns",
+        "Test File Organization",
+        "Page Object Model (POM)",
+        "Test Structure",
+        "Playwright Configuration",
+        "Flaky Test Patterns",
+        "Quarantine",
+        "Identify Flakiness",
+        "Common Causes & Fixes",
+        "Artifact Management",
+        "Screenshots",
+        "Traces",
+        "Video",
+        "CI/CD Integration",
+        ".github/workflows/e2e.yml",
+        "Test Report Template",
+        "E2E Test Report",
+        "Summary",
+        "Failed Tests",
+        "test-name",
+        "Artifacts",
+        "Wallet / Web3 Testing",
+        "Financial / Critical Flow Testing"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "affaan-m/ECC",
+      "commit": "25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b",
+      "path": "skills/frontend-a11y/SKILL.md",
+      "source": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/frontend-a11y/SKILL.md",
+      "status": "ok",
+      "sha256": "e00991a3f4d47fcf1529dd74a080afcf46137dc5061e70dc6e3da7b27f2ae3f3",
+      "bytes": 12861,
+      "frontmatter": {
+        "name": "frontend-a11y",
+        "description": "Accessibility patterns for React and Next.js — semantic HTML, ARIA attributes, form labeling, keyboard navigation, focus management, and screen reader support. Use when building or reviewing forms, modals, dropdowns, tooltips, or tabs, fixing a11y lint or code-review findings, or wiring up keyboard navigation and focus management."
+      },
+      "headings": [
+        "Frontend Accessibility Patterns",
+        "When to Activate",
+        "Form Accessibility",
+        "Label Connection",
+        "Required Fields",
+        "Error Messages",
+        "Complete Accessible Form",
+        "Semantic HTML",
+        "ARIA Attributes",
+        "aria-label vs aria-labelledby",
+        "aria-describedby",
+        "aria-live for Dynamic Content",
+        "aria-expanded and aria-controls",
+        "Keyboard Navigation",
+        "Custom Dropdown",
+        "Focus Management",
+        "Modal Focus Restoration",
+        "Images and Icons",
+        "Reduced Motion",
+        "Anti-Patterns",
+        "Checklist",
+        "Related Skills"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "affaan-m/ECC",
+      "commit": "25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b",
+      "path": "skills/security-review/SKILL.md",
+      "source": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/security-review/SKILL.md",
+      "status": "ok",
+      "sha256": "b9eb6416eebc8dda046674f0a2dbb3be88aff526d182b60a0f55998d3d6d0d8d",
+      "bytes": 12955,
+      "frontmatter": {
+        "name": "security-review",
+        "description": "Use this skill when adding authentication, handling user input, working with secrets, creating API endpoints, or implementing payment/sensitive features. Provides comprehensive security checklist and patterns."
+      },
+      "headings": [
+        "Security Review Skill",
+        "When to Activate",
+        "Security Checklist",
+        "1. Secrets Management",
+        "2. Input Validation",
+        "3. SQL Injection Prevention",
+        "4. Authentication & Authorization",
+        "5. XSS Prevention",
+        "6. CSRF Protection",
+        "7. Rate Limiting",
+        "8. Sensitive Data Exposure",
+        "9. Blockchain Security (Solana)",
+        "10. Dependency Security",
+        "Check for vulnerabilities",
+        "Fix automatically fixable issues",
+        "Update dependencies",
+        "Check for outdated packages",
+        "ALWAYS commit lock files",
+        "Use in CI/CD for reproducible builds",
+        "Security Testing",
+        "Automated Security Tests",
+        "Pre-Deployment Security Checklist",
+        "Resources"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "affaan-m/ECC",
+      "commit": "25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b",
+      "path": "skills/verification-loop/SKILL.md",
+      "source": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/verification-loop/SKILL.md",
+      "status": "ok",
+      "sha256": "5b06be54d4852f60e6cf1b04c6e9a4748554334eb3e41af6c0959b544e6464ae",
+      "bytes": 3064,
+      "frontmatter": {
+        "name": "verification-loop",
+        "description": "Run a six-phase verification of a Claude Code session's work — build, type check, lint, tests with coverage, security grep, and diff review — then produce a PASS/FAIL verification report. Use when verifying work after completing a feature or refactor, before creating a PR, or when quality gates must pass.",
+        "license": "MIT"
+      },
+      "headings": [
+        "Verification Loop Skill",
+        "When to Use",
+        "Verification Phases",
+        "Phase 1: Build Verification",
+        "Check if project builds",
+        "OR",
+        "Phase 2: Type Check",
+        "TypeScript projects",
+        "Python projects",
+        "Phase 3: Lint Check",
+        "JavaScript/TypeScript",
+        "Python",
+        "Phase 4: Test Suite",
+        "Run tests with coverage",
+        "Check coverage threshold",
+        "Target: 80% minimum",
+        "Phase 5: Security Scan",
+        "Check for secrets",
+        "Check for console.log",
+        "Phase 6: Diff Review",
+        "Show what changed",
+        "Output Format",
+        "Continuous Mode",
+        "Integration with Hooks"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": false,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "affaan-m/ECC",
+      "commit": "25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b",
+      "path": "skills/context-and-decisions/SKILL.md",
+      "source": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/skills/context-and-decisions/SKILL.md",
+      "status": "ok",
+      "sha256": "5158283621d6d15288dab50fc2e884cf114b8d91137e45e619bf3dff4740f3e0",
+      "bytes": 4728,
+      "frontmatter": {
+        "name": "context-and-decisions",
+        "description": "Govern stable domain context with a narrowly scoped CONTEXT.md when needed, and route hard-to-reverse decisions to ECC's existing architecture-decision-records skill. Use when domain terms require repeated explanation, one term has multiple meanings, unclear language causes module-boundary mistakes, or domain semantics must remain separate from architecture decisions."
+      },
+      "headings": [
+        "Domain Context and Decision Handoff",
+        "Domain Context Artifact: Domain Language Only",
+        "ADR Handoff: Reuse the Existing Capability",
+        "When to Activate",
+        "When to Use",
+        "How It Works",
+        "Examples",
+        "Anti-Patterns",
+        "Related Skills",
+        "Scheduling and Task Boundary"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": false,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "commit": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "path": ".claude/skills/ui-ux-pro-max/SKILL.md",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/ui-ux-pro-max/SKILL.md",
+      "status": "ok",
+      "sha256": "ea087c341bfb5b23195c7302027268ede86da802554c18a5c4896a6017b439f9",
+      "bytes": 15969,
+      "frontmatter": {
+        "name": "ui-ux-pro-max",
+        "description": "UI/UX design intelligence for web, mobile, and desktop. This skill should be used when designing, building, reviewing, or fixing interfaces, including pages, components, design systems, accessibility, interaction, responsive layout, typography, color, charts, and stack-specific UI implementation. Searchable local data: 79 searchable styles (50 active), 192 product palettes and reasoning profiles, 74 font pairings, 119 UX guidelines, 105 icons, 17 GSAP presets, 25 chart types, and 22 stacks."
+      },
+      "headings": [
+        "UI/UX Pro Max - Design Intelligence",
+        "When to Apply",
+        "Rule Categories by Priority",
+        "Running the search tool",
+        "Workflow",
+        "Query Contract",
+        "Step 1: Analyze User Requirements",
+        "Step 2: Generate Design System (REQUIRED for new pages/projects)",
+        "Step 2b: Persist Design System (Master + Overrides Pattern)",
+        "Step 2c: Design Dials (optional)",
+        "Step 3: Supplement with Detailed Searches (as needed)",
+        "Step 4: Stack Guidelines",
+        "If a search returns 0 results",
+        "Example Workflow",
+        "Step 2: design system",
+        "Step 3: supplement",
+        "Step 4: stack guidelines",
+        "Output Formats",
+        "Tips for Better Results",
+        "Before Delivering App UI"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": false,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "commit": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "path": ".claude/skills/design-system/SKILL.md",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/design-system/SKILL.md",
+      "status": "ok",
+      "sha256": "8aa5ff93320559a6e5289d37b6b06b3307737dbfb4a6f3fc44135c705613c511",
+      "bytes": 7458,
+      "frontmatter": {
+        "name": "design-system",
+        "description": "Token architecture, component specifications, and slide generation. Three-layer tokens (primitive→semantic→component), CSS variables, spacing/typography scales, component specs, strategic slide creation. Use for design tokens, systematic design, brand-compliant presentations.",
+        "license": "MIT"
+      },
+      "headings": [
+        "Design System",
+        "When to Use",
+        "Token Architecture",
+        "Three-Layer Structure",
+        "Script Paths",
+        "Quick Start",
+        "References",
+        "Component Spec Pattern",
+        "Scripts",
+        "Templates",
+        "Integration",
+        "Slide System",
+        "Source of Truth",
+        "Slide Search (BM25)",
+        "Basic search (auto-detect domain)",
+        "Domain-specific search",
+        "Contextual search (Premium System)",
+        "Decision System CSVs",
+        "Contextual Decision Flow",
+        "Pattern Breaking (Duarte Sparkline)",
+        "Slide Requirements",
+        "Chart.js Integration",
+        "Token Compliance",
+        "Reference Implementation",
+        "Command"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "commit": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "path": ".claude/skills/ui-styling/SKILL.md",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/ui-styling/SKILL.md",
+      "status": "ok",
+      "sha256": "625e302c60ee8f2e22d56cbe638c4a739e2657f566dae42689503ad517c30f1e",
+      "bytes": 10945,
+      "frontmatter": {
+        "name": "ui-styling",
+        "description": "Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, creating responsive layouts, adding accessible components (dialogs, dropdowns, forms, tables), customizing themes and colors, implementing dark mode, generating visual designs and posters, or establishing consistent styling patterns across applications.",
+        "license": "MIT"
+      },
+      "headings": [
+        "UI Styling Skill",
+        "Reference",
+        "When to Use This Skill",
+        "Core Stack",
+        "Component Layer: shadcn/ui",
+        "Styling Layer: Tailwind CSS",
+        "Visual Design Layer: Canvas",
+        "Script Paths",
+        "Quick Start",
+        "Component + Styling Setup",
+        "Alternative: Tailwind-Only Setup",
+        "Component Library Guide",
+        "Theme & Customization",
+        "Accessibility Patterns",
+        "Tailwind Utilities",
+        "Responsive Design",
+        "Tailwind Customization",
+        "Visual Design System",
+        "Utility Scripts",
+        "shadcn_add.py",
+        "tailwind_config_gen.py",
+        "Best Practices",
+        "Reference Navigation",
+        "Common Patterns",
+        "Resources"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "morluto/rea",
+      "commit": "c0c3902207d6b1a33709e42b80c7e570da7db964",
+      "path": ".agents/skills/reverse-engineer-anything/SKILL.md",
+      "source": "https://github.com/morluto/rea/blob/c0c3902207d6b1a33709e42b80c7e570da7db964/.agents/skills/reverse-engineer-anything/SKILL.md",
+      "status": "ok",
+      "sha256": "5e074e4b9b01358291aba1d2119b3766b360be5b64483ce1d3fe5f2649b363c1",
+      "bytes": 35486,
+      "frontmatter": {
+        "name": "reverse-engineer-anything",
+        "description": "Reverse engineer native, managed, Electron/JavaScript, packaged, firmware, and browser targets with REA, and build agent environments (AgentEnv bundles) of web applications from a live instance or a capture. Use shipped-artifact or requested runtime evidence to explain features, compare versions, decompile code, or guide a reconstruction. Skip REA for ordinary source-repository architecture analysis."
+      },
+      "headings": [
+        "REA",
+        "Connect only when needed",
+        "Route the target first",
+        "Work summary-first",
+        "Plan broader investigations",
+        "Read only the relevant guide",
+        "Finish the task"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "anthropics/skills",
+      "commit": "ca45fc496a3436251f191354091d557da31c15b5",
+      "path": "skills/webapp-testing/SKILL.md",
+      "source": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/webapp-testing/SKILL.md",
+      "status": "ok",
+      "sha256": "51b7349e77ec63b7744a6f63647e7566a0b4d2e301121cc10e8c2113af6556a2",
+      "bytes": 3913,
+      "frontmatter": {
+        "name": "webapp-testing",
+        "description": "Toolkit for interacting with and testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs.",
+        "license": "Complete terms in LICENSE.txt"
+      },
+      "headings": [
+        "Web Application Testing",
+        "Decision Tree: Choosing Your Approach",
+        "Example: Using with_server.py",
+        "Reconnaissance-Then-Action Pattern",
+        "Common Pitfall",
+        "Best Practices",
+        "Reference Files"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "anthropics/skills",
+      "commit": "ca45fc496a3436251f191354091d557da31c15b5",
+      "path": "skills/pdf/SKILL.md",
+      "source": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/pdf/SKILL.md",
+      "status": "ok",
+      "sha256": "9f78b8359fbd4943ad260a7a1e436e5a96503406d6c34e99f69223d647d85b9c",
+      "bytes": 8072,
+      "frontmatter": {
+        "name": "pdf",
+        "description": "Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating new PDFs, filling PDF forms, encrypting/decrypting PDFs, extracting images, and OCR on scanned PDFs to make them searchable. If the user mentions a .pdf file or asks to produce one, use this skill.",
+        "license": "Proprietary. LICENSE.txt has complete terms"
+      },
+      "headings": [
+        "PDF Processing Guide",
+        "Overview",
+        "Quick Start",
+        "Read a PDF",
+        "Extract text",
+        "Python Libraries",
+        "pypdf - Basic Operations",
+        "pdfplumber - Text and Table Extraction",
+        "Combine all tables",
+        "reportlab - Create PDFs",
+        "Add text",
+        "Add a line",
+        "Save",
+        "Add content",
+        "Page 2",
+        "Build PDF",
+        "Subscripts: use <sub> tag",
+        "Superscripts: use <super> tag",
+        "Command-Line Tools",
+        "pdftotext (poppler-utils)",
+        "Extract text",
+        "Extract text preserving layout",
+        "Extract specific pages",
+        "qpdf",
+        "Merge PDFs"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": false,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "anthropics/skills",
+      "commit": "ca45fc496a3436251f191354091d557da31c15b5",
+      "path": "skills/frontend-design/SKILL.md",
+      "source": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/frontend-design/SKILL.md",
+      "status": "ok",
+      "sha256": "d91970639e9f5c37682ac7ab60094d35f1c7c1f38d731bd56396563aee10c1d3",
+      "bytes": 9390,
+      "frontmatter": {
+        "name": "frontend-design",
+        "description": "Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.",
+        "license": "Complete terms in LICENSE.txt"
+      },
+      "headings": [
+        "Frontend Design",
+        "Ground your designs in the subject matter",
+        "Design principles",
+        "Process: plan, review against the brief, build, critique",
+        "Restraint and self-critique",
+        "More on writing in design"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": false,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "anthropics/skills",
+      "commit": "ca45fc496a3436251f191354091d557da31c15b5",
+      "path": "skills/mcp-builder/SKILL.md",
+      "source": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/mcp-builder/SKILL.md",
+      "status": "ok",
+      "sha256": "b483b56d6673134497e45489c317f26ae0f1429c194db0297e43073e17e6748c",
+      "bytes": 11129,
+      "frontmatter": {
+        "name": "mcp-builder",
+        "description": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (FastMCP) or Node/TypeScript (MCP SDK).",
+        "license": "Complete terms in LICENSE.txt"
+      },
+      "headings": [
+        "MCP Server Development Guide",
+        "Overview",
+        "Process",
+        "🚀 High-Level Workflow",
+        "Phase 1: Deep Research and Planning",
+        "Phase 2: Implementation",
+        "Phase 3: Review and Test",
+        "Phase 4: Create Evaluations",
+        "Reference Files",
+        "📚 Documentation Library",
+        "Core MCP Documentation (Load First)",
+        "SDK Documentation (Load During Phase 1/2)",
+        "Language-Specific Implementation Guides (Load During Phase 2)",
+        "Evaluation Guide (Load During Phase 4)"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "vercel-labs/agent-skills",
+      "commit": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+      "path": "skills/react-best-practices/SKILL.md",
+      "source": "https://github.com/vercel-labs/agent-skills/blob/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/react-best-practices/SKILL.md",
+      "status": "ok",
+      "sha256": "71ed7794962fa6e803ee83030517b5b93a9f70fbfeb431ec4535c5480a8d8355",
+      "bytes": 7251,
+      "frontmatter": {
+        "name": "vercel-react-best-practices",
+        "description": "React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.",
+        "license": "MIT"
+      },
+      "headings": [
+        "Vercel React Best Practices",
+        "When to Apply",
+        "Rule Categories by Priority",
+        "Quick Reference",
+        "1. Eliminating Waterfalls (CRITICAL)",
+        "2. Bundle Size Optimization (CRITICAL)",
+        "3. Server-Side Performance (HIGH)",
+        "4. Client-Side Data Fetching (MEDIUM-HIGH)",
+        "5. Re-render Optimization (MEDIUM)",
+        "6. Rendering Performance (MEDIUM)",
+        "7. JavaScript Performance (LOW-MEDIUM)",
+        "8. Advanced Patterns (LOW)",
+        "How to Use",
+        "Full Compiled Document"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": false,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "vercel-labs/agent-skills",
+      "commit": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+      "path": "skills/web-design-guidelines/SKILL.md",
+      "source": "https://github.com/vercel-labs/agent-skills/blob/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/web-design-guidelines/SKILL.md",
+      "status": "ok",
+      "sha256": "f4647ca866a3accf763777f83e7682954f0187cd6bea7eea0399796652414e8f",
+      "bytes": 1231,
+      "frontmatter": {
+        "name": "web-design-guidelines",
+        "description": "Review UI code for Web Interface Guidelines compliance. Use when asked to \"review my UI\", \"check accessibility\", \"audit design\", \"review UX\", or \"check my site against best practices\"."
+      },
+      "headings": [
+        "Web Interface Guidelines",
+        "How It Works",
+        "Guidelines Source",
+        "Usage"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "vercel-labs/agent-skills",
+      "commit": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+      "path": "skills/deploy-to-vercel/SKILL.md",
+      "source": "https://github.com/vercel-labs/agent-skills/blob/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/deploy-to-vercel/SKILL.md",
+      "status": "ok",
+      "sha256": "418ca2a60d35c551e6cb645f4e82c1b704a8335486ffe74b1b3d0617a17504e5",
+      "bytes": 9721,
+      "frontmatter": {
+        "name": "deploy-to-vercel",
+        "description": "Deploy applications and websites to Vercel. Use when the user requests deployment actions like \"deploy my app\", \"deploy and give me the link\", \"push this live\", or \"create a preview deployment\"."
+      },
+      "headings": [
+        "Deploy to Vercel",
+        "Step 1: Gather Project State",
+        "1. Check for a git remote",
+        "2. Check if locally linked to a Vercel project (either file means linked)",
+        "3. Check if the Vercel CLI is installed and authenticated",
+        "4. List available teams (if authenticated)",
+        "Team selection",
+        "Step 2: Choose a Deploy Method",
+        "Linked (`.vercel/` exists) + has git remote → Git Push",
+        "Linked (`.vercel/` exists) + no git remote → `vercel deploy`",
+        "Not linked + CLI is authenticated → Link first, then deploy",
+        "Not linked + CLI not authenticated → Install, auth, link, deploy",
+        "No-Auth Fallback — `vercel deploy --temporary`",
+        "Agent-Specific Notes",
+        "Claude Code / terminal-based agents",
+        "Sandboxed environments (claude.ai, Codex)",
+        "Output",
+        "Troubleshooting",
+        "Network Egress Error (claude.ai)",
+        "Escalated Network Access (Codex / sandboxed environments)",
+        "CLI Auth Failure"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "vercel-labs/agent-skills",
+      "commit": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+      "path": "skills/composition-patterns/SKILL.md",
+      "source": "https://github.com/vercel-labs/agent-skills/blob/1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62/skills/composition-patterns/SKILL.md",
+      "status": "ok",
+      "sha256": "e38e0eaa609316b10423a9a138ed95e35099accd3f735585295c8a8f165c28a3",
+      "bytes": 2886,
+      "frontmatter": {
+        "name": "vercel-composition-patterns",
+        "description": "React composition patterns that scale. Use when refactoring components with boolean prop proliferation, building flexible component libraries, or designing reusable APIs. Triggers on tasks involving compound components, render props, context providers, or component architecture. Includes React 19 API changes.",
+        "license": "MIT"
+      },
+      "headings": [
+        "React Composition Patterns",
+        "When to Apply",
+        "Rule Categories by Priority",
+        "Quick Reference",
+        "1. Component Architecture (HIGH)",
+        "2. State Management (MEDIUM)",
+        "3. Implementation Patterns (MEDIUM)",
+        "4. React 19 APIs (MEDIUM)",
+        "How to Use",
+        "Full Compiled Document"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": false,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "LottieFiles/motion-design-skill",
+      "commit": "f9a8a041b85185ee4881b3471d3415e939aac772",
+      "path": "skills/motion-design/SKILL.md",
+      "source": "https://github.com/LottieFiles/motion-design-skill/blob/f9a8a041b85185ee4881b3471d3415e939aac772/skills/motion-design/SKILL.md",
+      "status": "ok",
+      "sha256": "8729ecbc7e5736c1295baaa8ba0384bb4b1aac9cf91b83fcdc64d9548a57bb19",
+      "bytes": 12580,
+      "frontmatter": {
+        "name": "motion-design",
+        "description": "Applies motion design principles to create emotionally-driven, technically sound animations and transitions. Provides timing, easing, choreography, and Disney animation principles adapted for UI. Use when creating animations, transitions, micro-interactions, loading states, page transitions, scroll-triggered effects, or any motion work. Works with CSS, Framer Motion, GSAP, Lottie, Spring, or any animation system.\n",
+        "license": "MIT"
+      },
+      "headings": [
+        "Motion Design Skill",
+        "When to Apply",
+        "Quick Reference: 8-Step Checklist",
+        "Three Pillars (CRITICAL)",
+        "Motion Personality",
+        "Property Selection",
+        "Duration Table",
+        "Easing Selection",
+        "Common Patterns",
+        "Button Press (Playful)",
+        "Card Entrance (Premium)",
+        "Success State (Playful)",
+        "Error Shake (Corporate)",
+        "Choreography Essentials",
+        "Emotion-to-Motion Map",
+        "Weight Classification",
+        "Quality Rules",
+        "CRITICAL — never break",
+        "HIGH — strongly follow",
+        "Troubleshooting Quick Reference",
+        "File Reference"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": false,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "cloudflare/security-audit-skill",
+      "commit": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8",
+      "path": "skills/security-audit/SKILL.md",
+      "source": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit/SKILL.md",
+      "status": "ok",
+      "sha256": "5e3e96a1e438d8f35fef0a1e38f02d4f00e2bdf910401b7dfe00e6779c6dac85",
+      "bytes": 22026,
+      "frontmatter": {
+        "name": "security-audit",
+        "description": "Security guidance and vulnerability review for codebases, APIs, services, CLI tools, libraries, and daemons. Use for security questions, focused reviews, vulnerability research, security audits, or pen tests. Run the complete workflow only for explicit codebase audit or pen-test requests, full/comprehensive/end-to-end reviews, or requested report artifacts."
+      },
+      "headings": [
+        "Security Audit",
+        "Operating modes",
+        "Platform terminology",
+        "Universal execution safety",
+        "Full audit setup",
+        "Write isolation",
+        "Full audit planning",
+        "Coverage and prior runs",
+        "Run profiles and scope",
+        "Core principles",
+        "Require a boundary and result",
+        "Use bounded local evidence",
+        "Respect source visibility",
+        "Separate priority from certainty",
+        "Recommend the smallest effective source fix",
+        "Full audit workflow",
+        "Anti-patterns"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "lyonzin/knowledge-rag",
+      "commit": "c28772eec31f6bb407918f497767965df0a9c2c4",
+      "path": "skills/foundation/rag-check-first/SKILL.md",
+      "source": "https://github.com/lyonzin/knowledge-rag/blob/c28772eec31f6bb407918f497767965df0a9c2c4/skills/foundation/rag-check-first/SKILL.md",
+      "status": "ok",
+      "sha256": "6d331313fcc321ba65c6250f86fd3995ec4081d5f5907a9b932125559b641a5a",
+      "bytes": 5748,
+      "frontmatter": {
+        "name": "rag-check-first",
+        "description": "Before answering any technical question, code request, architecture decision, or factual claim, call search_knowledge to check the local corpus. Trigger on any query that could be answered with prior work, indexed docs, ADRs, runbooks, or team context. Prevents hallucination and forces reliance on the indexed knowledge base."
+      },
+      "headings": [
+        "rag-check-first — search before you speak",
+        "When to use this skill",
+        "What this skill commits to",
+        "Steps",
+        "Examples",
+        "Edge cases",
+        "Related skills"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "lyonzin/knowledge-rag",
+      "commit": "c28772eec31f6bb407918f497767965df0a9c2c4",
+      "path": "skills/foundation/rag-cite-sources/SKILL.md",
+      "source": "https://github.com/lyonzin/knowledge-rag/blob/c28772eec31f6bb407918f497767965df0a9c2c4/skills/foundation/rag-cite-sources/SKILL.md",
+      "status": "ok",
+      "sha256": "0f6a0fa15648c00a288f0562dbc40a8f2957f2d6f0a10625d0a321e57d49aed8",
+      "bytes": 5720,
+      "frontmatter": {
+        "name": "rag-cite-sources",
+        "description": "Every technical claim drawn from the local corpus must ship with a source citation formatted as path:line or path:section. Trigger whenever the response quotes, paraphrases, or acts on knowledge that came from a search_knowledge or get_document call. Makes answers auditable and lets the user jump to source in one click."
+      },
+      "headings": [
+        "rag-cite-sources — every claim traces to a source",
+        "When to use this skill",
+        "What this skill commits to",
+        "Steps",
+        "Examples",
+        "Edge cases",
+        "Related skills"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "lyonzin/knowledge-rag",
+      "commit": "c28772eec31f6bb407918f497767965df0a9c2c4",
+      "path": "skills/maintenance/rag-evaluate-quality/SKILL.md",
+      "source": "https://github.com/lyonzin/knowledge-rag/blob/c28772eec31f6bb407918f497767965df0a9c2c4/skills/maintenance/rag-evaluate-quality/SKILL.md",
+      "status": "ok",
+      "sha256": "0d6fd431c93f5ecaeb556034f2e112b39195e9aea731058a33c057433d1532ee",
+      "bytes": 5493,
+      "frontmatter": {
+        "name": "rag-evaluate-quality",
+        "description": "Measure retrieval quality using evaluate_retrieval (MRR@5 and Recall@5) and get_index_stats. Use after ingestion, a model or configuration change, or a reported search regression. Compare representative questions against a recorded baseline."
+      },
+      "headings": [
+        "rag-evaluate-quality — measure, do not guess",
+        "Workflow",
+        "Example report",
+        "Metrics endpoint",
+        "Related skills"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": false,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "lyonzin/knowledge-rag",
+      "commit": "c28772eec31f6bb407918f497767965df0a9c2c4",
+      "path": "skills/workflow/rag-web-fallback/SKILL.md",
+      "source": "https://github.com/lyonzin/knowledge-rag/blob/c28772eec31f6bb407918f497767965df0a9c2c4/skills/workflow/rag-web-fallback/SKILL.md",
+      "status": "ok",
+      "sha256": "cb015a77be7300deae12d0f3190d3becdc4f8b6a35cd6663c41fe66596efd8c3",
+      "bytes": 5677,
+      "frontmatter": {
+        "name": "rag-web-fallback",
+        "description": "Only reach for external web search when the local corpus comes back empty or clearly insufficient. Forces the agent to try knowledge-rag first, then explicitly document why it needed to escalate. Prevents wasted API cost, latency, and (in air-gapped deployments) accidental network calls."
+      },
+      "headings": [
+        "rag-web-fallback — local first, web only when necessary",
+        "When to use this skill",
+        "What this skill commits to",
+        "Steps",
+        "Examples",
+        "Edge cases",
+        "Related skills"
+      ],
+      "signals": {
+        "mentions_scripts": true,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "debpalash/VoiceStudio",
+      "commit": "eb62684494132a4536b1b46823f90bce089b3217",
+      "path": "skills/voicestudio/SKILL.md",
+      "source": "https://github.com/debpalash/VoiceStudio/blob/eb62684494132a4536b1b46823f90bce089b3217/skills/voicestudio/SKILL.md",
+      "status": "ok",
+      "sha256": "619b1c90992d453f23a402f4847d86bcd33eb6621d3182056ef2c9ec34cd0d1e",
+      "bytes": 6435,
+      "frontmatter": {
+        "name": "voicestudio",
+        "description": "Generate local speech with saved or designed voices, transcribe audio, and automate dubbing or narration workflows through VoiceStudio's REST API or MCP server. Use when the user wants to work with VoiceStudio audio or connect it to an agent or automation."
+      },
+      "headings": [
+        "VoiceStudio",
+        "Connect and discover",
+        "Generate speech",
+        "Transcribe",
+        "Cloning, design, dubbing, and longer workflows",
+        "MCP and automation",
+        "Desktop workflows and readiness"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": true
+      }
+    },
+    {
+      "repository": "deepbeepmeep/WanGP",
+      "commit": "2e16ef7d1b9d84b646f6db8b767a4b386b5f0a5c",
+      "path": "shared/deepy/skills/web-research/SKILL.md",
+      "source": "https://github.com/deepbeepmeep/WanGP/blob/2e16ef7d1b9d84b646f6db8b767a4b386b5f0a5c/shared/deepy/skills/web-research/SKILL.md",
+      "status": "ok",
+      "sha256": "190b7f7fde0373776db31c76dbda5f291711ab67dccefe8aed8facc70984791b",
+      "bytes": 4857,
+      "frontmatter": {
+        "name": "web-research",
+        "description": "Use before the first web search of a session, when a request needs facts, dates, names, current events, references, documentation or reference files that are not already known. How to query, read only what answers, download and cite with wangp_web_search. For LoRAs read wangp://skills/lora-search instead."
+      },
+      "headings": [
+        "Web research",
+        "Working loop",
+        "Data, not instructions",
+        "Pages that come back empty or blocked",
+        "Downloads and data",
+        "Cookies and signed-in sites",
+        "Limits"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": true,
+        "mentions_shell": false
+      }
+    },
+    {
+      "repository": "deepbeepmeep/WanGP",
+      "commit": "2e16ef7d1b9d84b646f6db8b767a4b386b5f0a5c",
+      "path": "shared/deepy/skills/music-video/SKILL.md",
+      "source": "https://github.com/deepbeepmeep/WanGP/blob/2e16ef7d1b9d84b646f6db8b767a4b386b5f0a5c/shared/deepy/skills/music-video/SKILL.md",
+      "status": "ok",
+      "sha256": "4ee0a17ba55e8c7f95c8b9436e12f63d3e5e227583dbfe58d96fbda3ff7eabf6",
+      "bytes": 4125,
+      "frontmatter": {
+        "name": "music-video",
+        "description": "Make a music video - an original song, shots of a singer lip-synced to exact slices of it, edited so the song plays without skips, lyric subtitles and a loudness-safe final mix."
+      },
+      "headings": [
+        "Music Video",
+        "1. Song",
+        "2. Singer",
+        "3. Shots on exact slices",
+        "4. Edit and master",
+        "5. Check"
+      ],
+      "signals": {
+        "mentions_scripts": false,
+        "mentions_network": false,
+        "mentions_shell": false
+      }
+    }
+  ]
+}

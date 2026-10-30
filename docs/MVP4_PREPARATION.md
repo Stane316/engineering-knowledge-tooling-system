@@ -1,5 +1,7 @@
 # Préparation MVP-4
 
+> **Révision du 30 octobre 2026 — historique conservé :** les options et la recommandation de collaboration ci-dessous décrivent la préparation du 26 octobre, non la trajectoire actuelle. Le propriétaire a depuis validé une vision recentrée sur fiabilité web, permissions, provenance et accès agentique local, ainsi que l'architecture, la spécification et leurs seuils. La collaboration distante est reportée, sans échéance ; voir l'unique [roadmap de trajectoire](ROADMAP.md) et les [références détaillées](audit/produit/README.md). Cette révision ne modifie pas silencieusement ADR-044 et ne constitue ni un feu vert de développement, ni une autorisation d'expérience, de PR ou de publication.
+
 > Options pour le prochain MVP. **ADR-044 : le MVP-4 est documenté mais
 > non implémenté** — aucun développement ne démarre sans feu vert
 > explicite de l'utilisateur (règle maison, identique à S13-S18).

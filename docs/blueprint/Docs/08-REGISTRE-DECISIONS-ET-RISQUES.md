@@ -13,6 +13,8 @@
 
 ---
 
+> **Note de révision documentaire du 30/10/2026 :** le propriétaire a validé la [roadmap révisée](../../ROADMAP.md), l'[architecture MVP-4](../../audit/produit/20_ARCHITECTURE_MINIMALE_MVP4.md) et la [spécification](../../audit/produit/21_SPECIFICATION_MVP4.md). Le périmètre MVP-4 s'oriente désormais vers fiabilité, permissions, provenance et accès agentique local ; la collaboration distante est reportée. Le document [MVP4_PREPARATION](../../MVP4_PREPARATION.md) conserve la recommandation historique associée à ADR-044. Cette note ne prétend pas créer, remplacer ou renuméroter formellement un ADR : appliquer le processus de la section 6 pour toute réconciliation. La décomposition documentaire des sprints 19–24 est **validée**, sans feu vert de développement ; tests U/I/E2E et raccordement CI doivent être préparés avant le code. Aucune conclusion de sécurité ou test n'est acquise par la rédaction.
+
 ## 1. Objectif du document
 
 Ce document consolide :

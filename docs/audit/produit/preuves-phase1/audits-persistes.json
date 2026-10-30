@@ -1,0 +1,283 @@
+{
+  "1": {
+    "audit_metadata": [
+      {
+        "id": 1,
+        "url": "https://www.simeonamoussou.com/",
+        "timestamp": "2026-10-29T13:59:55.469Z",
+        "overall_score": 66,
+        "total_findings": 6,
+        "critical_findings": 0,
+        "high_findings": 4,
+        "medium_findings": 2,
+        "low_findings": 0,
+        "project_id": "68f1929e-4b1b-49f0-bcfe-9ed107551224",
+        "created_at": "2026-10-29 13:59:55"
+      }
+    ],
+    "audit_dimensions": [
+      {
+        "id": 1,
+        "audit_id": 1,
+        "dimension": "performance",
+        "score": 81,
+        "findings_count": 0
+      },
+      {
+        "id": 2,
+        "audit_id": 1,
+        "dimension": "accessibility",
+        "score": 0,
+        "findings_count": 4
+      },
+      {
+        "id": 3,
+        "audit_id": 1,
+        "dimension": "seo",
+        "score": 100,
+        "findings_count": 0
+      },
+      {
+        "id": 4,
+        "audit_id": 1,
+        "dimension": "ux",
+        "score": 100,
+        "findings_count": 0
+      },
+      {
+        "id": 5,
+        "audit_id": 1,
+        "dimension": "content",
+        "score": 70,
+        "findings_count": 2
+      }
+    ],
+    "audit_findings": [
+      {
+        "id": 1,
+        "audit_id": 1,
+        "dimension": "accessibility",
+        "title": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "description": "Elements must meet minimum color contrast ratio thresholds (3 élément(s) affecté(s))",
+        "severity": 3,
+        "effort": 2,
+        "impact": 3,
+        "priority": "high",
+        "recommendation": "Elements must meet minimum color contrast ratio thresholds",
+        "created_at": "2026-10-29 13:59:55"
+      },
+      {
+        "id": 2,
+        "audit_id": 1,
+        "dimension": "accessibility",
+        "title": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+        "description": "Elements must have their visible text as part of their accessible name (1 élément(s) affecté(s))",
+        "severity": 3,
+        "effort": 1,
+        "impact": 3,
+        "priority": "high",
+        "recommendation": "Elements must have their visible text as part of their accessible name",
+        "created_at": "2026-10-29 13:59:55"
+      },
+      {
+        "id": 3,
+        "audit_id": 1,
+        "dimension": "accessibility",
+        "title": "Ensure <svg> elements with an img, image, graphics-document or graphics-symbol role have accessible text",
+        "description": "<svg> elements with an img or image role must have alternative text (134 élément(s) affecté(s))",
+        "severity": 3,
+        "effort": 4,
+        "impact": 5,
+        "priority": "medium",
+        "recommendation": "<svg> elements with an img or image role must have alternative text",
+        "created_at": "2026-10-29 13:59:55"
+      },
+      {
+        "id": 4,
+        "audit_id": 1,
+        "dimension": "accessibility",
+        "title": "Ensure touch targets have sufficient size and space",
+        "description": "All touch targets must be 24px large, or leave sufficient space (4 élément(s) affecté(s))",
+        "severity": 3,
+        "effort": 2,
+        "impact": 3,
+        "priority": "high",
+        "recommendation": "All touch targets must be 24px large, or leave sufficient space",
+        "created_at": "2026-10-29 13:59:55"
+      },
+      {
+        "id": 5,
+        "audit_id": 1,
+        "dimension": "content",
+        "title": "Contenu insuffisant",
+        "description": "Le contenu contient seulement 268 mots (minimum recommandé : 300 mots).",
+        "severity": 3,
+        "effort": 3,
+        "impact": 4,
+        "priority": "high",
+        "recommendation": "Enrichir le contenu avec des informations pertinentes, des exemples et des détails. Viser au moins 600 mots pour un article de blog.",
+        "created_at": "2026-10-29 13:59:55"
+      },
+      {
+        "id": 6,
+        "audit_id": 1,
+        "dimension": "content",
+        "title": "Lisibilité faible",
+        "description": "Le score de lisibilité est de 44.0 (difficile à lire).",
+        "severity": 3,
+        "effort": 2,
+        "impact": 4,
+        "priority": "high",
+        "recommendation": "Simplifier le contenu : raccourcir les phrases, utiliser des mots plus simples, ajouter des transitions.",
+        "created_at": "2026-10-29 13:59:55"
+      }
+    ]
+  },
+  "2": {
+    "audit_metadata": [
+      {
+        "id": 2,
+        "url": "https://www.simeonamoussou.com/",
+        "timestamp": "2026-10-29T14:01:31.139Z",
+        "overall_score": 65,
+        "total_findings": 7,
+        "critical_findings": 0,
+        "high_findings": 4,
+        "medium_findings": 3,
+        "low_findings": 0,
+        "project_id": "68f1929e-4b1b-49f0-bcfe-9ed107551224",
+        "created_at": "2026-10-29 14:01:31"
+      }
+    ],
+    "audit_dimensions": [
+      {
+        "id": 6,
+        "audit_id": 2,
+        "dimension": "performance",
+        "score": 78,
+        "findings_count": 1
+      },
+      {
+        "id": 7,
+        "audit_id": 2,
+        "dimension": "accessibility",
+        "score": 0,
+        "findings_count": 4
+      },
+      {
+        "id": 8,
+        "audit_id": 2,
+        "dimension": "seo",
+        "score": 100,
+        "findings_count": 0
+      },
+      {
+        "id": 9,
+        "audit_id": 2,
+        "dimension": "ux",
+        "score": 100,
+        "findings_count": 0
+      },
+      {
+        "id": 10,
+        "audit_id": 2,
+        "dimension": "content",
+        "score": 70,
+        "findings_count": 2
+      }
+    ],
+    "audit_findings": [
+      {
+        "id": 7,
+        "audit_id": 2,
+        "dimension": "performance",
+        "title": "First Input Delay à améliorer",
+        "description": "Le FID est de 141ms, ce qui est moyen (100-300ms).",
+        "severity": 2,
+        "effort": 2,
+        "impact": 3,
+        "priority": "medium",
+        "recommendation": "Optimiser l'exécution JavaScript : réduire le temps de traitement, defer les scripts non critiques.",
+        "created_at": "2026-10-29 14:01:31"
+      },
+      {
+        "id": 8,
+        "audit_id": 2,
+        "dimension": "accessibility",
+        "title": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "description": "Elements must meet minimum color contrast ratio thresholds (3 élément(s) affecté(s))",
+        "severity": 3,
+        "effort": 2,
+        "impact": 3,
+        "priority": "high",
+        "recommendation": "Elements must meet minimum color contrast ratio thresholds",
+        "created_at": "2026-10-29 14:01:31"
+      },
+      {
+        "id": 9,
+        "audit_id": 2,
+        "dimension": "accessibility",
+        "title": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+        "description": "Elements must have their visible text as part of their accessible name (1 élément(s) affecté(s))",
+        "severity": 3,
+        "effort": 1,
+        "impact": 3,
+        "priority": "high",
+        "recommendation": "Elements must have their visible text as part of their accessible name",
+        "created_at": "2026-10-29 14:01:31"
+      },
+      {
+        "id": 10,
+        "audit_id": 2,
+        "dimension": "accessibility",
+        "title": "Ensure <svg> elements with an img, image, graphics-document or graphics-symbol role have accessible text",
+        "description": "<svg> elements with an img or image role must have alternative text (134 élément(s) affecté(s))",
+        "severity": 3,
+        "effort": 4,
+        "impact": 5,
+        "priority": "medium",
+        "recommendation": "<svg> elements with an img or image role must have alternative text",
+        "created_at": "2026-10-29 14:01:31"
+      },
+      {
+        "id": 11,
+        "audit_id": 2,
+        "dimension": "accessibility",
+        "title": "Ensure touch targets have sufficient size and space",
+        "description": "All touch targets must be 24px large, or leave sufficient space (4 élément(s) affecté(s))",
+        "severity": 3,
+        "effort": 2,
+        "impact": 3,
+        "priority": "high",
+        "recommendation": "All touch targets must be 24px large, or leave sufficient space",
+        "created_at": "2026-10-29 14:01:31"
+      },
+      {
+        "id": 12,
+        "audit_id": 2,
+        "dimension": "content",
+        "title": "Contenu insuffisant",
+        "description": "Le contenu contient seulement 268 mots (minimum recommandé : 300 mots).",
+        "severity": 3,
+        "effort": 3,
+        "impact": 4,
+        "priority": "high",
+        "recommendation": "Enrichir le contenu avec des informations pertinentes, des exemples et des détails. Viser au moins 600 mots pour un article de blog.",
+        "created_at": "2026-10-29 14:01:31"
+      },
+      {
+        "id": 13,
+        "audit_id": 2,
+        "dimension": "content",
+        "title": "Lisibilité faible",
+        "description": "Le score de lisibilité est de 44.0 (difficile à lire).",
+        "severity": 3,
+        "effort": 2,
+        "impact": 4,
+        "priority": "high",
+        "recommendation": "Simplifier le contenu : raccourcir les phrases, utiliser des mots plus simples, ajouter des transitions.",
+        "created_at": "2026-10-29 14:01:31"
+      }
+    ]
+  }
+}

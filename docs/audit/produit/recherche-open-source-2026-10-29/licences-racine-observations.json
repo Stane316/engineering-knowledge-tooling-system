@@ -1,0 +1,808 @@
+{
+  "collected_utc": "2026-10-29T17:05:26.761729+00:00",
+  "method": "Root license files read at pinned SHA; text_match is an automatic heuristic ONLY, unreliable for mixed texts; manually checked corrections override it. This is not legal analysis; verify file-level and other materials.",
+  "records": [
+    {
+      "repository": "anomalyco/opencode",
+      "commit": "d9ecbbc874dea02f0efffb4251b4095c0c490f9b",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/anomalyco/opencode/blob/d9ecbbc874dea02f0efffb4251b4095c0c490f9b/LICENSE",
+      "sha256": "625f0f619133f89bbbb2abe37369613dfa1885eba1e50d02170deb62bb42cb6b",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "bytedance/deer-flow",
+      "commit": "81e1ab8dcc86574cfac0ecdfe3636b775a08c567",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/bytedance/deer-flow/blob/81e1ab8dcc86574cfac0ecdfe3636b775a08c567/LICENSE",
+      "sha256": "b23dff4d4bac8d17b6efaaa7e88c2b730149c4dda45699ce676b719cfdffe7e1",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "NousResearch/hermes-agent",
+      "commit": "fcc26fbd9f1641755e49793d7ed608f3b7214c3d",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/NousResearch/hermes-agent/blob/fcc26fbd9f1641755e49793d7ed608f3b7214c3d/LICENSE",
+      "sha256": "821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "QwenLM/Qwen-Agent",
+      "commit": "31a4d36d123688581a9e9744427272b33ce940e0",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/QwenLM/Qwen-Agent/blob/31a4d36d123688581a9e9744427272b33ce940e0/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "open-jarvis/OpenJarvis",
+      "commit": "336a68ac3b6206e3f3037c5c6d9d40722c4ab4cb",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/open-jarvis/OpenJarvis/blob/336a68ac3b6206e3f3037c5c6d9d40722c4ab4cb/LICENSE",
+      "sha256": "ac617ecddb7ffeb27a239c6c9c8145212306baa90e23ee694849bf3cefb10743",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "google-gemini/gemini-cli",
+      "commit": "718e97c2448e0384cb582409cf4e479437bf50fe",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/google-gemini/gemini-cli/blob/718e97c2448e0384cb582409cf4e479437bf50fe/LICENSE",
+      "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "block/goose",
+      "commit": "361003ea3263587f4241a0f906affdcc0d5c9c1f",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/block/goose/blob/361003ea3263587f4241a0f906affdcc0d5c9c1f/LICENSE",
+      "sha256": "44459b86c2e96fdbfd8a6b5c33d30d4b04b5293fcb2ec96fe4dcc4e0f90b8962",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "All-Hands-AI/OpenHands",
+      "commit": "76ed10527eaf8ef8e106368d5fc3df94d6242497",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/All-Hands-AI/OpenHands/blob/76ed10527eaf8ef8e106368d5fc3df94d6242497/LICENSE",
+      "sha256": "e1d1fa9f3a8d7bef24449d488fcd8f00f8f272cac297bb9bed161eb6175b876a",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "microsoft/autogen",
+      "commit": "d07c667a3239ea4ab7af62a53b0f4ff205a1f23d",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/microsoft/autogen/blob/d07c667a3239ea4ab7af62a53b0f4ff205a1f23d/LICENSE",
+      "sha256": "7e7170e3cebf88a9f60c7b8421418323c09304da1af4d5e90f4da1dc1c8a2661",
+      "text_match": "other or mixed; manual review",
+      "manual_review": "Root LICENSE covers CC BY 4.0 documentation; README points to LICENSE-CODE for MIT code. Separate scopes."
+    },
+    {
+      "repository": "langchain-ai/langgraph",
+      "commit": "ffc3336367e8139668d11e5f0b0e6def57e7c762",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/langchain-ai/langgraph/blob/ffc3336367e8139668d11e5f0b0e6def57e7c762/LICENSE",
+      "sha256": "d9bb52f2e3540d60ff50d8f0f5b6ba649b7fd346948c4c3d086c8afb120763c7",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "crewAIInc/crewAI",
+      "commit": "97bbfb64811775a965304bda45c8ec0e8e4ef3a2",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/crewAIInc/crewAI/blob/97bbfb64811775a965304bda45c8ec0e8e4ef3a2/LICENSE",
+      "sha256": "28868731966f4aa37f02879839aabc797137e27ddde4e274ef9cf965f9a71774",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "commit": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/LICENSE",
+      "sha256": "738f69dfa83db5c347c678fb9d90e560877059f0de93a327c39001bff92dc014",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "affaan-m/ECC",
+      "commit": "25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/affaan-m/ECC/blob/25278e7d7b6cf6e6a4e7a6c8e10f14ff22f0eb5b/LICENSE",
+      "sha256": "326146379f01bb137c0a5d3c54770c1aa31076705c8b88a7f6b26a460f6221b2",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "danielmiessler/fabric",
+      "commit": "bf8dcf728e5f39ec5b93958b667d678b3d3e7f1c",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/danielmiessler/fabric/blob/bf8dcf728e5f39ec5b93958b667d678b3d3e7f1c/LICENSE",
+      "sha256": "42b554b17b8fd7ae4d6bc488f0857ae91d9179f04db3da466c2fc5425686f4f9",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "code-yeongyu/oh-my-openagent",
+      "commit": "97ae220dcfddbd8f31afbd388a07b01d2c1723eb",
+      "status": "found",
+      "path": "LICENSE.md",
+      "source": "https://github.com/code-yeongyu/oh-my-openagent/blob/97ae220dcfddbd8f31afbd388a07b01d2c1723eb/LICENSE.md",
+      "sha256": "b61ac928f152d13517328263e6bee9175b928f9ab696a2d2ca2b6cfd961ddc32",
+      "text_match": "Sustainable Use License 1.0 (restricted; not SPDX)",
+      "manual_review": "Sustainable Use License 1.0, with restrictions; separate third-party licenses."
+    },
+    {
+      "repository": "anthropics/skills",
+      "commit": "ca45fc496a3436251f191354091d557da31c15b5",
+      "status": "not_found_at_conventional_root_paths",
+      "manual_review": "No conventional root file found; different skill-specific licenses. pdf restricted; webapp-testing Apache-2.0."
+    },
+    {
+      "repository": "vercel-labs/agent-skills",
+      "commit": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+      "status": "not_found_at_conventional_root_paths",
+      "manual_review": "No conventional root LICENSE found at scanned revision; README declares MIT; inspect each skill and seek any missing terms."
+    },
+    {
+      "repository": "vercel-labs/skills",
+      "commit": "92a9a34ac3bf88e695e468b90c7bf32f163d32c8",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/vercel-labs/skills/blob/92a9a34ac3bf88e695e468b90c7bf32f163d32c8/LICENSE",
+      "sha256": "661142e53c313d2bb5e1b055f5c0a39001450ff1b5e27b89dc4bc7de9a6352ca",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "trailofbits/skills",
+      "commit": "2be6433b39e009cd2b6fd3be1895f6b1faa5af9a",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/trailofbits/skills/blob/2be6433b39e009cd2b6fd3be1895f6b1faa5af9a/LICENSE",
+      "sha256": "7abe19ec9bb73b36141b999b861d24ad855e808bafe0f81e84cce28556f6c297",
+      "text_match": "other or mixed; manual review",
+      "manual_review": "Root LICENSE starts CC BY-SA 4.0; inspect individual skills and code separately."
+    },
+    {
+      "repository": "obra/superpowers",
+      "commit": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/obra/superpowers/blob/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/LICENSE",
+      "sha256": "a37e0e9697144819e1d965176ac4ae5bc3fa02d11e7812036bbcadf6dafe2400",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "LottieFiles/motion-design-skill",
+      "commit": "f9a8a041b85185ee4881b3471d3415e939aac772",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/LottieFiles/motion-design-skill/blob/f9a8a041b85185ee4881b3471d3415e939aac772/LICENSE",
+      "sha256": "9fc2e8685daa09e28d54b6afa8a38f168417c5735a3cd676c80c159785e93a80",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "muratcankoylan/Agent-Skills-for-Context-Engineering",
+      "commit": "9ff0c99108b36d3b886defd825d8ac1f47dba374",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/muratcankoylan/Agent-Skills-for-Context-Engineering/blob/9ff0c99108b36d3b886defd825d8ac1f47dba374/LICENSE",
+      "sha256": "65bc33b0759a48b980962833b12bcb820404da9f5256bff39c00e89471bcf209",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "cloudflare/security-audit-skill",
+      "commit": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/LICENSE",
+      "sha256": "e598e694aa506650c7192d5ea3be0e50aca0d356ea00551c53429f0b01eb6391",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "morluto/rea",
+      "commit": "c0c3902207d6b1a33709e42b80c7e570da7db964",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/morluto/rea/blob/c0c3902207d6b1a33709e42b80c7e570da7db964/LICENSE",
+      "sha256": "798f9e4d18e49b30bf2f12696c8ced73dc4e1413da375a333d01281543a1ea8b",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "microsoft/playwright-mcp",
+      "commit": "0c4107acbecb75472b23c05c0e42471a0011874f",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/microsoft/playwright-mcp/blob/0c4107acbecb75472b23c05c0e42471a0011874f/LICENSE",
+      "sha256": "9a7110fc2d2f964038e5dc49128f908f29f47a574c961cba16085914e879cbda",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "modelcontextprotocol/servers",
+      "commit": "194cc86e3ae6400958555bd4116849d822d69263",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/modelcontextprotocol/servers/blob/194cc86e3ae6400958555bd4116849d822d69263/LICENSE",
+      "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "modelcontextprotocol/registry",
+      "commit": "e1c5d4e009b8ee671ce796226fb1659cacce485f",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/modelcontextprotocol/registry/blob/e1c5d4e009b8ee671ce796226fb1659cacce485f/LICENSE",
+      "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a",
+      "text_match": "Apache-2.0 (text match)",
+      "manual_review": "Mixed/transition: root describes MIT-to-Apache-2.0, documentation CC BY 4.0; do not generalize text match."
+    },
+    {
+      "repository": "modelcontextprotocol/inspector",
+      "commit": "e3217388c8590bcf6796fd8d0528a875ade1ac1f",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/modelcontextprotocol/inspector/blob/e3217388c8590bcf6796fd8d0528a875ade1ac1f/LICENSE",
+      "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "github/github-mcp-server",
+      "commit": "f2a07cd13243ea9773a0ef42692e5b0e156f0951",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/github/github-mcp-server/blob/f2a07cd13243ea9773a0ef42692e5b0e156f0951/LICENSE",
+      "sha256": "9e48ecfa18e2b15169746a3c97beda4d1d6c6796097038498ca434ca7e0ccd44",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "browser-use/browser-use",
+      "commit": "2cc71890e65056b67fdb29d98bb407749c15bb08",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/browser-use/browser-use/blob/2cc71890e65056b67fdb29d98bb407749c15bb08/LICENSE",
+      "sha256": "135c57671b0ee957669b05a0ca00cc06f645496d351e2e732832c6e276da9a5e",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "PrefectHQ/fastmcp",
+      "commit": "a7842bed837359d03254f28781a645466d737be1",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/PrefectHQ/fastmcp/blob/a7842bed837359d03254f28781a645466d737be1/LICENSE",
+      "sha256": "43070e2d4e532684de521b885f385d0841030efa2b1a20bafb76133a5e1379c1",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "upstash/context7",
+      "commit": "eabe36965ec69b2f3487c4eb329c448dd60b817c",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/upstash/context7/blob/eabe36965ec69b2f3487c4eb329c448dd60b817c/LICENSE",
+      "sha256": "85cfb556dc2b22b55d2565674fcdaac82f3f2f6b7a928d27003132721bb6736c",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "open-webui/open-webui",
+      "commit": "f7ac7ee10962ddec0017f5c29b6740d9b9c5faca",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/open-webui/open-webui/blob/f7ac7ee10962ddec0017f5c29b6740d9b9c5faca/LICENSE",
+      "sha256": "5f1bd74c48bf13ab0f82e177ad9e637313b92533d20ead2593d49347a47fc232",
+      "text_match": "BSD family; verify variant"
+    },
+    {
+      "repository": "tech-artist92/open-skill-registry",
+      "commit": "e2a51792132ec8311479e02de003d0e6dcaacd33",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/tech-artist92/open-skill-registry/blob/e2a51792132ec8311479e02de003d0e6dcaacd33/LICENSE",
+      "sha256": "c5cd2f781ed8a6aecf8449bcdae0c7f05481959bb3761a5e89934866449a9411",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "iflytek/skillhub",
+      "commit": "6c276d38fc770deedd881d26b0e2e11798cb332a",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/iflytek/skillhub/blob/6c276d38fc770deedd881d26b0e2e11798cb332a/LICENSE",
+      "sha256": "3fe70565009e4b7b70e42b0b51a9b63c504658ed5c8a68b2475a02146f8ff9da",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "lyonzin/knowledge-rag",
+      "commit": "c28772eec31f6bb407918f497767965df0a9c2c4",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/lyonzin/knowledge-rag/blob/c28772eec31f6bb407918f497767965df0a9c2c4/LICENSE",
+      "sha256": "a4d7452739eb6f6634048f6f13cd1e57f74e95d62203a028083e846b8dc81ba1",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "deepset-ai/haystack",
+      "commit": "4b5dd70fde2a53f1913b6856d77c6f9c1def6720",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/deepset-ai/haystack/blob/4b5dd70fde2a53f1913b6856d77c6f9c1def6720/LICENSE",
+      "sha256": "3f0a3af7e9b0f3b6358aaa3c7501ab522a67dc5483b870e9a8b3db41ea42e249",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "run-llama/llama_index",
+      "commit": "619d74664e8404612038bc15a1a40c686037277c",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/run-llama/llama_index/blob/619d74664e8404612038bc15a1a40c686037277c/LICENSE",
+      "sha256": "24f40b5190fdacabc24ddbb5f76364d15e4f030925220ea300d8a2dd4993c8cb",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "infiniflow/ragflow",
+      "commit": "a609e62d05d8d077d7698d3760dba2f1472d5c1c",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/infiniflow/ragflow/blob/a609e62d05d8d077d7698d3760dba2f1472d5c1c/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "HKUDS/LightRAG",
+      "commit": "aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/HKUDS/LightRAG/blob/aaebfe1bb8d55deb6a4304d357a3bf4c92fcd40a/LICENSE",
+      "sha256": "0c16924564059e493c86854574660a47ed1dcc2a476ba7b5f949d3f2f73a1984",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "microsoft/graphrag",
+      "commit": "c600ff80b77b9b62c47d539a3ac9569e95d8949b",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/microsoft/graphrag/blob/c600ff80b77b9b62c47d539a3ac9569e95d8949b/LICENSE",
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "qdrant/qdrant",
+      "commit": "222b2e44ab1c3f17e8246396ead6558e45041df7",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/qdrant/qdrant/blob/222b2e44ab1c3f17e8246396ead6558e45041df7/LICENSE",
+      "sha256": "210b508429e913d9de5301f90508bc2cbf5b2281de5b45e607c04d58f0f3bd8f",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "chroma-core/chroma",
+      "commit": "52ce8448cb38a498f1660d55ea80df25b78f000a",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/chroma-core/chroma/blob/52ce8448cb38a498f1660d55ea80df25b78f000a/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "sqlite/sqlite",
+      "commit": "ad32a29d05e5a4610d842d0ccfc99af373b0a709",
+      "status": "found",
+      "path": "LICENSE.md",
+      "source": "https://github.com/sqlite/sqlite/blob/ad32a29d05e5a4610d842d0ccfc99af373b0a709/LICENSE.md",
+      "sha256": "c9053892d578840a196d588ff68baa9bc0f5240eb215fb9cf91cd6b0b3209305",
+      "text_match": "other or mixed; manual review"
+    },
+    {
+      "repository": "sqliteai/sqlite-vec",
+      "commit": null,
+      "status": "no_revision"
+    },
+    {
+      "repository": "firecrawl/firecrawl",
+      "commit": "33f295dc1f09133c02fc1e096d6685abda3464a7",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/firecrawl/firecrawl/blob/33f295dc1f09133c02fc1e096d6685abda3464a7/LICENSE",
+      "sha256": "9b4649365c4f29d8f41301f4cda1e5bd9da51cf1bbb19ab9d568ff57d56e3b33",
+      "text_match": "AGPL family; verify exact version"
+    },
+    {
+      "repository": "unclecode/crawl4ai",
+      "commit": "888299fb5f0b82181897dc0e61bfb4b036f0aea5",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/unclecode/crawl4ai/blob/888299fb5f0b82181897dc0e61bfb4b036f0aea5/LICENSE",
+      "sha256": "193fe32704bee15cd74f5153e569cdf830e26445e19798a55daee32da40758aa",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "D4Vinci/Scrapling",
+      "commit": "26dc85a4fa307257fb5c669c80aa44b15acb84c4",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/D4Vinci/Scrapling/blob/26dc85a4fa307257fb5c669c80aa44b15acb84c4/LICENSE",
+      "sha256": "5c782ef0346e4fbfe0dc76fd435f181a0f1e4a1a7a6b13c169c6e74314ff5964",
+      "text_match": "BSD family; verify variant"
+    },
+    {
+      "repository": "trafilatura/trafilatura",
+      "commit": null,
+      "status": "no_revision"
+    },
+    {
+      "repository": "mozilla/readability",
+      "commit": "ab4027a8b37669745016869a37a504727992b2ba",
+      "status": "found",
+      "path": "LICENSE.md",
+      "source": "https://github.com/mozilla/readability/blob/ab4027a8b37669745016869a37a504727992b2ba/LICENSE.md",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "jina-ai/reader",
+      "commit": "1574bfd380d249c86c82db4dace0d9c8fe17e2b1",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/jina-ai/reader/blob/1574bfd380d249c86c82db4dace0d9c8fe17e2b1/LICENSE",
+      "sha256": "ee3aeb6c37d4222522d759df6c7014542880b6af1b55cdc5b3bfb11f160e9210",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "ethz-spylab/agentdojo",
+      "commit": "089ed468cf3ed0322acc66b0211f26d9d90dbf60",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/ethz-spylab/agentdojo/blob/089ed468cf3ed0322acc66b0211f26d9d90dbf60/LICENSE",
+      "sha256": "4285a071f2d382338e52b4fb0a186d952984a34d43a33d8872e1a1d8cb43401e",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "THUDM/AgentBench",
+      "commit": "d1e4a10db08c87075c78972e48ecc182be03e2d5",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/THUDM/AgentBench/blob/d1e4a10db08c87075c78972e48ecc182be03e2d5/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "SWE-bench/SWE-bench",
+      "commit": "02e7a74ffd0b707aab73d203fe87bdc7c76afc8e",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/SWE-bench/SWE-bench/blob/02e7a74ffd0b707aab73d203fe87bdc7c76afc8e/LICENSE",
+      "sha256": "2bd2e08df7147f67a69b42c10efae09bd4bf119df397371036187d5dd1b02f57",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "explodinggradients/ragas",
+      "commit": "298b68274234c060deacab3cf5fb52aa3a20e885",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/explodinggradients/ragas/blob/298b68274234c060deacab3cf5fb52aa3a20e885/LICENSE",
+      "sha256": "664b930830f291c2936ab30bcd6ef9ca6c9c7384cc475ae0c526156a27d5a6c6",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "promptfoo/promptfoo",
+      "commit": "1b4dff170a589a31bbd57d4878e1abc59ef80655",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/promptfoo/promptfoo/blob/1b4dff170a589a31bbd57d4878e1abc59ef80655/LICENSE",
+      "sha256": "bf813686553f451e1b833fbd827488aee49b60b189626915bf3108d10b754e44",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "confident-ai/deepeval",
+      "commit": "90e230cbe916c73240a48312c494065a39bf52d1",
+      "status": "found",
+      "path": "LICENSE.md",
+      "source": "https://github.com/confident-ai/deepeval/blob/90e230cbe916c73240a48312c494065a39bf52d1/LICENSE.md",
+      "sha256": "d004e4b8bbfa420b094c13835070b945a93f3c0ac0ea0bf6b7b8a72733533f7f",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "arize-ai/phoenix",
+      "commit": "57f93291eb40cfb14e89ba6fc7e5c11402ba7a6f",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/arize-ai/phoenix/blob/57f93291eb40cfb14e89ba6fc7e5c11402ba7a6f/LICENSE",
+      "sha256": "1c5916f5112e30e92f291002bb02cf4f4851c9d1dbdf3360f9f745b7de2d775f",
+      "text_match": "other or mixed; manual review",
+      "manual_review": "Elastic License 2.0: restrictions on provision of hosted services; not an OSI open-source licence."
+    },
+    {
+      "repository": "langfuse/langfuse",
+      "commit": "71ddcb9094f53d19176a262f107871d8b2950fb0",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/langfuse/langfuse/blob/71ddcb9094f53d19176a262f107871d8b2950fb0/LICENSE",
+      "sha256": "9ee6ca42e813fb58bcad18bed834438503bcc997da3b452d3f9ad4af4292b6b3",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "diegoperezg7/evalsmith-mcp",
+      "commit": "c8401ba81865732082aee5cea29724644d92ba6d",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/diegoperezg7/evalsmith-mcp/blob/c8401ba81865732082aee5cea29724644d92ba6d/LICENSE",
+      "sha256": "03b261dee6f6a0685cda5e8ff6b6b3e407ae40acd12229c23d801710d1362e28",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "berkeley-function-calling-leaderboard/berkeley-function-calling-leaderboard",
+      "commit": null,
+      "status": "no_revision"
+    },
+    {
+      "repository": "GoogleChrome/lighthouse",
+      "commit": "772c9e2781f7db0c0c8ff79567ee84e0a57b1bf6",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/GoogleChrome/lighthouse/blob/772c9e2781f7db0c0c8ff79567ee84e0a57b1bf6/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "GoogleChrome/lighthouse-ci",
+      "commit": "dae03de65737f639a43636099d4c4c63af1d7834",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/GoogleChrome/lighthouse-ci/blob/dae03de65737f639a43636099d4c4c63af1d7834/LICENSE",
+      "sha256": "f9946796a8a5bd5981565142fa42e3b0cc36aef6f80e86beaf5905b3c0fef1b5",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "dequelabs/axe-core",
+      "commit": "6b52b841461bd23345970b91ec75fdaff6bad31a",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/dequelabs/axe-core/blob/6b52b841461bd23345970b91ec75fdaff6bad31a/LICENSE",
+      "sha256": "af175b9d96ee93c21a036152e1b905b0b95304d4ae8c2c921c7609100ba8df7e",
+      "text_match": "GPL family; verify exact version",
+      "manual_review": "MPL-2.0: manually read file title; automatic heuristic falsely matched GPL in secondary-license text."
+    },
+    {
+      "repository": "microsoft/playwright",
+      "commit": "38fb53bf4c181abb91f1ca2a2ab741983c5d177c",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/microsoft/playwright/blob/38fb53bf4c181abb91f1ca2a2ab741983c5d177c/LICENSE",
+      "sha256": "45873d00a0dd243596deb4aa23b2493b3d1f0671921bf2538ea431d7380220eb",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "pa11y/pa11y",
+      "commit": "aede96f5c68c478b9354de3c838212a9dbe5c10e",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/pa11y/pa11y/blob/aede96f5c68c478b9354de3c838212a9dbe5c10e/LICENSE",
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "text_match": "LGPL family; verify exact version",
+      "manual_review": "Root file GNU LGPL version 3; exact scope and any other terms to check."
+    },
+    {
+      "repository": "GoogleChrome/web-vitals",
+      "commit": "e773747b90f0e8763aed02ba5a74358d628a828c",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/GoogleChrome/web-vitals/blob/e773747b90f0e8763aed02ba5a74358d628a828c/LICENSE",
+      "sha256": "bfdeded4040e05da31ca9b6239dc83bd23fa26ac8db87342a7ca4363f68916ff",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "WICG/inert",
+      "commit": "1cf31ea7b5bba1d77295b8aeb03243cc5ec11c9e",
+      "status": "found",
+      "path": "LICENSE.md",
+      "source": "https://github.com/WICG/inert/blob/1cf31ea7b5bba1d77295b8aeb03243cc5ec11c9e/LICENSE.md",
+      "sha256": "34982c639ae391391ff5a14fe6a7883911d55301370edb4f1487c4bc332a2f72",
+      "text_match": "other or mixed; manual review"
+    },
+    {
+      "repository": "pbpyrojust/universal-accessibility-audit",
+      "commit": "a63c1d07b12a5e5a81098c9b419b14a4a198e500",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/pbpyrojust/universal-accessibility-audit/blob/a63c1d07b12a5e5a81098c9b419b14a4a198e500/LICENSE",
+      "sha256": "69eede38d80ef5c40901301ce58c78a57ffb7a7fb2be5f57de784adb2bf13e0f",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "qalvinahmad/WCAG-mcp",
+      "commit": "d5e365c23b3f576682087f68f92cb1211c5ed241",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/qalvinahmad/WCAG-mcp/blob/d5e365c23b3f576682087f68f92cb1211c5ed241/LICENSE",
+      "sha256": "1126322e2cc8d165adc4c792eeb195717de2bcc7b39be1ce77959d78e87ef685",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "squirrelscan/squirrelscan",
+      "commit": "f89af3718f3e8d379248b4d2c7afbc0c62ca3344",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/squirrelscan/squirrelscan/blob/f89af3718f3e8d379248b4d2c7afbc0c62ca3344/LICENSE",
+      "sha256": "db74f428b820f957205eaf563ab4333937ebe68b6aba61bd42040560f279f5d2",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "danielsogl/lighthouse-mcp-server",
+      "commit": "62614f323c7bf457cc694387649fccb35acc46d9",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/danielsogl/lighthouse-mcp-server/blob/62614f323c7bf457cc694387649fccb35acc46d9/LICENSE",
+      "sha256": "aabefbfe2a92ce589bf0fb835b2f27f01ef1e295e92c40883bd95ea5803be2dd",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "snyk/agent-scan",
+      "commit": "a69e1c354ad0812c13da15dc64770e1c21786841",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/snyk/agent-scan/blob/a69e1c354ad0812c13da15dc64770e1c21786841/LICENSE",
+      "sha256": "90154031b70befefac025106f493124530e13c608b876cc1418b5f65ba945f14",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "NVIDIA/SkillSpector",
+      "commit": "54921c8c7c23008c8af2328d5ab492a904b6ece4",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/NVIDIA/SkillSpector/blob/54921c8c7c23008c8af2328d5ab492a904b6ece4/LICENSE",
+      "sha256": "9f8785b47596b2993a17a3fa8d747ae63126a2c5e80a9e77195a907273d71839",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "openclaw/clawscan",
+      "commit": "e14f9960cc290d47f99fd3416b0589bbc0080f24",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/openclaw/clawscan/blob/e14f9960cc290d47f99fd3416b0589bbc0080f24/LICENSE",
+      "sha256": "9efd316ecf1c4c60f6fd5d26433142fff2b6794d7d328e9bc6179b29bf9c82a4",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "pipelab-org/pipelock",
+      "commit": "b3b8a88ea49f95dfb785557ddde50ed988d3b8e4",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/pipelab-org/pipelock/blob/b3b8a88ea49f95dfb785557ddde50ed988d3b8e4/LICENSE",
+      "sha256": "a129cc8214f5c4bd010af02e3dadccd2fbeb4db434a0159839adeba2f7cba20c",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "usestrix/strix",
+      "commit": "6b7ae2ebe4d47037a927aade23265ff4e4f27e84",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/usestrix/strix/blob/6b7ae2ebe4d47037a927aade23265ff4e4f27e84/LICENSE",
+      "sha256": "7db9697134251e314bd8d39257fe170c98b3e2ad9b2ed67e97acaf9613e7b9e3",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "OWASP/ASVS",
+      "commit": "9ccce0e3cf47abd6a412fc8a8deadd7fd6da501f",
+      "status": "found",
+      "path": "LICENSE.md",
+      "source": "https://github.com/OWASP/ASVS/blob/9ccce0e3cf47abd6a412fc8a8deadd7fd6da501f/LICENSE.md",
+      "sha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5",
+      "text_match": "other or mixed; manual review"
+    },
+    {
+      "repository": "OWASP/www-project-top-10-for-large-language-model-applications",
+      "commit": "99f4395589bdbd120ae961f9cd179e79d7f9b27f",
+      "status": "found",
+      "path": "LICENSE.md",
+      "source": "https://github.com/OWASP/www-project-top-10-for-large-language-model-applications/blob/99f4395589bdbd120ae961f9cd179e79d7f9b27f/LICENSE.md",
+      "sha256": "f9d5222c36c096ec0222ba65bbdde11891d47e20a3721e7f152d70c184fc3ba0",
+      "text_match": "other or mixed; manual review"
+    },
+    {
+      "repository": "ossf/scorecard",
+      "commit": "2ef237f4e967d18e600e71aa36ab3be640314650",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/ossf/scorecard/blob/2ef237f4e967d18e600e71aa36ab3be640314650/LICENSE",
+      "sha256": "61324beb8841ff62645c758ff5b121164592ec163056dda34d76a0526a0b3b5e",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "ossf/criticality_score",
+      "commit": "0e76c6a99d865dddcbd89dff4117f0a54b1abfb8",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/ossf/criticality_score/blob/0e76c6a99d865dddcbd89dff4117f0a54b1abfb8/LICENSE",
+      "sha256": "669649bdd4097a659e5e952b2bcaafc4693c5124e399adc2522dbc7e5865ab26",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "anchore/syft",
+      "commit": "1998095808aad98fb3ec6e9a9ba55c170f126ec1",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/anchore/syft/blob/1998095808aad98fb3ec6e9a9ba55c170f126ec1/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "text_match": "Apache-2.0 (text match)"
+    },
+    {
+      "repository": "debpalash/VoiceStudio",
+      "commit": "eb62684494132a4536b1b46823f90bce089b3217",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/debpalash/VoiceStudio/blob/eb62684494132a4536b1b46823f90bce089b3217/LICENSE",
+      "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
+      "text_match": "AGPL family; verify exact version"
+    },
+    {
+      "repository": "deepbeepmeep/WanGP",
+      "commit": "2e16ef7d1b9d84b646f6db8b767a4b386b5f0a5c",
+      "status": "found",
+      "path": "LICENSE.txt",
+      "source": "https://github.com/deepbeepmeep/WanGP/blob/2e16ef7d1b9d84b646f6db8b767a4b386b5f0a5c/LICENSE.txt",
+      "sha256": "67c8e68389c945423c560c13936f0a960e5d2ffdcc5bb2ded4122fe1b095960f",
+      "text_match": "WanGP Community License 2.0 (restricted; not SPDX)",
+      "manual_review": "WanGP Community License 2.0: restrictive custom terms; separate third-party licenses and models."
+    },
+    {
+      "repository": "theatre-js/theatre",
+      "commit": "6ea82b938ea49609489f6377ded693ccc6ee8f5b",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/theatre-js/theatre/blob/6ea82b938ea49609489f6377ded693ccc6ee8f5b/LICENSE",
+      "sha256": "32a36fa187169c24228aaf6889371e7ffb4273d327ef37e340994e7ca157879b",
+      "text_match": "AGPL family; verify exact version",
+      "manual_review": "Apache-2.0: manually read file title; automatic heuristic falsely matched AGPL within text."
+    },
+    {
+      "repository": "remotion-dev/remotion",
+      "commit": "6d3de5bc4b3fc4a176679dd1b478d6d86485a00c",
+      "status": "found",
+      "path": "LICENSE.md",
+      "source": "https://github.com/remotion-dev/remotion/blob/6d3de5bc4b3fc4a176679dd1b478d6d86485a00c/LICENSE.md",
+      "sha256": "bd65083b940f61904f6ef298aade918a7cad72a3e35bc406e36fab365844b673",
+      "text_match": "MIT (text match)",
+      "manual_review": "Remotion License: custom eligibility/commercial restrictions; automatic MIT heuristic false positive."
+    },
+    {
+      "repository": "atoll92/agent-standup",
+      "commit": "0c4d6dd15d23e80103943e0bda23c91dd42cf36c",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/atoll92/agent-standup/blob/0c4d6dd15d23e80103943e0bda23c91dd42cf36c/LICENSE",
+      "sha256": "3d2c31568ebf2d840be8986d898f8667129c6386dab29d258c48d6ffa4718fc5",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "github/spec-kit",
+      "commit": "03bba71b025ded8507c5e1451bdceab988bdebef",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/github/spec-kit/blob/03bba71b025ded8507c5e1451bdceab988bdebef/LICENSE",
+      "sha256": "2510b446bc1f0cf9702453075d20cd88631e20e5642658edb7325d9c1eb534f7",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "awesomedata/awesome-public-datasets",
+      "commit": "e06679a8f04bc66c649da52f067bb92fd1614c88",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/awesomedata/awesome-public-datasets/blob/e06679a8f04bc66c649da52f067bb92fd1614c88/LICENSE",
+      "sha256": "6f1baa6803708ad92643e9f00a7fac14c0c19e39b1fbca732cde94a9adaf981b",
+      "text_match": "MIT (text match)"
+    },
+    {
+      "repository": "cheaper-inference/OmniRoute",
+      "commit": "689b1eb573e21ea1bac4467c2ccfd9b8aaa7c518",
+      "status": "found",
+      "path": "LICENSE",
+      "source": "https://github.com/cheaper-inference/OmniRoute/blob/689b1eb573e21ea1bac4467c2ccfd9b8aaa7c518/LICENSE",
+      "sha256": "5f3caa52b2c2ce5dfb40c85404a370d23b6dc3e26a1447d17dc7e56f773b91de",
+      "text_match": "MIT (text match)"
+    }
+  ]
+}
