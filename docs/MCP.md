@@ -89,6 +89,26 @@ restreint ni les fichiers, ni le réseau, ni les autres processus : l'isolation
 de l'hôte et du système d'exploitation reste une frontière distincte, non
 fournie par ce mécanisme.
 
+### 1.2 Effets au démarrage (Sprint 21-03)
+
+Ouvrir le serveur prépare le répertoire de données. Ces écritures sont
+**techniques** et une seule fois :
+
+| Effet | Détail |
+| --- | --- |
+| Bases | `ekts.db`, `ekts-fts.db`, `ekts-vectors.db`, chacune avec ses `-wal` et `-shm` pendant la session |
+| Migrations | 11 migrations appliquées une fois, journalisées dans `schema_migrations`, `user_version = 11` |
+| Templates | 10 templates prédéfinis semés à la préparation, jamais dupliqués à la réouverture |
+
+Une fermeture propre replie le WAL : `-wal` et `-shm` disparaissent. Un `-wal`
+qui change de taille pendant la session n'est **pas** une mutation métier ; ce
+sont les tables qui font foi. Les appels outils — permis, de lecture ou refusés
+par le profil — ne modifient aucune ligne métier.
+
+Ce que le serveur **ne garantit pas** : l'isolation réseau ou système. Les
+mesures du Sprint 21 sont applicatives (`fetch` instrumenté, mode hors ligne) ;
+elles n'observent ni les sockets, ni le pare-feu de l'hôte.
+
 ---
 
 ## 2. Prérequis
