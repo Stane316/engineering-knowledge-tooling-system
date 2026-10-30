@@ -8,6 +8,25 @@
 > **Portée** : lecture, exécution contrôlée et analyse — **aucun changement
 > fonctionnel** n'a été effectué (les seules écritures sont ces documents).
 
+## Réalignement MVP-4 (nouvelle mission)
+
+Le [complément d'audit préliminaire du 29 octobre 2026](12_REALIGNEMENT_MVP4_AUDIT_PRELIMINAIRE.md) examine une révision plus récente et la vision agentique demandée. Il est provisoire ; il ne remplace ni cet audit historique ni les validations de phase à venir.
+
+- [Analyse du rapport web transmis](13_ANALYSE_RAPPORT_SITE_UTILISATEUR.md) : chiffres, incohérence de priorités et limites de preuve.
+- [Repérage initial de l'écosystème](14_REPERAGE_ECOSYSTEME_MVP4_PROVISOIRE.md) : projets indiqués, sources et licences déclarées, à approfondir.
+- [Phase 1 — matrice, reproduction et validation](15_PHASE1_MATRICE_ET_VALIDATION.md) : conclusions sourcées et limites, point de décision humaine.
+- [Ressources et accès agentique](16_RESSOURCES_ET_ACCES_AGENTIQUE.md) : inventaire et essai CLI → FTS → MCP.
+- [Recherche open source approfondie](17_RECHERCHE_OPEN_SOURCE_APPROFONDIE.md) : méthode, shortlist priorisée, licences, sécurité, stratégies et expériences proposées.
+- [Catalogue de dépôts et skills](18_CATALOGUE_OPEN_SOURCE_ET_SKILLS.md) : sources figées et 42 fichiers `SKILL.md` étudiés, sans recommandation d'installation globale.
+- [Scénario comparatif agent / EKTS](19_SCENARIO_COMPARATIF_AGENT_EKTS.md) : trois conditions et protocole validés ; aucune expérience agentique exécutée.
+- [Architecture minimale MVP-4](20_ARCHITECTURE_MINIMALE_MVP4.md) : architecture et cinq décisions validées ; aucune implémentation.
+- [Spécification MVP-4](21_SPECIFICATION_MVP4.md) : cas d'usage, contrats, permissions et exigences validés pour la planification.
+- [Critères et tests MVP-4](22_CRITERES_ET_TESTS_MVP4.md) : seuils validés, preuves, régressions et traçabilité ; aucun nouveau test exécuté.
+- [Contrôle global de la planification](23_CONTROLE_COHERENCE_PLANIFICATION.md) : traçabilité des exigences, écarts corrigés, risques et décisions restant ouvertes ; aucune implémentation.
+- [Corpus synthétique et manifeste](scenario-comparatif/) : six ressources fictives, deux variantes et leurs empreintes ; ne pas confondre avec les rapports du site réel.
+- [Données de recherche et traçabilité](recherche-open-source-2026-10-29/) : requêtes, 640 candidats, révisions, arbres, licences et corrections ; les niveaux d'examen sont distincts.
+- [Preuves de reproduction](preuves-phase1/) : deux rapports Markdown et extraction des données persistées ; contenus locaux à examiner avant tout partage.
+
 ## Par où commencer
 
 | Si vous voulez… | Lisez |
@@ -47,10 +66,7 @@
 3. **Distinction stricte** entre exécuté pendant l'audit (EV-01, EV-04…09),
    rapporté par le poste utilisateur (EV-02, EV-24, EV-25), CI (EV-03) et
    **non vérifié** (NV-1 → NV-6).
-4. **Limites d'environnement de l'audit** : la sandbox n'a pas de
-   navigateurs Playwright ; l'inspection L3 et les E2E navigateur n'y sont
-   pas rejoués (EV-28) — ce sont des limites de l'audit, pas des défauts du
-   produit.
+4. **Limites d’environnement de l’audit historique du 26 octobre** : cette séquence ne disposait pas de navigateurs Playwright et n’avait pas rejoué L3 (EV-28). Une nouvelle reproduction séparée a depuis été réalisée sur un autre commit : voir [15](15_PHASE1_MATRICE_ET_VALIDATION.md). Les conclusions historiques restent datées et distinctes.
 
 ## Conventions d'identifiants
 

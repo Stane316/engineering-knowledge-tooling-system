@@ -1,7 +1,10 @@
 # Roadmap — Engineering Knowledge Tooling System
 
 > Périmètre, avancement et planification · dernière mise à jour :
-> **25 octobre 2026**
+> **30 octobre 2026** — révision de trajectoire validée par le propriétaire.
+
+
+> **Lecture de cette roadmap :** les sections MVP-1/2/3 et les chiffres de qualité associés conservent les déclarations historiques ; ils ne constituent pas une nouvelle campagne de validation. La section MVP-4 ci-dessous et le calendrier courant portent la trajectoire validée par le propriétaire ; l’ancien plan de collaboration et l’ancien calendrier restent visibles comme instantanés. Le [registre](blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md) suit l’avancement, cette page reste la seule roadmap de trajectoire. Les validations de spécification et de seuils n’autorisent ni développement, ni pilote, ni publication.
 
 ## MVP-2 — Terminé ✅
 
@@ -217,7 +220,114 @@ des modèles avant exécution.
 
 ---
 
-## MVP-4 — Collaboration (optionnel, non engagé)
+## MVP-4 — Fiabilité et connaissances agentiques traçables
+
+**Statut :** périmètre, architecture, spécification et seuils **validés pour la planification** ; **aucune implémentation MVP-4 autorisée ni réalisée dans cette mission**. La révision de cette roadmap et la décomposition documentaire des Sprints 19–24 ont été validées par le propriétaire le 30 octobre 2026. Le détail reste à vérifier avant chaque lancement ; les durées ne sont pas engagées et les feux verts de développement sont distincts. Les anciens S19–S22 « collaboration » sont conservés comme historique ; leur numérotation est réutilisée pour le nouveau périmètre validé.
+
+**Objectif produit :** permettre à un agent de découvrir et consulter des connaissances autorisées, de produire un résultat sourcé et de rendre son utilisation vérifiable, tout en fiabilisant les audits web existants et en contrôlant effectivement les permissions.
+
+**Références approuvées :** [scénario comparatif](audit/produit/19_SCENARIO_COMPARATIF_AGENT_EKTS.md), [architecture](audit/produit/20_ARCHITECTURE_MINIMALE_MVP4.md), [spécification](audit/produit/21_SPECIFICATION_MVP4.md), [43 critères et tests](audit/produit/22_CRITERES_ET_TESTS_MVP4.md). Les ID `P`, `R`, `T`, `W`, `O` et `C-*` ci-dessous renvoient à ces documents. Ils décrivent une cible, pas un résultat nouveau.
+
+### 1. Décisions et arbitrages
+
+| Sujet | Décision pour cette révision | Motif, condition ou conséquence |
+|---|---|---|
+| Socle local SQLite/FTS, CLI et serveur MCP existant | **Conservé** comme base d'architecture. | FTS explicite pour le pilote ; ne pas annoncer que les trois bases ou `sqlite-vec` ont été supprimées. La recherche hybride existante reste disponible dans son périmètre historique. |
+| MVP-4 « collaboration d'abord » | **Modifié** : MVP-4 est recentré sur fiabilité, connaissances, traçabilité et permissions. | L'ancienne recommandation, sa durée et les S19–S22 sont conservés dans l'historique ci-dessous ; ce changement n'efface pas les validations MVP-3. |
+| Partage d'équipes, comptes, commentaires et notifications | **Reportés**, non abandonnés. | Horizon non daté et non affecté à un futur numéro de MVP ; nouvelle décision et étude sécurité/backend nécessaires. Ne pas confondre contrôle local d'outils et authentification multi-utilisateur. |
+| Profil local de lecture côté EKTS | **Ajouté à la cible indispensable**. | `P01–P03` ; contrôle des noms **et des arguments** : dans ce profil, `mode: fts` explicite ; mode omis, hybride et vectoriel refusés avant appel d'embeddings. Un contrôle externe vérifié peut suffire au seul pilote préliminaire. |
+| Provenance, droits et preuve locale | **Ajoutés à la cible indispensable**. | `R01–R03`, `T01–T03` ; conserver les anciennes ressources à statut inconnu et ne pas copier des contenus sans droit. Les traces prouvent les événements observables, pas le raisonnement interne. |
+| Fiabilité du module web | **Priorité maintenue et précisée**. | `W01–W06` : priorités cohérentes, valeurs absentes, score global indisponible ou erreur, métriques non confondues, preuves et reprise d'échec partiel. Les corrections restent à faire. |
+| Intégration historique des recommandations dans les rapports | **Écart conservé et décision reportée**, pas déclaré résolu. | Les documents MVP-3 signalent `C16.6/C16.7` : sections présentes, moteur non injecté dans les chemins de rapport examinés. Leur intégration éventuelle ne doit pas être promise comme livrée ; voir [validation MVP-3](MVP3_VALIDATION.md) et [audit](audit/produit/15_PHASE1_MATRICE_ET_VALIDATION.md). |
+| Nommage simplifié, français complet, corpus enrichi | **Reportés derrière les blocages structurels**. | Préférences maintenues, à traiter après fiabilité, traçabilité et permissions ; aucune intégration globale de skills. |
+| Client MCP sortant dans EKTS, orchestrateur multi-agent, backend distant, marketplace | **Écartés du périmètre minimal actuel**, sans interdiction définitive. | Un hôte peut connecter EKTS et, si autorisé, un outil séparé ; réexaminer seulement sur besoin prouvé et décision distincte. |
+| Firebase | **Abandon confirmé dans la trajectoire historique**. | Supabase ou alternative n'est **pas imposé** au MVP-4 local ; un éventuel besoin ultérieur de synchronisation exige une nouvelle comparaison. |
+| Hôte/modèle, coût, fournisseur, isolement effectif, rétention | **À décider avant opération**. | L'architecture et les seuils sont validés ; cela n'autorise pas un fournisseur, un transfert, une exécution ou une dépense. Windows natif est la cible de validation retenue ; machine et hôte précis restent à sélectionner. |
+
+### 2. Chantiers prioritaires et critères de sortie
+
+Les codes ci-dessous sont des **lots de planification**, pas des sprints existants. Les chiffres de [22](audit/produit/22_CRITERES_ET_TESTS_MVP4.md) sont des seuils validés pour la planification, pas des résultats observés.
+
+| Lot / priorité | Portée et dépendances | Critères d'acceptation et preuves attendues |
+|---|---|---|
+| **L0-W — P0 fiabilité web** | Priorités, valeurs absentes, score global, identité INP/FID/max-potential-FID/TBT, preuves minimales, échec partiel et lecture historique. Analyse des cibles autorisées et des redirections. Peut être spécifié parallèlement au lot permissions ; à livrer avant d'annoncer la fiabilité web MVP-4. | `W01–W06`, `O06` ; `C-W01–C-W14`. Zéro divergence sur les jeux prévus, cinq priorités et compteurs cohérents ; cas manquants distingués d'un zéro ; preuve des formats et de la reprise ; sécurité limitée aux cas effectivement testés. |
+| **L0-P — P0 permissions et confidentialité** | Inventaire des effets, profil serveur de lecture, contrôle FTS explicite, refus fermé des autres outils/modes ; isolation hôte/OS et politique réseau. Les trois outils retenus ne rendent pas les autres processus sûrs. | `P01–P03`, `O01`, `O06` ; `C-P01–C-P08`, `C-O01`, `C-W13/W14`. Appels interdits directement testés et refusés, aucune action interdite exécutée dans le jeu ; états non observables bloqués/indéterminés. |
+| **L1-R — P1 corpus et provenance** | Dépend de l'accès gouverné et d'une base isolée : contenu autorisé, source/version/état des droits, empreinte, correspondance ID↔UUID, préservation des ressources anciennes. | `R01–R03`, `O04` ; `C-R01–C-R05`, `C-O05`. Six contenus synthétiques identiques B/C et droits vérifiés ; informations inconnues non inventées ; ancienne base lisible ou migration approuvée/restauration vérifiée. |
+| **L1-F — P1 recherche et erreurs** | Réutiliser FTS, conserver la compatibilité historique hors profil, distinguer résultat vide, erreur, mode indisponible et ressource absente ; pas de repli caché. | `R04/R05` ; `C-R06–C-R08`, `C-O07`. Sur le jeu figé, 7/7 requêtes positives au rappel@5 requis et 1/1 requête négative ; p95 local ≤ 500 ms sur la configuration retenue, selon la méthode de 22. |
+| **L1-T — P1 preuve et traçabilité** | Dépend d'une capture hôte ou EKTS effectivement observable, du manifeste/version et d'une politique de rétention ; pas de service distant requis. | `T01–T03` ; `C-T01–C-T03`. Appels/résultats et citations rapprochés quand visibles ; donnée manquante = indéterminé ; minimisation et permissions des traces. |
+| **L1-O — P1 compatibilité, Windows et reprise** | Environnement Windows natif de validation à choisir ; dépendances natives, chemins/UTF-8, ACL, bases et WAL ; lecture des données historiques et documentation des effets. | `O02–O05` ; `C-O02–C-O06` et `C-W12`. Étapes prévues exécutées sur la configuration choisie, sauvegarde/restauration ou incohérence détectée, aucun historique réécrit silencieusement. |
+| **L2-E — P2 évaluation comparative** | Après contrôles G0, accord explicite et préparation : même agent seul, avec fichiers et avec EKTS ; corpus B/C identique et conditions isolées. Peut être bloqué si l'hôte ou les restrictions ne sont pas vérifiables. | `T04` ; `C-T04–C-T06`, protocole [19](audit/produit/19_SCENARIO_COMPARATIF_AGENT_EKTS.md). T01 B moyen ≥ 80/100 et 0 citation inventée : cible de qualité validée, à mesurer. Rapporter séparément B−A et B−C ; un score ≥ 80 ne démontre pas un avantage sur C. |
+
+**P0 ≠ sprints séquentiels imposés :** les lots web et permissions peuvent être préparés en parallèle, mais leurs écarts ne sont pas déclarés résolus par la présente planification. Le nommage et l'enrichissement ne passent pas devant eux. Un pilote synthétique préliminaire, avec confinement externe réellement contrôlé et accord distinct, peut être envisagé avant certains correctifs web ; il ne constitue pas la validation du produit web.
+
+### 2.1 Décomposition documentaire validée — Sprints 19 à 24
+
+> Créée et validée par le propriétaire le 30/10/2026, sans durée engagée ni feu vert de développement. Les anciens S19–S22 de collaboration restent conservés comme historique ; la numérotation ci-dessous est réutilisée pour le nouveau périmètre, sans en reprendre le contenu.
+
+| Sprint | Périmètre | Justification du découpage |
+|---|---|---|
+| [19 — Priorités et scores web](blueprint/Docs/roadmap/sprints/SPRINT-19.md) | `W01–W03` et lecture historique | Corriger en premier les contradictions de priorité et les mesures manquantes. |
+| [20 — Métriques, preuves et sécurité web](blueprint/Docs/roadmap/sprints/SPRINT-20.md) | `W04–W06`, `O06` | Compléter la fiabilité web avec identité des métriques, reprise et cibles contrôlées. |
+| [21 — Permissions et confinement](blueprint/Docs/roadmap/sprints/SPRINT-21.md) | `P01–P03`, `O01` | Autre priorité P0, préparables en parallèle du web ; l'isolation hôte et le serveur restent distincts. |
+| [22 — Provenance et FTS](blueprint/Docs/roadmap/sprints/SPRINT-22.md) | `R01–R05` | Fonder corpus et recherche sur des ressources autorisées et une interface gouvernée. |
+| [23 — Preuves et exploitation](blueprint/Docs/roadmap/sprints/SPRINT-23.md) | `T01–T03`, `O02–O05` | Vérifier les traces, la compatibilité Windows, les données historiques et la reprise. |
+| [24 — Validation et décision pilote](blueprint/Docs/roadmap/sprints/SPRINT-24.md) | Régressions M, `T04` facultatif, G0–G3 | Consolider les preuves et préparer une décision sans confondre conformité et valeur comparative. |
+
+Six sprints ont été retenus pour couvrir les lots validés et leurs dépendances ; aucun sprint 25–30 n'est créé artificiellement. Chaque sprint comporte un parent, trois sous-sprints et un prompt futur. Pour chaque sous-sprint, **tests unitaires, intégration, E2E et raccordement CI sont préparés avant le code** ; si un environnement ou une autorisation manque, le cas est bloqué et non présenté comme réussi. Les validations humaines, l'exécution de l'expérience et les éventuels commits sont explicitement distingués. Tout changement ultérieur du découpage suit une décision humaine.
+
+### 3. Dépendances et portes de décision
+
+```text
+Vision + audit + scénario + architecture + spec/critères validés
+                             │
+              révision roadmap → validation humaine acquise
+                             │
+          ┌──────────────────┴───────────────────────┐
+          │                                          │
+ Dossiers / sprints / prompts                  Pilote préliminaire facultatif
+ décomposition validée ; revue                  contrôle externe vérifié
+ détaillée avant chaque sprint
+          │                                    + corpus / traces / G0
+ Feu vert séparé pour développement           + autorisation opérationnelle
+          │                                          │
+ L0-W web    L0-P permissions                     L2-E → G2
+     │           │                         (ne valide pas le produit)
+     │           └→ L1-R/F/T ressources, recherche, preuves
+     │                         │
+     └──────────────┬──────────┘
+              L1-O compatibilité / reprise
+                        │
+            tous critères M applicables → G1
+                        │
+           G1 + G2 et leurs limites → G3
+```
+
+Les flèches indiquent des **prérequis de validation et d'intégration**, pas une planification jour par jour. La préparation documentaire et des tests de lots indépendants peut se faire en parallèle. Avant L2-E, les contrôles de corpus, permissions et traces doivent être effectivement vérifiés ; L0-W complet n'est pas un prérequis technique du seul scénario synthétique mais reste obligatoire pour la conformité web du MVP produit.
+
+- **G0 — pilote prêt :** scénario, restrictions, données, hôte/modèle, budget et rétention approuvés ; absence d'accès ou de preuve suffisante = bloqué.
+- **G1 — conformité technique :** tous les critères **M applicables** de [21](audit/produit/21_SPECIFICATION_MVP4.md) et [22](audit/produit/22_CRITERES_ET_TESTS_MVP4.md) réussis, avec preuves ; aucun incident de sécurité non résolu. `bloqué`, `sauté` ou `indéterminé` n'est pas `réussi`. En particulier, `C-P07` exige une exposition T06 effectivement observable : si elle n'est pas autorisée ou ne peut être vérifiée, G1 reste bloqué, même si le pilote comparatif complet demeure facultatif.
+- **G2 — valeur comparative :** résultats A/C/B effectivement obtenus ou statut bloqué ; distinguer B−A (corpus + EKTS) de B−C (interfaces avec même corpus), coûts et limites. Une absence de gain est un résultat légitime ; en l'absence d'essai, la valeur ajoutée comparative demeure **non démontrée**.
+- **G3 — décision produit :** le propriétaire examine G1, G2, risques et preuves. Une conformité technique ne transforme pas une comparaison négative ou absente en gain démontré.
+
+**Paramètres non encore choisis :** machine Windows native de validation, hôte/modèle et leurs versions, isolement effectif, fournisseur éventuel, coût maximal et durée de conservation. Les critères chiffrés ont été validés pour la planification ; les configurations et toute dépense restent à approuver avant utilisation.
+
+### 4. Contradictions et limites documentaires à traiter sans effacement
+
+| Sujet | Constat et références | Traitement prévu |
+|---|---|---|
+| **Registre Sprint 17** | Le [registre](blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md) comporte deux séries `17-1/2/3` et parent : l'une « livré/validé », l'autre « non commencé ». Le [résultat S17](blueprint/Docs/roadmap/sprints/SPRINT-17-RESULTAT.md) déclare 3/3 terminés ; cet état n'est pas une preuve que toutes les capacités fonctionnent aujourd'hui. | Un avertissement est ajouté dans le registre, sans supprimer les lignes ni trancher silencieusement leur origine ; réconciliation documentaire lors de la planification, avec date et décision humaine. |
+| **Calendrier MVP-3** | L'ancien calendrier ci-dessous disait encore « planifié », alors que la section MVP-3 et [validation](MVP3_VALIDATION.md) rapportent clôture le 26/10/2026. | Calendrier courant corrigé avec la réserve des preuves historiques ; ancien calendrier conservé dans l'historique. Les 97/97 sont **97 lignes-critères**, dont des réserves/écarts documentés, pas 97 comportements indépendamment rejoués. |
+| **Recommandations des rapports** | `C16.6/C16.7` : sections de génération présentes mais moteur non injecté dans les parcours de rapport examinés. | Écart tracé et non requalifié « livré en parcours produit » ; arbitrage d'intégration distinct. |
+| **Documentation MCP** | [`AGENTS.md`](../AGENTS.md) décrit quatre outils en lecture seule, [`docs/MCP.md`](MCP.md) annonce onze outils ; l'essai de phase 1 et le code de référence en exposent 17, dont des mutations. | Mise en cohérence prévue avec `O05/C-O06`, sans modifier les règles de gouvernance ni présenter le serveur actuel comme globalement en lecture seule. |
+| **README et version** | Le README racine comporte encore des références MVP-2/0.1.0 alors que `package.json` indique 0.2.0 et que la clôture MVP-3 est documentée. | Actualisation documentaire à planifier, en conservant les références et sans annoncer de nouvelle version non publiée. |
+| **Préparation MVP-4 / ADR-044** | [Préparation historique](MVP4_PREPARATION.md) recommandait la collaboration et disait attendre une décision avant spécification ; les nouvelles validations confirment un autre objectif local. | Bannière de révision et lien vers cette roadmap ; préserver le texte historique et reporter la réconciliation formelle du registre des décisions au dossier directeur. |
+| **Sécurité et métriques historiques** | Les chiffres de tests, couverture, audit de dépendances et « aucun secret » ci-dessus sont des déclarations datées ; ils n'ont pas tous été rejoués dans cette mission. | Les présenter comme historiques, pas comme état de sécurité actuel. Aucun scan complet des secrets ou de l'historique n'a été effectué ici. |
+
+### 5. Historique conservé — proposition MVP-4 du 25–26 octobre
+
+> Le texte ci-dessous est préservé pour comprendre l'ancienne trajectoire. Il **ne définit plus le périmètre courant** et n'engage ni ses sprints, ni sa durée, ni une infrastructure distante.
+
+#### MVP-4 — Collaboration (optionnel, non engagé) — texte historique
 
 **Durée estimée :** 8 semaines (Sprints 19–22)  
 **Objectif :** partager, commenter, assigner, notifier.
@@ -263,6 +373,8 @@ Le MVP-3 part de l'existant, **sans refonte** (contrainte de périmètre) :
 
 ### Méthode de livraison (héritée, inchangée)
 
+> **Lecture actuelle :** méthode historique, non autorisation d'implémenter ou de pousser ; les consignes de la mission interdisent toute PR, publication ou modification fonctionnelle sans autorisation distincte.
+
 1. Lire la spec du sprint + les docs d'architecture concernées.
 2. Audit de véracité des modèles de spec **avant** toute écriture.
 3. Implémenter le périmètre strict ; écarts → soumission P3.
@@ -273,7 +385,9 @@ Le MVP-3 part de l'existant, **sans refonte** (contrainte de périmètre) :
 
 ---
 
-## Horizon long
+## Horizon long — prévisions historiques non engagées
+
+Les thèmes et numéros ci-dessous sont conservés comme historique, sans affectation automatique de la collaboration ni priorité ou durée réapprouvée.
 
 | MVP | Thème | Contenu indicative |
 |-----|-------|--------------------|
@@ -286,7 +400,19 @@ par MVP.
 
 ---
 
-## Calendrier global
+## Calendrier global — état courant, sans dates nouvelles engagées
+
+| Phase | État à la révision du 30/10/2026 |
+|-------|----------------------------------|
+| MVP-1 | Terminé selon le registre historique ; chiffres non rejoués pour cette révision. |
+| MVP-2 | Validation historique 88/88 déclarée, non rejouée intégralement ici. |
+| MVP-3 | Clôture documentaire le 26/10/2026, 97/97 lignes-critères déclarées, avec écarts P3 et réserves de parcours rapport ; voir [validation](MVP3_VALIDATION.md). |
+| MVP-4 | Vision, architecture, spécification, seuils, roadmap et décomposition documentaire 19–24 validés ; développement et expérience non autorisés. Aucune durée ni démarrage opérationnel de sprint n'est engagé. |
+| Horizons suivants | Options historiques non engagées ; collaboration reportée sans numérotation ni calendrier fixé. |
+
+### Instantané du calendrier antérieur — conservé pour traçabilité
+
+> Tableau historique contradictoire avec la clôture MVP-3 et la trajectoire courante ; ses durées et ses statuts MVP-3/MVP-4 ne sont plus la planification active.
 
 | Phase | Durée planifiée | Statut |
 |-------|-----------------|--------|
@@ -320,4 +446,4 @@ avancement détaillé : `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`.
 
 ---
 
-**Version :** 0.1.0 (MVP-2 validé) · **Dernière mise à jour :** 25 octobre 2026
+**Révision de la roadmap :** 30 octobre 2026 · **Ancien pied conservé :** version 0.1.0 (MVP-2 validé), dernière mise à jour 25 octobre 2026. Le numéro historique ne déclare pas une version actuelle du produit.

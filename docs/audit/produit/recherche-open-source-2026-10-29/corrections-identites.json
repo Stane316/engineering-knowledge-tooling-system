@@ -1,0 +1,29 @@
+{
+  "collected_utc": "2026-10-29T17:05:51.074240+00:00",
+  "corrections": [
+    {
+      "invalid_or_unavailable": "sqliteai/sqlite-vec",
+      "corrected_repository": "asg017/sqlite-vec",
+      "head_sha": "04d28bd21773981e2d266bbf6aa4efbd011eb4f6",
+      "readme_url": "https://github.com/asg017/sqlite-vec/blob/04d28bd21773981e2d266bbf6aa4efbd011eb4f6/README.md",
+      "readme_sha256": "9116ef6e0b78eb0caf5c6bb6419ccf4f8c6523967eef2045928c33dc66053d64",
+      "status": "ok"
+    },
+    {
+      "invalid_or_unavailable": "trafilatura/trafilatura",
+      "corrected_repository": "adbar/trafilatura",
+      "head_sha": "5e5292fffe3009f218021575b05c2d2dcf6afc64",
+      "readme_url": "https://github.com/adbar/trafilatura/blob/5e5292fffe3009f218021575b05c2d2dcf6afc64/README.md",
+      "readme_sha256": "42962884fec6a66270f58a71f2b7494e294cf0b0881691eb79e50bbec55bc25a",
+      "status": "ok"
+    },
+    {
+      "invalid_or_unavailable": "berkeley-function-calling-leaderboard/berkeley-function-calling-leaderboard",
+      "corrected_repository": "ShishirPatil/gorilla",
+      "head_sha": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+      "readme_url": "https://github.com/ShishirPatil/gorilla/blob/6ea57973c7a6097fd7c5915698c54c17c5b1b6c8/README.md",
+      "readme_sha256": "cadf1e55ff5a9f1371812f292d0e97bd40c6b94f2c226b17ef82feeb742dbb64",
+      "status": "ok"
+    }
+  ]
+}

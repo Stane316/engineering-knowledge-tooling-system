@@ -34,6 +34,23 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 
 ---
 
+### 1.2 Décomposition documentaire MVP-4 validée — 30/10/2026
+
+La [roadmap](../../../ROADMAP.md) et la décomposition en sprints 19–24 ont été validées par le propriétaire. Le contenu opérationnel doit être vérifié avant chaque sprint ; **aucun lancement ni développement n'est autorisé par cette validation**. Aucun statut historique n'est remplacé ; aucun commit n'est inventé. Ces fichiers sont présents dans l'espace de travail non commité ; leur inscription au journal et les statuts définitifs suivront un éventuel commit réel selon les règles du registre.
+
+| Sprint planifié | Documentation | Implémentation | Référence |
+|---|---|---|---|
+| 19 — Priorités et scores web | 📄 Décomposition validée ; détails à vérifier avant lancement | ⏳ Non commencée | [SPRINT-19](sprints/SPRINT-19.md) |
+| 20 — Métriques, preuves et sécurité web | 📄 Décomposition validée ; détails à vérifier avant lancement | ⏳ Non commencée | [SPRINT-20](sprints/SPRINT-20.md) |
+| 21 — Profil de lecture et confinement | 📄 Décomposition validée ; détails à vérifier avant lancement | ⏳ Non commencée | [SPRINT-21](sprints/SPRINT-21.md) |
+| 22 — Provenance et FTS | 📄 Décomposition validée ; détails à vérifier avant lancement | ⏳ Non commencée | [SPRINT-22](sprints/SPRINT-22.md) |
+| 23 — Preuves et exploitation | 📄 Décomposition validée ; détails à vérifier avant lancement | ⏳ Non commencée | [SPRINT-23](sprints/SPRINT-23.md) |
+| 24 — Validation et décision pilote | 📄 Décomposition validée ; détails à vérifier avant lancement | ⏳ Non commencée | [SPRINT-24](sprints/SPRINT-24.md) |
+
+Les rapports `*-RESULTAT.md` ne seront créés qu'après des travaux réellement effectués. Aucun test, scénario agent, commit, push ou PR n'est autorisé par la rédaction. Les observations de phase 1 ne sont pas les résultats de ces sprints.
+
+---
+
 ## 2. Vue d'ensemble
 
 | Périmètre | Sprints | Documentation | Implémentation | Tests |
@@ -54,6 +71,8 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 ---
 
 ## 3. Détail par sprint
+
+> **Note de révision documentaire — 30/10/2026 :** les quatre entrées du Sprint 17 (17-1, 17-2, 17-3 et parent) apparaissent deux fois ci-dessous avec des statuts incompatibles : une série « livré/validé », une série « non commencé ». Elles sont conservées telles quelles ; leur réconciliation officielle reste ouverte. Le [résultat S17](sprints/SPRINT-17-RESULTAT.md) déclare les trois sous-sprints terminés ; le [résultat S18](sprints/SPRINT-18-RESULTAT.md) et la [validation MVP-3](../../../MVP3_VALIDATION.md) documentent la clôture et ses réserves. Ces documents sont des sources historiques, pas une nouvelle vérification indépendante de toutes les capacités. La [roadmap révisée](../../../ROADMAP.md) recense aussi la réserve de rapports C16.6/C16.7, les décalages documentaires MCP, de version et de calendrier. Cette note ne modifie aucun statut de sprint ni ne lui invente un commit.
 
 | Sprint | Sous-sprint | Sujet | Documentation | Implémentation | Tests |
 |--------|-------------|-------|---------------|----------------|-------|
@@ -189,6 +208,8 @@ Ce registre est la **source de vérité unique** de l'avancement. Il remplace le
 ---
 
 ## 5. Prochaines étapes
+
+> **Note de révision documentaire — 30/10/2026 :** la liste ci-dessous est l'instantané du 26/10. Sa demande de décision avant toute spécification au point 2 est désormais historiquement dépassée : le propriétaire a validé vision, architecture, spécification et seuils, et autorisé la révision de la [roadmap](../../../ROADMAP.md). La collaboration est reportée ; aucun feu vert pour développement, pilote, publication ou nouveau sprint n'en découle. Les vérifications manuelles du point 3 restent des actions historiques à réévaluer selon leur objet ; elles ne sont pas réputées exécutées ici.
 
 1. **Sprints 1 à 18 terminés** — **MVP-3 validé (97/97)** le 26/10/2026 ;
    1 656 tests, couverture 96,40 %, E2E MVP-3 29,8 s, catalogues CLI 15

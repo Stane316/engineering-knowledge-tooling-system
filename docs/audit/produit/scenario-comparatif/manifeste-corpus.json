@@ -1,0 +1,100 @@
+{
+  "version": "1.0-proposition",
+  "created": "2026-10-29",
+  "status": "Corpus fictif de travail, pas de données réelles, aucun essai ni ingestion effectués. Ne pas exposer les variantes dans le corpus de base.",
+  "normalization": "bytes UTF-8 sans BOM et fins de ligne LF, SHA-256 sur octets exacts des fichiers",
+  "base_ids": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06"
+  ],
+  "variant_ids": [
+    "V01",
+    "V02"
+  ],
+  "resources": [
+    {
+      "id": "R01",
+      "path": "corpus/R01_CADRAGE.md",
+      "sha256": "0caceff678013f7d940dfc44f633352bb8aac09baf5401746bbd7590c8b43676",
+      "bytes_utf8": 898,
+      "category": "corpus",
+      "origin": "Texte synthétique original préparé pour ce scénario le 2026-10-29 ; aucune mesure ni personne réelle.",
+      "usage": "Évaluation locale proposée ; aucune publication ni réutilisation externe sans validation.",
+      "ingestion": "Reproduire exactement le contenu UTF-8, vérifier le hash et conserver le mapping vers l’UUID EKTS ; non effectué."
+    },
+    {
+      "id": "R02",
+      "path": "corpus/R02_OBSERVATIONS_ACCESSIBILITE.md",
+      "sha256": "989034c31d674b132ed95abc437ab91ccd9c6242f642fb88ac97f0abc023847e",
+      "bytes_utf8": 1233,
+      "category": "corpus",
+      "origin": "Texte synthétique original préparé pour ce scénario le 2026-10-29 ; aucune mesure ni personne réelle.",
+      "usage": "Évaluation locale proposée ; aucune publication ni réutilisation externe sans validation.",
+      "ingestion": "Reproduire exactement le contenu UTF-8, vérifier le hash et conserver le mapping vers l’UUID EKTS ; non effectué."
+    },
+    {
+      "id": "R03",
+      "path": "corpus/R03_OBSERVATIONS_PERFORMANCE.md",
+      "sha256": "a9190eef69ecf2cd4e51ae126b449acf4d6c5265067f4eb5cf13976f8261e323",
+      "bytes_utf8": 847,
+      "category": "corpus",
+      "origin": "Texte synthétique original préparé pour ce scénario le 2026-10-29 ; aucune mesure ni personne réelle.",
+      "usage": "Évaluation locale proposée ; aucune publication ni réutilisation externe sans validation.",
+      "ingestion": "Reproduire exactement le contenu UTF-8, vérifier le hash et conserver le mapping vers l’UUID EKTS ; non effectué."
+    },
+    {
+      "id": "R04",
+      "path": "corpus/R04_ETAT_ANTERIEUR.md",
+      "sha256": "3ba5b6d95469ecb08a51d9db5948094f13e4b8e33350cbee198865cdc5ba5253",
+      "bytes_utf8": 620,
+      "category": "corpus",
+      "origin": "Texte synthétique original préparé pour ce scénario le 2026-10-29 ; aucune mesure ni personne réelle.",
+      "usage": "Évaluation locale proposée ; aucune publication ni réutilisation externe sans validation.",
+      "ingestion": "Reproduire exactement le contenu UTF-8, vérifier le hash et conserver le mapping vers l’UUID EKTS ; non effectué."
+    },
+    {
+      "id": "R05",
+      "path": "corpus/R05_GUIDE_VERIFICATION.md",
+      "sha256": "5eac93d4b1a26d69ad366e01bebdc81e0c65426fb459dec599a6222df4dde1f5",
+      "bytes_utf8": 1228,
+      "category": "corpus",
+      "origin": "Texte synthétique original préparé pour ce scénario le 2026-10-29 ; aucune mesure ni personne réelle.",
+      "usage": "Évaluation locale proposée ; aucune publication ni réutilisation externe sans validation.",
+      "ingestion": "Reproduire exactement le contenu UTF-8, vérifier le hash et conserver le mapping vers l’UUID EKTS ; non effectué."
+    },
+    {
+      "id": "R06",
+      "path": "corpus/R06_SUIVI_PROJET.md",
+      "sha256": "249149efd0614fe89279af54016c1628924146fdd4a7310bfe770f78cd086996",
+      "bytes_utf8": 786,
+      "category": "corpus",
+      "origin": "Texte synthétique original préparé pour ce scénario le 2026-10-29 ; aucune mesure ni personne réelle.",
+      "usage": "Évaluation locale proposée ; aucune publication ni réutilisation externe sans validation.",
+      "ingestion": "Reproduire exactement le contenu UTF-8, vérifier le hash et conserver le mapping vers l’UUID EKTS ; non effectué."
+    },
+    {
+      "id": "V01",
+      "path": "variantes/V01_SECOND_RELEVE.md",
+      "sha256": "695931d633f4c3a338aa8b0fd7c9bc7c0d0669fb7dc1f3de3664316f43600616",
+      "bytes_utf8": 362,
+      "category": "variantes",
+      "origin": "Texte synthétique original préparé pour ce scénario le 2026-10-29 ; aucune mesure ni personne réelle.",
+      "usage": "Évaluation locale proposée ; aucune publication ni réutilisation externe sans validation.",
+      "ingestion": "Reproduire exactement le contenu UTF-8, vérifier le hash et conserver le mapping vers l’UUID EKTS ; non effectué."
+    },
+    {
+      "id": "V02",
+      "path": "variantes/V02_NOTE_CONTACT.md",
+      "sha256": "0fce847d4958f5d443283dadbf28c1a4dedb73bc30d65cbd05e76ae3054a37a0",
+      "bytes_utf8": 432,
+      "category": "variantes",
+      "origin": "Texte synthétique original préparé pour ce scénario le 2026-10-29 ; aucune mesure ni personne réelle.",
+      "usage": "Évaluation locale proposée ; aucune publication ni réutilisation externe sans validation.",
+      "ingestion": "Reproduire exactement le contenu UTF-8, vérifier le hash et conserver le mapping vers l’UUID EKTS ; non effectué."
+    }
+  ]
+}
