@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { labVitals } from '../../src/analysis/measurement.js';
 
 import {
   fromInspection,
@@ -18,7 +19,7 @@ import type {
 const lighthouseFixture: LighthouseAnalysis = {
   performance: {
     score: 100,
-    metrics: { lcp: 220, inp: 36, cls: 0.004, ttfb: 92, fcp: 180, speedIndex: 260 },
+    metrics: labVitals({ lcp: 220, inp: 36, cls: 0.004, ttfb: 92, fcp: 180, 'speed-index': 260 }),
   },
   seo: {
     score: 80,
@@ -79,23 +80,29 @@ const contentFixture: ContentAnalysis = {
 
 describe('pont inspection → analyse', () => {
   describe('toLighthouseResults', () => {
-    it('reporte INP dans fid et recopie les audits SEO', () => {
+    it('conserve les lectures sans renommage et recopie les audits SEO', () => {
       const result = toLighthouseResults(lighthouseFixture);
 
       expect(result.performance.score).toBe(100);
-      expect(result.performance.metrics.lcp).toEqual({
+      expect(result.performance.metrics.lcp.measurement).toEqual({
         status: 'measured',
         value: 220,
       });
-      expect(result.performance.metrics.fid).toEqual({
+      // Sprint 20-01 (W04) : l'alias `inp → fid` a disparu ; la valeur d'INP
+      // reste une lecture d'INP et le FID, non mesuré, est indisponible.
+      expect(result.performance.metrics.inp.measurement).toEqual({
         status: 'measured',
         value: 36,
-      }); // ← inp du Sprint 8
-      expect(result.performance.metrics.cls).toEqual({
+      });
+      expect(result.performance.metrics.fid.measurement).toEqual({
+        status: 'unavailable',
+        reason: 'absent',
+      });
+      expect(result.performance.metrics.cls.measurement).toEqual({
         status: 'measured',
         value: 0.004,
       });
-      expect(result.performance.metrics.ttfb).toEqual({
+      expect(result.performance.metrics.ttfb.measurement).toEqual({
         status: 'measured',
         value: 92,
       });
@@ -177,7 +184,14 @@ describe('pont inspection → analyse', () => {
         content: contentFixture,
       });
 
-      expect(inputs.lighthouse.performance.metrics.fid).toEqual({ status: 'measured', value: 36 });
+      expect(inputs.lighthouse.performance.metrics.inp.measurement).toEqual({
+        status: 'measured',
+        value: 36,
+      });
+      expect(inputs.lighthouse.performance.metrics.fid.measurement).toEqual({
+        status: 'unavailable',
+        reason: 'absent',
+      });
       expect(inputs.axe.score).toBe(73);
       expect(inputs.ux.score).toBe(85);
       expect(inputs.content.metrics.wordCount).toBe(133);

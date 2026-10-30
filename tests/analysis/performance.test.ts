@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { toMeasurement } from '../../src/analysis/measurement.js';
+import { labVitals } from '../../src/analysis/measurement.js';
 import { PerformanceAnalyzer } from '../../src/analysis/performance.js';
 import type { LighthouseResults } from '../../src/analysis/types.js';
 
@@ -18,13 +18,10 @@ function lighthouseResults(
   return {
     performance: {
       score,
-      // Sprint 19-03 : une métrique est désormais une mesure typée.
-      metrics: {
-        lcp: toMeasurement(metrics.lcp),
-        fid: toMeasurement(metrics.fid),
-        cls: toMeasurement(metrics.cls),
-        ttfb: toMeasurement(metrics.ttfb),
-      },
+      // Sprint 20-01 : chaque métrique porte son identité, son unité et son
+      // origine (laboratoire ici) ; les valeurs restent propres à chaque
+      // métrique — un FID de 500 ms est bien un FID, jamais un INP.
+      metrics: labVitals(metrics),
     },
     seo: { score: 90, issues: [] },
   };

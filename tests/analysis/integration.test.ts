@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { labVitals } from '../../src/analysis/measurement.js';
 
 import { fromInspection } from '../../src/analysis/adapter.js';
 import { AnalysisPipeline } from '../../src/analysis/pipeline.js';
@@ -38,7 +39,14 @@ const inspectionFixture: Pick<L3InspectionResult, 'lighthouse' | 'axe' | 'ux' | 
       // INP 39 réel sur example.com, volontairement porté à 150 ms ici :
       // sous le seuil, aucun constat FID ne serait produit et la chaîne
       // inp → fid → `perf-fid-warning` ne serait pas exercée de bout en bout.
-      metrics: { lcp: 227, inp: 150, cls: 0.004, ttfb: 83, fcp: 180, speedIndex: 260 },
+      metrics: labVitals({
+        lcp: 227,
+        inp: 150,
+        cls: 0.004,
+        ttfb: 83,
+        fcp: 180,
+        'speed-index': 260,
+      }),
     },
     seo: {
       score: 80,
@@ -136,12 +144,16 @@ describe('intégration de l’analyse (fixtures d’inspection réelles)', () =>
     expect(report.summary.totalFindings).toBeGreaterThan(0);
     expect(report.summary.overallScore.status).toBe('measured');
 
-    // INP du Sprint 8 alimente bien le constat FID du contrat d'analyse.
+    // Sprint 20-01 (W04) : plus aucun constat « FID » ne dérive d'une valeur
+    // d'INP. L'INP mesuré (150 ms) reste sous son seuil « bon » (200 ms) et ne
+    // produit donc aucun constat ; le FID, non mesuré, est indisponible.
     const perfDimension = report.dimensions.performance;
-    const fidFinding = perfDimension.findings.find((f) => f.id === 'perf-fid-warning');
-    expect(fidFinding).toBeDefined();
-    expect(fidFinding?.metric?.value).toBe(150);
-    expect(fidFinding?.severity).toBe(2);
+    expect(perfDimension.findings.find((f) => f.id === 'perf-fid-warning')).toBeUndefined();
+    expect(perfDimension.measurements?.['inp']).toEqual({ status: 'measured', value: 150 });
+    expect(perfDimension.measurements?.['fid']).toEqual({
+      status: 'unavailable',
+      reason: 'absent',
+    });
 
     expectSortedByPriority(report.priorityFindings.map((f) => f.priority));
   });

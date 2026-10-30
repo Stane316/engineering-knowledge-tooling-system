@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { labVitals } from '../../src/analysis/measurement.js';
 
 import { AnalysisPipeline } from '../../src/analysis/pipeline.js';
 import { fromInspection } from '../../src/analysis/adapter.js';
@@ -31,7 +32,7 @@ import { MarkdownReportGenerator } from '../../src/reports/markdown-generator.js
 const fastLighthouse: LighthouseAnalysis = {
   performance: {
     score: 100,
-    metrics: { lcp: 900, inp: 40, cls: 0.002, ttfb: 60, fcp: 700, speedIndex: 950 },
+    metrics: labVitals({ lcp: 900, inp: 40, cls: 0.002, ttfb: 60, fcp: 700, 'speed-index': 950 }),
   },
   seo: { score: 95, issues: [] },
   url: 'https://exemple-audit.test/',
@@ -43,7 +44,14 @@ const fastLighthouse: LighthouseAnalysis = {
 const slowLighthouse: LighthouseAnalysis = {
   performance: {
     score: 40,
-    metrics: { lcp: 4800, inp: 480, cls: 0.24, ttfb: 900, fcp: 4200, speedIndex: 5100 },
+    metrics: labVitals({
+      lcp: 4800,
+      inp: 480,
+      cls: 0.24,
+      ttfb: 900,
+      fcp: 4200,
+      'speed-index': 5100,
+    }),
   },
   seo: { score: 60, issues: [] },
   url: 'https://exemple-audit.test/',

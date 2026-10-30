@@ -15,7 +15,7 @@
 /**
  * Dimensions d'analyse.
  */
-import type { Measurement } from './measurement.js';
+import type { Measurement, MetricOrigin, WebVitals } from './measurement.js';
 
 export type AnalysisDimension = 'performance' | 'accessibility' | 'seo' | 'ux' | 'content';
 
@@ -87,8 +87,19 @@ export interface Finding {
     value: number;
     /** Seuil franchi. */
     threshold?: number;
-    /** Unité (`ms`, `mots`…). */
-    unit?: string;
+    /**
+     * Unité (`ms`, `unitless`, `mots`…).
+     *
+     * Obligatoire depuis le Sprint 20-01 (W04 / C-W08) : une valeur sans unité
+     * ne peut pas être interprétée ni comparée à un seuil.
+     */
+    unit: string;
+    /**
+     * Origine de la mesure, pour les métriques web (`lab`, `field`,
+     * `unknown`). Absente pour les mesures qui ne sont pas des métriques web
+     * (comptage de mots, par exemple).
+     */
+    origin?: MetricOrigin;
   };
 }
 
@@ -213,28 +224,13 @@ export interface LighthouseResults {
     /** Score performance (0-100), ou `null` si Lighthouse ne l'a pas fourni. */
     score: number | null;
     /**
-     * Métriques de laboratoire.
+     * Métriques web de laboratoire.
      *
-     * Depuis le Sprint 19-03 (C-W05), une métrique absente vaut
-     * `{ status: 'unavailable' }` et non `0` : le zéro de remplacement se
-     * lisait comme une excellente mesure.
+     * Sprint 20-01 (W04 / C-W08) : chaque métrique porte son identité, son
+     * unité et son origine ; INP, FID, max-potential-fid et TBT restent
+     * distincts et une métrique absente est explicitement indisponible.
      */
-    metrics: {
-      /** Largest Contentful Paint (ms). */
-      lcp: Measurement;
-      /**
-       * First Input Delay (ms).
-       *
-       * Depuis le Sprint 8, la valeur provient d'INP — successeur du FID —
-       * avec repli sur `max-potential-fid` (voir `extractCoreWebVitals`).
-       * Le nom `fid` est conservé pour le contrat du Sprint 9 (critère C9.1).
-       */
-      fid: Measurement;
-      /** Cumulative Layout Shift (sans unité). */
-      cls: Measurement;
-      /** Time to First Byte (ms). */
-      ttfb: Measurement;
-    };
+    metrics: WebVitals;
   };
   /** SEO et audits en échec. */
   seo: {

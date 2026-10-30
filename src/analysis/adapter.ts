@@ -5,7 +5,6 @@ import type {
   LighthouseAnalysis,
   UxAnalysis,
 } from '../browser/inspection/types.js';
-import { toMeasurement } from './measurement.js';
 import type { AxeResults, ContentResults, LighthouseResults, UXResults } from './types.js';
 
 /**
@@ -60,14 +59,11 @@ export function toLighthouseResults(analysis: LighthouseAnalysis): LighthouseRes
   return {
     performance: {
       score: analysis.performance.score,
-      // C-W05 : chaque valeur traverse `toMeasurement` ; une métrique absente
-      // devient `unavailable` et n'est plus convertie en 0.
-      metrics: {
-        lcp: toMeasurement(analysis.performance.metrics.lcp),
-        fid: toMeasurement(analysis.performance.metrics.inp),
-        cls: toMeasurement(analysis.performance.metrics.cls),
-        ttfb: toMeasurement(analysis.performance.metrics.ttfb),
-      },
+      // Sprint 20-01 (W04 / C-W08) : les lectures traversent le pont telles
+      // quelles. L'ancien `fid: toMeasurement(metrics.inp)` étiquetait une
+      // valeur d'INP en FID ; identité, unité et origine sont désormais
+      // conservées de bout en bout.
+      metrics: analysis.performance.metrics,
     },
     seo: {
       score: analysis.seo.score,

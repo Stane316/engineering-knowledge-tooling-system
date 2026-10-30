@@ -1,4 +1,5 @@
 import type { Audit } from '../../storage/types.js';
+import { scoreLimitations } from './limitations.js';
 import type { ComparisonReport } from '../types.js';
 
 /**
@@ -38,6 +39,7 @@ export class HtmlTemplate {
         </header>
         ${this.summarySection(audit)}
         ${this.dimensionsSection(audit)}
+        ${this.limitationsSection(audit)}
         ${this.findingsSection(audit)}
         ${this.recommendationsSection(audit)}
       `,
@@ -181,6 +183,32 @@ ${body}
             <tr><th>Total</th><th>${String(m.totalFindings)}</th></tr>
           </tbody>
         </table>
+      </section>`;
+  }
+
+  /**
+   * Limites d'interprétation des scores (Sprint 20-01, C-W10).
+   *
+   * @param audit - Audit source.
+   * @returns Section HTML (chaîne vide si aucune note ne s'applique).
+   */
+  private limitationsSection(audit: Audit): string {
+    const notes = scoreLimitations(audit);
+    if (notes.length === 0) {
+      return '';
+    }
+
+    const items = notes
+      .map(
+        (note) =>
+          `<li><strong>${this.escape(note.dimension)}</strong> — ${this.escape(note.message)}</li>`,
+      )
+      .join('');
+
+    return `
+      <section class="limitations">
+        <h2>⚠️ Limites d’interprétation</h2>
+        <ul>${items}</ul>
       </section>`;
   }
 

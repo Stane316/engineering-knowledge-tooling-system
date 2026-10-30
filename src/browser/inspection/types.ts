@@ -17,6 +17,7 @@
  * rapport JSON, la CLI et les outils MCP des sprints 9 à 11 sans transformation.
  */
 
+import type { WebVitals } from '../../analysis/measurement.js';
 import type {
   NavigationOptions,
   NavigationResult,
@@ -135,25 +136,12 @@ export interface AccessibilitySummary {
 /**
  * Métrique Core Web Vitals.
  *
- * Depuis le Sprint 19-03 (C-W05), une métrique absente vaut `null` et non `0` :
- * le zéro de remplacement se lisait comme une excellente mesure. La conversion
- * en `Measurement` (`src/analysis/measurement.ts`) conserve cette distinction
- * jusqu'au rapport.
+ * Depuis le Sprint 20-01 (W04 / C-W08), une inspection produit des **lectures**
+ * et non des nombres nus : identité, unité et origine accompagnent chaque
+ * mesure, INP / FID / max-potential-fid / TBT restent distincts, et une
+ * métrique absente est explicitement indisponible (contrat 19-03).
  */
-export interface CoreWebVitals {
-  /** Largest Contentful Paint (ms), `null` si Lighthouse ne l'a pas fourni. */
-  readonly lcp: number | null;
-  /** Interaction to Next Paint (ms), `null` si absente — successeur du FID. */
-  readonly inp: number | null;
-  /** Cumulative Layout Shift (sans unité), `null` si absent. */
-  readonly cls: number | null;
-  /** Time to First Byte (ms), `null` si absent. */
-  readonly ttfb: number | null;
-  /** First Contentful Paint (ms), `null` si absent. */
-  readonly fcp: number | null;
-  /** Speed Index (ms), `null` si absent. */
-  readonly speedIndex: number | null;
-}
+export type CoreWebVitals = WebVitals;
 
 /** Problème détecté par Lighthouse (SEO ou performance). */
 export interface LighthouseIssue {

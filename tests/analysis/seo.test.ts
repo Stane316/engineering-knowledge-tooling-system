@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { labVitals } from '../../src/analysis/measurement.js';
 
 import { SEOAnalyzer } from '../../src/analysis/seo.js';
 import type { LighthouseResults } from '../../src/analysis/types.js';
@@ -17,12 +18,12 @@ function seoResults(
   return {
     performance: {
       score: 90,
-      metrics: {
-        lcp: { status: 'measured', value: 1500 },
-        fid: { status: 'measured', value: 50 },
-        cls: { status: 'measured', value: 0.05 },
-        ttfb: { status: 'measured', value: 500 },
-      },
+      metrics: labVitals({
+        lcp: 1500,
+        fid: 50,
+        cls: 0.05,
+        ttfb: 500,
+      }),
     },
     seo: { score: seoScore, issues },
   };

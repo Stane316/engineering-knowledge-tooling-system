@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { labVitals } from '../../src/analysis/measurement.js';
 
 import { AnalysisPipeline } from '../../src/analysis/pipeline.js';
 import type {
@@ -76,12 +77,12 @@ function runCli(dataDir: string, args: string[]): Promise<CliResult> {
 const lighthouse: LighthouseResults = {
   performance: {
     score: 72,
-    metrics: {
-      lcp: { status: 'measured', value: 3200 },
-      fid: { status: 'measured', value: 180 },
-      cls: { status: 'measured', value: 0.2 },
-      ttfb: { status: 'measured', value: 1100 },
-    },
+    metrics: labVitals({
+      lcp: 3200,
+      fid: 180,
+      cls: 0.2,
+      ttfb: 1100,
+    }),
   },
   seo: { score: 78, issues: [] },
 };

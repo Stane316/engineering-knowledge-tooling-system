@@ -106,3 +106,130 @@ export function overallScoreValue(score: OverallScore): number | null {
 export function overallScoreReason(score: OverallScore): string | null {
   return score.status === 'unavailable' ? score.reason : null;
 }
+
+/**
+ * Identité d'une métrique web suivie (Sprint 20-01, W04 / C-W08).
+ *
+ * Une métrique ne change jamais de nom entre sa source et sa sortie : INP,
+ * FID, max-potential-fid et TBT sont quatre mesures distinctes, jamais
+ * interchangeables.
+ */
+export type WebVitalId =
+  'lcp' | 'inp' | 'fid' | 'max-potential-fid' | 'tbt' | 'cls' | 'ttfb' | 'fcp' | 'speed-index';
+
+/** Unité d'une métrique. `unitless` pour CLS, qui est un score sans dimension. */
+export type MetricUnit = 'ms' | 'unitless';
+
+/**
+ * Origine d'une mesure (W04).
+ *
+ * `field` désigne une donnée de terrain (RUM). Aucune source de terrain n'est
+ * branchée à ce jour : le type réserve la valeur, il ne la produit pas.
+ */
+export type MetricOrigin = 'lab' | 'field' | 'unknown';
+
+/** Lecture complète d'une métrique : identité, unité, origine et mesure. */
+export interface MetricReading {
+  /** Identité stable de la métrique. */
+  readonly id: WebVitalId;
+  /** Unité explicite de la valeur. */
+  readonly unit: MetricUnit;
+  /** Origine de la mesure. */
+  readonly origin: MetricOrigin;
+  /** Mesure disponible ou indisponible (contrat 19-03, inchangé). */
+  readonly measurement: Measurement;
+}
+
+/**
+ * Lectures des métriques web d'une inspection.
+ *
+ * Chaque clé est **toujours** présente : une métrique absente porte
+ * `measurement.status === 'unavailable'`. Omettre la clé rendrait un oubli
+ * d'implémentation indiscernable d'une absence réelle.
+ */
+export interface WebVitals {
+  readonly lcp: MetricReading;
+  readonly inp: MetricReading;
+  readonly fid: MetricReading;
+  readonly maxPotentialFid: MetricReading;
+  readonly tbt: MetricReading;
+  readonly cls: MetricReading;
+  readonly ttfb: MetricReading;
+  readonly fcp: MetricReading;
+  readonly speedIndex: MetricReading;
+}
+
+/** Unité associée à chaque métrique suivie. */
+export const METRIC_UNITS: Readonly<Record<WebVitalId, MetricUnit>> = {
+  lcp: 'ms',
+  inp: 'ms',
+  fid: 'ms',
+  'max-potential-fid': 'ms',
+  tbt: 'ms',
+  cls: 'unitless',
+  ttfb: 'ms',
+  fcp: 'ms',
+  'speed-index': 'ms',
+};
+
+/**
+ * Construit une lecture à partir d'une valeur brute.
+ *
+ * @param id - Identité de la métrique.
+ * @param value - Valeur brute, ou `null`/`undefined` si elle n'a pas été fournie.
+ * @param origin - Origine de la mesure (laboratoire par défaut).
+ * @returns Lecture portant identité, unité, origine et mesure.
+ */
+export function metricReading(
+  id: WebVitalId,
+  value: number | null | undefined,
+  origin: MetricOrigin = 'lab',
+): MetricReading {
+  return { id, unit: METRIC_UNITS[id], origin, measurement: toMeasurement(value) };
+}
+
+/**
+ * Construit les lectures de laboratoire d'une inspection.
+ *
+ * Les métriques non fournies restent présentes, explicitement indisponibles.
+ *
+ * @param values - Valeurs brutes par identité de métrique.
+ * @param origin - Origine commune (laboratoire par défaut).
+ * @returns Les neuf lectures, aucune omise.
+ */
+export function labVitals(
+  values: Partial<Record<WebVitalId, number | null | undefined>>,
+  origin: MetricOrigin = 'lab',
+): WebVitals {
+  return {
+    lcp: metricReading('lcp', values.lcp, origin),
+    inp: metricReading('inp', values.inp, origin),
+    fid: metricReading('fid', values.fid, origin),
+    maxPotentialFid: metricReading('max-potential-fid', values['max-potential-fid'], origin),
+    tbt: metricReading('tbt', values.tbt, origin),
+    cls: metricReading('cls', values.cls, origin),
+    ttfb: metricReading('ttfb', values.ttfb, origin),
+    fcp: metricReading('fcp', values.fcp, origin),
+    speedIndex: metricReading('speed-index', values['speed-index'], origin),
+  };
+}
+
+/**
+ * Mesures nues des lectures, indexées par nom de propriété.
+ *
+ * @param vitals - Lectures d'une inspection.
+ * @returns Dictionnaire `nom → Measurement`, y compris pour les absentes.
+ */
+export function vitalsMeasurements(vitals: WebVitals): Record<keyof WebVitals, Measurement> {
+  return {
+    lcp: vitals.lcp.measurement,
+    inp: vitals.inp.measurement,
+    fid: vitals.fid.measurement,
+    maxPotentialFid: vitals.maxPotentialFid.measurement,
+    tbt: vitals.tbt.measurement,
+    cls: vitals.cls.measurement,
+    ttfb: vitals.ttfb.measurement,
+    fcp: vitals.fcp.measurement,
+    speedIndex: vitals.speedIndex.measurement,
+  };
+}

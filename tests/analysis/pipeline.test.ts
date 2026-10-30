@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { labVitals } from '../../src/analysis/measurement.js';
 
 import { AnalysisPipeline } from '../../src/analysis/pipeline.js';
 import type {
@@ -15,12 +16,12 @@ describe('AnalysisPipeline', () => {
   const mockLighthouse: LighthouseResults = {
     performance: {
       score: 75,
-      metrics: {
-        lcp: { status: 'measured', value: 3000 },
-        fid: { status: 'measured', value: 150 },
-        cls: { status: 'measured', value: 0.15 },
-        ttfb: { status: 'measured', value: 1000 },
-      },
+      metrics: labVitals({
+        lcp: 3000,
+        fid: 150,
+        cls: 0.15,
+        ttfb: 1000,
+      }),
     },
     seo: {
       score: 80,
@@ -148,12 +149,12 @@ describe('AnalysisPipeline', () => {
       const perfectLighthouse: LighthouseResults = {
         performance: {
           score: 100,
-          metrics: {
-            lcp: { status: 'measured', value: 1500 },
-            fid: { status: 'measured', value: 50 },
-            cls: { status: 'measured', value: 0.05 },
-            ttfb: { status: 'measured', value: 500 },
-          },
+          metrics: labVitals({
+            lcp: 1500,
+            fid: 50,
+            cls: 0.05,
+            ttfb: 500,
+          }),
         },
         seo: { score: 100, issues: [] },
       };

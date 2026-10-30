@@ -142,6 +142,7 @@ export class ContentAnalyzer {
           name: 'Readability score',
           value: readabilityScore,
           threshold: poor,
+          unit: 'points Flesch',
         },
       });
     } else if (readabilityScore < average) {
@@ -161,6 +162,7 @@ export class ContentAnalyzer {
           name: 'Readability score',
           value: readabilityScore,
           threshold: average,
+          unit: 'points Flesch',
         },
       });
     } else if (readabilityScore < good) {
@@ -180,6 +182,7 @@ export class ContentAnalyzer {
           name: 'Readability score',
           value: readabilityScore,
           threshold: good,
+          unit: 'points Flesch',
         },
       });
     }

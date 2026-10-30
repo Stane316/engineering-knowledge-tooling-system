@@ -1,4 +1,5 @@
 import type { Audit } from '../../storage/types.js';
+import { scoreLimitations } from './limitations.js';
 import type { ComparisonReport, ReportSection } from '../types.js';
 
 /**
@@ -30,6 +31,7 @@ export class MarkdownTemplate {
     if (wants('header')) parts.push(this.generateHeader(audit));
     if (wants('summary')) parts.push(this.generateSummary(audit));
     if (wants('performance')) parts.push(this.generateDimensions(audit));
+    if (wants('performance')) parts.push(this.generateLimitations(audit));
     if (wants('performance')) parts.push(this.generateDimension(audit, 'performance'));
     if (wants('accessibility')) parts.push(this.generateDimension(audit, 'accessibility'));
     if (wants('seo')) parts.push(this.generateDimension(audit, 'seo'));
@@ -103,6 +105,26 @@ export class MarkdownTemplate {
       );
     }
     return ['## 🎯 Scores par dimension', '', ...rows].join('\n');
+  }
+
+  /**
+   * Limites d'interprétation des scores (Sprint 20-01, C-W10).
+   *
+   * @param audit - Audit à représenter.
+   * @returns Section « limites » (chaîne vide si aucune note ne s'applique).
+   */
+  generateLimitations(audit: Audit): string {
+    const notes = scoreLimitations(audit);
+    if (notes.length === 0) {
+      return '';
+    }
+
+    const lines = ['## ⚠️ Limites d’interprétation', ''];
+    for (const note of notes) {
+      lines.push(`- **${note.dimension}** — ${note.message}`);
+    }
+
+    return lines.join('\n');
   }
 
   /**

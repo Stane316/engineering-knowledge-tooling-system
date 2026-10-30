@@ -18,7 +18,7 @@ Le module transforme les données brutes d'inspection en **analyse structurée**
 ```
 Inspection L3 (Sprint 8)             src/browser/inspection/
     │
-    ▼  adapter (inp→fid, contenu plat→metrics)
+    ▼  adapter (lectures sans renommage, contenu plat→metrics)
 AnalysisInputs                       src/analysis/adapter.ts
     │
     ├── PerformanceAnalyzer ──► findings performance
@@ -78,14 +78,20 @@ Source : Lighthouse (Sprint 8). Chaque métrique hors du « bon » produit un co
 | Métrique | Bon | À améliorer | Mauvais | Constats |
 | --- | --- | --- | --- | --- |
 | LCP | < 2 500 ms | 2 500-4 000 ms | > 4 000 ms | `perf-lcp-warning` / `perf-lcp-critical` |
+| INP | < 200 ms | 200-500 ms | > 500 ms | `perf-inp-warning` / `perf-inp-critical` |
 | FID | < 100 ms | 100-300 ms | > 300 ms | `perf-fid-warning` / `perf-fid-critical` |
+| TBT | < 200 ms | 200-600 ms | > 600 ms | `perf-tbt-warning` / `perf-tbt-critical` |
+| max-potential-fid | — | — | — | lecture seule, aucun seuil public |
 | CLS | < 0,1 | 0,1-0,25 | > 0,25 | `perf-cls-warning` / `perf-cls-critical` |
 | TTFB | < 800 ms | 800-1 800 ms | > 1 800 ms | `perf-ttfb-warning` / `perf-ttfb-critical` |
 
-> **FID et INP.** Le Sprint 8 mesure **INP**, successeur du FID (voir
-> `CoreWebVitals.inp`). Le contrat d'analyse conserve le nom historique `fid`
-> (critère C9.1) : le pont `adapter` y reporte la valeur INP. Les seuils
-> 100/300 ms sont ceux de la spécification du Sprint 9.
+> **Identité des métriques (Sprint 20-01, W04 / C-W08).** Jusqu'au Sprint 19,
+> la valeur d'INP était reportée dans le champ `fid`, avec repli sur
+> `max-potential-fid` : deux métriques distinctes portaient un seul nom. Le
+> contrat les sépare désormais et chaque lecture porte son **identité**, son
+> **unité** et son **origine** (`lab`, `field`, `unknown`). Les seuils sont
+> propres à chaque métrique (voir le tableau) ; `max-potential-fid` est exposé
+> sans seuil.
 
 ### 4.2 AccessibilityAnalyzer — `src/analysis/accessibility.ts`
 
@@ -162,7 +168,7 @@ uniquement ici** :
 
 | Écart | Traduction |
 | --- | --- |
-| `CoreWebVitals.inp` (Sprint 8) | → `metrics.fid` (contrat C9.1) |
+| `CoreWebVitals` et `metrics` | même forme : lectures recopiées **sans renommage** (Sprint 20-01) |
 | `ContentAnalysis` plat | → `metrics.{wordCount, readingTime, readabilityScore}` |
 | Tableaux `readonly` | recopiés dans des tableaux modifiables |
 
@@ -245,7 +251,7 @@ EKTS_BROWSER_ONLINE=1 npx vitest run tests/analysis/
 | Symptôme | Cause probable | Remède |
 | --- | --- | --- |
 | `Lighthouse est indisponible pour cette inspection` | inspection dégradée (outil null) | lire `inspection.warnings`, relancer l'inspection ; l'analyse refuse de deviner |
-| `fid` vaut 0 alors que la page est rapide | pont non utilisé : entrées construites à la main | passer par `fromInspection` ou renseigner `fid` (INP) explicitement |
+| `fid` vaut 0 alors que la page est rapide | pont non utilisé : entrées construites à la main | passer par `fromInspection` ; une mesure absente doit rester `unavailable`, jamais `0` |
 | Priorités du rapport ≠ priorités des analyseurs | **normal** : le rapport recalcule via la matrice | voir §5 |
 | `AssertionError` sur un tri | constat ajouté sans passer par `prioritize` | le tri n'est garanti que sur `priorityFindings` |
 | Test d'intégration absent du décompte | `EKTS_BROWSER_ONLINE` non défini | voir §9 |

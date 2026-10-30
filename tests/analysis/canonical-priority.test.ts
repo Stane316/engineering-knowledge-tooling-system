@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { labVitals } from '../../src/analysis/measurement.js';
 
 import { ContentAnalyzer } from '../../src/analysis/content.js';
 import { AnalysisPipeline } from '../../src/analysis/pipeline.js';
@@ -37,12 +38,12 @@ const PRIORITIES: readonly Priority[] = ['critical', 'high', 'medium', 'low', 'i
 const lighthouse: LighthouseResults = {
   performance: {
     score: 75,
-    metrics: {
-      lcp: { status: 'measured', value: 3000 },
-      fid: { status: 'measured', value: 150 },
-      cls: { status: 'measured', value: 0.15 },
-      ttfb: { status: 'measured', value: 1000 },
-    },
+    metrics: labVitals({
+      lcp: 3000,
+      fid: 150,
+      cls: 0.15,
+      ttfb: 1000,
+    }),
   },
   seo: {
     score: 80,
@@ -191,12 +192,12 @@ describe('Sprint 19-01 — C-W02 compteurs', () => {
     const clean: LighthouseResults = {
       performance: {
         score: 100,
-        metrics: {
-          lcp: { status: 'measured', value: 1000 },
-          fid: { status: 'measured', value: 20 },
-          cls: { status: 'measured', value: 0.01 },
-          ttfb: { status: 'measured', value: 200 },
-        },
+        metrics: labVitals({
+          lcp: 1000,
+          fid: 20,
+          cls: 0.01,
+          ttfb: 200,
+        }),
       },
       seo: { score: 100, issues: [] },
     };

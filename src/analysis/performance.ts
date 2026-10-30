@@ -1,15 +1,22 @@
-import { measuredValueOf } from './measurement.js';
+import { measuredValueOf, vitalsMeasurements } from './measurement.js';
+import type { MetricReading } from './measurement.js';
 import type { DimensionScore, Finding, LighthouseResults } from './types.js';
 
 /**
- * Seuils de performance (Core Web Vitals).
+ * Seuils de performance, **par métrique** (Sprint 20-01, W04 / C-W08).
  *
- * Bornes « bon / à améliorer » de web.dev, reprises par la spécification du
- * Sprint 9 (C9.1) : LCP et FID en millisecondes, CLS sans unité.
+ * Le défaut corrigé : les seuils du FID (100/300 ms) étaient appliqués à une
+ * valeur d'INP, dont les bornes officielles sont 200/500 ms. Un même nombre
+ * change donc de sens selon la métrique qui le porte.
+ *
+ * Bornes « bon / à améliorer » de web.dev. `max-potential-fid` n'a pas de
+ * seuil public : il est lu et exposé, mais ne produit aucun constat.
  */
 const PERFORMANCE_THRESHOLDS = {
   lcp: { good: 2500, needsImprovement: 4000 },
+  inp: { good: 200, needsImprovement: 500 },
   fid: { good: 100, needsImprovement: 300 },
+  tbt: { good: 200, needsImprovement: 600 },
   cls: { good: 0.1, needsImprovement: 0.25 },
   ttfb: { good: 800, needsImprovement: 1800 },
 } as const;
@@ -44,26 +51,22 @@ export class PerformanceAnalyzer {
     const findings: Finding[] = [];
     const metrics = results.performance.metrics;
 
-    // C-W05 : un constat n'est dérivé que d'une mesure réellement disponible.
-    // Une métrique indisponible est conservée comme telle dans `measurements`
-    // et ne devient jamais « 0 ms », qui se lirait comme une bonne mesure.
-    const lcp = measuredValueOf(metrics.lcp);
-    const fid = measuredValueOf(metrics.fid);
-    const cls = measuredValueOf(metrics.cls);
-    const ttfb = measuredValueOf(metrics.ttfb);
-
-    if (lcp !== undefined) findings.push(...this.analyzeLCP(lcp));
-    if (fid !== undefined) findings.push(...this.analyzeFID(fid));
-    if (cls !== undefined) findings.push(...this.analyzeCLS(cls));
-    if (ttfb !== undefined) findings.push(...this.analyzeTTFB(ttfb));
+    // Sprint 20-01 (W04 / C-W08) : chaque constat dérive de la lecture de sa
+    // **propre** métrique. INP, FID, max-potential-fid et TBT ne se
+    // substituent jamais l'un à l'autre ; `measuredValueOf` renvoie
+    // `undefined` pour une mesure absente et aucun constat n'est alors produit
+    // (C-W05 : un constat ne se dérive pas d'une mesure inventée).
+    findings.push(...this.analyzeLCP(metrics.lcp));
+    findings.push(...this.analyzeINP(metrics.inp));
+    findings.push(...this.analyzeFID(metrics.fid));
+    findings.push(...this.analyzeTBT(metrics.tbt));
+    findings.push(...this.analyzeCLS(metrics.cls));
+    findings.push(...this.analyzeTTFB(metrics.ttfb));
 
     const score = results.performance.score;
-    const measurements = {
-      lcp: metrics.lcp,
-      fid: metrics.fid,
-      cls: metrics.cls,
-      ttfb: metrics.ttfb,
-    };
+    // Les neuf lectures sont conservées, y compris indisponibles : la
+    // provenance (identité, unité, origine) reste portée par `MetricReading`.
+    const measurements = vitalsMeasurements(metrics);
 
     // Le score est absent : la dimension est déclarée indisponible, sans
     // estimation de remplacement (C-W07).
@@ -99,7 +102,13 @@ export class PerformanceAnalyzer {
    * @param lcp - LCP en millisecondes.
    * @returns Constat critique ou d'amélioration, liste vide si le seuil est tenu.
    */
-  private analyzeLCP(lcp: number): Finding[] {
+  private analyzeLCP(reading: MetricReading): Finding[] {
+    const lcp = measuredValueOf(reading.measurement);
+
+    if (lcp === undefined) {
+      return [];
+    }
+
     const findings: Finding[] = [];
     const { good, needsImprovement } = PERFORMANCE_THRESHOLDS.lcp;
 
@@ -120,7 +129,8 @@ export class PerformanceAnalyzer {
           name: 'LCP',
           value: lcp,
           threshold: needsImprovement,
-          unit: 'ms',
+          unit: reading.unit,
+          origin: reading.origin,
         },
       });
     } else if (lcp > good) {
@@ -140,7 +150,8 @@ export class PerformanceAnalyzer {
           name: 'LCP',
           value: lcp,
           threshold: good,
-          unit: 'ms',
+          unit: reading.unit,
+          origin: reading.origin,
         },
       });
     }
@@ -157,7 +168,13 @@ export class PerformanceAnalyzer {
    * @param fid - FID en millisecondes.
    * @returns Constat critique ou d'amélioration, liste vide si le seuil est tenu.
    */
-  private analyzeFID(fid: number): Finding[] {
+  private analyzeFID(reading: MetricReading): Finding[] {
+    const fid = measuredValueOf(reading.measurement);
+
+    if (fid === undefined) {
+      return [];
+    }
+
     const findings: Finding[] = [];
     const { good, needsImprovement } = PERFORMANCE_THRESHOLDS.fid;
 
@@ -178,7 +195,8 @@ export class PerformanceAnalyzer {
           name: 'FID',
           value: fid,
           threshold: needsImprovement,
-          unit: 'ms',
+          unit: reading.unit,
+          origin: reading.origin,
         },
       });
     } else if (fid > good) {
@@ -198,7 +216,143 @@ export class PerformanceAnalyzer {
           name: 'FID',
           value: fid,
           threshold: good,
-          unit: 'ms',
+          unit: reading.unit,
+          origin: reading.origin,
+        },
+      });
+    }
+
+    return findings;
+  }
+
+  /**
+   * Analyse l'Interaction to Next Paint (INP).
+   *
+   * Sprint 20-01 (W04) : l'INP cesse d'être présenté comme un FID. Ses bornes
+   * officielles (200/500 ms) diffèrent de celles du FID (100/300 ms).
+   *
+   * @param reading - Lecture INP (identité, unité, origine et mesure).
+   * @returns Constat critique ou d'amélioration, liste vide si la mesure est
+   * absente ou si le seuil est tenu.
+   */
+  private analyzeINP(reading: MetricReading): Finding[] {
+    const inp = measuredValueOf(reading.measurement);
+
+    if (inp === undefined) {
+      return [];
+    }
+
+    const findings: Finding[] = [];
+    const { good, needsImprovement } = PERFORMANCE_THRESHOLDS.inp;
+
+    if (inp > needsImprovement) {
+      findings.push({
+        id: 'perf-inp-critical',
+        dimension: 'performance',
+        title: 'Interaction to Next Paint critique',
+        description: `L'INP est de ${inp}ms, ce qui est très lent (> ${needsImprovement}ms).`,
+        severity: 4,
+        effort: 3,
+        impact: 5,
+        priority: 'critical',
+        recommendation:
+          'Réduire le travail JavaScript par interaction : découper les tâches longues, différer les scripts non critiques, alléger les gestionnaires d’événements.',
+        references: ['https://web.dev/articles/inp'],
+        metric: {
+          name: 'INP',
+          value: inp,
+          threshold: needsImprovement,
+          unit: reading.unit,
+          origin: reading.origin,
+        },
+      });
+    } else if (inp > good) {
+      findings.push({
+        id: 'perf-inp-warning',
+        dimension: 'performance',
+        title: 'Interaction to Next Paint à améliorer',
+        description: `L'INP est de ${inp}ms, ce qui est moyen (${good}-${needsImprovement}ms).`,
+        severity: 2,
+        effort: 2,
+        impact: 3,
+        priority: 'medium',
+        recommendation:
+          'Surveiller les interactions les plus lentes et réduire le temps de traitement des gestionnaires d’événements.',
+        references: ['https://web.dev/articles/inp'],
+        metric: {
+          name: 'INP',
+          value: inp,
+          threshold: good,
+          unit: reading.unit,
+          origin: reading.origin,
+        },
+      });
+    }
+
+    return findings;
+  }
+
+  /**
+   * Analyse le Total Blocking Time (TBT).
+   *
+   * Sprint 20-01 (W04) : le TBT était totalement absent du produit. Il reste
+   * distinct de l'INP — mesure de laboratoire du blocage du fil principal, et
+   * non délai d'interaction observé.
+   *
+   * @param reading - Lecture TBT.
+   * @returns Constat critique ou d'amélioration, liste vide si la mesure est
+   * absente ou si le seuil est tenu.
+   */
+  private analyzeTBT(reading: MetricReading): Finding[] {
+    const tbt = measuredValueOf(reading.measurement);
+
+    if (tbt === undefined) {
+      return [];
+    }
+
+    const findings: Finding[] = [];
+    const { good, needsImprovement } = PERFORMANCE_THRESHOLDS.tbt;
+
+    if (tbt > needsImprovement) {
+      findings.push({
+        id: 'perf-tbt-critical',
+        dimension: 'performance',
+        title: 'Total Blocking Time critique',
+        description: `Le TBT est de ${tbt}ms, ce qui est très lent (> ${needsImprovement}ms).`,
+        severity: 4,
+        effort: 3,
+        impact: 4,
+        priority: 'critical',
+        recommendation:
+          'Découper les tâches longues JavaScript, charger les scripts en différé et réduire le travail exécuté avant l’interactivité.',
+        references: ['https://web.dev/articles/tbt'],
+        metric: {
+          name: 'TBT',
+          value: tbt,
+          threshold: needsImprovement,
+          unit: reading.unit,
+          origin: reading.origin,
+        },
+      });
+    } else if (tbt > good) {
+      findings.push({
+        id: 'perf-tbt-warning',
+        dimension: 'performance',
+        title: 'Total Blocking Time à améliorer',
+        description: `Le TBT est de ${tbt}ms, ce qui est moyen (${good}-${needsImprovement}ms).`,
+        severity: 2,
+        effort: 2,
+        impact: 3,
+        priority: 'medium',
+        recommendation:
+          'Réduire les tâches longues du fil principal : découpage du bundle, hydratation progressive.',
+        references: ['https://web.dev/articles/tbt'],
+        metric: {
+          name: 'TBT',
+          value: tbt,
+          threshold: good,
+          unit: reading.unit,
+          origin: reading.origin,
         },
       });
     }
@@ -212,7 +366,13 @@ export class PerformanceAnalyzer {
    * @param cls - CLS sans unité.
    * @returns Constat critique ou d'amélioration, liste vide si le seuil est tenu.
    */
-  private analyzeCLS(cls: number): Finding[] {
+  private analyzeCLS(reading: MetricReading): Finding[] {
+    const cls = measuredValueOf(reading.measurement);
+
+    if (cls === undefined) {
+      return [];
+    }
+
     const findings: Finding[] = [];
     const { good, needsImprovement } = PERFORMANCE_THRESHOLDS.cls;
 
@@ -233,6 +393,8 @@ export class PerformanceAnalyzer {
           name: 'CLS',
           value: cls,
           threshold: needsImprovement,
+          unit: reading.unit,
+          origin: reading.origin,
         },
       });
     } else if (cls > good) {
@@ -252,6 +414,8 @@ export class PerformanceAnalyzer {
           name: 'CLS',
           value: cls,
           threshold: good,
+          unit: reading.unit,
+          origin: reading.origin,
         },
       });
     }
@@ -265,7 +429,13 @@ export class PerformanceAnalyzer {
    * @param ttfb - TTFB en millisecondes.
    * @returns Constat critique ou d'amélioration, liste vide si le seuil est tenu.
    */
-  private analyzeTTFB(ttfb: number): Finding[] {
+  private analyzeTTFB(reading: MetricReading): Finding[] {
+    const ttfb = measuredValueOf(reading.measurement);
+
+    if (ttfb === undefined) {
+      return [];
+    }
+
     const findings: Finding[] = [];
     const { good, needsImprovement } = PERFORMANCE_THRESHOLDS.ttfb;
 
@@ -286,7 +456,8 @@ export class PerformanceAnalyzer {
           name: 'TTFB',
           value: ttfb,
           threshold: needsImprovement,
-          unit: 'ms',
+          unit: reading.unit,
+          origin: reading.origin,
         },
       });
     } else if (ttfb > good) {
@@ -306,7 +477,8 @@ export class PerformanceAnalyzer {
           name: 'TTFB',
           value: ttfb,
           threshold: good,
-          unit: 'ms',
+          unit: reading.unit,
+          origin: reading.origin,
         },
       });
     }

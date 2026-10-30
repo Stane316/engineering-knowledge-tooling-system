@@ -17,6 +17,7 @@
 import { createServer } from 'node:net';
 
 import { InspectionError } from './errors.js';
+import { labVitals } from '../analysis/measurement.js';
 import type { CoreWebVitals, LighthouseAnalysis, LighthouseIssue } from './inspection/types.js';
 
 /** Catégories analysées : la performance et le SEO, comme le prévoit le sprint. */
@@ -210,40 +211,49 @@ export async function loadLighthouse(): Promise<LighthouseModule> {
 const MAX_ISSUES = 25;
 
 /**
- * Lit une valeur numérique d'audit, `null` si absente.
+ * Lit la valeur brute d'un audit sans aplatir les cas d'absence.
  *
- * Sprint 19-03 (C-W05) : l'ancien `0` de repli rendait une mesure absente
- * indistinguable d'une mesure réellement nulle, et se lisait comme une bonne
- * performance. L'absence est désormais explicite.
+ * `undefined` : l'audit ou son champ `numericValue` n'existe pas ; `null` : il
+ * existe et vaut explicitement `null`. La distinction est conservée jusqu'à
+ * `toMeasurement`, qui en tire une raison d'indisponibilité précise.
  */
-function numericValue(report: LighthouseReport, id: string): number | null {
+function rawValue(report: LighthouseReport, id: string): number | null | undefined {
   const value = report.audits?.[id]?.numericValue;
 
-  // Pas d'arrondi : le rapport doit rester fidèle à la mesure (CLS = 0,054
-  // et non 0,05), l'arrondi d'affichage appartient au rapport.
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+  if (value === undefined) {
+    return undefined;
+  }
+
+  return typeof value === 'number' ? value : null;
 }
 
 /**
- * Extrait les Core Web Vitals du rapport.
+ * Extrait les métriques web du rapport, avec identité, unité et origine.
  *
- * `INP` remplace `FID` depuis Lighthouse 11 : le premier audit disponible est
- * utilisé, sinon la valeur est nulle plutôt que fausse.
+ * Sprint 20-01 (W04 / C-W08) : deux défauts corrigés à la source.
+ *
+ * 1. **Aucun repli** de `interaction-to-next-paint` vers `max-potential-fid` :
+ *    une métrique absente reste absente, elle n'est pas remplacée par une
+ *    autre dont les seuils et la signification diffèrent ;
+ * 2. **Aucun renommage** : INP, FID, max-potential-fid et TBT sortent sous
+ *    leur propre identité, avec leur unité (`ms`, sauf CLS) et leur origine
+ *    (`lab` ici, par construction).
+ *
+ * @param report - Rapport Lighthouse brut.
+ * @returns Neuf lectures, aucune omise.
  */
 export function extractCoreWebVitals(report: LighthouseReport): CoreWebVitals {
-  const inp = report.audits?.['interaction-to-next-paint']?.numericValue;
-
-  return {
-    lcp: numericValue(report, 'largest-contentful-paint'),
-    inp:
-      typeof inp === 'number' && Number.isFinite(inp)
-        ? inp
-        : numericValue(report, 'max-potential-fid'),
-    cls: numericValue(report, 'cumulative-layout-shift'),
-    ttfb: numericValue(report, 'server-response-time'),
-    fcp: numericValue(report, 'first-contentful-paint'),
-    speedIndex: numericValue(report, 'speed-index'),
-  };
+  return labVitals({
+    lcp: rawValue(report, 'largest-contentful-paint'),
+    inp: rawValue(report, 'interaction-to-next-paint'),
+    fid: rawValue(report, 'first-input-delay'),
+    'max-potential-fid': rawValue(report, 'max-potential-fid'),
+    tbt: rawValue(report, 'total-blocking-time'),
+    cls: rawValue(report, 'cumulative-layout-shift'),
+    ttfb: rawValue(report, 'server-response-time'),
+    fcp: rawValue(report, 'first-contentful-paint'),
+    'speed-index': rawValue(report, 'speed-index'),
+  });
 }
 
 /** Convertit un score d'audit en sévérité. */

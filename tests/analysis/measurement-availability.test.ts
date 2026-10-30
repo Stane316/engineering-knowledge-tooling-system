@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { toLighthouseResults } from '../../src/analysis/adapter.js';
-import { measuredValueOf, toMeasurement } from '../../src/analysis/measurement.js';
+import { labVitals, measuredValueOf, toMeasurement } from '../../src/analysis/measurement.js';
 import { PerformanceAnalyzer } from '../../src/analysis/performance.js';
 import type { LighthouseResults } from '../../src/analysis/types.js';
 import type { LighthouseAnalysis } from '../../src/browser/inspection/types.js';
@@ -66,12 +66,9 @@ describe('C-W05 — PerformanceAnalyzer', () => {
   const unavailableMetrics: LighthouseResults = {
     performance: {
       score: 90,
-      metrics: {
-        lcp: { status: 'unavailable', reason: 'absent' },
-        fid: { status: 'unavailable', reason: 'absent' },
-        cls: { status: 'unavailable', reason: 'absent' },
-        ttfb: { status: 'unavailable', reason: 'absent' },
-      },
+      // Sprint 20-01 : les lectures portent identité, unité et origine ; une
+      // métrique non fournie reste présente et explicitement indisponible.
+      metrics: labVitals({}),
     },
     seo: { score: 90, issues: [] },
   };
@@ -88,11 +85,17 @@ describe('C-W05 — PerformanceAnalyzer', () => {
   it('expose les métriques indisponibles telles quelles', () => {
     const dimension = analyzer.analyze(unavailableMetrics);
 
+    // Sprint 20-01 : les neuf lectures sont conservées, aucune omise.
     expect(dimension.measurements).toEqual({
       lcp: { status: 'unavailable', reason: 'absent' },
+      inp: { status: 'unavailable', reason: 'absent' },
       fid: { status: 'unavailable', reason: 'absent' },
+      maxPotentialFid: { status: 'unavailable', reason: 'absent' },
+      tbt: { status: 'unavailable', reason: 'absent' },
       cls: { status: 'unavailable', reason: 'absent' },
       ttfb: { status: 'unavailable', reason: 'absent' },
+      fcp: { status: 'unavailable', reason: 'absent' },
+      speedIndex: { status: 'unavailable', reason: 'absent' },
     });
   });
 
@@ -108,10 +111,7 @@ describe('C-W05 — PerformanceAnalyzer', () => {
       ...unavailableMetrics,
       performance: {
         score: 90,
-        metrics: {
-          ...unavailableMetrics.performance.metrics,
-          lcp: { status: 'measured', value: 5000 },
-        },
+        metrics: labVitals({ lcp: 5000 }),
       },
     });
 
@@ -123,12 +123,12 @@ describe('C-W05 — PerformanceAnalyzer', () => {
     const dimension = analyzer.analyze({
       performance: {
         score: null,
-        metrics: {
-          lcp: { status: 'measured', value: 5000 },
-          fid: { status: 'measured', value: 50 },
-          cls: { status: 'measured', value: 0.05 },
-          ttfb: { status: 'measured', value: 400 },
-        },
+        metrics: labVitals({
+          lcp: 5000,
+          fid: 50,
+          cls: 0.05,
+          ttfb: 400,
+        }),
       },
       seo: { score: 80, issues: [] },
     });
@@ -145,7 +145,14 @@ describe('C-W05 — adaptateur Lighthouse', () => {
   const analysis: LighthouseAnalysis = {
     performance: {
       score: null,
-      metrics: { lcp: null, inp: null, cls: null, ttfb: null, fcp: null, speedIndex: null },
+      metrics: labVitals({
+        lcp: null,
+        inp: null,
+        cls: null,
+        ttfb: null,
+        fcp: null,
+        'speed-index': null,
+      }),
     },
     seo: { score: null, issues: [] },
     url: 'https://example.com',
@@ -156,8 +163,14 @@ describe('C-W05 — adaptateur Lighthouse', () => {
   it('convertit une métrique absente en mesure indisponible', () => {
     const results = toLighthouseResults(analysis);
 
-    expect(results.performance.metrics.lcp).toEqual({ status: 'unavailable', reason: 'null' });
-    expect(results.performance.metrics.fid).toEqual({ status: 'unavailable', reason: 'null' });
+    expect(results.performance.metrics.lcp.measurement).toEqual({
+      status: 'unavailable',
+      reason: 'null',
+    });
+    expect(results.performance.metrics.fid.measurement).toEqual({
+      status: 'unavailable',
+      reason: 'absent',
+    });
   });
 
   it('ne fabrique pas de score quand Lighthouse n’en fournit aucun', () => {
@@ -172,11 +185,24 @@ describe('C-W05 — adaptateur Lighthouse', () => {
       ...analysis,
       performance: {
         score: 100,
-        metrics: { lcp: 0, inp: null, cls: null, ttfb: null, fcp: null, speedIndex: null },
+        metrics: labVitals({
+          lcp: 0,
+          inp: null,
+          cls: null,
+          ttfb: null,
+          fcp: null,
+          'speed-index': null,
+        }),
       },
     });
 
-    expect(results.performance.metrics.lcp).toEqual({ status: 'measured', value: 0 });
-    expect(results.performance.metrics.fid).toEqual({ status: 'unavailable', reason: 'null' });
+    expect(results.performance.metrics.lcp.measurement).toEqual({
+      status: 'measured',
+      value: 0,
+    });
+    expect(results.performance.metrics.fid.measurement).toEqual({
+      status: 'unavailable',
+      reason: 'absent',
+    });
   });
 });

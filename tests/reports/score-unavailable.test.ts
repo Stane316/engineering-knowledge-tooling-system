@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { labVitals } from '../../src/analysis/measurement.js';
 
 import { AnalysisPipeline } from '../../src/analysis/pipeline.js';
 import type {
@@ -40,12 +41,12 @@ import type { Audit } from '../../src/storage/types.js';
 const lighthouse: LighthouseResults = {
   performance: {
     score: 80,
-    metrics: {
-      lcp: { status: 'measured', value: 1800 },
-      fid: { status: 'measured', value: 80 },
-      cls: { status: 'measured', value: 0.05 },
-      ttfb: { status: 'measured', value: 400 },
-    },
+    metrics: labVitals({
+      lcp: 1800,
+      fid: 80,
+      cls: 0.05,
+      ttfb: 400,
+    }),
   },
   seo: { score: 90, issues: [] },
 };

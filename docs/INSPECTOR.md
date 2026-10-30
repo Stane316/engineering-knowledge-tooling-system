@@ -521,7 +521,7 @@ tels quels. Ils sont consignés ici et dans le registre des décisions.
 | **E8-1** | ADR-012 (Lighthouse), ADR-013 (axe-core) | **ADR-026**, **ADR-027** | ces numéros sont déjà pris dans le registre (`docs/08-REGISTRE-DECISIONS-ET-RISQUES.md`) |
 | **E8-2** | `lighthouse` 11+ / 13.x | `lighthouse` **13.5.0** | Écart **résolu** le 24/10/2026 : montée de Lighthouse pour supprimer les 29 avis de la chaîne 12.8.2, plancher Node porté à 22.19 (ADR-026 addendum) |
 | **E8-3** | Types Lighthouse disponibles | déclaration locale `lighthouse-module.d.ts` | le paquet ne publie ni `types` ni `exports` ; `import('lighthouse')` échoue en TS2307 |
-| **E8-4** | audit `max-potential-fid` | **INP** en priorité, `max-potential-fid` en repli | Lighthouse mesure INP ; FID n'existe plus comme audit principal |
+| **E8-4** | audit `max-potential-fid` | **INP** en priorité, `max-potential-fid` en repli — **repli supprimé au Sprint 20-01** : INP, FID et `max-potential-fid` sont exposés séparément | Lighthouse mesure INP ; FID n'existe plus comme audit principal ; un repli fabriquait une mesure d'INP jamais observée |
 | **E8-5** | TTFB via `time-to-first-byte` | `server-response-time` | c'est le nom réel de l'audit |
 | **E8-6** | analyse L2/L3 sur les 3 moteurs | L2/L3 en **Chromium** uniquement | Lighthouse exige CDP ; l'absence est signalée, pas contournée |
 | **E8-7** | viewport non spécifié | option `viewport` (défaut 1920 × 1080) + `LaunchOptions.context` | permet de fixer viewport et user-agent sans second navigateur |

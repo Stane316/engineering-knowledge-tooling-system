@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { labVitals } from '../../src/analysis/measurement.js';
 
 import type {
   AnalysisReport,
@@ -141,12 +142,7 @@ function pipelineInputs(): {
     lighthouse: {
       performance: {
         score: 75,
-        metrics: {
-          lcp: { status: 'measured' as const, value: 3000 },
-          fid: { status: 'measured' as const, value: 150 },
-          cls: { status: 'measured' as const, value: 0.15 },
-          ttfb: { status: 'measured' as const, value: 1000 },
-        },
+        metrics: labVitals({ lcp: 3000, fid: 150, cls: 0.15, ttfb: 1000 }),
       },
       seo: {
         score: 80,

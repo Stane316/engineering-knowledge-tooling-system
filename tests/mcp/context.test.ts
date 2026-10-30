@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { labVitals } from '../../src/analysis/measurement.js';
 
 import type { AnalysisReport } from '../../src/analysis/types.js';
 import type {
@@ -117,7 +118,7 @@ function makeReport(url: string): AnalysisReport {
 const lighthouseFixture: LighthouseAnalysis = {
   performance: {
     score: 100,
-    metrics: { lcp: 220, inp: 36, cls: 0.004, ttfb: 92, fcp: 180, speedIndex: 260 },
+    metrics: labVitals({ lcp: 220, inp: 36, cls: 0.004, ttfb: 92, fcp: 180, 'speed-index': 260 }),
   },
   seo: { score: 80, issues: [] },
   url: 'https://example.com/',

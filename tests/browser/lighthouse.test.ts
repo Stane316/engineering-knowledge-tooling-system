@@ -40,13 +40,35 @@ describe('LighthouseAnalyzer — analyse nominale', () => {
       port: 9222,
     });
 
-    expect(result.performance.metrics).toEqual({
-      lcp: 1832.4,
-      inp: 120.6,
-      cls: 0.054,
-      ttfb: 210.5,
-      fcp: 1200,
-      speedIndex: 2400,
+    // Sprint 20-01 (C-W08) : chaque métrique sort sous son identité, avec son
+    // unité et son origine ; aucune n'est renommée ni remplacée.
+    expect(result.performance.metrics).toMatchObject({
+      lcp: {
+        id: 'lcp',
+        unit: 'ms',
+        origin: 'lab',
+        measurement: { status: 'measured', value: 1832.4 },
+      },
+      inp: {
+        id: 'inp',
+        unit: 'ms',
+        origin: 'lab',
+        measurement: { status: 'measured', value: 120.6 },
+      },
+      cls: {
+        id: 'cls',
+        unit: 'unitless',
+        origin: 'lab',
+        measurement: { status: 'measured', value: 0.054 },
+      },
+      ttfb: {
+        id: 'ttfb',
+        unit: 'ms',
+        origin: 'lab',
+        measurement: { status: 'measured', value: 210.5 },
+      },
+      fcp: { id: 'fcp', measurement: { status: 'measured', value: 1200 } },
+      speedIndex: { id: 'speed-index', measurement: { status: 'measured', value: 2400 } },
     });
   });
 
@@ -103,13 +125,14 @@ describe('LighthouseAnalyzer — valeurs absentes', () => {
 
     // C-W05 : un `0` de remplacement se lirait comme une excellente mesure.
     // L'absence est explicite et traversera l'analyse sans devenir un constat.
-    expect(result.performance.metrics).toEqual({
-      lcp: null,
-      inp: null,
-      cls: null,
-      ttfb: null,
-      fcp: null,
-      speedIndex: null,
+    expect(result.performance.metrics).toMatchObject({
+      lcp: { measurement: { status: 'unavailable', reason: 'absent' } },
+      inp: { measurement: { status: 'unavailable', reason: 'absent' } },
+      fid: { measurement: { status: 'unavailable', reason: 'absent' } },
+      maxPotentialFid: { measurement: { status: 'unavailable', reason: 'absent' } },
+      tbt: { measurement: { status: 'unavailable', reason: 'absent' } },
+      cls: { measurement: { status: 'unavailable', reason: 'absent' } },
+      ttfb: { measurement: { status: 'unavailable', reason: 'absent' } },
     });
     expect(result.seo.issues).toEqual([]);
   });
@@ -119,7 +142,10 @@ describe('LighthouseAnalyzer — valeurs absentes', () => {
       audits: { 'cumulative-layout-shift': { numericValue: 0 } },
     });
 
-    expect(extractCoreWebVitals(report)).toMatchObject({ cls: 0, lcp: null });
+    expect(extractCoreWebVitals(report)).toMatchObject({
+      cls: { measurement: { status: 'measured', value: 0 } },
+      lcp: { measurement: { status: 'unavailable', reason: 'absent' } },
+    });
   });
 
   it('ignore un audit sans score numérique', async () => {
@@ -140,7 +166,7 @@ describe('LighthouseAnalyzer — valeurs absentes', () => {
     expect(extractSeoIssues(report)).toEqual([]);
   });
 
-  it('retombe sur max-potential-fid quand INP est absent', () => {
+  it('ne remplace pas INP par max-potential-fid (Sprint 20-01, D2)', () => {
     const report = lighthouseReport({
       audits: {
         'largest-contentful-paint': { numericValue: 1000 },
@@ -148,7 +174,13 @@ describe('LighthouseAnalyzer — valeurs absentes', () => {
       },
     });
 
-    expect(extractCoreWebVitals(report)).toMatchObject({ lcp: 1000, inp: 88 });
+    // W04 : INP et max-potential-fid ne sont pas interchangeables ; le repli
+    // historique fabriquait une mesure d'INP qui n'avait jamais été observée.
+    expect(extractCoreWebVitals(report)).toMatchObject({
+      lcp: { measurement: { status: 'measured', value: 1000 } },
+      inp: { measurement: { status: 'unavailable', reason: 'absent' } },
+      maxPotentialFid: { measurement: { status: 'measured', value: 88 } },
+    });
   });
 
   it('laisse le score indisponible sans catégorie déclarée', async () => {
