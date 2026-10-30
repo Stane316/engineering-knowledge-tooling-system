@@ -123,9 +123,13 @@ git log --oneline -3
 # 854ecb4 docs(registre): consigner le bilan du sprint 20 avec son hash reel
 # 0defccb docs(20): bilan de la serie et registre a completer
 # 747553a docs(registre): consigner le sprint 20-03 et son hash reel
-git status --short                              # sortie vide : arbre propre
-git rev-list --count origin/develop..HEAD       # 23
+git status --short                        # sortie vide : arbre propre
+git rev-list --count origin/develop..HEAD # 23 avant les commits de documentation de ce §
 ```
+
+Les deux commits de documentation qui suivent (`f3284fc`, puis le présent
+correctif) portent cette avance à **25** ; sur le poste, `git log -1` et
+`git rev-list --count` font foi, pas les valeurs figées ici.
 
 **La fusion n'a pas été exécutée** : l'agent ne fusionne pas (interdiction
 permanente, décision humaine réservée). Elle a été **répétée sans effet de
@@ -137,9 +141,9 @@ git merge-tree --write-tree origin/develop HEAD    # code 0, arbre 1861d760…
 git rev-parse HEAD^{tree}                          # 1861d760… : arbre identique
 ```
 
-Conclusion vérifiée : la fusion est un **fast-forward** (`398df3e → 854ecb4`)
-qui produit exactement l'arbre de `HEAD`, lequel est déjà vérifié par
-`npm run verify` (EXIT 0). Aucun conflit possible.
+Conclusion vérifiée : la fusion est un **fast-forward** (`398df3e` → tête de
+la branche) qui produit exactement l'arbre de `HEAD`, lequel est déjà vérifié
+par `npm run verify` (EXIT 0). Aucun conflit possible.
 
 ### 8.1 Récupération sur le poste
 
@@ -149,7 +153,7 @@ cd ekts
 git fetch origin
 git switch --track origin/arena/079e2f26-engineering-knowledge-tooling
 git log --oneline -10
-git rev-parse --short HEAD        # doit afficher 854ecb4
+git rev-parse --short HEAD        # doit être identique à git rev-parse origin/arena/079e2f26-engineering-knowledge-tooling
 git status --short                # doit être vide
 ```
 
@@ -163,7 +167,7 @@ git fetch origin
 git switch develop
 git pull --ff-only origin develop
 git merge --ff-only origin/arena/079e2f26-engineering-knowledge-tooling
-git log --oneline -3              # tête attendue : 854ecb4
+git log --oneline -3              # tête = celle de la branche Arena (sha identique)
 git push origin develop
 ```
 
