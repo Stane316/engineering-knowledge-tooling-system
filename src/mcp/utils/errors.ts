@@ -177,6 +177,18 @@ export function invalidParams(message: string, data?: Record<string, unknown>): 
   return new McpError(McpErrorCode.InvalidParams, message, data);
 }
 
+/**
+ * Refus d'un outil par la politique de profil (Sprint 21-01, C-P02).
+ *
+ * `MethodNotFound` est choisi volontairement : un outil masqué n'existe pas
+ * dans cette session, et le refus doit rester distinct d'une entrée invalide —
+ * sans quoi on ne saurait pas si l'appel a été bloqué par la politique ou par
+ * une faute d'arguments.
+ */
+export function toolNotAllowed(message: string, data?: Record<string, unknown>): McpError {
+  return new McpError(McpErrorCode.MethodNotFound, message, data);
+}
+
 /** Termine une phrase sans doubler la ponctuation déjà présente. */
 function asSentence(message: string): string {
   return /[.!?]$/u.test(message) ? message : `${message}.`;

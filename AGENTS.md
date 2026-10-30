@@ -74,8 +74,12 @@ npm run doctor:browsers # ouvre une page dans chaque moteur, explique les échec
 
 **Serveur MCP (`src/mcp/`)** : `stdout` est le canal JSON-RPC, donc **aucun**
 `console.log` ne doit y écrire ; toute trace passe par `src/mcp/utils/logger.ts`
-(`stderr`, JSON Lines). Les quatre outils sont en lecture seule et réutilisent
-`openCliServices` (une seule connexion SQLite). Les schémas d'entrée sont des
+(`stderr`, JSON Lines). Les **dix-sept** outils réutilisent `openCliServices`
+(une seule connexion SQLite) ; douze sont annotés en lecture seule, cinq sont
+des actions — et une annotation n'est pas une autorisation. Le profil
+d'exposition (`src/mcp/profiles.ts`, variable `EKTS_MCP_PROFILE`) décide de ce
+qui est exposé et exécutable : `read` limite à trois outils, toute valeur
+invalide refuse le démarrage (Sprint 21). Les schémas d'entrée sont des
 objets Zod (`src/mcp/schemas/tool-schemas.ts`) : ne pas écrire de JSON Schema à
 la main, il est dérivé. Toute modification d'outil exige un test dans
 `tests/mcp/` et, si le contrat change, une mise à jour de `docs/MCP.md`.
@@ -97,7 +101,8 @@ plante, avec sa raison ; `EKTS_BROWSER_STRICT=1` rétablit l'échec. Toute
 évolution du contrat se répercute dans `docs/PLAYWRIGHT.md` §12.
 
 Variables lues à l'exécution : `EKTS_DATA_DIR`, `LOG_LEVEL`, `NODE_ENV` (base) ; `OPENAI_API_KEY`,
-`OPENAI_EMBEDDING_MODEL`, `EMBEDDING_DIMENSION` (Sprint 4). `.env` est ignoré par Git et Gitleaks ;
+`OPENAI_EMBEDDING_MODEL`, `EMBEDDING_DIMENSION` (Sprint 4) ; `EKTS_MCP_PROFILE` (Sprint 21, profils `read`/`full`,
+absent = `full`). `.env` est ignoré par Git et Gitleaks ;
 seul `.env.example` est versionné. Les tests et le benchmark ne requièrent **aucune** clé.
 
 `.npmrc` fixe `ignore-scripts=true` : `better-sqlite3` 13 charge ses binaires précompilés et npm

@@ -4,6 +4,12 @@ import type { z } from 'zod';
 
 import type { McpToolContext } from '../context.js';
 import {
+  assertValidPolicy,
+  isToolAllowed,
+  MCP_PROFILES,
+  type McpProfilePolicy,
+} from '../profiles.js';
+import {
   AddBestPracticeInput,
   AuditHistoryInput,
   AuditReportInput,
@@ -40,7 +46,7 @@ import { executeListProjects } from '../tools/list-projects.js';
 import { executeListResources } from '../tools/list-resources.js';
 import { executeSearchKnowledge } from '../tools/search-knowledge.js';
 import { executeValidateResource } from '../tools/validate-resource.js';
-import { formatIssues, invalidParams, toToolErrorResult } from '../utils/errors.js';
+import { formatIssues, invalidParams, toToolErrorResult, toolNotAllowed } from '../utils/errors.js';
 import type { McpLogger } from '../utils/logger.js';
 
 /**
@@ -91,7 +97,19 @@ export async function dispatchTool(
   context: McpToolContext,
   name: string,
   args: unknown,
+  profile?: McpProfilePolicy,
 ): Promise<unknown> {
+  // Garde de politique (Sprint 21-01, P01/P02) : un nom masqué est refusé
+  // **avant** toute validation d'arguments et avant tout effet. Un appel direct
+  // au chemin d'exécution ne contourne donc pas le profil, même si un jour un
+  // outil est enregistré par erreur.
+  if (profile !== undefined && !isToolAllowed(profile, name)) {
+    throw toolNotAllowed(`Outil « ${name} » non autorisé par le profil « ${profile.name} ».`, {
+      profile: profile.name,
+      allowed: [...profile.tools],
+    });
+  }
+
   switch (name) {
     case 'search_knowledge':
       return executeSearchKnowledge(context, parse(SearchKnowledgeInput, name, args));
@@ -143,207 +161,262 @@ export async function dispatchTool(
  * @param context - Services partagés.
  * @param logger - Journal structuré (jamais `stdout`).
  */
-export function registerTools(server: McpServer, context: McpToolContext, logger: McpLogger): void {
-  server.registerTool(
-    'search_knowledge',
-    {
-      title: 'Rechercher dans la base de connaissances',
-      description: TOOL_DESCRIPTIONS.search_knowledge,
-      inputSchema: SearchKnowledgeInput,
-      annotations: { readOnlyHint: true, openWorldHint: false },
-    },
-    async (args) =>
-      run('search_knowledge', logger, () => dispatchTool(context, 'search_knowledge', args)),
-  );
+export function registerTools(
+  server: McpServer,
+  context: McpToolContext,
+  logger: McpLogger,
+  profile: McpProfilePolicy = MCP_PROFILES.full,
+): void {
+  assertValidPolicy(profile);
+  const allows = (name: string): boolean => isToolAllowed(profile, name);
 
-  server.registerTool(
-    'get_resource',
-    {
-      title: 'Lire une ressource',
-      description: TOOL_DESCRIPTIONS.get_resource,
-      inputSchema: GetResourceInput,
-      annotations: { readOnlyHint: true, openWorldHint: false },
-    },
-    async (args) => run('get_resource', logger, () => dispatchTool(context, 'get_resource', args)),
-  );
+  if (allows('search_knowledge')) {
+    server.registerTool(
+      'search_knowledge',
+      {
+        title: 'Rechercher dans la base de connaissances',
+        description: TOOL_DESCRIPTIONS.search_knowledge,
+        inputSchema: SearchKnowledgeInput,
+        annotations: { readOnlyHint: true, openWorldHint: false },
+      },
+      async (args) =>
+        run('search_knowledge', logger, () =>
+          dispatchTool(context, 'search_knowledge', args, profile),
+        ),
+    );
+  }
 
-  server.registerTool(
-    'list_resources',
-    {
-      title: 'Lister les ressources',
-      description: TOOL_DESCRIPTIONS.list_resources,
-      inputSchema: ListResourcesInput,
-      annotations: { readOnlyHint: true, openWorldHint: false },
-    },
-    async (args) =>
-      run('list_resources', logger, () => dispatchTool(context, 'list_resources', args)),
-  );
+  if (allows('get_resource')) {
+    server.registerTool(
+      'get_resource',
+      {
+        title: 'Lire une ressource',
+        description: TOOL_DESCRIPTIONS.get_resource,
+        inputSchema: GetResourceInput,
+        annotations: { readOnlyHint: true, openWorldHint: false },
+      },
+      async (args) =>
+        run('get_resource', logger, () => dispatchTool(context, 'get_resource', args, profile)),
+    );
+  }
 
-  server.registerTool(
-    'validate_resource',
-    {
-      title: 'Valider une ressource',
-      description: TOOL_DESCRIPTIONS.validate_resource,
-      inputSchema: ValidateResourceInput,
-      annotations: { readOnlyHint: true, openWorldHint: false },
-    },
-    async (args) =>
-      run('validate_resource', logger, () => dispatchTool(context, 'validate_resource', args)),
-  );
+  if (allows('list_resources')) {
+    server.registerTool(
+      'list_resources',
+      {
+        title: 'Lister les ressources',
+        description: TOOL_DESCRIPTIONS.list_resources,
+        inputSchema: ListResourcesInput,
+        annotations: { readOnlyHint: true, openWorldHint: false },
+      },
+      async (args) =>
+        run('list_resources', logger, () => dispatchTool(context, 'list_resources', args, profile)),
+    );
+  }
 
-  server.registerTool(
-    'inspect_site',
-    {
-      title: 'Inspecter un site web',
-      description: TOOL_DESCRIPTIONS.inspect_site,
-      inputSchema: InspectSiteInput,
-      annotations: { readOnlyHint: false, openWorldHint: true },
-    },
-    async (args) => run('inspect_site', logger, () => dispatchTool(context, 'inspect_site', args)),
-  );
+  if (allows('validate_resource')) {
+    server.registerTool(
+      'validate_resource',
+      {
+        title: 'Valider une ressource',
+        description: TOOL_DESCRIPTIONS.validate_resource,
+        inputSchema: ValidateResourceInput,
+        annotations: { readOnlyHint: true, openWorldHint: false },
+      },
+      async (args) =>
+        run('validate_resource', logger, () =>
+          dispatchTool(context, 'validate_resource', args, profile),
+        ),
+    );
+  }
 
-  server.registerTool(
-    'audit_history',
-    {
-      title: "Consulter l'historique des audits",
-      description: TOOL_DESCRIPTIONS.audit_history,
-      inputSchema: AuditHistoryInput,
-      annotations: { readOnlyHint: true, openWorldHint: false },
-    },
-    async (args) =>
-      run('audit_history', logger, () => dispatchTool(context, 'audit_history', args)),
-  );
+  if (allows('inspect_site')) {
+    server.registerTool(
+      'inspect_site',
+      {
+        title: 'Inspecter un site web',
+        description: TOOL_DESCRIPTIONS.inspect_site,
+        inputSchema: InspectSiteInput,
+        annotations: { readOnlyHint: false, openWorldHint: true },
+      },
+      async (args) =>
+        run('inspect_site', logger, () => dispatchTool(context, 'inspect_site', args, profile)),
+    );
+  }
 
-  server.registerTool(
-    'audit_report',
-    {
-      title: "Générer le rapport d'un audit",
-      description: TOOL_DESCRIPTIONS.audit_report,
-      inputSchema: AuditReportInput,
-      annotations: { readOnlyHint: true, openWorldHint: false },
-    },
-    async (args) => run('audit_report', logger, () => dispatchTool(context, 'audit_report', args)),
-  );
+  if (allows('audit_history')) {
+    server.registerTool(
+      'audit_history',
+      {
+        title: "Consulter l'historique des audits",
+        description: TOOL_DESCRIPTIONS.audit_history,
+        inputSchema: AuditHistoryInput,
+        annotations: { readOnlyHint: true, openWorldHint: false },
+      },
+      async (args) =>
+        run('audit_history', logger, () => dispatchTool(context, 'audit_history', args, profile)),
+    );
+  }
 
-  server.registerTool(
-    'create_project',
-    {
-      title: 'Créer un projet',
-      description: TOOL_DESCRIPTIONS.create_project,
-      inputSchema: CreateProjectInput,
-      annotations: { readOnlyHint: false, openWorldHint: false },
-    },
-    async (args) =>
-      run('create_project', logger, () => dispatchTool(context, 'create_project', args)),
-  );
+  if (allows('audit_report')) {
+    server.registerTool(
+      'audit_report',
+      {
+        title: "Générer le rapport d'un audit",
+        description: TOOL_DESCRIPTIONS.audit_report,
+        inputSchema: AuditReportInput,
+        annotations: { readOnlyHint: true, openWorldHint: false },
+      },
+      async (args) =>
+        run('audit_report', logger, () => dispatchTool(context, 'audit_report', args, profile)),
+    );
+  }
 
-  server.registerTool(
-    'list_projects',
-    {
-      title: 'Lister les projets',
-      description: TOOL_DESCRIPTIONS.list_projects,
-      inputSchema: ListProjectsInput,
-      annotations: { readOnlyHint: true, openWorldHint: false },
-    },
-    async (args) =>
-      run('list_projects', logger, () => dispatchTool(context, 'list_projects', args)),
-  );
+  if (allows('create_project')) {
+    server.registerTool(
+      'create_project',
+      {
+        title: 'Créer un projet',
+        description: TOOL_DESCRIPTIONS.create_project,
+        inputSchema: CreateProjectInput,
+        annotations: { readOnlyHint: false, openWorldHint: false },
+      },
+      async (args) =>
+        run('create_project', logger, () => dispatchTool(context, 'create_project', args, profile)),
+    );
+  }
 
-  server.registerTool(
-    'get_project',
-    {
-      title: 'Lire un projet',
-      description: TOOL_DESCRIPTIONS.get_project,
-      inputSchema: GetProjectInput,
-      annotations: { readOnlyHint: true, openWorldHint: false },
-    },
-    async (args) => run('get_project', logger, () => dispatchTool(context, 'get_project', args)),
-  );
+  if (allows('list_projects')) {
+    server.registerTool(
+      'list_projects',
+      {
+        title: 'Lister les projets',
+        description: TOOL_DESCRIPTIONS.list_projects,
+        inputSchema: ListProjectsInput,
+        annotations: { readOnlyHint: true, openWorldHint: false },
+      },
+      async (args) =>
+        run('list_projects', logger, () => dispatchTool(context, 'list_projects', args, profile)),
+    );
+  }
 
-  server.registerTool(
-    'delete_project',
-    {
-      title: 'Supprimer un projet',
-      description: TOOL_DESCRIPTIONS.delete_project,
-      inputSchema: DeleteProjectInput,
-      annotations: { readOnlyHint: false, openWorldHint: false },
-    },
-    async (args) =>
-      run('delete_project', logger, () => dispatchTool(context, 'delete_project', args)),
-  );
+  if (allows('get_project')) {
+    server.registerTool(
+      'get_project',
+      {
+        title: 'Lire un projet',
+        description: TOOL_DESCRIPTIONS.get_project,
+        inputSchema: GetProjectInput,
+        annotations: { readOnlyHint: true, openWorldHint: false },
+      },
+      async (args) =>
+        run('get_project', logger, () => dispatchTool(context, 'get_project', args, profile)),
+    );
+  }
 
-  server.registerTool(
-    'get_timeline',
-    {
-      title: 'Analyser la timeline',
-      description: TOOL_DESCRIPTIONS.get_timeline,
-      inputSchema: GetTimelineInput,
-      annotations: { readOnlyHint: true, openWorldHint: false },
-    },
-    async (args) => run('get_timeline', logger, () => dispatchTool(context, 'get_timeline', args)),
-  );
+  if (allows('delete_project')) {
+    server.registerTool(
+      'delete_project',
+      {
+        title: 'Supprimer un projet',
+        description: TOOL_DESCRIPTIONS.delete_project,
+        inputSchema: DeleteProjectInput,
+        annotations: { readOnlyHint: false, openWorldHint: false },
+      },
+      async (args) =>
+        run('delete_project', logger, () => dispatchTool(context, 'delete_project', args, profile)),
+    );
+  }
 
-  server.registerTool(
-    'search_best_practices',
-    {
-      title: 'Rechercher les bonnes pratiques',
-      description: TOOL_DESCRIPTIONS.search_best_practices,
-      inputSchema: SearchBestPracticesInput,
-      annotations: { readOnlyHint: true, openWorldHint: false },
-    },
-    async (args) =>
-      run('search_best_practices', logger, () =>
-        dispatchTool(context, 'search_best_practices', args),
-      ),
-  );
+  if (allows('get_timeline')) {
+    server.registerTool(
+      'get_timeline',
+      {
+        title: 'Analyser la timeline',
+        description: TOOL_DESCRIPTIONS.get_timeline,
+        inputSchema: GetTimelineInput,
+        annotations: { readOnlyHint: true, openWorldHint: false },
+      },
+      async (args) =>
+        run('get_timeline', logger, () => dispatchTool(context, 'get_timeline', args, profile)),
+    );
+  }
 
-  server.registerTool(
-    'add_best_practice',
-    {
-      title: 'Créer une bonne pratique',
-      description: TOOL_DESCRIPTIONS.add_best_practice,
-      inputSchema: AddBestPracticeInput,
-      annotations: { readOnlyHint: false, openWorldHint: false },
-    },
-    async (args) =>
-      run('add_best_practice', logger, () => dispatchTool(context, 'add_best_practice', args)),
-  );
+  if (allows('search_best_practices')) {
+    server.registerTool(
+      'search_best_practices',
+      {
+        title: 'Rechercher les bonnes pratiques',
+        description: TOOL_DESCRIPTIONS.search_best_practices,
+        inputSchema: SearchBestPracticesInput,
+        annotations: { readOnlyHint: true, openWorldHint: false },
+      },
+      async (args) =>
+        run('search_best_practices', logger, () =>
+          dispatchTool(context, 'search_best_practices', args, profile),
+        ),
+    );
+  }
 
-  server.registerTool(
-    'get_recommendations',
-    {
-      title: 'Générer les recommandations',
-      description: TOOL_DESCRIPTIONS.get_recommendations,
-      inputSchema: GetRecommendationsInput,
-      annotations: { readOnlyHint: true, openWorldHint: false },
-    },
-    async (args) =>
-      run('get_recommendations', logger, () => dispatchTool(context, 'get_recommendations', args)),
-  );
+  if (allows('add_best_practice')) {
+    server.registerTool(
+      'add_best_practice',
+      {
+        title: 'Créer une bonne pratique',
+        description: TOOL_DESCRIPTIONS.add_best_practice,
+        inputSchema: AddBestPracticeInput,
+        annotations: { readOnlyHint: false, openWorldHint: false },
+      },
+      async (args) =>
+        run('add_best_practice', logger, () =>
+          dispatchTool(context, 'add_best_practice', args, profile),
+        ),
+    );
+  }
 
-  server.registerTool(
-    'list_templates',
-    {
-      title: 'Lister les templates',
-      description: TOOL_DESCRIPTIONS.list_templates,
-      inputSchema: ListTemplatesInput,
-      annotations: { readOnlyHint: true, openWorldHint: false },
-    },
-    async (args) =>
-      run('list_templates', logger, () => dispatchTool(context, 'list_templates', args)),
-  );
+  if (allows('get_recommendations')) {
+    server.registerTool(
+      'get_recommendations',
+      {
+        title: 'Générer les recommandations',
+        description: TOOL_DESCRIPTIONS.get_recommendations,
+        inputSchema: GetRecommendationsInput,
+        annotations: { readOnlyHint: true, openWorldHint: false },
+      },
+      async (args) =>
+        run('get_recommendations', logger, () =>
+          dispatchTool(context, 'get_recommendations', args, profile),
+        ),
+    );
+  }
 
-  server.registerTool(
-    'apply_template',
-    {
-      title: 'Appliquer un template',
-      description: TOOL_DESCRIPTIONS.apply_template,
-      inputSchema: ApplyTemplateInput,
-      annotations: { readOnlyHint: false, openWorldHint: false },
-    },
-    async (args) =>
-      run('apply_template', logger, () => dispatchTool(context, 'apply_template', args)),
-  );
+  if (allows('list_templates')) {
+    server.registerTool(
+      'list_templates',
+      {
+        title: 'Lister les templates',
+        description: TOOL_DESCRIPTIONS.list_templates,
+        inputSchema: ListTemplatesInput,
+        annotations: { readOnlyHint: true, openWorldHint: false },
+      },
+      async (args) =>
+        run('list_templates', logger, () => dispatchTool(context, 'list_templates', args, profile)),
+    );
+  }
+
+  if (allows('apply_template')) {
+    server.registerTool(
+      'apply_template',
+      {
+        title: 'Appliquer un template',
+        description: TOOL_DESCRIPTIONS.apply_template,
+        inputSchema: ApplyTemplateInput,
+        annotations: { readOnlyHint: false, openWorldHint: false },
+      },
+      async (args) =>
+        run('apply_template', logger, () => dispatchTool(context, 'apply_template', args, profile)),
+    );
+  }
 }
 
 /** Exécute un outil et convertit le succès ou l'échec en résultat MCP. */

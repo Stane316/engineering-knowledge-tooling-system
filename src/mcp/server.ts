@@ -12,6 +12,13 @@ import {
   serverImplementation,
 } from './handlers/initialize.js';
 import { registerTools } from './handlers/tools.js';
+import {
+  assertValidPolicy,
+  MCP_PROFILES,
+  PROFILE_ENV_VAR,
+  resolveProfile,
+  type McpProfilePolicy,
+} from './profiles.js';
 import { TOOL_NAMES } from './schemas/tool-schemas.js';
 import { createStdioTransport } from './transport.js';
 import { createLogger, resolveLogLevel, SILENT_LOGGER, type McpLogger } from './utils/logger.js';
@@ -29,6 +36,14 @@ export interface CreateEktsServerOptions {
   readonly context: McpToolContext;
   /** Journal ; silencieux par défaut (les tests ne polluent pas `stderr`). */
   readonly logger?: McpLogger;
+  /**
+   * Politique d'exposition (Sprint 21-01).
+   *
+   * Défaut : profil `full`, identique à l'exposition historique. Le point
+   * d'entrée, lui, résout la politique depuis `EKTS_MCP_PROFILE` avant
+   * d'ouvrir la moindre base.
+   */
+  readonly profile?: McpProfilePolicy;
 }
 
 /**
@@ -41,6 +56,12 @@ export interface CreateEktsServerOptions {
  */
 export function createEktsServer(options: CreateEktsServerOptions): McpServer {
   const logger = options.logger ?? SILENT_LOGGER;
+  const profile = options.profile ?? MCP_PROFILES.full;
+
+  // Échec fermé avant toute construction : une politique vide ou portant un
+  // nom inconnu ne produit ni serveur muet ni serveur complet.
+  assertValidPolicy(profile);
+
   const server = new McpServer(serverImplementation(), {
     capabilities: SERVER_CAPABILITIES,
     instructions: SERVER_INSTRUCTIONS,
@@ -50,7 +71,7 @@ export function createEktsServer(options: CreateEktsServerOptions): McpServer {
     logger.error('Erreur de protocole MCP', error);
   };
 
-  registerTools(server, options.context, logger);
+  registerTools(server, options.context, logger, profile);
 
   return server;
 }
@@ -93,9 +114,14 @@ const CLOSE_TIMEOUT_MS = 2_000;
 export async function startStdioServer(options: StartServerOptions = {}): Promise<McpServerHandle> {
   const env = options.env ?? process.env;
   const logger = options.logger ?? createLogger({ level: resolveLogLevel(env.MCP_LOG_LEVEL) });
+
+  // Politique résolue **avant** l'ouverture des bases : un profil refusé ne
+  // doit produire aucune écriture, même technique (C-P05).
+  const profile = resolveProfile(env[PROFILE_ENV_VAR]);
+
   const context = openMcpServices({ dataDir: options.dataDir, env: options.env });
   const transport = options.transport ?? createStdioTransport();
-  const server = createEktsServer({ context, logger });
+  const server = createEktsServer({ context, logger, profile });
   let closed = false;
   let removeSignals: (() => void) | undefined;
 

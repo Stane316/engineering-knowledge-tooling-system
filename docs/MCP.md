@@ -11,8 +11,8 @@
 ## 1. Objectif
 
 Le serveur MCP expose la base de connaissances EKTS aux agents IA (Claude Code,
-Cursor, GitHub Copilot) via le **Model Context Protocol**. **Onze outils** sont
-disponibles (Sprints 6, 11-3 et 13) :
+Cursor, GitHub Copilot) via le **Model Context Protocol**. **Dix-sept outils**
+sont disponibles (Sprints 6, 11-3, 13, 14, 15, 16 et 17) :
 
 | Outil | Rôle |
 | --- | --- |
@@ -27,13 +27,50 @@ disponibles (Sprints 6, 11-3 et 13) :
 | `list_projects` | Projets avec filtres `status`/pagination (Sprint 13) |
 | `get_project` | Lecture d'un projet par UUID (Sprint 13) |
 | `delete_project` | Suppression d'un projet, audits conservés (**action**, Sprint 13) |
+| `get_timeline` | Suivi temporel d'un projet (Sprint 14) |
+| `search_best_practices` | Recherche dans les bonnes pratiques (Sprint 15) |
+| `add_best_practice` | Ajout d'une bonne pratique (**action**, Sprint 15) |
+| `get_recommendations` | Recommandations contextuelles (Sprint 16) |
+| `list_templates` | Liste des templates de projets (Sprint 17) |
+| `apply_template` | Application d'un template à un projet (**action**, Sprint 17) |
 
-Huit outils sont en lecture seule (`readOnlyHint: true`). Les trois actions —
-`inspect_site`, `create_project`, `delete_project` — écrivent via la CLI part
-mêmes interfaces : le serveur ne modifie ni ressource de connaissance (ajouts/
-suppressions restent `ekts add` / `ekts delete`) ; `inspect_site` ajoute un
-audit (réseau requis) et `delete_project` repose sur `ON DELETE SET NULL`
-(audits et ressources conservés avec `project_id` à `NULL`).
+Douze outils portent `readOnlyHint: true`, cinq sont des actions (`inspect_site`,
+`create_project`, `delete_project`, `add_best_practice`, `apply_template`).
+**Une annotation n'est pas une autorisation** : `get_recommendations` est annoté
+en lecture et peut néanmoins écrire des recommandations. Le contrôle réel passe
+par le profil décrit au § 1.1.
+
+### 1.1 Profil d'exposition (Sprint 21)
+
+Le serveur expose par défaut l'ensemble historique (dix-sept outils). Un profil
+de **lecture** restreint l'exposition à trois noms, pour un agent qui ne doit
+que chercher et lire des connaissances.
+
+```powershell
+$env:EKTS_MCP_PROFILE = "read"
+npm run mcp
+```
+
+| Variable | Valeurs | Défaut | Effet |
+| --- | --- | --- | --- |
+| `EKTS_MCP_PROFILE` | `read`, `full` | absent = `full` | Profil d'exposition |
+
+| Profil | Outils exposés | `search_knowledge` |
+| --- | --- | --- |
+| `read` | `search_knowledge`, `get_resource`, `list_resources` | `mode: "fts"` **obligatoire et explicite** |
+| `full` | les dix-sept | `mode` par défaut `hybrid` (comportement historique) |
+
+**Échec fermé.** Le contrôle s'applique à la découverte (`tools/list`) **et** à
+l'exécution : appeler un nom connu mais masqué échoue avec `-32601`
+`MethodNotFound`, distinct d'une entrée invalide (`-32602`). Une valeur vide,
+malformée ou inconnue **refuse le démarrage** (code de sortie non nul, trace
+JSON sur `stderr`) : aucune bascule silencieuse vers le profil complet. Une
+politique sans outil autorisé est refusée à la construction.
+
+**Limites.** Le profil restreint ce que le serveur expose et exécute. Il ne
+restreint ni les fichiers, ni le réseau, ni les autres processus : l'isolation
+de l'hôte et du système d'exploitation reste une frontière distincte, non
+fournie par ce mécanisme.
 
 ---
 
