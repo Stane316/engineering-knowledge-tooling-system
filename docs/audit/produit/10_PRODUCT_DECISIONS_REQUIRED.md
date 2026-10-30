@@ -4,6 +4,12 @@
 > **positionnement** ou la **proposition de valeur** est remontée ici, pas
 > tranchée silencieusement. Recommandation ≠ décision : c'est au
 > propriétaire de valider.
+>
+> **Arbitrages rendus** : voir
+> [`24_ARBITRAGES_PROPRIETAIRE_2026-10-30.md`](24_ARBITRAGES_PROPRIETAIRE_2026-10-30.md).
+> `DEC-04` y est tranchée en faveur de l'option **B — MVP-4**. Les sections
+> ci-dessous sont conservées telles quelles à titre d'historique de la
+> question posée.
 
 ---
 

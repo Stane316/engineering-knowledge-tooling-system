@@ -23,6 +23,7 @@ Le [complément d'audit préliminaire du 29 octobre 2026](12_REALIGNEMENT_MVP4_A
 - [Spécification MVP-4](21_SPECIFICATION_MVP4.md) : cas d'usage, contrats, permissions et exigences validés pour la planification.
 - [Critères et tests MVP-4](22_CRITERES_ET_TESTS_MVP4.md) : seuils validés, preuves, régressions et traçabilité ; aucun nouveau test exécuté.
 - [Contrôle global de la planification](23_CONTROLE_COHERENCE_PLANIFICATION.md) : traçabilité des exigences, écarts corrigés, risques et décisions restant ouvertes ; aucune implémentation.
+- [Arbitrages du propriétaire — 30 octobre 2026](24_ARBITRAGES_PROPRIETAIRE_2026-10-30.md) : alignement de branche, portée du sprint 19, contrat du score indisponible, compteur `info` et tranche de `DEC-04`.
 - [Corpus synthétique et manifeste](scenario-comparatif/) : six ressources fictives, deux variantes et leurs empreintes ; ne pas confondre avec les rapports du site réel.
 - [Données de recherche et traçabilité](recherche-open-source-2026-10-29/) : requêtes, 640 candidats, révisions, arbres, licences et corrections ; les niveaux d'examen sont distincts.
 - [Preuves de reproduction](preuves-phase1/) : deux rapports Markdown et extraction des données persistées ; contenus locaux à examiner avant tout partage.
