@@ -113,23 +113,164 @@ npm run verify
 npx prettier --write <fichiers touchés>
 ```
 
-## 8. Commandes à exécuter sur le poste (PowerShell 5.1)
+## 8. Récupération, fusion, tests et exécution
+
+### 8.0 État vérifié le 30/10/2026 (dans cet environnement)
 
 ```powershell
-cd <copie locale du dépôt>
 git fetch origin
-git checkout arena/079e2f26-engineering-knowledge-tooling
-git log --oneline -7
+git log --oneline -3
+# 854ecb4 docs(registre): consigner le bilan du sprint 20 avec son hash reel
+# 0defccb docs(20): bilan de la serie et registre a completer
+# 747553a docs(registre): consigner le sprint 20-03 et son hash reel
+git status --short                              # sortie vide : arbre propre
+git rev-list --count origin/develop..HEAD       # 23
+```
+
+**La fusion n'a pas été exécutée** : l'agent ne fusionne pas (interdiction
+permanente, décision humaine réservée). Elle a été **répétée sans effet de
+bord** :
+
+```powershell
+git merge-base --is-ancestor origin/develop HEAD   # code 0 : develop est un ancêtre
+git merge-tree --write-tree origin/develop HEAD    # code 0, arbre 1861d760…
+git rev-parse HEAD^{tree}                          # 1861d760… : arbre identique
+```
+
+Conclusion vérifiée : la fusion est un **fast-forward** (`398df3e → 854ecb4`)
+qui produit exactement l'arbre de `HEAD`, lequel est déjà vérifié par
+`npm run verify` (EXIT 0). Aucun conflit possible.
+
+### 8.1 Récupération sur le poste
+
+```powershell
+git clone https://github.com/Stane316/engineering-knowledge-tooling-system.git ekts
+cd ekts
+git fetch origin
+git switch --track origin/arena/079e2f26-engineering-knowledge-tooling
+git log --oneline -10
+git rev-parse --short HEAD        # doit afficher 854ecb4
+git status --short                # doit être vide
+```
+
+Si la branche existe déjà localement : `git switch arena/079e2f26-engineering-knowledge-tooling`
+puis `git pull --ff-only`.
+
+### 8.2 Fusion vers `develop` (décision du propriétaire)
+
+```powershell
+git fetch origin
+git switch develop
+git pull --ff-only origin develop
+git merge --ff-only origin/arena/079e2f26-engineering-knowledge-tooling
+git log --oneline -3              # tête attendue : 854ecb4
+git push origin develop
+```
+
+Si `--ff-only` refuse (quelqu'un a poussé sur `develop` entre-temps) :
+
+```powershell
+git merge --no-ff origin/arena/079e2f26-engineering-knowledge-tooling
+git status                                   # conflits éventuels
+git diff --name-only --diff-filter=U         # fichiers en conflit
+# résoudre chaque fichier, puis :
+git add <fichiers résolus>
+git commit                                   # message de fusion proposé par git
+npm run verify                               # avant tout push
+git push origin develop
+```
+
+Interdits rappelés : ni `push --force`, ni `reset --hard`, ni `clean -fd` sur
+une branche partagée ; `main` reste une décision distincte.
+
+### 8.3 Tests et vérifications après fusion
+
+```powershell
 npm ci
 npm run build
 npm run verify
-npm run browsers:install      # restaure Chromium : lève 38 ignorés (dont le PDF de C-W14)
-npx vitest run tests/reports tests/cli/inspect.test.ts tests/browser
+npx vitest run tests/cli/inspect-url-policy.test.ts tests/mcp/tools/inspect-site-policy.test.ts tests/reports/safe-render.test.ts tests/browser/inspection/inspector.test.ts
+npm run browsers:install
+npx vitest run tests/browser tests/reports tests/cli/inspect.test.ts
 ```
 
-Le dernier bloc est le seul moyen de prouver le **troisième format** de
-C-W14 (PDF) et de vérifier que la politique de cible ne casse pas une
-inspection réelle.
+Résultats attendus (mesurés ici, hors navigateur) :
+
+```text
+npm run verify                     → EXIT 0, 1 767 passed | 38 skipped, 146 fichiers
+4 fichiers ciblés                  → 33 passed (33)
+après npm run browsers:install     → les 38 ignorés doivent se réduire
+                                     (preuve PDF de C-W14 et inspections réelles)
+```
+
+### 8.4 Exécution réelle du programme (faite ici)
+
+Exécutée sur la CLI compilée, répertoire de données isolé :
+
+```powershell
+$env:EKTS_DATA_DIR = "C:\temp\ekts-demo"
+node dist/cli/index.js --version
+node dist/cli/index.js init --no-colors
+node dist/cli/index.js add --type article --title "Guide SQLite" --url https://example.invalid/sqlite --tags "sqlite,base" --content "SQLite est une base embarquee, sans serveur, lue depuis un fichier unique." --no-colors
+node dist/cli/index.js list --no-colors
+node dist/cli/index.js search sqlite --mode fts --no-colors
+node dist/cli/index.js status --no-colors
+node dist/cli/index.js audit list --no-colors
+```
+
+Sorties réelles obtenues :
+
+```text
+--version                → 0.2.0
+init                     → « schéma v11 », trois bases créées, code 0
+add                      → ressource créée (UUID), indexation plein texte seul
+list                     → 1 ressource, tableau ID/TYPE/TITRE/TAGS/MAJ, code 0
+search sqlite --mode fts → 1 résultat, code 0
+status                   → version 0.2.0, node v22.22.3, trois bases présentes, code 0
+audit list               → « Aucun audit trouvé. », code 0
+```
+
+La base créée porte le **schéma v11** : la migration 011 du sous-sprint 20-02
+est donc bien appliquée par le programme, pas seulement par les tests.
+
+### 8.5 Politique de cible vérifiée par le programme (C-W13)
+
+```powershell
+node dist/cli/index.js inspect http://127.0.0.1:3000 --format md --no-colors
+node dist/cli/index.js inspect http://127.0.0.1:3000 --allow-private-hosts --format md --no-colors
+node dist/cli/index.js inspect file:///etc/passwd --format md --no-colors
+node dist/cli/index.js inspect https://site-inexistant.invalid --format md --no-colors
+```
+
+Sorties réelles (code de sortie **1** dans les quatre cas) :
+
+```text
+1) Erreur : URL refusée « http://127.0.0.1:3000 » : hôte privé « 127.0.0.1 » refusé
+   (utilisez --allow-private-hosts pour l’autoriser explicitement).
+2) Erreur : Navigateur « chromium » introuvable (…/chrome-linux64/chrome).
+   → l'exception a bien laissé passer la politique ; le blocage restant est
+     l'environnement (navigateur absent), pas la sécurité.
+3) Erreur : URL refusée « file:///etc/passwd » : schéma « file: » refusé
+   (http/https uniquement).
+4) Erreur : URL refusée « https://site-inexistant.invalid » : résolution DNS
+   impossible pour « site-inexistant.invalid » (getaddrinfo ENOTFOUND …) :
+   aucune navigation n’a été tentée.
+```
+
+Ces quatre sorties sont la démonstration **de bout en bout**, par le programme
+lui-même, de quatre des six décisions de C-W13 (privé, exception, schéma, DNS) ;
+les deux autres (URL admise, redirection) sont prouvées par les tests.
+
+### 8.6 Ce qui a été fait ici et ce qui reste sur le poste
+
+| Étape | Ici (30/10/2026) | Sur le poste |
+| --- | --- | --- |
+| Récupération de la branche | ✅ (dépôt de session) | ⏳ clone + `switch --track` |
+| Fusion vers `develop` | ⛔ non exécutée (réservée au propriétaire) — répétée sans effet de bord : fast-forward, arbre identique | ⏳ § 8.2 |
+| `npm run verify` | ✅ EXIT 0 (1 767 / 38) | ⏳ après fusion |
+| Tests ciblés C-W13/C-W14 | ✅ 33/33 | ⏳ |
+| `npm run browsers:install` + suites navigateur | ⛔ impossible (CDN de navigateur injoignable) | ⏳ preuve PDF de C-W14 |
+| Exécution du programme | ✅ init/add/list/search/status/audit list + 4 refus de politique | ⏳ rejouer pour confirmer |
 
 ## 9. Ce qui n'est pas prouvé
 
@@ -140,6 +281,10 @@ inspection réelle.
   réseau, aucune capture, aucun PDF n'a été produit ici.
 - **Renvoi d'un PDF après `--allow-private-hosts`** : non exercé sur un site réel.
 - **CI distante** : toujours non observée ; `verify` est local.
+- **Aucune inspection réelle** : l'exécution du programme (§ 8.4-8.5) va jusqu'au
+  refus de politique et jusqu'à l'absence de navigateur — **aucun audit n'a été
+  produit**, aucune page réelle analysée. Les seules preuves d'analyse restent
+  les fixtures des tests.
 - **C-W10** : aucune validation humaine des 3 rendus n'a encore eu lieu ; le
   propriétaire a accepté le report explicite.
 
@@ -150,7 +295,8 @@ inspection réelle.
 - [x] **Critères évalués selon 22 ; blocages, échecs et skips explicités** — 6/7 satisfaits, C-W10 accepté « préparé », C-W14 partiel (PDF bloqué), 38 ignorés déclarés.
 - [x] **Contrats, migrations, données historiques, sécurité et docs vérifiés** — contrats 19-03 non rouverts ; migration 011 additive et idempotente ; historique laissé `NULL` ; politique de cible documentée (`CLI`, `MCP`, `INSPECTOR`, `REPORTS`) ; C-W12 re-vérifié.
 - [x] **Rapports et commits locaux réels traçables ; registre à jour** — 3 rapports de sous-sprint, 7 commits, hashes réels dans le registre.
-- [ ] **Bilan transmis et validation humaine obtenue avant le sprint suivant** — ce document ; **accord du propriétaire requis avant le sprint 21**.
+- [x] **Exécution réelle du programme** — CLI compilée : `init` (schéma v11), `add`, `list`, `search --mode fts`, `status`, `audit list`, puis quatre refus de politique de cible (privé, exception, schéma, DNS). Sorties verbatim au § 8.4-8.5.
+- [ ] **Bilan transmis et validation humaine obtenue avant le sprint suivant** — ce document ; **accord du propriétaire requis avant le sprint 21** (et avant la fusion, qui reste sa décision).
 
 ## 11. Bilan et décision attendue
 
