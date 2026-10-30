@@ -65,6 +65,7 @@ function makeReport(
       highFindings: count('high'),
       mediumFindings: count('medium'),
       lowFindings: count('low'),
+      infoFindings: count('info'),
       overallScore: score,
     },
   };
@@ -118,6 +119,7 @@ function unpersistedAudit(): Audit {
       highFindings: 1,
       mediumFindings: 0,
       lowFindings: 0,
+      infoFindings: 0,
     },
     dimensions: [],
     findings: [

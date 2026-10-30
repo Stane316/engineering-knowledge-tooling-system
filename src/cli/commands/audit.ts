@@ -300,6 +300,7 @@ export function registerAudit(program: Command, runtime: CliRuntime): void {
           `    🟠 High     : ${String(metadata.highFindings)}`,
           `    🟡 Medium   : ${String(metadata.mediumFindings)}`,
           `    🟢 Low      : ${String(metadata.lowFindings)}`,
+          `    ⚪ Info     : ${String(metadata.infoFindings)}`,
           '',
           palette.bold('  Top 5 des constats'),
           ...sorted.slice(0, 5).map((finding, index) => {

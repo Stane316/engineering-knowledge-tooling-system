@@ -23,6 +23,7 @@ function makeAudit(id = 5): Audit {
       highFindings: 1,
       mediumFindings: 1,
       lowFindings: 0,
+      infoFindings: 0,
     },
     dimensions: (['performance', 'accessibility', 'seo', 'ux', 'content'] as const).map(
       (dimension, index) => ({

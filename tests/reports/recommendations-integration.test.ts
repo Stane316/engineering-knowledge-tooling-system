@@ -56,6 +56,7 @@ describe('Recommandations dans les rapports (Sprint 16-02, C16.6, C16.7)', () =>
         highFindings: 0,
         mediumFindings: findings.length,
         lowFindings: 0,
+        infoFindings: 0,
         projectId: 'proj-1',
       },
       dimensions: (['performance', 'accessibility', 'seo', 'ux', 'content'] as const).map(

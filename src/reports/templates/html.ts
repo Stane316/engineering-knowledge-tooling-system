@@ -131,6 +131,7 @@ export class HtmlTemplate {
   .count-high { background: #feebc8; color: #7b341e; }
   .count-medium { background: #fefcbf; color: #744210; }
   .count-low { background: #c6f6d5; color: #22543d; }
+  .count-info { background: #e2e8f0; color: #2d3748; }
   .finding { margin: 4px 0; padding: 6px 10px; border-left: 4px solid #cbd5e0; background: #f7fafc; font-size: 13px; }
   .finding strong { display: block; }
   ol li, ul li { margin: 4px 0; font-size: 13px; }
@@ -162,6 +163,7 @@ ${body}
             <tr><td>🟠 High</td><td class="count count-high">${String(m.highFindings)}</td></tr>
             <tr><td>🟡 Medium</td><td class="count count-medium">${String(m.mediumFindings)}</td></tr>
             <tr><td>🟢 Low</td><td class="count count-low">${String(m.lowFindings)}</td></tr>
+            <tr><td>⚪ Info</td><td class="count count-info">${String(m.infoFindings)}</td></tr>
             <tr><th>Total</th><th>${String(m.totalFindings)}</th></tr>
           </tbody>
         </table>
@@ -262,6 +264,10 @@ ${body}
     return `
       <section>
         <h2>💡 Top 5 recommandations</h2>
+        <p class="note">Ordre de recommandation : sévérité × impact × 10 − effort. Ce
+          classement est distinct de la priorité canonique (sévérité × (6 − effort))
+          affichée dans le détail : un constat medium peut y précéder un constat
+          critical sans que les priorités ni les compteurs soient incohérents.</p>
         <ol>${items}</ol>
       </section>`;
   }

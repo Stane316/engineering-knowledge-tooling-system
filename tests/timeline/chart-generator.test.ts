@@ -39,6 +39,7 @@ function makeTimeline(
       highFindings: 1,
       mediumFindings: 2,
       lowFindings: 2,
+      infoFindings: 2,
       projectId: 'chart-project',
     };
     return { metadata, dimensions, findings: [] };

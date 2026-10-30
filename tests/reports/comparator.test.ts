@@ -38,6 +38,7 @@ function makeAudit(options: AuditFixture = {}): Audit {
       highFindings: findings.filter((f) => f.priority === 'high').length,
       mediumFindings: findings.filter((f) => f.priority === 'medium').length,
       lowFindings: findings.filter((f) => f.priority === 'low').length,
+      infoFindings: findings.filter((f) => f.priority === 'info').length,
     },
     dimensions: [
       {

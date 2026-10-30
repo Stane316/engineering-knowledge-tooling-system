@@ -45,6 +45,7 @@ export class AuditSchema {
         high_findings INTEGER NOT NULL CHECK (high_findings >= 0),
         medium_findings INTEGER NOT NULL CHECK (medium_findings >= 0),
         low_findings INTEGER NOT NULL CHECK (low_findings >= 0),
+        info_findings INTEGER NOT NULL DEFAULT 0 CHECK (info_findings >= 0),
         project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       )

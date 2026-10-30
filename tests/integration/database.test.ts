@@ -150,17 +150,12 @@ describe('Data Layer — ouverture des bases', () => {
       .prepare('SELECT version, name FROM schema_migrations ORDER BY version')
       .all() as { version: number; name: string }[];
 
-    expect(applied).toEqual([
-      { version: 1, name: 'init' },
-      { version: 2, name: 'embedding-space' },
-      { version: 3, name: 'project-audits' },
-      { version: 4, name: 'alerts' },
-      { version: 5, name: 'best-practices' },
-      { version: 6, name: 'recommendations' },
-      { version: 7, name: 'templates' },
-      { version: 8, name: 'project-config' },
-    ]);
-    expect(connection.pragma('user_version', { simple: true })).toBe(8);
+    // Oracle dérivé de la liste des migrations : une migration ajoutée ne
+    // casse pas ce test, une migration manquante ou renommée le casse.
+    expect(applied).toEqual(migrations.map(({ version, name }) => ({ version, name })));
+    expect(connection.pragma('user_version', { simple: true })).toBe(
+      migrations.reduce((max, migration) => Math.max(max, migration.version), 0),
+    );
   });
 
   it('est idempotent : une seconde ouverture ne rejoue pas les migrations', () => {
@@ -172,10 +167,15 @@ describe('Data Layer — ouverture des bases', () => {
 
   it('applique une migration supplémentaire une seule fois', () => {
     database = openDatabase({ dataDir });
+    // Version dérivée : une migration réelle ajoutée ne doit pas entrer en
+    // collision avec la migration de test.
+    const extraVersion =
+      migrations.reduce((max, migration) => Math.max(max, migration.version), 0) + 1;
+
     const extra = [
       ...migrations,
       {
-        version: 9,
+        version: extraVersion,
         name: 'test-only',
         up: (connection: Database.Database) => {
           connection.exec('CREATE TABLE IF NOT EXISTS test_marker (id INTEGER PRIMARY KEY)');
@@ -183,10 +183,10 @@ describe('Data Layer — ouverture des bases', () => {
       },
     ];
 
-    expect(runMigrations(database.connection, extra)).toEqual([9]);
+    expect(runMigrations(database.connection, extra)).toEqual([extraVersion]);
     expect(runMigrations(database.connection, extra)).toEqual([]);
     expect(tableNames(database.connection)).toContain('test_marker');
-    expect(database.connection.pragma('user_version', { simple: true })).toBe(9);
+    expect(database.connection.pragma('user_version', { simple: true })).toBe(extraVersion);
   });
 
   it('restreint les permissions des fichiers à 600', () => {

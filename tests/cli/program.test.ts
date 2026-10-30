@@ -3,7 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { EmbeddingsService } from '../../src/business/embeddings.js';
 import { exitCodeFor, runCli } from '../../src/cli/program.js';
+import { migrations } from '../../src/data/migrations/index.js';
 import { FakeEmbeddingProvider } from '../helpers/fake-embeddings.js';
+
+/** Version de schéma courante, dérivée de la liste des migrations. */
+const SCHEMA_VERSION = migrations.reduce((max, migration) => Math.max(max, migration.version), 0);
 
 /** Espace d'embedding distinct de celui du runtime principal. */
 const OTHER_SPACE = {
@@ -69,7 +73,7 @@ describe('CLI — programme', () => {
     it('crée les trois bases et le signale', async () => {
       expect(await run(runtime, 'init')).toBe(0);
       expect(runtime.output.stdout).toContain('Bases créées.');
-      expect(runtime.output.stdout).toContain('schéma       v8');
+      expect(runtime.output.stdout).toContain(`schéma       v${String(SCHEMA_VERSION)}`);
     });
 
     it('conserve les bases existantes', async () => {
@@ -88,7 +92,7 @@ describe('CLI — programme', () => {
       expect(json(runtime)).toMatchObject({
         existed: true,
         reinitialized: true,
-        schemaVersion: 8,
+        schemaVersion: SCHEMA_VERSION,
         resources: 0,
       });
     });

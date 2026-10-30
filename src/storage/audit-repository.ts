@@ -28,6 +28,12 @@ interface MetadataRow {
   high_findings: number;
   medium_findings: number;
   low_findings: number;
+  /**
+   * Cinquième compteur (migration 009). Optionnel au type car une base
+   * antérieure à la migration peut être lue avant application : le mapping
+   * ramène l'absence à `0`, jamais à `undefined`.
+   */
+  info_findings?: number;
   project_id: string | null;
   created_at: string;
 }
@@ -87,6 +93,7 @@ function validateAnalysisReport(report: AnalysisReport): void {
     ['highFindings', summary.highFindings],
     ['mediumFindings', summary.mediumFindings],
     ['lowFindings', summary.lowFindings],
+    ['infoFindings', summary.infoFindings],
   ] as const;
   for (const [name, value] of counters) {
     if (!Number.isInteger(value) || value < 0) {
@@ -168,8 +175,8 @@ export class AuditRepository {
           `INSERT INTO audit_metadata (
              url, timestamp, overall_score, total_findings,
              critical_findings, high_findings, medium_findings, low_findings,
-             project_id
-           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             info_findings, project_id
+           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .run(
           report.url,
@@ -180,6 +187,7 @@ export class AuditRepository {
           report.summary.highFindings,
           report.summary.mediumFindings,
           report.summary.lowFindings,
+          report.summary.infoFindings,
           projectId,
         );
 
@@ -242,6 +250,7 @@ export class AuditRepository {
           highFindings: report.summary.highFindings,
           mediumFindings: report.summary.mediumFindings,
           lowFindings: report.summary.lowFindings,
+          infoFindings: report.summary.infoFindings,
           projectId,
         },
         dimensions,
@@ -411,6 +420,7 @@ export class AuditRepository {
       highFindings: row.high_findings,
       mediumFindings: row.medium_findings,
       lowFindings: row.low_findings,
+      infoFindings: row.info_findings ?? 0,
       projectId: row.project_id,
       createdAt: row.created_at,
     };

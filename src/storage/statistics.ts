@@ -16,6 +16,7 @@ interface GlobalRow {
   highFindings: number | null;
   mediumFindings: number | null;
   lowFindings: number | null;
+  infoFindings: number | null;
 }
 
 /** Agrégats SQL bruts d'une dimension. */
@@ -64,6 +65,7 @@ function toStatistics(row: GlobalRow): AuditStatistics {
     highFindings: row.highFindings ?? 0,
     mediumFindings: row.mediumFindings ?? 0,
     lowFindings: row.lowFindings ?? 0,
+    infoFindings: row.infoFindings ?? 0,
   };
 }
 
@@ -97,7 +99,8 @@ export class AuditStatisticsManager {
                 SUM(critical_findings) AS criticalFindings,
                 SUM(high_findings) AS highFindings,
                 SUM(medium_findings) AS mediumFindings,
-                SUM(low_findings) AS lowFindings
+                SUM(low_findings) AS lowFindings,
+                SUM(info_findings) AS infoFindings
            FROM audit_metadata`,
       )
       .get() as GlobalRow;
@@ -218,7 +221,8 @@ export class AuditStatisticsManager {
                 SUM(critical_findings) AS criticalFindings,
                 SUM(high_findings) AS highFindings,
                 SUM(medium_findings) AS mediumFindings,
-                SUM(low_findings) AS lowFindings
+                SUM(low_findings) AS lowFindings,
+                SUM(info_findings) AS infoFindings
            FROM audit_metadata
           WHERE url = ?`,
       )

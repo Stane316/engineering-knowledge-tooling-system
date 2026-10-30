@@ -5,11 +5,15 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { openDatabase } from '../../src/data/database.js';
+import { migrations } from '../../src/data/migrations/index.js';
 import { AuditSchema } from '../../src/storage/schema.js';
 import { exitCodeFor } from '../../src/cli/program.js';
 import { TemplateRepository } from '../../src/templates/template-repository.js';
 
 import type { CreateTemplateInput, TemplateConfig } from '../../src/templates/template.types.js';
+
+/** Version de schéma courante, dérivée de la liste des migrations. */
+const SCHEMA_VERSION = migrations.reduce((max, migration) => Math.max(max, migration.version), 0);
 
 /** Base ouverte (wrapper maison, migration 007 auto-appliquée). */
 let db: ReturnType<typeof openDatabase>;
@@ -46,14 +50,14 @@ function input(over: Partial<CreateTemplateInput> = {}): CreateTemplateInput {
 }
 
 describe('TemplateRepository — migration (17-01)', () => {
-  it('devrait créer la table project_templates avec user_version 8', () => {
+  it('devrait créer la table project_templates avec la version de schéma courante', () => {
     const tables = db.connection
       .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='project_templates'")
       .all();
     expect(tables).toHaveLength(1);
 
     const uv = db.connection.prepare('PRAGMA user_version').get() as { user_version: number };
-    expect(uv.user_version).toBe(8);
+    expect(uv.user_version).toBe(SCHEMA_VERSION);
   });
 });
 

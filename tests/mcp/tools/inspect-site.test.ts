@@ -34,6 +34,7 @@ function makeReport(score = 78): AnalysisReport {
       highFindings: 0,
       mediumFindings: 0,
       lowFindings: 0,
+      infoFindings: 0,
       overallScore: score,
     },
   };
@@ -53,6 +54,7 @@ function makeAudit(): Audit {
       highFindings: 0,
       mediumFindings: 0,
       lowFindings: 0,
+      infoFindings: 0,
     },
     dimensions: Object.values(report.dimensions).map((dim) => ({
       auditId: 11,

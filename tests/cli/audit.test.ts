@@ -92,6 +92,7 @@ function makeReport(score = 70, withSecondFinding = false): AnalysisReport {
       highFindings: 1,
       mediumFindings: 0,
       lowFindings: 0,
+      infoFindings: 0,
       overallScore: score,
     },
   };

@@ -66,6 +66,7 @@ function makeReport(
       highFindings: count('high'),
       mediumFindings: count('medium'),
       lowFindings: count('low'),
+      infoFindings: count('info'),
       overallScore: score,
     },
   };

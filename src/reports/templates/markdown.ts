@@ -76,6 +76,7 @@ export class MarkdownTemplate {
       `| 🟠 High | ${String(m.highFindings)} |`,
       `| 🟡 Medium | ${String(m.mediumFindings)} |`,
       `| 🟢 Low | ${String(m.lowFindings)} |`,
+      `| ⚪ Info | ${String(m.infoFindings)} |`,
       `| **Total** | **${String(m.totalFindings)}** |`,
     ];
 
@@ -176,7 +177,15 @@ export class MarkdownTemplate {
       .sort((a, b) => this.severityScore(b) - this.severityScore(a))
       .slice(0, 5);
 
-    const lines: string[] = ['## 💡 Top 5 recommandations', ''];
+    const lines: string[] = [
+      '## 💡 Top 5 recommandations',
+      '',
+      '_Ordre de recommandation : `sévérité × impact × 10 − effort`. Ce classement ' +
+        'est distinct de la priorité canonique (`sévérité × (6 − effort)`) affichée ' +
+        'dans le détail : un constat `medium` peut y précéder un constat `critical` ' +
+        'sans que les priorités ni les compteurs soient incohérents._',
+      '',
+    ];
     if (withRecommendation.length === 0) {
       lines.push('_Aucune recommandation._');
     } else {

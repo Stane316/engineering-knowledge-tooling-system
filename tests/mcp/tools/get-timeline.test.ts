@@ -40,6 +40,7 @@ function makeReport(score: number, timestamp: string): AnalysisReport {
       highFindings: 0,
       mediumFindings: 0,
       lowFindings: 0,
+      infoFindings: 0,
       overallScore: score,
     },
   };

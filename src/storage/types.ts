@@ -33,6 +33,13 @@ export interface AuditMetadata {
   /** Constats de priorité `low`. */
   lowFindings: number;
   /**
+   * Constats de priorité `info` (Sprint 19-01, C-W02).
+   *
+   * Cinquième compteur, toujours numérique : les bases antérieures à la
+   * migration 009 le lisent à `0` sans que leur contenu soit réécrit.
+   */
+  infoFindings: number;
+  /**
    * Projet associé (Sprint 13), `null` si aucun.
    *
    * Absent avant insertion des bases antérieures au schéma 003.
@@ -204,6 +211,8 @@ export interface AuditStatistics {
   mediumFindings: number;
   /** Somme des constats mineurs. */
   lowFindings: number;
+  /** Somme des constats d'information (Sprint 19-01). */
+  infoFindings: number;
 }
 
 /** Tendance des scores agrégés par période. */

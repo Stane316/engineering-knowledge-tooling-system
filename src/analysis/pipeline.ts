@@ -8,8 +8,10 @@ import type {
   AnalysisReport,
   AxeResults,
   ContentResults,
+  DimensionScore,
   Finding,
   LighthouseResults,
+  Priority,
   UXResults,
 } from './types.js';
 
@@ -65,12 +67,14 @@ export class AnalysisPipeline {
     uxResults: UXResults,
     contentResults: ContentResults,
   ): Promise<AnalysisReport> {
-    const performance = this.performanceAnalyzer.analyze(lighthouseResults);
-    const accessibility = this.accessibilityAnalyzer.analyze(axeResults);
-    const seo = this.seoAnalyzer.analyze(lighthouseResults);
-    const ux = this.uxAnalyzer.analyze(uxResults);
-    const content = this.contentAnalyzer.analyze(contentResults);
+    const performance = this.canonicalize(this.performanceAnalyzer.analyze(lighthouseResults));
+    const accessibility = this.canonicalize(this.accessibilityAnalyzer.analyze(axeResults));
+    const seo = this.canonicalize(this.seoAnalyzer.analyze(lighthouseResults));
+    const ux = this.canonicalize(this.uxAnalyzer.analyze(uxResults));
+    const content = this.canonicalize(this.contentAnalyzer.analyze(contentResults));
 
+    // Liste générale : les mêmes constats canoniques que ceux portés par les
+    // dimensions, dans l'ordre de collecte (C-W01).
     const allFindings: Finding[] = [
       ...performance.findings,
       ...accessibility.findings,
@@ -79,8 +83,7 @@ export class AnalysisPipeline {
       ...content.findings,
     ];
 
-    // Priorités recalculées : le rapport ne retient que l'interprétation
-    // uniforme de la matrice, pas les priorités indicatives des analyseurs.
+    // Classement prioritaire : mêmes priorités, triées (C-W01).
     const priorityFindings = this.prioritizer.prioritize(allFindings);
 
     const overallScore = this.calculateOverallScore(
@@ -105,13 +108,41 @@ export class AnalysisPipeline {
       priorityFindings,
       summary: {
         totalFindings: allFindings.length,
-        criticalFindings: priorityFindings.filter((f) => f.priority === 'critical').length,
-        highFindings: priorityFindings.filter((f) => f.priority === 'high').length,
-        mediumFindings: priorityFindings.filter((f) => f.priority === 'medium').length,
-        lowFindings: priorityFindings.filter((f) => f.priority === 'low').length,
+        criticalFindings: this.countByPriority(allFindings, 'critical'),
+        highFindings: this.countByPriority(allFindings, 'high'),
+        mediumFindings: this.countByPriority(allFindings, 'medium'),
+        lowFindings: this.countByPriority(allFindings, 'low'),
+        infoFindings: this.countByPriority(allFindings, 'info'),
         overallScore,
       },
     });
+  }
+
+  /**
+   * Requalifie les constats d'une dimension avec la priorité canonique
+   * (Sprint 19-01, C-W01).
+   *
+   * Les analyseurs déclarent une priorité indicative ; seule la matrice
+   * `severity × (6 − effort)` fait foi. Sans cette étape, le détail par
+   * dimension et la liste générale pouvaient afficher deux priorités
+   * différentes pour le même constat.
+   *
+   * @param dimension - Score et constats d'une dimension.
+   * @returns Copie de la dimension dont les constats portent la priorité canonique.
+   */
+  private canonicalize(dimension: DimensionScore): DimensionScore {
+    return { ...dimension, findings: this.prioritizer.applyCanonicalPriority(dimension.findings) };
+  }
+
+  /**
+   * Compte les constats d'une priorité donnée (C-W02).
+   *
+   * @param findings - Constats canoniques.
+   * @param priority - Priorité recherchée.
+   * @returns Nombre de constats de cette priorité.
+   */
+  private countByPriority(findings: Finding[], priority: Priority): number {
+    return findings.filter((finding) => finding.priority === priority).length;
   }
 
   /**

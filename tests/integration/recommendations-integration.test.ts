@@ -156,6 +156,7 @@ describe('Intégration — recommandations contextuelles (Sprint 16, C16.1→C16
           highFindings: 0,
           mediumFindings: 0,
           lowFindings: 0,
+          infoFindings: 0,
           projectId,
         },
         dimensions: [],

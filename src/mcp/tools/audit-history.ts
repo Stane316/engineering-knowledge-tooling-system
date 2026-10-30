@@ -68,6 +68,7 @@ export async function executeAuditHistory(
       high_findings: metadata.highFindings,
       medium_findings: metadata.mediumFindings,
       low_findings: metadata.lowFindings,
+      info_findings: metadata.infoFindings,
       dimensions: dimensions.map((dim) => ({
         dimension: dim.dimension,
         score: dim.score,

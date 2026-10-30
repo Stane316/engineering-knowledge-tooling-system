@@ -55,7 +55,14 @@ export interface Finding {
   effort: Effort;
   /** Impact utilisateur estimé (1-5). */
   impact: Impact;
-  /** Priorité calculée (recalculée par `SeverityMatrix`). */
+  /**
+   * Priorité du constat.
+   *
+   * Dans un `AnalysisReport` publié par `AnalysisPipeline`, cette valeur est
+   * **toujours** la priorité canonique issue de la matrice
+   * `severity × (6 − effort)` (Sprint 19-01, C-W01) : les analyseurs peuvent
+   * déclarer une priorité indicative, elle est requalifiée avant publication.
+   */
   priority: Priority;
   /** Recommandation actionnable. */
   recommendation: string;
@@ -122,6 +129,13 @@ export interface AnalysisReport {
     mediumFindings: number;
     /** Constats de priorité `low`. */
     lowFindings: number;
+    /**
+     * Constats de priorité `info` (Sprint 19-01, C-W02).
+     *
+     * Cinquième compteur : sans lui, la somme des catégories ne pouvait pas
+     * égaler `totalFindings` et les constats `info` disparaissaient du résumé.
+     */
+    infoFindings: number;
     /** Score global pondéré (0-100). */
     overallScore: number;
   };

@@ -54,6 +54,7 @@ function makeReport(score: number, timestamp: string, findingTitle?: string): An
       highFindings: 0,
       mediumFindings: findings.length,
       lowFindings: 0,
+      infoFindings: 0,
       overallScore: score,
     },
   } as unknown as AnalysisReport;

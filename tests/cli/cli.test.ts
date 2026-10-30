@@ -4,7 +4,12 @@ import { join } from 'node:path';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
+import { migrations } from '../../src/data/migrations/index.js';
+
 import { createDataDir, removeDataDir } from './helpers.js';
+
+/** Version de schéma courante, dérivée de la liste des migrations. */
+const SCHEMA_VERSION = migrations.reduce((max, migration) => Math.max(max, migration.version), 0);
 
 /**
  * Tests d'intégration : exécution réelle du binaire compilé (`dist/cli/index.js`).
@@ -168,6 +173,6 @@ describe('CLI compilée (intégration)', () => {
 
   it('persiste les données dans les trois bases', () => {
     expect(readFileSync(join(dataDir, 'ekts.db')).byteLength).toBeGreaterThan(0);
-    expect(Number(scalar('ekts.db', 'PRAGMA user_version'))).toBe(8);
+    expect(Number(scalar('ekts.db', 'PRAGMA user_version'))).toBe(SCHEMA_VERSION);
   });
 });

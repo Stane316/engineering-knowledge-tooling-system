@@ -48,6 +48,7 @@ function makeReport(url: string, score: number): AnalysisReport {
       highFindings: 0,
       mediumFindings: findings.length,
       lowFindings: 0,
+      infoFindings: 0,
       overallScore: score,
     },
   };

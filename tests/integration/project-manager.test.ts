@@ -105,6 +105,7 @@ describe('ProjectManager', () => {
           highFindings: 0,
           mediumFindings: 0,
           lowFindings: 0,
+          infoFindings: 0,
           overallScore: 80,
         },
       } as unknown as Parameters<AuditRepository['store']>[0];

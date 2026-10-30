@@ -40,12 +40,31 @@ export class FindingPrioritizer {
    * @returns Nouveau tableau trié par priorité décroissante.
    */
   prioritize(findings: Finding[]): Finding[] {
-    const withPriority = findings.map((finding) => ({
+    return this.applyCanonicalPriority(findings).sort(
+      (a, b) => PRIORITY_ORDER[b.priority] - PRIORITY_ORDER[a.priority],
+    );
+  }
+
+  /**
+   * Applique la priorité canonique **sans réordonner** la liste (Sprint 19-01).
+   *
+   * Les analyseurs déclarent une priorité indicative ; la matrice
+   * `severity × (6 − effort)` fait foi. Cette méthode produit les constats
+   * canoniques **dans l'ordre de collecte**, ce qui permet d'aligner la liste
+   * générale, le détail par dimension et le stockage sur une seule vérité
+   * (C-W01) sans perdre l'organisation par dimension.
+   *
+   * Le tableau d'entrée n'est pas modifié et les constats de même titre
+   * restent des constats distincts : aucune déduplication n'est faite.
+   *
+   * @param findings - Constats à requalifier.
+   * @returns Nouveaux constats portant la priorité canonique, même ordre.
+   */
+  applyCanonicalPriority(findings: Finding[]): Finding[] {
+    return findings.map((finding) => ({
       ...finding,
       priority: this.severityMatrix.calculatePriority(finding),
     }));
-
-    return withPriority.sort((a, b) => PRIORITY_ORDER[b.priority] - PRIORITY_ORDER[a.priority]);
   }
 
   /**

@@ -199,6 +199,7 @@ export class BestPracticeExtractor {
       highFindings: 0,
       mediumFindings: 0,
       lowFindings: 0,
+      infoFindings: 0,
       projectId: row.project_id,
     }));
   }

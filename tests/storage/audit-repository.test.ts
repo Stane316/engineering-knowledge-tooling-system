@@ -58,6 +58,7 @@ function makeReport(
       highFindings: count('high'),
       mediumFindings: count('medium'),
       lowFindings: count('low'),
+      infoFindings: count('info'),
       overallScore: score,
     },
   };
@@ -92,6 +93,50 @@ describe('AuditRepository', () => {
       expect(audit.metadata.overallScore).toBe(72);
       expect(audit.dimensions).toHaveLength(5);
       expect(audit.findings).toHaveLength(2);
+    });
+
+    it('persiste les cinq compteurs, dont info (Sprint 19-01, C-W02)', () => {
+      // Un constat par priorité, plus un second constat moyen : cinq catégories
+      // non vides et un total supérieur au nombre de catégories.
+      const findings = [
+        makeFinding({ id: 'f-crit', priority: 'critical' }),
+        makeFinding({ id: 'f-high', priority: 'high' }),
+        makeFinding({ id: 'f-med-1', priority: 'medium' }),
+        makeFinding({ id: 'f-med-2', priority: 'medium' }),
+        makeFinding({ id: 'f-low', priority: 'low' }),
+        makeFinding({ id: 'f-info', priority: 'info', dimension: 'ux' }),
+      ];
+      const stored = repo.store(makeReport('https://example.com', 65, findings));
+
+      const counters = [
+        stored.metadata.criticalFindings,
+        stored.metadata.highFindings,
+        stored.metadata.mediumFindings,
+        stored.metadata.lowFindings,
+        stored.metadata.infoFindings,
+      ];
+
+      expect(stored.metadata.infoFindings).toBe(1);
+      expect(counters.reduce((sum, value) => sum + value, 0)).toBe(stored.metadata.totalFindings);
+      expect(stored.metadata.totalFindings).toBe(6);
+
+      // Relecture depuis la base : la cinquième valeur survit au cycle.
+      const reread = repo.findById(stored.metadata.id ?? 0);
+      expect(reread?.metadata.infoFindings).toBe(1);
+      expect(
+        (reread?.metadata.criticalFindings ?? 0) +
+          (reread?.metadata.highFindings ?? 0) +
+          (reread?.metadata.mediumFindings ?? 0) +
+          (reread?.metadata.lowFindings ?? 0) +
+          (reread?.metadata.infoFindings ?? 0),
+      ).toBe(reread?.metadata.totalFindings);
+    });
+
+    it('stocke zéro info quand aucun constat de cette priorité n’existe', () => {
+      const stored = repo.store(makeReport('https://example.com', 80, [makeFinding()]));
+
+      expect(stored.metadata.infoFindings).toBe(0);
+      expect(repo.findById(stored.metadata.id ?? 0)?.metadata.infoFindings).toBe(0);
     });
 
     it('renseigne les identifiants générés des constats', () => {

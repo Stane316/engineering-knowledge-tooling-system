@@ -34,6 +34,7 @@ function makeAudit(overrides?: { readonly id?: number; readonly findingsCount?: 
       highFindings: 1,
       mediumFindings: 1,
       lowFindings: 0,
+      infoFindings: 0,
     },
     dimensions: (['performance', 'accessibility', 'seo', 'ux', 'content'] as const).map(
       (dimension, index) => ({
