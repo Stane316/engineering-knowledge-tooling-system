@@ -44,6 +44,12 @@ export interface InspectReportJson {
   readonly score: number | null;
   readonly totalFindings: number;
   readonly reports: readonly { readonly format: string; readonly filePath: string }[];
+  /**
+   * Formats demandés qui ont échoué **après** le stockage de l'audit
+   * (Sprint 20-02, C-W11). Un tableau vide ne signifie pas « tout a réussi »
+   * si le format n'a jamais été demandé : voir `reports`.
+   */
+  readonly failures: readonly { readonly format: string; readonly message: string }[];
   readonly durationMs: number;
 }
 
@@ -121,13 +127,26 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
         // 4. Rapports.
         const outputDir = path.resolve(options.output ?? './reports');
         const reports: GeneratedReport[] = [];
+        // C-W11 : l'audit est déjà stocké. Un échec de rendu ne doit donc
+        // jamais faire croire que rien n'a été créé : chaque format est tenté
+        // séparément et son échec est conservé avec sa raison.
+        const failures: Array<{ format: string; message: string }> = [];
+
         if (format === 'md' || format === 'both') {
-          reports.push(
-            await new MarkdownReportGenerator().generate(audit, { outputPath: outputDir }),
-          );
+          try {
+            reports.push(
+              await new MarkdownReportGenerator().generate(audit, { outputPath: outputDir }),
+            );
+          } catch (error) {
+            failures.push({ format: 'markdown', message: messageOf(error) });
+          }
         }
         if (format === 'pdf' || format === 'both') {
-          reports.push(await new PDFReportGenerator().generate(audit, { outputPath: outputDir }));
+          try {
+            reports.push(await new PDFReportGenerator().generate(audit, { outputPath: outputDir }));
+          } catch (error) {
+            failures.push({ format: 'pdf', message: messageOf(error) });
+          }
         }
 
         const durationMs = runtime.now() - started;
@@ -141,6 +160,7 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
             format: entry.format,
             filePath: entry.filePath ?? '(mémoire)',
           })),
+          failures,
           durationMs,
         };
 
@@ -156,14 +176,32 @@ export function registerInspect(program: Command, runtime: CliRuntime): void {
             (entry) =>
               `${palette.success('✔')} ${palette.bold(entry.format.toUpperCase())} : ${entry.filePath ?? '(contenu en mémoire)'}`,
           ),
+          ...failures.map(
+            (failure) =>
+              `${palette.warning('⚠')} ${palette.bold(failure.format.toUpperCase())} : échec — ${failure.message}`,
+          ),
+          ...(failures.length === 0
+            ? []
+            : [
+                '',
+                `${palette.bold('Reprise possible')} : ekts audit report ${String(audit.metadata.id)} --format md`,
+                "L'audit et les rapports produits ci-dessus restent valides.",
+              ]),
         ];
 
-        return { human: lines.join('\n'), json };
+        // Issue partielle : les artefacts existent, mais tous les formats
+        // demandés ne sont pas produits — le code de sortie doit le dire.
+        return { human: lines.join('\n'), json, exitCode: failures.length === 0 ? 0 : 1 };
       } finally {
         database.close();
       }
     });
   });
+}
+
+/** Message lisible d'une erreur inconnue. */
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 /**

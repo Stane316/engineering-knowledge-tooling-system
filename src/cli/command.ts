@@ -9,6 +9,27 @@ export interface CommandResult {
   readonly human: string;
   /** Objet sérialisé par `--json`. */
   readonly json: unknown;
+  /**
+   * Code de sortie à appliquer **après** écriture du résultat (défaut `0`).
+   *
+   * Sert aux issues partielles : la commande a produit des artefacts réels
+   * mais tous les formats demandés n'ont pas abouti (Sprint 20-02, C-W11).
+   * Un résultat partiel ne doit ni se taire, ni prétendre que rien n'a été
+   * créé, ni prétendre que tout a réussi.
+   */
+  readonly exitCode?: number;
+}
+
+/**
+ * Sortie silencieuse : le code de sortie est décidé sans réécrire de message.
+ *
+ * Levée par `execute` quand un résultat déjà écrit porte un code non nul.
+ */
+export class SilentExit extends Error {
+  constructor(readonly code: number) {
+    super(`sortie ${String(code)}`);
+    this.name = 'SilentExit';
+  }
 }
 
 /** Options de sortie résolues pour la commande courante. */
@@ -105,7 +126,15 @@ export async function execute(
     } else {
       runtime.io.write(`${result.human}\n`);
     }
+
+    if (result.exitCode !== undefined && result.exitCode !== 0) {
+      throw new SilentExit(result.exitCode);
+    }
   } catch (error) {
+    if (error instanceof SilentExit) {
+      throw error;
+    }
+
     throw new CommandFailure(error, flags.json, flags.colors);
   }
 }

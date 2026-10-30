@@ -1,6 +1,7 @@
 import { rm } from 'node:fs/promises';
 import path from 'node:path';
 
+import Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { labVitals } from '../../src/analysis/measurement.js';
 
@@ -267,5 +268,88 @@ describe('CLI inspect', () => {
     expect(payload.level).toBe('L3');
     expect(payload.reports.map((entry) => entry.format)).toEqual(['markdown', 'pdf']);
     expect(payload.reports[1]?.filePath).toBe('(mémoire)');
+  });
+
+  it('signale les artefacts créés quand le PDF échoue après le Markdown (C-W11)', async () => {
+    inspectMock.mockResolvedValue(l3Inspection('https://partiel.example'));
+    generatePdfMock.mockRejectedValue(new Error('Chromium introuvable'));
+    const output = path.join(dataDir, 'reports-partiels');
+
+    const code = await run(
+      runtime,
+      'inspect',
+      'https://partiel.example',
+      '--output',
+      output,
+      '--format',
+      'both',
+    );
+
+    // Échec partiel : la commande ne prétend jamais que rien n'a été créé.
+    expect(code).not.toBe(0);
+    const text = allOutput(runtime);
+    expect(text).toMatch(/Audit #\d+ (stocké|enregistré)/);
+    expect(text).toContain('MARKDOWN');
+    expect(text).toContain(output);
+    expect(text).toMatch(/PDF[^\n]*(échou|échec)/i);
+    expect(text).toContain('Chromium introuvable');
+    expect(text).toContain('ekts audit report');
+  });
+
+  it("régénère un rapport depuis l'ID sans créer d'audit (C-W11)", async () => {
+    inspectMock.mockResolvedValue(l3Inspection('https://reprise.example'));
+    generatePdfMock.mockRejectedValue(new Error('Chromium introuvable'));
+    const output = path.join(dataDir, 'reports-reprise');
+
+    await run(
+      runtime,
+      'inspect',
+      'https://reprise.example',
+      '--output',
+      output,
+      '--format',
+      'both',
+    );
+
+    const countAudits = (): number => {
+      const database = new Database(path.join(dataDir, 'ekts.db'), { readonly: true });
+      try {
+        const row = database.prepare('SELECT COUNT(*) AS n FROM audit_metadata').get() as {
+          n: number;
+        };
+        return row.n;
+      } finally {
+        database.close();
+      }
+    };
+    const lastId = (): number => {
+      const database = new Database(path.join(dataDir, 'ekts.db'), { readonly: true });
+      try {
+        const row = database.prepare('SELECT MAX(id) AS id FROM audit_metadata').get() as {
+          id: number;
+        };
+        return row.id;
+      } finally {
+        database.close();
+      }
+    };
+
+    const before = countAudits();
+    const id = lastId();
+
+    const code = await run(
+      runtime,
+      'audit',
+      'report',
+      String(id),
+      '--format',
+      'md',
+      '--output',
+      path.join(dataDir, 'reports-regeneres'),
+    );
+
+    expect(code).toBe(0);
+    expect(allOutput(runtime)).toContain(`Rapports pour l'audit #${String(id)}`);
+    expect(countAudits()).toBe(before);
   });
 });

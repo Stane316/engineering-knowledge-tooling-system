@@ -63,7 +63,7 @@ export class AccessibilityAnalyzer {
     // État 1 (C-W06) : une liste vide explicite signifie réellement « aucune violation ».
     const findings: Finding[] = [];
     for (const violation of results.violations) {
-      findings.push(this.analyzeViolation(violation));
+      findings.push(this.analyzeViolation(violation, results.engineVersion));
     }
 
     const score = results.score;
@@ -97,9 +97,13 @@ export class AccessibilityAnalyzer {
    * Analyse une violation individuelle.
    *
    * @param violation - Violation WCAG.
-   * @returns Constat gradué.
+   * @param engineVersion - Version du moteur axe-core, quand elle est connue.
+   * @returns Constat gradué, porteur de la preuve réellement fournie.
    */
-  private analyzeViolation(violation: NonNullable<AxeResults['violations']>[number]): Finding {
+  private analyzeViolation(
+    violation: NonNullable<AxeResults['violations']>[number],
+    engineVersion?: string,
+  ): Finding {
     const severity = IMPACT_TO_SEVERITY[violation.impact] ?? 2;
     const effort = this.estimateEffort(violation);
     // Le nombre de nœuds peut être absent (C-W06) : l'impact est alors estimé
@@ -117,6 +121,13 @@ export class AccessibilityAnalyzer {
       title: violation.description,
       description: nodesDescription,
       ...(violation.nodes === undefined ? {} : { nodesCount: violation.nodes }),
+      // C-W09 : règle, sélecteurs et version suivent le constat ; ce qui n'est
+      // pas fourni reste absent plutôt que d'être inventé.
+      rule: violation.id,
+      ...(violation.targets === undefined || violation.targets.length === 0
+        ? {}
+        : { elements: [...violation.targets] }),
+      ...(engineVersion === undefined ? {} : { engineVersion }),
       severity,
       effort,
       impact,

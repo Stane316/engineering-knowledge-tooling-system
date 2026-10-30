@@ -189,8 +189,21 @@ export interface AxeViolation {
   readonly help: string;
   /** Documentation de la règle. */
   readonly helpUrl: string;
-  /** Nombre de nœuds concernés. */
-  readonly nodes: number;
+  /**
+   * Nombre de nœuds concernés, quand axe-core le fournit (Sprint 20-02).
+   *
+   * Absent = non fourni. Le `0` historique confondait « aucun nœud » et
+   * « information absente », exactement ce que C-W09 interdit.
+   */
+  readonly nodes?: number;
+  /**
+   * Sélecteurs réellement fournis par axe-core (Sprint 20-02, C-W09).
+   *
+   * Absent quand axe ne fournit aucune cible : l'absence est conservée telle
+   * quelle et n'est jamais remplacée par une liste vide présentée comme
+   * observée.
+   */
+  readonly targets?: readonly string[];
   /** Balises WCAG déclenchées (`wcag2a`, `wcag2aa`…). */
   readonly tags: readonly string[];
 }
@@ -207,6 +220,13 @@ export interface AxeAnalysis {
   readonly inapplicableCount: number;
   /** Durée de l'analyse (ms). */
   readonly duration: number;
+  /**
+   * Version du moteur axe-core, quand elle est fournie (Sprint 20-02, C-W09).
+   *
+   * Sans elle, un constat ne peut pas être rattaché à la version de règles qui
+   * l'a produit.
+   */
+  readonly engineVersion?: string;
 }
 
 /** Heuristique de Nielsen évaluée. */

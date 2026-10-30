@@ -24,6 +24,7 @@ import { registerRecommendCommands } from './commands/recommend.js';
 import { registerTemplateCommands } from './commands/template.js';
 import { registerTimelineCommands } from './commands/timeline.js';
 import { createPalette } from './output.js';
+import { SilentExit } from './command.js';
 import { createRuntime, type CliRuntime } from './runtime.js';
 
 /**
@@ -137,6 +138,10 @@ export async function runCli(
 
     return 0;
   } catch (error) {
+    if (error instanceof SilentExit) {
+      return error.code;
+    }
+
     if (error instanceof CommanderError) {
       // Commander a déjà écrit l'aide, la version ou le message d'usage.
       return exitCodeFor(error);

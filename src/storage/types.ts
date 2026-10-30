@@ -109,6 +109,17 @@ export interface AuditFinding {
   priority: Priority;
   /** Recommandation actionnable. */
   recommendation?: string;
+  /**
+   * Règle d'origine du constat (`color-contrast`…), quand la source en fournit
+   * une (Sprint 20-02, C-W09).
+   */
+  rule?: string;
+  /** Sélecteurs fournis par la source, quand ils l'ont été (C-W09). */
+  elements?: string[];
+  /** Nombre de nœuds réellement fourni, jamais un `0` de remplacement (C-W09). */
+  nodesCount?: number;
+  /** Version du moteur ayant produit la preuve, quand elle est connue (C-W09). */
+  engineVersion?: string;
   /** Horodatage d'insertion (renseigné par SQLite). */
   createdAt?: string;
 }

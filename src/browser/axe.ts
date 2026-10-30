@@ -52,7 +52,17 @@ export interface AxeRawViolation {
   readonly help?: string;
   readonly helpUrl?: string;
   readonly tags?: readonly string[];
-  readonly nodes?: readonly unknown[];
+  readonly nodes?: readonly AxeRawNode[];
+}
+
+/**
+ * Nœud brut d'une violation axe-core (réduit à la cible).
+ *
+ * `target` peut contenir des chaînes (sélecteur CSS) ou des tableaux (chaîne
+ * de cadres) ; seules les chaînes sont retenues ici, telles quelles.
+ */
+export interface AxeRawNode {
+  readonly target?: readonly (string | readonly string[])[];
 }
 
 /** Résultat brut d'axe-core, réduit à ce qui est lu. */
@@ -60,6 +70,8 @@ export interface AxeRawResults {
   readonly violations?: readonly AxeRawViolation[];
   readonly passes?: readonly unknown[];
   readonly inapplicable?: readonly unknown[];
+  /** Moteur et version, tels que renvoyés par axe-core (`testEngine`). */
+  readonly testEngine?: { readonly name?: string; readonly version?: string };
 }
 
 /** Résultat d'une exécution d'axe-core (même forme que le résultat brut). */
@@ -135,9 +147,25 @@ function toViolation(raw: AxeRawViolation, index: number): AxeViolation {
     description: raw.description ?? '',
     help: raw.help ?? '',
     helpUrl: raw.helpUrl ?? '',
-    nodes: raw.nodes?.length ?? 0,
+    ...(raw.nodes === undefined ? {} : { nodes: raw.nodes.length }),
+    ...targetsOf(raw),
     tags: [...(raw.tags ?? [])],
   };
+}
+
+/**
+ * Sélecteurs réellement fournis par axe-core.
+ *
+ * Les cibles de type tableau (chaîne de cadres) sont ignorées : les aplatir
+ * produirait un sélecteur qui n'existe pas. Aucune cible ⇒ aucune propriété,
+ * pour que l'absence reste visible jusqu'au rapport.
+ */
+function targetsOf(raw: AxeRawViolation): { targets?: readonly string[] } {
+  const targets = (raw.nodes ?? [])
+    .flatMap((node) => node.target ?? [])
+    .filter((target): target is string => typeof target === 'string');
+
+  return targets.length === 0 ? {} : { targets };
 }
 
 /**
@@ -150,7 +178,8 @@ function toViolation(raw: AxeRawViolation, index: number): AxeViolation {
  */
 export function scoreViolations(violations: readonly AxeViolation[]): number {
   const penalty = violations.reduce(
-    (total, violation) => total + IMPACT_WEIGHTS[violation.impact] * Math.max(1, violation.nodes),
+    (total, violation) =>
+      total + IMPACT_WEIGHTS[violation.impact] * Math.max(1, violation.nodes ?? 0),
     0,
   );
 
@@ -198,6 +227,9 @@ export class AxeAnalyzer {
       passCount: results.passes?.length ?? 0,
       inapplicableCount: results.inapplicable?.length ?? 0,
       duration: Date.now() - started,
+      ...(results.testEngine?.version === undefined
+        ? {}
+        : { engineVersion: results.testEngine.version }),
     };
   }
 }

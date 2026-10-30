@@ -79,6 +79,16 @@ export interface Finding {
    * Absent = non fourni : à ne jamais présenter comme un décompte observé.
    */
   nodesCount?: number;
+  /**
+   * Règle d'origine du constat (`color-contrast`, `perf-lcp`…), quand la
+   * source en fournit une (Sprint 20-02, C-W09).
+   */
+  rule?: string;
+  /**
+   * Version du moteur ayant produit la preuve (axe-core, Lighthouse), quand
+   * elle est connue (Sprint 20-02, C-W09).
+   */
+  engineVersion?: string;
   /** Métrique mesurée à l'origine du constat. */
   metric?: {
     /** Nom de la métrique (`LCP`, `Word count`…). */
@@ -277,9 +287,17 @@ export interface AxeResults {
      * un décompte observé.
      */
     nodes?: number;
+    /**
+     * Sélecteurs fournis par axe-core (Sprint 20-02, C-W09).
+     *
+     * Absent = non fourni ; une liste vide n'est jamais fabriquée.
+     */
+    targets?: readonly string[];
   }>;
   /** Score d'accessibilité (0-100), ou `null` s'il n'est pas fourni. */
   score: number | null;
+  /** Version du moteur axe-core, quand elle est fournie (C-W09). */
+  engineVersion?: string;
 }
 
 /**

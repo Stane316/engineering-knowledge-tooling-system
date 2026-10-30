@@ -86,6 +86,10 @@ export class AuditSchema {
           priority IN ('critical', 'high', 'medium', 'low', 'info')
         ),
         recommendation TEXT,
+        rule TEXT,
+        elements_json TEXT,
+        nodes_count INTEGER,
+        engine_version TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (audit_id) REFERENCES audit_metadata(id) ON DELETE CASCADE
       )

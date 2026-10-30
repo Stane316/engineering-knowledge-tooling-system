@@ -72,6 +72,10 @@ interface FindingRow {
   impact: number;
   priority: Priority;
   recommendation: string | null;
+  rule: string | null;
+  elements_json: string | null;
+  nodes_count: number | null;
+  engine_version: string | null;
   created_at: string;
 }
 
@@ -258,8 +262,9 @@ export class AuditRepository {
       const findingStatement = this.db.prepare(
         `INSERT INTO audit_findings (
            audit_id, dimension, title, description,
-           severity, effort, impact, priority, recommendation
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           severity, effort, impact, priority, recommendation,
+           rule, elements_json, nodes_count, engine_version
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       );
       const findings: AuditFinding[] = report.findings.map((finding) => {
         const result = findingStatement.run(
@@ -272,6 +277,10 @@ export class AuditRepository {
           finding.impact,
           finding.priority,
           finding.recommendation ?? null,
+          finding.rule ?? null,
+          finding.elements === undefined ? null : JSON.stringify(finding.elements),
+          finding.nodesCount ?? null,
+          finding.engineVersion ?? null,
         );
 
         return {
@@ -285,6 +294,10 @@ export class AuditRepository {
           impact: finding.impact,
           priority: finding.priority,
           recommendation: finding.recommendation,
+          ...(finding.rule === undefined ? {} : { rule: finding.rule }),
+          ...(finding.elements === undefined ? {} : { elements: [...finding.elements] }),
+          ...(finding.nodesCount === undefined ? {} : { nodesCount: finding.nodesCount }),
+          ...(finding.engineVersion === undefined ? {} : { engineVersion: finding.engineVersion }),
         };
       });
 
@@ -521,6 +534,16 @@ export class AuditRepository {
       impact: row.impact,
       priority: row.priority,
       recommendation: row.recommendation ?? undefined,
+      ...(row.rule === null || row.rule === undefined ? {} : { rule: row.rule }),
+      ...(row.elements_json === null || row.elements_json === undefined
+        ? {}
+        : { elements: JSON.parse(row.elements_json) as string[] }),
+      ...(row.nodes_count === null || row.nodes_count === undefined
+        ? {}
+        : { nodesCount: row.nodes_count }),
+      ...(row.engine_version === null || row.engine_version === undefined
+        ? {}
+        : { engineVersion: row.engine_version }),
       createdAt: row.created_at,
     };
   }

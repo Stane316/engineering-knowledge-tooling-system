@@ -93,8 +93,10 @@ export function toAxeResults(analysis: AxeAnalysis): AxeResults {
       help: violation.help,
       helpUrl: violation.helpUrl,
       nodes: violation.nodes,
+      ...(violation.targets === undefined ? {} : { targets: [...violation.targets] }),
     })),
     score: analysis.score,
+    ...(analysis.engineVersion === undefined ? {} : { engineVersion: analysis.engineVersion }),
   };
 }
 
