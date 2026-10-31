@@ -144,25 +144,46 @@ export async function dispatchTool(
   args: unknown,
   profile?: McpProfilePolicy,
 ): Promise<unknown> {
-  // Garde de politique (Sprint 21-01, P01/P02) : un nom masqué est refusé
-  // **avant** toute validation d'arguments et avant tout effet. Un appel direct
-  // au chemin d'exécution ne contourne donc pas le profil, même si un jour un
-  // outil est enregistré par erreur.
-  if (profile !== undefined && !isToolAllowed(profile, name)) {
-    throw toolNotAllowed(`Outil « ${name} » non autorisé par le profil « ${profile.name} ».`, {
-      profile: profile.name,
-      allowed: [...profile.tools],
-    });
-  }
+  const journal = context.observability?.journal;
 
-  // Garde de mode (Sprint 21-02, C-P08) : le mode est lu dans les arguments
-  // **bruts**, avant `parse` et donc avant l'injection du défaut `hybrid`. Un
-  // contrôle placé après validation verrait toujours un mode et ne pourrait
-  // plus distinguer une omission d'un `hybrid` demandé.
-  if (profile?.requireExplicitFtsMode === true && name === 'search_knowledge') {
-    assertExplicitFtsMode(profile, args);
-  }
+  try {
+    // Garde de politique (Sprint 21-01, P01/P02) : un nom masqué est refusé
+    // **avant** toute validation d'arguments et avant tout effet. Un appel
+    // direct au chemin d'exécution ne contourne donc pas le profil, même si un
+    // jour un outil est enregistré par erreur.
+    if (profile !== undefined && !isToolAllowed(profile, name)) {
+      throw toolNotAllowed(`Outil « ${name} » non autorisé par le profil « ${profile.name} ».`, {
+        profile: profile.name,
+        allowed: [...profile.tools],
+      });
+    }
 
+    // Garde de mode (Sprint 21-02, C-P08) : le mode est lu dans les arguments
+    // **bruts**, avant `parse` et donc avant l'injection du défaut `hybrid`. Un
+    // contrôle placé après validation verrait toujours un mode et ne pourrait
+    // plus distinguer une omission d'un `hybrid` demandé.
+    if (profile?.requireExplicitFtsMode === true && name === 'search_knowledge') {
+      assertExplicitFtsMode(profile, args);
+    }
+
+    const result = await executeTool(context, name, args);
+
+    // Point d'enregistrement **unique** (Sprint 23-01, C-T01) : succès comme
+    // échec passent ici, y compris les appels directs qui ne traversent pas
+    // le serveur. Sous un profil restreint, un outil masqué n'étant pas
+    // exposé, c'est le refus levé ci-dessus que le journal doit voir.
+    journal?.recordOutcome({ tool: name, args, result });
+
+    return result;
+  } catch (error) {
+    journal?.recordOutcome({ tool: name, args, error });
+
+    throw error;
+  }
+}
+
+/** Exécute la validation et le service d'un outil connu. */
+async function executeTool(context: McpToolContext, name: string, args: unknown): Promise<unknown> {
   switch (name) {
     case 'search_knowledge':
       return executeSearchKnowledge(context, parse(SearchKnowledgeInput, name, args));

@@ -22,6 +22,7 @@ import {
 import { TOOL_NAMES } from './schemas/tool-schemas.js';
 import { createStdioTransport } from './transport.js';
 import { createLogger, resolveLogLevel, SILENT_LOGGER, type McpLogger } from './utils/logger.js';
+import { attachJournal, EventJournal } from './observability/event-journal.js';
 
 /**
  * Serveur MCP EKTS — transport stdio.
@@ -44,6 +45,14 @@ export interface CreateEktsServerOptions {
    * d'ouvrir la moindre base.
    */
   readonly profile?: McpProfilePolicy;
+  /**
+   * Journal d'événements (Sprint 23-01).
+   *
+   * Défaut : un journal est créé et recopié sur `stderr` via le journal
+   * structuré, sauf si le journal est `silent` — un serveur muet ne doit pas
+   * produire de trace. Les tests injectent le leur pour lire les événements.
+   */
+  readonly journal?: EventJournal;
 }
 
 /**
@@ -71,7 +80,19 @@ export function createEktsServer(options: CreateEktsServerOptions): McpServer {
     logger.error('Erreur de protocole MCP', error);
   };
 
-  registerTools(server, options.context, logger, profile);
+  const journal =
+    options.journal ??
+    options.context.observability?.journal ??
+    (logger.level === 'silent'
+      ? undefined
+      : new EventJournal({ sink: (event) => logger.info('mcp.event', { ...event }) }));
+
+  registerTools(
+    server,
+    journal === undefined ? options.context : attachJournal(options.context, journal),
+    logger,
+    profile,
+  );
 
   return server;
 }

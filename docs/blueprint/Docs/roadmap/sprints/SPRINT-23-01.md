@@ -1,6 +1,6 @@
 # SPRINT-23-01 — Événements et citations observables
 
-**Sprint parent :** [SPRINT-23](SPRINT-23.md) · **Statut :** 📄 décomposition validée, contenu à vérifier avant exécution ; ⏳ implémentation non commencée · **Durée :** non engagée.
+**Sprint parent :** [SPRINT-23](SPRINT-23.md) · **Statut :** ✅ **exécuté le 31/10/2026 — C-T01 et C-T02 satisfaits, limites déclarées. Résultat : [SPRINT-23-01-RESULTAT](SPRINT-23-01-RESULTAT.md)**
 
 ## 1. Objectif, exigences et prérequis
 

@@ -1,3 +1,4 @@
+import type { McpObservability } from './observability/event-journal.js';
 import type Database from 'better-sqlite3';
 
 import type { IEmbeddingsService } from '../business/embeddings.js';
@@ -113,6 +114,15 @@ export interface McpToolContext {
   readonly recommendations: RecommendationEngine;
   /** Templates de projets — seed des 10 prédéfinis au constructeur (Sprint 17). */
   readonly templates: TemplateService;
+  /**
+   * Observabilité (Sprint 23-01).
+   *
+   * Facultatif : un contexte sans journal n'émet aucun événement et reste
+   * utilisable tel quel. Le journal vit dans le contexte parce que
+   * `dispatchTool` le reçoit déjà — un refus de politique, levé avant toute
+   * validation, est donc observable.
+   */
+  readonly observability?: McpObservability;
 }
 
 /** Contexte complet, avec la fermeture des ressources ouvertes. */
