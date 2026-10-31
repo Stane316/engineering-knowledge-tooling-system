@@ -1,9 +1,76 @@
 # Révision de la MVP-4 — proposition du 31 octobre 2026
 
-**Statut :** 📄 **PROPOSITION — non applicable sans accord du propriétaire.**
+**Statut v2 :** ✅ **INSTRUITE le 31/10/2026** — décision de numérotation prise (§ 0) ;
+le contenu de fond reste soumis à accord (V1, V2, V4, V5).
 **Remplace :** la décomposition « Sprints 19 → 24 » de la [roadmap](../../../../ROADMAP.md)
 **§ 2.1**, qui reste conservée comme historique.
 **Complète :** [conventions permanentes](../07-CONVENTIONS-PERMANENTES.md).
+
+---
+
+## 0. Décision instruite le 31 octobre 2026 — numérotation et archivage
+
+Le propriétaire a demandé d'instruire la proposition et de trancher l'archivage
+et la numérotation **« selon ce qui apporte une plus grande efficacité ou une
+plus-value à la documentation du projet »**. Critère appliqué : *une
+renumérotation ne se justifie que si elle apporte plus de clarté qu'elle ne
+coûte de références cassées.*
+
+### 0.1 Verdict : **ne pas renuméroter**
+
+| Option | Coût documentaire | Gain | Décision |
+| --- | --- | --- | --- |
+| Renuméroter (24 → 27, insertion de 24 ingestion) | 3 dossiers S24-xx réécrits, références de la roadmap, du registre, des notes 20–22 et de 38 rapports à corriger | aucun contenu nouveau | ❌ **rejetée** |
+| **Conserver 23 et 24, ajouter 25 → 28** | aucune référence cassée | la cible est explicitée, le défaut D4 est corrigé | ✅ **retenue** |
+
+**Pourquoi c'est équivalent au fond.** Le défaut D4 n'était pas un problème de
+numéro mais d'**ordre** : la validation ne doit pas précéder l'ingestion. La
+solution retenue ne déplace pas le numéro, elle **redéfinit le rôle** de S24 :
+
+| Sprint | Rôle avant | Rôle retenu |
+| --- | --- | --- |
+| **S24** | validation transversale **et** décision finale (G0–G3) | **consolidation technique** : régressions M, G0, préparation du pilote → **G0–G1** |
+| **S28** *(nouveau)* | — | **décision de valeur** : G2 (comparaison A/C/B) et G3 (décision propriétaire), sur un corpus réel |
+
+Ainsi : S24 garde son contenu intact et sa position ; la décision de valeur
+attend l'ingestion et les intégrations. Aucun fichier existant n'est déplacé,
+aucune référence n'est invalidée.
+
+### 0.2 La proposition initiale est archivée, pas supprimée
+
+Le découpage « 24 ingestion / 25 OpenCode / 26 Hermes / 27 validation » du § 6
+reste dans ce document comme **variante non retenue**, avec sa justification.
+Il n'est ni effacé ni présenté comme appliqué. C'est le découpage du § 6 bis qui
+fait foi.
+
+### 0.3 Ce qui reste soumis à accord
+
+La décision ci-dessus porte **uniquement sur la numérotation**. Elle n'approuve
+ni l'ingestion, ni les intégrations, ni les critères proposés :
+
+| Réf. | Objet | État |
+| --- | --- | --- |
+| **V1** | opportunité d'insérer les chantiers 25–28 | ⏳ à trancher |
+| **V2** | identité de TierFlow, Quen Agents, Paperclip | ⏳ sans URL confirmée |
+| **V3** | premier corpus à importer | ⏳ |
+| **V4** | licences copyleft/restrictives admises ? | ⏳ |
+| **V5** | identifiants de critères C-R09→C-R11, C-T07→C-T08 | ⏳ propositions |
+| **E1** | valider l'option E de lecture ciblée | ⏳ (note 28, six décisions E1–E6) |
+
+### 0.4 Découpage retenu (remplace le § 6)
+
+| Sprint | Titre | Objet | Critères |
+| --- | --- | --- | --- |
+| **23** | *(inchangé)* Preuves, compatibilité, exploitation | T01–T03, O02–O05 | C-T01–C-T03, C-O02–C-O06 |
+| **24** | *(inchangé dans son contenu)* Consolidation technique | régressions M, préparation G0 | **G0–G1** |
+| **25** | *(nouveau)* **Ingestion et lecture gouvernée** | option E, import, droits, empreinte | LC-01→LC-10, C-R09→C-R11 |
+| **26** | *(nouveau)* **Intégration OpenCode** | hôte de référence, MCP, permissions | C-T07 |
+| **27** | *(nouveau)* **Intégration Hermes + corpus de skills** | `SKILL.md`, citations sourcées | C-R11, C-T08 |
+| **28** | *(nouveau)* **Validation de valeur et décision** | G2 (A/C/B), G3 | C-T04–C-T06, G2–G3 |
+| **29+** | *optionnel* | TierFlow, Quen, Paperclip, VoiceStudio | après identification |
+
+Le sprint 24 **reste le prochain sprint** après S23 : rien n'est déplacé.
+
 
 ---
 
@@ -98,7 +165,7 @@ node dist/cli/index.js search "accessibilité" --mode fts
 multi-utilisateurs, collaboration distante, exécution de scripts non fiables,
 client MCP sortant, synchronisation cloud.
 
-## 6. Découpage proposé
+## 6. Découpage initialement proposé — **variante non retenue** (voir § 0.4)
 
 > Les sprints **19 à 23 restent inchangés**. Le sprint 24 initial (validation)
 > est **décalé**, pas supprimé : il devient 27, avec son contenu intact.

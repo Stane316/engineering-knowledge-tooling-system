@@ -225,7 +225,9 @@ des modèles avant exécution.
 > **⚠️ Révision en cours d'arbitrage (31/10/2026).** Une proposition de révision
 > du découpage 23–24 est soumise au propriétaire :
 > [`REVISION-MVP4-2026-10-31.md`](blueprint/Docs/roadmap/REVISION-MVP4-2026-10-31.md).
-> Elle constate que le plan actuel **n'inclut aucune acquisition de corpus** alors
+> **Décision de numérotation instruite le 31/10/2026 : ne pas renuméroter.** S23 et S24 restent inchangés et à leur place ; les chantiers d'ingestion et d'intégration deviennent S25 à S28, et la décision de valeur passe de S24 à S28. Le sprint 24 conserve son contenu mais devient une consolidation technique (G0–G1), la décision de valeur (G2–G3) attendant un corpus réel.
+>
+> La proposition constate que le plan actuel **n'inclut aucune acquisition de corpus** alors
 > que la vision du produit repose sur la réutilisation de l'open source, et
 > propose d'insérer les sprints 24 (ingestion), 25 (OpenCode) et 26 (Hermes) en
 > décalant la validation de 24 en 27. **Rien n'est applicable avant accord.**
