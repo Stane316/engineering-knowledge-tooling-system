@@ -1,7 +1,7 @@
 # SPRINT-23-03 — Sauvegarde, contrats historiques et docs — résultat
 
 **Sprint parent :** [SPRINT-23](SPRINT-23.md) · **Base :** `6d8ac00` · **Date :** 31 octobre 2026
-**Statut :** ✅ **C-O04 satisfait (2/2 scénarios) · C-O05 satisfait sur le corpus sélectionné · C-O06 satisfait · C-W12 re-vérifié GREEN** — référence de commit : **à renseigner** (voir § 6).
+**Statut :** ✅ **C-O04 satisfait (2/2 scénarios) · C-O05 satisfait sur le corpus sélectionné · C-O06 satisfait · C-W12 re-vérifié GREEN** — commit : **`fc97b64`**.
 
 ## 1. Ce qui a été construit
 
@@ -77,6 +77,4 @@ constat ci-dessus.
 
 ## 6. Référence de commit
 
-Conformément aux règles du registre, la référence du commit de ce sous-sprint
-n'est **pas** annoncée ici : elle est relevée après création et consignée dans un
-commit documentaire distinct.
+Commit réel du sous-sprint : **`fc97b64`**.

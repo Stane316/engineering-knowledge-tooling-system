@@ -58,5 +58,4 @@ tant que les chantiers d'ingestion ne sont pas validés.
 
 ## 7. Référence de commit
 
-Non annoncée ici : relevée après création, consignée dans le registre lors d'un
-commit documentaire distinct.
+Commit de clôture du sprint : **`fc97b64`** (23-01 : `f8bb772`, 23-02 : `6d8ac00`).
