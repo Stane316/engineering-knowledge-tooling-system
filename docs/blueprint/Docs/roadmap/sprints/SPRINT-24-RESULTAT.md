@@ -24,6 +24,7 @@ explicite de ne pas lancer de pilote.
   Aucun statut de CI n'est revendiqué, ni vert ni rouge.
 - **Accès non autorisé refusé, mesuré** (compte `ekts-probe`, refus réel + contrôle).
 - **P3-23-01 non déterministe** (1/0 puis 1/1) : détection conservée, cause non établie.
+- **Mesure O2-B sur Windows 11 build 26300** : 5 PASS / 7 FAIL / 1 BLOCKED, dont **un seul échec réel** (`npm ci`) et six cascades ou faux verdicts de mon protocole — corrigé dans la même journée.
 
 ## 3. Commandes et statuts
 
@@ -40,7 +41,7 @@ explicite de ne pas lancer de pilote.
 | --- | --- | --- |
 | 1 | CI distante arrêtée par la facturation GitHub | aucun statut distant ; à rétablir côté compte |
 | 2 | PDF non exécuté | C-W03 partiel |
-| 3 | Windows 11 non mesuré | C-O02, C-O03, O7-B bloqués |
+| 3 | Windows 11 **mesuré et non concluant** (installation en échec, cause à capturer) | C-O02 non satisfait, C-O03 bloqué, O7-B à refaire |
 | 4 | C-P07 (confinement strict) | G1 non atteint |
 | 5 | G0-1 à G0-5 non fournis | aucune campagne ; C-T04/T05/T06 bloqués |
 
@@ -51,6 +52,8 @@ explicite de ne pas lancer de pilote.
 | P3-23-01 | divergence données/index après arrêt brutal | **ouvert** — non déterministe, reproduction instrumentée à planifier |
 | P3-24-01 | CI distante non exécutable (facturation) | **nouveau**, dépend d'une action du propriétaire |
 | P3-24-02 | PDF non exécuté faute de navigateur | **nouveau**, prérequis d'environnement |
+| P3-24-03 | `npm ci` échoue sur Windows 11 / Node 24.14.0, cause non établie | **nouveau**, capture de la fin de sortie requise |
+| P3-24-04 | protocole O2-B défectueux (3 défauts) | **corrigé** le 31/10 ; la mesure précédente n'est pas concluante |
 
 ## 6. Risques résiduels
 
@@ -61,7 +64,7 @@ G0 ne prouverait rien et coûterait le budget qu'il prétendrait justifier.
 ## 7. Suites proposées
 
 1. Rétablir la CI (facturation) — action propriétaire.
-2. Exécuter `scripts/windows-check.ps1` — action propriétaire.
+2. Relancer `scripts/windows-check.ps1` **corrigé** — il restitue la fin de la sortie de `npm ci`.
 3. Fournir G0-1 à G0-5 — action propriétaire.
 4. Ouvrir **S25** (ingestion et lecture gouvernée, option E validée) — décision
    de sprint distincte, non couverte par le feu vert du Sprint 24.

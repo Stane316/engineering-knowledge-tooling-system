@@ -14,10 +14,11 @@
 | C-O04 | 31/10 | idem | `backup.test.ts` | 6 | 6 | 0 | ✅ (1 constat P3) |
 | C-O05 | 31/10 | idem | `audit-*` | 36 | 36 | 0 | ✅ |
 | C-O06 | 31/10 | idem | `tool-inventory` | 2 | 2 | 0 | ✅ |
-| C-O07 | 31/10 | Linux, référence | `npm run bench:latency` | 1 | 1 | 0 (p95 0,73–0,77 ms) | ✅ O7-A ; **O7-B bloqué** |
+| C-O07 | 31/10 | Linux (référence) · Windows (O7-B) | `npm run bench:latency` | 2 | 1 | **1 (O7-B non concluant)** | ✅ O7-A (p95 0,73–0,77 ms) ; ⛔ **O7-B à refaire** |
 | C-T03 | 31/10 | idem | `traces-confidentiality` + compte `ekts-probe` | 5 + 1 | 5 + 1 | 0 | ✅ POSIX ; **ACL Windows bloquées** |
 | C-W03 | 31/10 | idem | `reports/*` | 20 | 15 | **5 (PDF)** | ⚠️ partiel |
-| C-O02/C-O03 | — | — | `windows-check.ps1` | 12 | 0 | **12** | ⛔ bloqués |
+| C-O02 | 31/10 | **Windows 11 Pro build 26300 · i5-8250U · Node 24.14.0 · npm 11.21.0** | `windows-check.ps1` | 6 | 4 | **1 échec réel (`npm ci`)** | ⛔ **non satisfait — mesuré** |
+| C-O03 | 31/10 | même machine + compte `ekts-probe` (POSIX) | `icacls`, `cat` | 2 | 1 | **1** (ACL Windows sur 0 base) | ⛔ **bloqué** |
 | C-T04/T05/T06 | — | — | campagne A/C/B | — | 0 | **toutes** | ⛔ bloqués (G0 fermé) |
 
 Les compteurs proviennent des exécutions consignées aux rapports 23-01 à 24-02 ;
@@ -39,11 +40,13 @@ techniques mesurables** et **non démontré sur la valeur comparative** : ce son
 deux constats différents, et le second ne découle pas du premier.
 
 Ce qui empêche G1 est nommé, pas contourné : confinement vérifiable au sens
-strict (C-P07), rendu PDF (C-W03), environnement Windows (C-O02/C-O03).
+strict (C-P07), rendu PDF (C-W03), et **installation Windows en échec mesuré**
+(C-O02) — désormais un résultat, plus un blocage.
 
 ## 4. Ce qu'il faudrait pour avancer
 
 1. Restaurer la CI (facturation GitHub) : sans elle, aucun statut distant.
 2. Exécuter `scripts/windows-check.ps1` sur le poste Windows 11.
-3. Fournir les cinq champs G0 pour ouvrir la campagne A/C/B.
-4. Lever C-P07 : hôte agent réel autorisé, avec contrôle réseau observable.
+3. Relancer `scripts/windows-check.ps1` corrigé : il affiche la fin de la sortie de `npm ci`, donc la cause réelle.
+4. Fournir les cinq champs G0 pour ouvrir la campagne A/C/B.
+5. Lever C-P07 : hôte agent réel autorisé, avec contrôle réseau observable.
