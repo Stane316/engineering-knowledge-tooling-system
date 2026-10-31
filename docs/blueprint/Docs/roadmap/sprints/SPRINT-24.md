@@ -1,7 +1,7 @@
 # SPRINT-24 — Validation transversale et décision sur le pilote
 
 **MVP :** MVP-4 · **Lot roadmap :** G1 / G0–G3 · **Date de rédaction :** 30 octobre 2026  
-**Statut documentaire :** 📄 rédigé ; décomposition 19–24 validée par le propriétaire, détail à vérifier avant exécution · **Implémentation :** ⏳ non commencée · **Durée :** non estimée, non engagée.
+**Statut documentaire :** 📄 rédigé ; décomposition 19–24 validée par le propriétaire, détail à vérifier avant exécution · **Implémentation :** 🔄 **24-01 exécuté** le 31/10/2026 (partiel : PDF bloqué, CI distante non exécutée) · **Durée :** non estimée, non engagée.
 
 ## 1. Contexte, objectif et périmètre
 

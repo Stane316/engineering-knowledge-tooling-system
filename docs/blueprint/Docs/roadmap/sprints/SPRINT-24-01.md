@@ -1,6 +1,6 @@
 # SPRINT-24-01 — Régressions transversales et CI
 
-**Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Statut :** 📄 décomposition validée, contenu à vérifier avant exécution ; ⏳ implémentation non commencée · **Durée :** non engagée.
+**Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Statut :** ⚠️ **exécuté le 31/10/2026 — 4/6 critères satisfaits, C-W03 partiel, CI distante bloquée. Résultat : [SPRINT-24-01-RESULTAT](SPRINT-24-01-RESULTAT.md)**
 
 ## 1. Objectif, exigences et prérequis
 
