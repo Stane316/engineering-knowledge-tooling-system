@@ -222,6 +222,16 @@ des modèles avant exécution.
 
 ## MVP-4 — Fiabilité et connaissances agentiques traçables
 
+> **⚠️ Révision en cours d'arbitrage (31/10/2026).** Une proposition de révision
+> du découpage 23–24 est soumise au propriétaire :
+> [`REVISION-MVP4-2026-10-31.md`](blueprint/Docs/roadmap/REVISION-MVP4-2026-10-31.md).
+> Elle constate que le plan actuel **n'inclut aucune acquisition de corpus** alors
+> que la vision du produit repose sur la réutilisation de l'open source, et
+> propose d'insérer les sprints 24 (ingestion), 25 (OpenCode) et 26 (Hermes) en
+> décalant la validation de 24 en 27. **Rien n'est applicable avant accord.**
+> Les conventions permanentes de travail sont dans
+> [`07-CONVENTIONS-PERMANENTES.md`](blueprint/Docs/07-CONVENTIONS-PERMANENTES.md).
+
 **Statut :** périmètre, architecture, spécification et seuils **validés pour la planification**. **Aucune implémentation n'existait au moment de cette rédaction** ; un développement a depuis été autorisé par feu vert distinct et le **sprint 19-01** (W01 — priorités et comptage) est terminé (`ad5cd35`, complément E2E `693fced`, rapport `SPRINT-19-01-RESULTAT.md`). Les autres sous-sprints restent non commencés ; cette page ne vaut pas autorisation : voir le [registre](blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md). La révision de cette roadmap et la décomposition documentaire des Sprints 19–24 ont été validées par le propriétaire le 30 octobre 2026. Le détail reste à vérifier avant chaque lancement ; les durées ne sont pas engagées et les feux verts de développement sont distincts. Les anciens S19–S22 « collaboration » sont conservés comme historique ; leur numérotation est réutilisée pour le nouveau périmètre validé.
 
 **Objectif produit :** permettre à un agent de découvrir et consulter des connaissances autorisées, de produire un résultat sourcé et de rendre son utilisation vérifiable, tout en fiabilisant les audits web existants et en contrôlant effectivement les permissions.
@@ -273,7 +283,9 @@ Les codes ci-dessous sont des **lots de planification**, pas des sprints existan
 | [23 — Preuves et exploitation](blueprint/Docs/roadmap/sprints/SPRINT-23.md) | `T01–T03`, `O02–O05` | Vérifier les traces, la compatibilité Windows, les données historiques et la reprise. |
 | [24 — Validation et décision pilote](blueprint/Docs/roadmap/sprints/SPRINT-24.md) | Régressions M, `T04` facultatif, G0–G3 | Consolider les preuves et préparer une décision sans confondre conformité et valeur comparative. |
 
-Six sprints ont été retenus pour couvrir les lots validés et leurs dépendances ; aucun sprint 25–30 n'est créé artificiellement. Chaque sprint comporte un parent, trois sous-sprints et un prompt futur. Pour chaque sous-sprint, **tests unitaires, intégration, E2E et raccordement CI sont préparés avant le code** ; si un environnement ou une autorisation manque, le cas est bloqué et non présenté comme réussi. Les validations humaines, l'exécution de l'expérience et les éventuels commits sont explicitement distingués. Tout changement ultérieur du découpage suit une décision humaine.
+Six sprints ont été retenus pour couvrir les lots validés et leurs dépendances ; aucun sprint 25–30 n'est créé artificiellement.
+
+> **Statut au 31/10/2026 :** les sprints 19 à 22 sont exécutés (21 partiel, 22 exécuté avec réserves). Une **proposition de révision** de la fin de série est soumise au propriétaire dans [`REVISION-MVP4-2026-10-31.md`](blueprint/Docs/roadmap/REVISION-MVP4-2026-10-31.md) : elle conserve 19–23, insère l'ingestion de corpus externes et les intégrations open source, et décale la validation. Le tableau ci-dessus reste la référence **tant que la révision n'est pas approuvée**. Chaque sprint comporte un parent, trois sous-sprints et un prompt futur. Pour chaque sous-sprint, **tests unitaires, intégration, E2E et raccordement CI sont préparés avant le code** ; si un environnement ou une autorisation manque, le cas est bloqué et non présenté comme réussi. Les validations humaines, l'exécution de l'expérience et les éventuels commits sont explicitement distingués. Tout changement ultérieur du découpage suit une décision humaine.
 
 ### 3. Dépendances et portes de décision
 
@@ -343,7 +355,7 @@ Les flèches indiquent des **prérequis de validation et d'intégration**, pas u
 - Sprint 19 — Authentification + autorisations
 - Sprint 20 — Partage de projets
 - Sprint 21 — Commentaires + actions sur les constats
-- Sprint 22 — Notifications + rapports d'équipe
+- Sprint 22 — Notifications + rapports d'équipe *(ligne historique : le sprint 22 réel porte sur provenance, empreinte et FTS — voir § 2.1 et [SPRINT-22-RESULTAT](blueprint/Docs/roadmap/sprints/SPRINT-22-RESULTAT.md))*
 
 *Détails à définir après validation MVP-3.*
 
