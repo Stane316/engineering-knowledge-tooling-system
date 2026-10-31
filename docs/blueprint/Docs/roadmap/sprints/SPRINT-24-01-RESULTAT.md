@@ -1,7 +1,7 @@
 # SPRINT-24-01 — Régressions transversales et CI — résultat
 
 **Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Base :** `c4c4a42` · **Date :** 31 octobre 2026
-**Statut :** ⚠️ **4 critères sur 6 satisfaits · C-W03 partiel (PDF non exécuté) · CI distante BLOQUÉE**. Référence de commit : **à renseigner**.
+**Statut :** ⚠️ **4 critères sur 6 satisfaits · C-W03 partiel (PDF non exécuté) · CI distante BLOQUÉE**. Commit : **`e4ff0a3`**.
 
 ## 1. Objet
 
@@ -78,5 +78,4 @@ sa cause.
 
 ## 6. Référence de commit
 
-Non annoncée ici ; relevée après création et consignée au registre dans un
-commit documentaire distinct.
+Commit du sous-sprint : **`e4ff0a3`**.
