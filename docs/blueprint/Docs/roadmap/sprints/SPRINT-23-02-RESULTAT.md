@@ -132,6 +132,6 @@ d'avancement.
 
 | # | Écart | Ce qu'il faut |
 | --- | --- | --- |
-| **E23-1** | Accès non autorisé non mesuré | Autoriser un **second compte de test** (Windows et/ou POSIX) et consigner les comptes, comme l'exige C-O03 |
+| **E23-1** | Accès non autorisé **mesuré sur POSIX le 31/10/2026** | compte `ekts-probe` créé ; `cat /tmp/ekts-acl/ekts.db` ⇒ **Permission denied (code 1)** ; contrôle : le même compte lit une copie `0644` (**code 0**) ⇒ le refus vient bien des permissions. ACL **Windows toujours non mesurées** (E23-2) |
 | **E23-2** | Windows non mesuré | Exécuter `scripts/windows-check.ps1` sur le poste Windows 11 et transmettre le JSON |
 | **E23-3** | Aucune rétention ni export de traces | Si un export est souhaité (O03/O04), il devra porter un contrôle de droits explicite — décision de conception, pas un ajout silencieux |

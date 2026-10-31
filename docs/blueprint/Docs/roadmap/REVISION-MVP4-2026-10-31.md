@@ -50,12 +50,12 @@ ni l'ingestion, ni les intégrations, ni les critères proposés :
 
 | Réf. | Objet | État |
 | --- | --- | --- |
-| **V1** | opportunité d'insérer les chantiers 25–28 | ⏳ à trancher |
-| **V2** | identité de TierFlow, Quen Agents, Paperclip | ⏳ sans URL confirmée |
-| **V3** | premier corpus à importer | ⏳ |
-| **V4** | licences copyleft/restrictives admises ? | ⏳ |
-| **V5** | identifiants de critères C-R09→C-R11, C-T07→C-T08 | ⏳ propositions |
-| **E1** | valider l'option E de lecture ciblée | ⏳ (note 28, six décisions E1–E6) |
+| **V1** | opportunité d'insérer les chantiers 25–28 | ✅ **validée** (31/10/2026) |
+| **V2** | identité de TierFlow, Quen Agents, Paperclip | ⛔ **non tranchable** : aucune identité confirmée, **aucune URL attribuée**, report en S29+ |
+| **V3** | premier corpus à importer | ✅ **4 dépôts R1** (deer-flow, hermes-agent, ECC, opencode), refs figées déjà consignées |
+| **V4** | licences copyleft/restrictives admises ? | ✅ **MIT et Apache-2.0** pour des extraits ; **AGPL-3.0, SUL et restrictives : référence seule, aucun extrait** |
+| **V5** | identifiants de critères C-R09→C-R11, C-T07→C-T08 | ✅ **conservés** ; LC-01→LC-10 adoptés (E6) |
+| **E1** | valider l'option E de lecture ciblée | ✅ **validée**, décisions E1–E6 tranchées (note 28) |
 
 ### 0.4 Découpage retenu (remplace le § 6)
 

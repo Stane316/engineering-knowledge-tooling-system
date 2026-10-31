@@ -71,7 +71,7 @@ constat ci-dessus.
 
 | # | Écart | Suite |
 | --- | --- | --- |
-| **P3-23-01** | Divergence données/index après arrêt brutal, cause non établie | instrumenter 23-… ou un sprint d'exploitation ; ne pas conclure sans mesure |
+| **P3-23-01** | Divergence données/index après arrêt brutal | **arbitré le 31/10/2026** : le résultat n'est **pas déterministe**. Une exécution du test a observé `1 ressource / 0 entrée FTS` ; une reproduction contrôlée du même scénario a observé `1 / 1` (lecture seule, lecture-écriture et après checkpoint). Cause **non établie**. Décision : conserver la détection et le blocage (aucune perte silencieuse), ne rien « réparer » automatiquement, imposer l'écriture données+index dans **une seule transaction** explicite, et instrumenter une reproduction dédiée en **S24** |
 | **P3-23-02** | `AGENTS.md` §1.6 (commit+push couplés) contredisait la consigne « aucun push » | **arbitré par le propriétaire : commit + push couplés** |
 | **P3-23-03** | Le dossier 23-03 prescrit « aucune PR ni push » | contredit `AGENTS.md` v1.1 ; traité selon l'arbitrage |
 

@@ -154,11 +154,18 @@ Découpage indicatif :
 
 | # | Décision | Impact |
 | --- | --- | --- |
-| **E1** | Valider E et son placement en S25 | sans cela, rien n'est implémenté |
-| **E2** | Plateformes prioritaires : GitHub seul d'abord, ou GitHub + npm ? | périmètre de S25-01 |
-| **E3** | Sources privées autorisées ? Avec quels jetons ? | ajoute une gestion de secrets, hors périmètre actuel |
-| **E4** | Politique de conservation : références seules, ou extraits + empreinte ? | détermine le volume du corpus et les obligations de licence |
-| **E5** | Durée de rétention des journaux de lecture | vie privée, coût |
-| **E6** | Valider ou renommer les critères LC-01→LC-10 | sinon ils restent des propositions |
+| # | Décision (31/10/2026) | Effet |
+| --- | --- | --- |
+| **E1** | ✅ **Option E validée**, placement en **S25** | S25-01 garde-fous, S25-02 licences, S25-03 import |
+| **E2** | **GitHub seul** en S25 ; **npm différé** (S26 au plus tôt) | périmètre de S25-01 réduit à une plateforme |
+| **E3** | **Aucune source privée, aucun jeton** | pas de gestion de secrets en S25 |
+| **E4** | **Références seules** : URL + SHA figé + licence + empreinte déclarée | aucun extrait de texte avant arbitrage licence par dépôt (V4) |
+| **E5** | **Aucun journal de lecture persisté** ; rétention = durée du processus | si persistance un jour : 30 jours max, suppression sur demande |
+| **E6** | ✅ **LC-01 → LC-10 adoptés** comme critères de S25 | ils restent des propositions de l'agent, désormais validées comme critères de recette |
+
+Décisions prises par l'agent sur autorisation explicite du propriétaire
+(31/10/2026). **E3 et E4 sont restrictives à dessein** : elles réduisent le
+périmètre plutôt que d'ouvrir une gestion de secrets ou une copie de corpus
+sans base juridique établie.
 
 **Aucune ligne de code n'est écrite tant que E1 n'est pas tranchée.**
