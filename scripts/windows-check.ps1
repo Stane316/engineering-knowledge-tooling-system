@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Mesure C-O02 / C-O03 sur Windows natif (protocole O2-B, Sprint 24).
 
@@ -71,15 +71,34 @@ function Add-Result {
     preuve  = $Evidence
   })
 
-  Write-Host ("[{0}] {1} - {2}" -f $Verdict, $Step, $Evidence)
+  $resume = ($Evidence -split "`r?`n" | Select-Object -First 1)
+  Write-Host ("[{0}] {1} - {2}" -f $Verdict, $Step, $resume)
 }
 
 # Execute une commande native et restitue code + FIN de sortie.
+#
+# PIEGE PowerShell 5.1 (cause des 7 FAIL du 31/10/2026) : avec
+# $ErrorActionPreference = 'Stop', la moindre ecriture sur stderr d une
+# commande native devient une erreur TERMINANTE des qu on la redirige par
+# 2>&1. `npm ci` ecrit un avertissement de depreciation sur stderr : la
+# pipeline etait interrompue alors que npm reussissait, l installation
+# restait incomplete, et tout le reste echouait en cascade.
+#
+# Correctif : 'Continue' localement pendant l appel, et conversion explicite
+# de chaque enregistrement en texte, pour que la sortie reste lisible.
 function Invoke-Native {
   param([string] $File, [string[]] $Arguments)
 
-  $sortie = (& $File @Arguments 2>&1 | Out-String)
-  $code = $LASTEXITCODE
+  $previous = $ErrorActionPreference
+  $ErrorActionPreference = 'Continue'
+
+  try {
+    $sortie = (& $File @Arguments 2>&1 | ForEach-Object { "$_" }) -join "`n"
+    $code = $LASTEXITCODE
+  } finally {
+    $ErrorActionPreference = $previous
+  }
+
   $lignes = $sortie -split "`r?`n" | Where-Object { $_ -ne '' }
   $queue = ($lignes | Select-Object -Last 25) -join "`n"
 
@@ -140,9 +159,16 @@ if ($SkipInstall) {
   $install = Invoke-Native -File 'npm.cmd' -Arguments @('ci')
   $facts['npmCi'] = $install.tail
 
-  if ($install.code -eq 0) {
+  # Code 0 ne suffit pas : un code 0 avec un node_modules incomplet laisserait
+  # toutes les etapes suivantes echouer sans que la vraie cause soit nommee.
+  $tscBin = Join-Path $root 'node_modules\.bin\tsc.cmd'
+  $sqliteBin = Join-Path $root 'node_modules\better-sqlite3\prebuilds'
+
+  if ($install.code -eq 0 -and (Test-Path $tscBin)) {
     $script:installOk = $true
-    Add-Result -Step 'npm-ci' -Verdict 'PASS' -Evidence 'npm ci reussi (code 0)'
+    Add-Result -Step 'npm-ci' -Verdict 'PASS' -Evidence ("code 0, node_modules/.bin/tsc present, prebuilds better-sqlite3 : " + (Test-Path $sqliteBin))
+  } elseif ($install.code -eq 0) {
+    Add-Result -Step 'npm-ci' -Verdict 'FAIL' -Evidence "code 0 mais node_modules/.bin/tsc absent (installation incomplete) : $tscBin"
   } else {
     Add-Result -Step 'npm-ci' -Verdict 'FAIL' -Evidence "code $($install.code). Fin de sortie :`n$($install.tail)"
   }
@@ -276,6 +302,16 @@ if (-not $script:buildOk) {
     Add-Result -Step 'latence' -Verdict 'FAIL' -Evidence "code $($lat.code), aucun verdict CONFORME lisible. Fin de sortie :`n$($lat.tail)"
   }
 }
+
+# 13 bis. Audit des dependances — constat consigne, jamais compte comme succes.
+# `npm audit fix --force` n est JAMAIS lance ici : il installerait eslint 4,
+# changement cassant qui exige une decision humaine.
+$audit = Invoke-Native -File 'npm.cmd' -Arguments @('audit', '--json')
+$facts['npmAudit'] = $audit.all.Trim()
+
+$moderes = 0
+if ($audit.all -match '"moderate"\s*:\s*(\d+)') { $moderes = [int]$Matches[1] }
+Add-Result -Step 'audit-dependances' -Verdict 'INFO' -Evidence "code $($audit.code), $moderes vulnerabilites moderates — constat, aucune correction automatique"
 
 # 14. Rapport
 $peuples = @($results | Where-Object { $_.verdict -ne 'INFO' -and $_.verdict -ne 'SKIPPED' })

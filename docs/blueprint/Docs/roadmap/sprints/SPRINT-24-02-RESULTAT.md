@@ -1,7 +1,7 @@
 # SPRINT-24-02 — Préparation G0 — résultat et dossier
 
 **Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Base :** `437b968` · **Date :** 31 octobre 2026
-**Statut :** ⛔ **dossier G0 fermé · mesure O2-B exécutée et ÉCHOUÉE (5 PASS / 7 FAIL / 1 BLOCKED) · protocole corrigé**. Commit initial : `da7c4df` ; correction du protocole et mesure : **`78dedcf`**.
+**Statut :** ⛔ **dossier G0 fermé · mesure O2-B exécutée · cause des 7 échecs établie : un défaut de mon script, pas du projet**. Commits : `da7c4df`, `78dedcf`, puis la correction finale **à renseigner**.
 
 **Accord du propriétaire (31/10/2026) :** poursuivre la préparation **malgré la réserve C-P07**, préparer G0 **pour exécution**, sans lancer de session sans feu vert opérationnel distinct.
 
@@ -165,4 +165,107 @@ powershell -ExecutionPolicy Bypass -File .\scripts\windows-check.ps1
 
 ```powershell
 npm ci 2>&1 | Select-Object -Last 30
+```
+
+---
+
+## 8. Seconde relance — la cause est établie (31/10/2026, 18 h 02)
+
+Le propriétaire a relancé le script puis exécuté les commandes à la main. **Le
+résultat renverse la lecture précédente.**
+
+### 8.1 `npm ci` réussit, contrairement à ce que le script affichait
+
+Sortie réelle, exécutée par le propriétaire :
+
+```
+npm ci
+npm warn deprecated @opentelemetry/sdk-trace-base@2.12.0: Use @opentelemetry/sdk-trace package
+added 370 packages, and audited 371 packages in 52s
+99 packages are looking for funding
+12 moderate severity vulnerabilities
+```
+
+**Code de sortie 0. Installation complète en 52 s.** Le `FAIL` du script était
+donc un **faux négatif**.
+
+### 8.2 Cause racine, unique, dans mon script
+
+```powershell
+$ErrorActionPreference = 'Stop'          # ligne 49
+$sortie = (& $File @Arguments 2>&1 | Out-String)   # ligne 81
+```
+
+Sous PowerShell 5.1, quand une **commande native écrit sur `stderr`** et que sa
+sortie est redirigée par `2>&1`, chaque ligne devient un `ErrorRecord`. Avec
+`$ErrorActionPreference = 'Stop'`, le premier `ErrorRecord` est **terminant** :
+la pipeline est démontée **pendant** l'exécution de `npm ci`.
+
+`npm ci` écrit un avertissement de dépréciation sur `stderr` dès les premières
+secondes. La pipeline était donc interrompue avant la fin de l'installation :
+
+```
+npm ci interrompu (faux FAIL, sortie 1 ligne = l'avertissement)
+   └─► node_modules incomplet ──► tsc absent ──► build FAIL
+                                              └─► dist absent ──► init/recherche FAIL
+   └─► npm ls sur installation partielle ──► ELSPROBLEMS
+```
+
+**Un seul défaut explique les sept échecs.** Le projet n'est pas en cause : la
+même commande, lancée à la main, aboutit.
+
+### 8.3 Pourquoi la sortie affichée était un avertissement
+
+`npm warn deprecated …` est écrit sur `stderr` **avant** tout le reste. Le
+script tronquait aux 400 premiers caractères : cet avertissement occupait toute
+la place, et l'erreur réelle — qui n'en était pas une — restait invisible.
+
+### 8.4 Correctif appliqué
+
+| # | Correction | Effet |
+| --- | --- | --- |
+| 1 | `$ErrorActionPreference = 'Continue'` **localement** dans `Invoke-Native`, restauré en `finally` | `stderr` n'interrompt plus une commande native |
+| 2 | Sortie convertie ligne par ligne (`ForEach-Object { "$_" }`) | texte lisible, sans bloc `CategoryInfo` |
+| 3 | `npm ci` n'est **PASS** que si `node_modules/.bin/tsc` existe | un code 0 avec installation incomplète n'est plus un succès |
+| 4 | Résumé d'étape limité à la première ligne, détail conservé dans le JSON | la console redevient lisible |
+| 5 | Nouvelle étape `audit-dependances`, en `INFO` | constat consigné, jamais compté comme succès |
+
+### 8.5 Audit des dépendances — constat, sans correction automatique
+
+Le propriétaire a relevé **12 vulnérabilités modérées** (`minimatch` < 11.0.1,
+amplification de `globparts`, GHSA-g3hv-75wg-m249).
+
+| Périmètre | Résultat mesuré le 31/10/2026 |
+| --- | --- |
+| `npm audit --omit=dev` | **0 vulnérabilité** |
+| `npm audit` (tout) | **12 modérées**, toutes dans la chaîne **ESLint** (dev) |
+| Correction proposée par npm | `npm audit fix --force` ⇒ **eslint@4**, changement cassant |
+
+**Décision : ne rien exécuter.** `--force` rétrograderait ESLint et casserait la
+configuration *flat* imposée par `AGENTS.md` §4. Une montée de `minimatch` dans
+la chaîne de lint est une tâche à part, avec révision d'ADR si elle change une
+version majeure. **Les dépendances de production ne sont pas affectées.**
+
+### 8.6 Verdicts mis à jour
+
+| Critère | Verdict | Motif |
+| --- | --- | --- |
+| **C-O02** | ⏳ **NON CONCLU — mesure invalidée par le protocole** | `npm ci` réussit ; les étapes suivantes n'ont jamais été mesurées dans de bonnes conditions. **Ni satisfait, ni en échec.** |
+| **C-O03** | ⛔ **BLOQUÉ** | aucune base créée ; refus effectif non testé sur Windows |
+| **O7-B** | ⛔ **NON CONCLUANT** | verdict jamais lu |
+
+Il serait malhonnête de conserver « C-O02 non satisfait » : la mesure qui le
+disait était fausse. Il serait tout aussi malhonnête de le déclarer satisfait :
+**aucune exécution valide n'a encore eu lieu sur Windows**.
+
+### 8.7 Prochaine commande
+
+Le script corrigé doit être **récupéré** avant relance : les deux exécutions
+ci-dessus ont tourné sur `f383ac5`, c'est-à-dire **avant** le correctif.
+
+```powershell
+git fetch origin
+git switch arena/079e2f26-engineering-knowledge-tooling
+git pull --ff-only origin arena/079e2f26-engineering-knowledge-tooling
+powershell -ExecutionPolicy Bypass -File .\scripts\windows-check.ps1
 ```

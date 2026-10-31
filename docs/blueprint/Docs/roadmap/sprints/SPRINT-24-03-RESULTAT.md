@@ -17,7 +17,7 @@
 | C-O07 | 31/10 | Linux (référence) · Windows (O7-B) | `npm run bench:latency` | 2 | 1 | **1 (O7-B non concluant)** | ✅ O7-A (p95 0,73–0,77 ms) ; ⛔ **O7-B à refaire** |
 | C-T03 | 31/10 | idem | `traces-confidentiality` + compte `ekts-probe` | 5 + 1 | 5 + 1 | 0 | ✅ POSIX ; **ACL Windows bloquées** |
 | C-W03 | 31/10 | idem | `reports/*` | 20 | 15 | **5 (PDF)** | ⚠️ partiel |
-| C-O02 | 31/10 | **Windows 11 Pro build 26300 · i5-8250U · Node 24.14.0 · npm 11.21.0** | `windows-check.ps1` | 6 | 4 | **1 échec réel (`npm ci`)** | ⛔ **non satisfait — mesuré** |
+| C-O02 | 31/10 | **Windows 11 Pro build 26300 · i5-8250U · Node 24.14.0 · npm 11.21.0** | `windows-check.ps1` | 6 | 4 | **mesure invalidée** | ⏳ **non conclu** — `npm ci` réussit, protocole corrigé |
 | C-O03 | 31/10 | même machine + compte `ekts-probe` (POSIX) | `icacls`, `cat` | 2 | 1 | **1** (ACL Windows sur 0 base) | ⛔ **bloqué** |
 | C-T04/T05/T06 | — | — | campagne A/C/B | — | 0 | **toutes** | ⛔ bloqués (G0 fermé) |
 
@@ -40,8 +40,9 @@ techniques mesurables** et **non démontré sur la valeur comparative** : ce son
 deux constats différents, et le second ne découle pas du premier.
 
 Ce qui empêche G1 est nommé, pas contourné : confinement vérifiable au sens
-strict (C-P07), rendu PDF (C-W03), et **installation Windows en échec mesuré**
-(C-O02) — désormais un résultat, plus un blocage.
+strict (C-P07), rendu PDF (C-W03), et **C-O02 non conclu** — les sept échecs
+observés provenaient d'un défaut de mon protocole, pas du projet, et aucune
+exécution valide n'a encore eu lieu sur Windows.
 
 ## 4. Ce qu'il faudrait pour avancer
 
