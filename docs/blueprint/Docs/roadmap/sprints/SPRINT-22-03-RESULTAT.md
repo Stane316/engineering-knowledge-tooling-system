@@ -2,8 +2,16 @@
 
 **Sprint parent :** [SPRINT-22](SPRINT-22.md) · **Sous-sprint :** [SPRINT-22-03](SPRINT-22-03.md)
 **Date d'exécution :** 30 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
-**Base de départ :** `4daa3a5` · **Commit d'implémentation :** `7a9ea77`
+**Base de départ :** `0bdc1ce` (22-02 reconstitué) · **Commit d'implémentation :** `4d6e120`
 **Statut :** ✅ **C-R06, C-R07, C-R08 satisfaits** · ⚠️ **C-O07 mesuré mais exploratoire** (machine de validation non choisie) — 4 écarts déclarés (§ 9).
+
+## 0. Référence de commit
+
+> **Référence de commit mise à jour le 31/10/2026.** Le clone de travail a été
+> recréé et l'historique local non poussé a été perdu ; le contenu de ce
+> sous-sprint a été reconstitué à l'identique depuis l'arbre de travail, ce qui
+> produit un **hash différent** de celui consigné lors de la première exécution.
+> Le hash ci-dessus est celui qui existe réellement sur la branche distante.
 
 ## 1. Ce qui était en jeu
 
