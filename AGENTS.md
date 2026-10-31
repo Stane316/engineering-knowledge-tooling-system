@@ -1,8 +1,15 @@
 # AGENTS.md — Règles de travail pour les agents IA
 
 **Projet :** Engineering Knowledge & Tooling System (EKTS)  
-**Version :** 1.0 — 21 octobre 2026  
+**Version :** 1.1 — 31 octobre 2026  
 **Portée :** tout agent (Arena, Claude Code, Cursor, Copilot, Cline) travaillant dans ce dépôt.
+
+> **À lire avant toute action :**
+> [`docs/blueprint/Docs/07-CONVENTIONS-PERMANENTES.md`](docs/blueprint/Docs/07-CONVENTIONS-PERMANENTES.md).
+> Ce document fixe les règles durables : commit + push couplés, structure
+> obligatoire des rapports (sections A–M), protocole de vérification
+> utilisateur, stratégie d'intégration open source et gouvernance des sprints.
+> **En cas de contradiction avec un dossier de sprint plus ancien, il l'emporte.**
 
 ---
 
@@ -13,6 +20,14 @@
 3. **Aucun secret** dans le code, les commits, la documentation ou les conversations. Les secrets éventuels passent par `.env` (ignoré) ou les GitHub Secrets.
 4. **Aucune suppression** du dépôt, de `.git` ou de l'historique (`git reset --hard`, `git push --force` interdits).
 5. **Aucune fusion automatique** dans `main`.
+6. **Commit et push sont couplés.** Chaque commit est immédiatement suivi de son
+   push sur la branche de travail, puis vérifié sur le distant. Un commit local
+   n'est pas une livraison. Cette règle **remplace** la clause « aucun push sans
+   autorisation distincte » des dossiers de sprints 20 à 22 ; les autres
+   autorisations (PR, fusion, publication, pilote, dépense) restent distinctes.
+7. **Rapport de livraison obligatoire** en fin de sprint, structuré selon les
+   treize sections A–M de `07-CONVENTIONS-PERMANENTES.md` § 2, avec un protocole
+   de vérification utilisateur (§ 3) en commandes PowerShell exactes.
 
 ## 2. Branches
 
@@ -125,9 +140,14 @@ Visual Studio ou `build-essential` pour ce projet. Les hooks s'installent par `n
 - `npm run lint`, `npm run typecheck`, `npm run build`, `npm test`, `npm run coverage` passent.
 - Couverture ≥ 80 % sur le code inclus.
 - Documentation mise à jour dans le même commit.
-- Ligne du registre d'avancement mise à jour (statut + commit).
-- Rapport de fin de sprint : fichiers modifiés, tests, critères, commandes de récupération, prochaines étapes.
-- **Arrêt et attente de validation utilisateur** avant le sprint suivant.
+- Ligne du registre d'avancement mise à jour (statut + commit réel).
+- **Commit poussé et vérifié** sur le distant (`origin/<branche>..HEAD` vide).
+- Rapport de fin de sprint au format A–M : avant/après, réalisations détaillées,
+  vérifications de l'agent, **vérifications à faire par le propriétaire**,
+  commandes de validation réellement existantes, synchronisation Git, risques,
+  préparation du sprint suivant, livrables et historique.
+- **Arrêt et attente de validation utilisateur** avant le sprint suivant ; un
+  sprint dont les vérifications utilisateur sont en attente n'est pas validé.
 
 ## 7. Sécurité
 
@@ -171,3 +191,6 @@ En cas de conflit, résoudre manuellement, puis `git add <fichiers>` et `git com
 - Registre d'avancement : `docs/blueprint/Docs/roadmap/REGISTRE-AVANCEMENT.md`
 - Décisions : `docs/blueprint/Docs/08-REGISTRE-DECISIONS-ET-RISQUES.md`
 - Guide Git : `docs/blueprint/Docs/06-GUIDE-GIT-GITHUB.md`
+- **Conventions permanentes : `docs/blueprint/Docs/07-CONVENTIONS-PERMANENTES.md`**
+- Direction produit et révision MVP-4 : `docs/blueprint/Docs/roadmap/REVISION-MVP4-2026-10-31.md`
+- Recherche open source : `docs/audit/produit/17_RECHERCHE_OPEN_SOURCE_APPROFONDIE.md` et `18_CATALOGUE_OPEN_SOURCE_ET_SKILLS.md`
