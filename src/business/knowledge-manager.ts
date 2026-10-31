@@ -3,7 +3,12 @@ import { ZodError, type ZodType } from 'zod';
 
 import { ResourceRepository } from '../data/repositories/resource-repository.js';
 import { ResourceNotFoundError, ValidationError } from '../shared/errors.js';
-import { assertProvenancePreserved, extractProvenance } from '../shared/provenance.js';
+import {
+  assertFingerprintMatches,
+  assertProvenancePreserved,
+  assertVersionIdentity,
+  extractProvenance,
+} from '../shared/provenance.js';
 import {
   CreateResourceSchema,
   ResourceFiltersSchema,
@@ -46,7 +51,12 @@ export class KnowledgeManager implements IKnowledgeManager {
     // Provenance (Sprint 22-01) : un bloc présent est validé **avant** toute
     // écriture. Un bloc absent reste admis — c'est la ressource historique,
     // qui ne doit être ni réécrite ni privée de lecture.
-    extractProvenance(values.metadata);
+    const provenance = extractProvenance(values.metadata);
+
+    // Empreinte (Sprint 22-02, C-R03) : elle doit décrire les octets écrits.
+    // Une normalisation (CRLF, BOM, espace ajouté) fait échouer la
+    // comparaison — c'est voulu, aucune conversion silencieuse.
+    assertFingerprintMatches(provenance, values.content);
 
     return this.repository.create({
       ...values,
@@ -83,17 +93,31 @@ export class KnowledgeManager implements IKnowledgeManager {
     // Validation avant toute lecture : une entrée invalide ne doit pas coûter d'accès disque.
     const values = parseInput(UpdateResourceSchema, data);
 
-    if (values.metadata !== undefined) {
-      // Un bloc fourni doit être valide…
-      extractProvenance(values.metadata);
-
-      // …et une provenance enregistrée ne doit pas disparaître par accident :
-      // `metadata` est remplacé en bloc, pas fusionné.
+    if (values.metadata !== undefined || values.content !== undefined) {
       const existing = this.repository.getById(id);
-      assertProvenancePreserved(
-        existing === null ? undefined : extractProvenance(existing.metadata),
-        values.metadata,
-      );
+      const previous = existing === null ? undefined : extractProvenance(existing.metadata);
+
+      if (values.metadata !== undefined) {
+        // Un bloc fourni doit être valide…
+        extractProvenance(values.metadata);
+
+        // …et une provenance enregistrée ne doit pas disparaître par accident :
+        // `metadata` est remplacé en bloc, pas fusionné.
+        assertProvenancePreserved(previous, values.metadata);
+      }
+
+      // C-R04 : le contenu peut changer sur le même UUID, mais jamais sous une
+      // empreinte qui décrit l'ancien texte.
+      if (
+        values.content !== undefined &&
+        existing !== null &&
+        existing.content !== values.content
+      ) {
+        const incoming =
+          values.metadata === undefined ? previous : extractProvenance(values.metadata);
+
+        assertVersionIdentity(previous, incoming, values.content);
+      }
     }
 
     const updated = this.repository.update(id, {

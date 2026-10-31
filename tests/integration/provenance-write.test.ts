@@ -17,6 +17,7 @@
  * jamais remplacée par une valeur inventée.
  */
 
+import { createHash } from 'node:crypto';
 import { copyFileSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -26,8 +27,17 @@ import { openCliServices, type CliServices } from '../../src/cli/services.js';
 import type { CreateResourceInput } from '../../src/shared/validators.js';
 import { createDataDir, removeDataDir } from '../cli/helpers.js';
 
-/** Empreinte synthétique : 64 caractères hexadécimaux, jamais un vrai contenu. */
-const SHA256 = 'a3f1c8d9e7b6a5f4c3d2e1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0';
+/**
+ * Contenu de test unique.
+ *
+ * Depuis le Sprint 22-02, l'empreinte déclarée est **vérifiée** contre les
+ * octets écrits : la fixture la calcule donc sur ce contenu exact au lieu
+ * d'utiliser une constante arbitraire.
+ */
+const CONTENT = 'Contenu synthétique, non issue de données réelles.';
+
+/** Empreinte réelle des octets UTF-8 du contenu de test. */
+const SHA256 = createHash('sha256').update(Buffer.from(CONTENT, 'utf8')).digest('hex');
 
 /** Provenance complète et valide (contenu synthétique). */
 function validProvenance(): Record<string, unknown> {
@@ -50,7 +60,7 @@ function resourceInput(metadata: Record<string, unknown>): CreateResourceInput {
   return {
     type: 'article',
     title: 'Ressource gouvernée',
-    content: 'Contenu synthétique, non issue de données réelles.',
+    content: CONTENT,
     tags: ['canari'],
     metadata,
   };

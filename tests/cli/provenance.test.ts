@@ -13,6 +13,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -26,6 +27,14 @@ const CLI = join(ROOT, 'dist', 'cli', 'index.js');
 const TSC = join(ROOT, 'node_modules', 'typescript', 'bin', 'tsc');
 
 const SHA256 = 'a3f1c8d9e7b6a5f4c3d2e1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0';
+
+/** Contenu de la ressource admise : l'empreinte doit décrire ces octets (S22-02). */
+const ADMITTED_CONTENT = 'Contenu synthétique.';
+
+/** Empreinte réelle de {@link ADMITTED_CONTENT}. */
+const ADMITTED_SHA256 = createHash('sha256')
+  .update(Buffer.from(ADMITTED_CONTENT, 'utf8'))
+  .digest('hex');
 
 interface RunResult {
   status: number;
@@ -118,7 +127,10 @@ describe('CLI — provenance à l’ajout et à la lecture (C-R01)', () => {
   });
 
   it('enregistre une provenance autorisée et l’annonce admise', () => {
-    const file = provenanceFile('admise', provenance({}));
+    const file = provenanceFile('admise', {
+      ...provenance({}),
+      fingerprint: { sha256: ADMITTED_SHA256 },
+    });
     const added = cli(
       'add',
       '--type',
@@ -126,7 +138,7 @@ describe('CLI — provenance à l’ajout et à la lecture (C-R01)', () => {
       '--title',
       'Ressource gouvernée',
       '--content',
-      'Contenu synthétique.',
+      ADMITTED_CONTENT,
       '--provenance',
       file,
       '--json',
@@ -137,7 +149,10 @@ describe('CLI — provenance à l’ajout et à la lecture (C-R01)', () => {
 
     const output = JSON.parse(added.stdout) as AddOutput;
 
-    expect(output.metadata['provenance']).toEqual(provenance({}));
+    expect(output.metadata['provenance']).toEqual({
+      ...provenance({}),
+      fingerprint: { sha256: ADMITTED_SHA256 },
+    });
     expect(output.admission?.admitted).toBe(true);
     expect(output.admission?.reason.length).toBeGreaterThan(0);
   });

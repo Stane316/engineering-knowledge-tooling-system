@@ -23,6 +23,8 @@
  * de les utiliser.
  */
 
+import { createHash } from 'node:crypto';
+
 import { z } from 'zod';
 
 import { ValidationError } from './errors.js';
@@ -178,6 +180,101 @@ export function assessAdmission(provenance: Provenance | undefined): Admission {
     admitted: true,
     reason: 'droit de lecture accordé et revue autorisée',
   };
+}
+
+/** Calcule l'empreinte SHA-256 des octets UTF-8 exacts d'un texte. */
+export function sha256OfUtf8(text: string): string {
+  return createHash('sha256').update(Buffer.from(text, 'utf8')).digest('hex');
+}
+
+/** État de vérification d'une empreinte (Sprint 22-02, C-R03/C-R04). */
+export type FingerprintState = 'verified' | 'mismatch' | 'unverifiable' | 'absent';
+
+/**
+ * Compare l'empreinte déclarée au contenu réellement conservé.
+ *
+ * @param provenance - Provenance lue, ou `undefined`.
+ * @param content - Contenu conservé, ou `undefined` s'il n'y en a pas.
+ * @returns `absent` (aucune empreinte), `unverifiable` (empreinte sans copie —
+ *          version **non reconstructible**), `verified` ou `mismatch`.
+ */
+export function verifyFingerprint(
+  provenance: Provenance | undefined,
+  content: string | undefined,
+): FingerprintState {
+  if (provenance?.fingerprint == null) {
+    return 'absent';
+  }
+
+  if (content === undefined) {
+    return 'unverifiable';
+  }
+
+  return sha256OfUtf8(content) === provenance.fingerprint.sha256 ? 'verified' : 'mismatch';
+}
+
+/**
+ * Impose la cohérence entre l'empreinte déclarée et le contenu écrit.
+ *
+ * Une normalisation (CRLF, BOM, espace ajouté) change les octets, donc
+ * l'empreinte : elle est refusée plutôt que corrigée en silence.
+ *
+ * @param provenance - Provenance fournie.
+ * @param content - Contenu écrit, ou `undefined` (rien à vérifier).
+ * @throws {ValidationError} Empreinte déclarée ≠ empreinte des octets fournis.
+ */
+export function assertFingerprintMatches(
+  provenance: Provenance | undefined,
+  content: string | undefined,
+): void {
+  if (provenance?.fingerprint == null || content === undefined) {
+    return;
+  }
+
+  const actual = sha256OfUtf8(content);
+
+  if (actual !== provenance.fingerprint.sha256) {
+    throw new ValidationError([
+      `provenance : l’empreinte déclarée (${provenance.fingerprint.sha256.slice(0, 12)}…) ne correspond pas aux octets du contenu fourni (${actual.slice(0, 12)}…)`,
+    ]);
+  }
+}
+
+/**
+ * Interdit de laisser une empreinte enregistrée décrire un nouveau contenu.
+ *
+ * C'est la protection contre la **preuve rétroactive** de C-R04 : `update`
+ * remplace le contenu d'un même UUID, donc une empreinte conservée sans
+ * nouvelle vérification attesterait d'octets qui ne sont plus ceux du texte.
+ *
+ * @param existing - Provenance déjà enregistrée.
+ * @param incoming - Provenance proposée (nouvelle, ou celle conservée).
+ * @param newContent - Nouveau contenu, ou `null` si le contenu est effacé.
+ * @throws {ValidationError} Ancienne empreinte conservée, contenu effacé sous
+ *         une empreinte, ou nouvelle empreinte fausse.
+ */
+export function assertVersionIdentity(
+  existing: Provenance | undefined,
+  incoming: Provenance | undefined,
+  newContent: string | null,
+): void {
+  if (existing?.fingerprint == null) {
+    return;
+  }
+
+  if (newContent === null) {
+    throw new ValidationError([
+      'provenance : le contenu est effacé alors qu’une empreinte est enregistrée ; une copie ne peut pas disparaître sans que la preuve le dise',
+    ]);
+  }
+
+  if (incoming?.fingerprint == null) {
+    throw new ValidationError([
+      'provenance : le contenu change alors qu’une empreinte est enregistrée ; fournissez l’empreinte du nouveau contenu (une empreinte ne peut pas rester associée à un autre texte)',
+    ]);
+  }
+
+  assertFingerprintMatches(incoming, newContent);
 }
 
 /**

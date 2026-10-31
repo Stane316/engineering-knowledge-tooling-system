@@ -214,6 +214,24 @@ sans la supprimer, et le motif est affiché.
 {"admission": {"admitted": false, "reason": "droit de lecture refusé"}}
 ```
 
+**Empreinte vérifiée (Sprint 22-02).** `fingerprint.sha256` est calculé sur les
+**octets UTF-8 exacts** du contenu, sans normalisation : les fins de ligne LF,
+l'absence de BOM et les accents comptent. Une empreinte qui ne décrit pas le
+contenu écrit est **refusée** (code 4) — une conversion CRLF ou un espace ajouté
+fait échouer la comparaison plutôt que d'être corrigé en silence. Le même
+raisonnement s'applique à une mise à jour : modifier le contenu sans fournir
+l'empreinte du nouveau texte est refusé, et effacer le contenu sous une
+empreinte enregistrée aussi.
+
+`ekts get --json` expose l'état de vérification :
+
+| `verification` | Sens |
+| --- | --- |
+| `verified` | l'empreinte décrit le contenu conservé |
+| `unverifiable` | empreinte déclarée mais **aucune copie** conservée → version **non reconstructible** |
+| `absent` | aucune empreinte déclarée |
+| `mismatch` | incohérence (ne devrait pas survenir : refusée à l'écriture) |
+
 Une provenance enregistrée **ne peut pas disparaître** par une mise à jour :
 `ekts` refuse une modification de `metadata` qui retirerait le bloc (elle peut
 être révisée). Les ressources créées avant ce contrat restent lisibles, sans

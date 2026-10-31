@@ -4,7 +4,9 @@ import { ResourceNotFoundError } from '../../shared/errors.js';
 import {
   assessAdmission,
   extractProvenance,
+  verifyFingerprint,
   type Admission,
+  type FingerprintState,
   type Provenance,
 } from '../../shared/provenance.js';
 import type { Resource } from '../../shared/validators.js';
@@ -33,10 +35,25 @@ export async function collectGet(runtime: CliRuntime, id: string): Promise<Resou
   }
 }
 
+/** Phrase lisible de l'état d'une empreinte face au contenu conservé. */
+function describeFingerprint(state: FingerprintState): string {
+  switch (state) {
+    case 'verified':
+      return 'vérifiée contre le contenu conservé';
+    case 'mismatch':
+      return 'INCOHÉRENTE avec le contenu conservé';
+    case 'unverifiable':
+      return 'non vérifiable — aucune copie conservée (version non reconstructible)';
+    case 'absent':
+      return 'absente';
+  }
+}
+
 /** Rend le bloc de provenance et la décision d'admission au corpus gouverné. */
 function renderProvenance(
   provenance: Provenance | undefined,
   admission: Admission,
+  fingerprint: FingerprintState,
   palette: Palette,
   lines: string[],
 ): void {
@@ -51,7 +68,7 @@ function renderProvenance(
         provenance.fingerprint === null
           ? 'non calculée'
           : `sha256:${provenance.fingerprint.sha256.slice(0, 12)}…`
-      }`,
+      } (${describeFingerprint(fingerprint)})`,
     );
   }
 
@@ -64,6 +81,7 @@ function renderResource(
   resource: Resource,
   provenance: Provenance | undefined,
   admission: Admission,
+  fingerprint: FingerprintState,
   palette: Palette,
 ): string {
   const lines = [
@@ -85,7 +103,7 @@ function renderResource(
 
   lines.push(`  créée       ${resource.createdAt}`, `  modifiée    ${resource.updatedAt}`);
 
-  renderProvenance(provenance, admission, palette, lines);
+  renderProvenance(provenance, admission, fingerprint, palette, lines);
 
   return lines.join('\n');
 }
@@ -99,10 +117,11 @@ export function registerGet(program: Command, runtime: CliRuntime): void {
       const resource = await collectGet(runtime, id);
       const provenance = extractProvenance(resource.metadata);
       const admission = assessAdmission(provenance);
+      const verification = verifyFingerprint(provenance, resource.content);
 
       return {
-        human: renderResource(resource, provenance, admission, palette),
-        json: { ...resource, admission },
+        human: renderResource(resource, provenance, admission, verification, palette),
+        json: { ...resource, admission, verification },
       };
     });
   });
