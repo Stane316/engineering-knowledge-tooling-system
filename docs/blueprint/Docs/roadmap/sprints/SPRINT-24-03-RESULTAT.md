@@ -1,0 +1,49 @@
+# SPRINT-24-03 — Matrice G1/G2 et décision finale — résultat
+
+**Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Base :** `437b968` · **Date :** 31 octobre 2026
+**Statut :** ⛔ **G1 et G2 NON ATTEINTS — aucun pilote autorisé**. Commit : **à renseigner**.
+
+## 1. Matrice de preuve, critère par critère
+
+| Critère | Date | Machine / version | Commande | Prévus | Réussis | Bloqués / sautés | Verdict |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| C-P01 | 31/10 | Linux 6.1.158 · Node 22.22.3 | `vitest … profile-exposure stdio-profile` | 16 | 16 | 0 | ✅ |
+| C-P06 | 30/10 | idem, `unshare -rn` | `isolation-sandbox.test.ts` | 7 | 6 | 1 (hors Linux) | ✅ sur Linux |
+| C-P07 | — | — | hôte agent réel requis | — | 0 | **tous** | ⛔ bloqué |
+| C-T01 | 31/10 | idem | `events-observable` + binaire | 6 | 6 | 0 | ✅ |
+| C-O04 | 31/10 | idem | `backup.test.ts` | 6 | 6 | 0 | ✅ (1 constat P3) |
+| C-O05 | 31/10 | idem | `audit-*` | 36 | 36 | 0 | ✅ |
+| C-O06 | 31/10 | idem | `tool-inventory` | 2 | 2 | 0 | ✅ |
+| C-O07 | 31/10 | Linux, référence | `npm run bench:latency` | 1 | 1 | 0 (p95 0,73–0,77 ms) | ✅ O7-A ; **O7-B bloqué** |
+| C-T03 | 31/10 | idem | `traces-confidentiality` + compte `ekts-probe` | 5 + 1 | 5 + 1 | 0 | ✅ POSIX ; **ACL Windows bloquées** |
+| C-W03 | 31/10 | idem | `reports/*` | 20 | 15 | **5 (PDF)** | ⚠️ partiel |
+| C-O02/C-O03 | — | — | `windows-check.ps1` | 12 | 0 | **12** | ⛔ bloqués |
+| C-T04/T05/T06 | — | — | campagne A/C/B | — | 0 | **toutes** | ⛔ bloqués (G0 fermé) |
+
+Les compteurs proviennent des exécutions consignées aux rapports 23-01 à 24-02 ;
+aucun chiffre n'est extrapolé.
+
+## 2. Portes
+
+| Porte | Condition | État | Motif |
+| --- | --- | --- | --- |
+| **G0** | hôte, modèle, fournisseur, budget, comptes | ⛔ **fermée** | cinq champs non fournis (24-02 § 2) |
+| **G1** | critères techniques M et P satisfaits | ⛔ **non atteint** | C-P07 bloqué, C-W03 partiel, C-O02/C-O03 bloqués |
+| **G2** | décision de valeur sur corpus réel | ⛔ **non atteint** | aucune campagne ; l'ingestion (S25) n'est pas commencée |
+| **G3** | décision du propriétaire | ⏳ **à venir** | dépend de G0–G2 |
+
+## 3. Décision finale
+
+**Aucun pilote n'est autorisé.** Le système est **conforme sur les critères
+techniques mesurables** et **non démontré sur la valeur comparative** : ce sont
+deux constats différents, et le second ne découle pas du premier.
+
+Ce qui empêche G1 est nommé, pas contourné : confinement vérifiable au sens
+strict (C-P07), rendu PDF (C-W03), environnement Windows (C-O02/C-O03).
+
+## 4. Ce qu'il faudrait pour avancer
+
+1. Restaurer la CI (facturation GitHub) : sans elle, aucun statut distant.
+2. Exécuter `scripts/windows-check.ps1` sur le poste Windows 11.
+3. Fournir les cinq champs G0 pour ouvrir la campagne A/C/B.
+4. Lever C-P07 : hôte agent réel autorisé, avec contrôle réseau observable.

@@ -1,6 +1,6 @@
 # SPRINT-24-03 — Matrice G1, G2 et décision finale
 
-**Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Statut :** 📄 décomposition validée, contenu à vérifier avant exécution ; ⏳ implémentation non commencée · **Durée :** non engagée.
+**Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Statut :** ⛔ **exécuté le 31/10/2026 — G1 et G2 non atteints, aucun pilote autorisé. Résultat : [SPRINT-24-03-RESULTAT](SPRINT-24-03-RESULTAT.md)**
 
 ## 1. Objectif, exigences et prérequis
 

@@ -1,6 +1,6 @@
 # SPRINT-24-02 — Préparation G0 et scénario facultatif
 
-**Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Statut :** 📄 décomposition validée, contenu à vérifier avant exécution ; ⏳ implémentation non commencée · **Durée :** non engagée.
+**Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Statut :** ⚠️ **exécuté le 31/10/2026 — dossier G0 constitué, G0 FERMÉE (5 champs manquants), C-T04/T05/T06 bloqués. Résultat : [SPRINT-24-02-RESULTAT](SPRINT-24-02-RESULTAT.md)**
 
 ## 1. Objectif, exigences et prérequis
 
