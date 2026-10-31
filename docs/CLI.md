@@ -261,6 +261,13 @@ Recherche hybride BM25 + vecteurs + RRF (k = 60), ou stratégie unitaire.
 | `-t, --type <type>` | — | Filtre sur le type |
 | `--tags <tags>` | — | La ressource doit porter **tous** les tags (CSV) |
 
+Une requête vide ou blanche est **refusée** (code 4, « la requête ne peut pas être
+vide ») : elle ne produit pas un succès à zéro résultat. Le zéro correspondance
+reste, lui, un succès (code 0) et s'affiche « Aucun résultat ». Une erreur
+d'index ou l'absence de fournisseur hybride sortent en code 1 : aucune n'est
+présentée comme un corpus vide, et le repli vers `--mode fts` est un **appel
+distinct**, jamais automatique (C-R07, C-R08).
+
 ```powershell
 npm run cli -- search "sqlite"                  # hybride (clé OpenAI requise)
 npm run cli -- search "sqlite" --mode fts       # lexical seul, hors ligne

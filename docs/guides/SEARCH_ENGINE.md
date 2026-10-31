@@ -127,7 +127,8 @@ const results = await engine.search('fusion rrf', {
 
 | Situation | Comportement |
 | --- | --- |
-| Requête vide ou blanche | `[]`, sans aucun appel réseau |
+| Requête vide ou blanche (primitive `SearchEngine`) | `[]`, sans aucun appel réseau — contrat historique conservé |
+| Requête vide ou blanche (CLI, MCP) | `ValidationError` / `-32602` : une entrée invalide n'est **pas** un succès à zéro résultat |
 | Requête sans terme exploitable (`!!!`) | `[]` (FTS), pas d'erreur |
 | `limit` absent | 10 |
 | `limit` ≤ 0 ou non entier | `SearchError` |

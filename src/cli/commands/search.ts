@@ -2,6 +2,7 @@ import { Option, type Command } from 'commander';
 
 import { DEFAULT_SEARCH_LIMIT } from '../../business/search-engine.js';
 import type { SearchMode } from '../../business/search-engine.types.js';
+import { ValidationError } from '../../shared/errors.js';
 import type { SearchResult } from '../../shared/types.js';
 import { ResourceTypeSchema, type ResourceType } from '../../shared/validators.js';
 import { execute, withOutputFlags } from '../command.js';
@@ -41,6 +42,14 @@ export async function collectSearch(
   query: string,
   options: SearchCliOptions,
 ): Promise<SearchReport> {
+  // Sprint 22-03, C-R07 : une requête vide est invalide, pas un succès à zéro
+  // résultat (spécification 21 : « ne pas transformer en résultat vide »).
+  // La validation précède l'ouverture des bases : aucune modification, même
+  // technique, n'est produite par une entrée refusée.
+  if (query.trim().length === 0) {
+    throw new ValidationError(['recherche : la requête ne peut pas être vide']);
+  }
+
   const tags = parseTags(options.tags);
   const services = runtime.openServices({
     dataDir: runtime.dataDir,
