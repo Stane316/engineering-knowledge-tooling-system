@@ -1,7 +1,7 @@
 # SPRINT-24 — Validation transversale et décision sur le pilote — résultat
 
 **Date d'exécution :** 31 octobre 2026 · **Branche :** `arena/079e2f26-engineering-knowledge-tooling`
-**Statut :** ⛔ **aucun pilote autorisé** — G0 fermée, G1 non atteint, G2 non atteint.
+**Statut :** ⛔ **sprint exécuté et non clôturé comme réussi — aucun pilote autorisé**. G0 fermée, G1 non atteint, G2 non atteint, G3 en attente du propriétaire.
 
 | Sous-sprint | Verdict | Rapport |
 | --- | --- | --- |
@@ -72,4 +72,17 @@ G0 ne prouverait rien et coûterait le budget qu'il prétendrait justifier.
 
 ## 8. Commits
 
-`e4ff0a3` (24-01) · `437b968` (registre 24-01) · `da7c4df` (24-02, 24-03 et bilan).
+| Commit | Contenu |
+| --- | --- |
+| `e4ff0a3` | 24-01 : matrice de preuve M |
+| `437b968` | registre 24-01 |
+| `da7c4df` | 24-02, 24-03 et bilan |
+| `f383ac5` | registre du bilan |
+| `78dedcf` | première correction du protocole O2-B |
+| `103dc98` | registre O2-B |
+| `469c3ed` | correction définitive du protocole (`stderr` + `Stop`) |
+| `dfb371e` | registre O2-B |
+| `c8e7c22` | **mesure C-O02 satisfaite** (11 PASS) |
+| `bfb1ac3` | registre C-O02 |
+
+**Dernier état : `bfb1ac3`, arbre propre, distante alignée.**
