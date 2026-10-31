@@ -28,11 +28,12 @@
  */
 
 import { spawn, spawnSync } from 'node:child_process';
-import { createHash, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { readFileSync, mkdtempSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir, cpus, loadavg, platform, release, arch, totalmem, hostname } from 'node:os';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
+import { setTimeout, clearTimeout } from 'node:timers';
 
 const ROOT = process.cwd();
 const SERVER = join(ROOT, 'dist', 'mcp', 'server.js');

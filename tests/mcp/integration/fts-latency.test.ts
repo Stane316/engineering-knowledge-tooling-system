@@ -246,7 +246,6 @@ describe('C-O07 — latence FTS de bout en bout (exploratoire)', () => {
     const measured = p95(durations);
 
     // Consignation exigée par le critère : machine, OS, charge, runtime, version.
-    // eslint-disable-next-line no-console -- consignation de mesure, pas de débogage
     console.log(
       JSON.stringify({
         critere: 'C-O07',
