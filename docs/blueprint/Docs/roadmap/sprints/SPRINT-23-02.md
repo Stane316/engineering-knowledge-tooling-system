@@ -1,6 +1,6 @@
 # SPRINT-23-02 — Confidentialité et Windows natif
 
-**Sprint parent :** [SPRINT-23](SPRINT-23.md) · **Statut :** 📄 décomposition validée, contenu à vérifier avant exécution ; ⏳ implémentation non commencée · **Durée :** non engagée.
+**Sprint parent :** [SPRINT-23](SPRINT-23.md) · **Statut :** ⚠️ **exécuté le 31/10/2026 — C-T03 satisfait sur les canaris, partiel sur les accès ; C-O02 et C-O03 bloqués (Windows non mesuré). Résultat : [SPRINT-23-02-RESULTAT](SPRINT-23-02-RESULTAT.md)**
 
 ## 1. Objectif, exigences et prérequis
 

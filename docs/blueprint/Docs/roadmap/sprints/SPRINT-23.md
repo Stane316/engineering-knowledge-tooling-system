@@ -1,7 +1,7 @@
 # SPRINT-23 — Preuves locales, compatibilité et exploitation maîtrisée
 
 **MVP :** MVP-4 · **Lot roadmap :** L1-T + L1-O · **Date de rédaction :** 30 octobre 2026  
-**Statut documentaire :** 📄 rédigé ; décomposition 19–24 validée par le propriétaire · **Implémentation :** 🔄 en cours — **23-01 exécuté** (31/10/2026, [résultat](SPRINT-23-01-RESULTAT.md)) ; 23-02 et 23-03 à faire · **Durée :** non engagée.
+**Statut documentaire :** 📄 rédigé ; décomposition 19–24 validée par le propriétaire · **Implémentation :** 🔄 en cours — **23-01 et 23-02 exécutés** le 31/10/2026 ([23-01](SPRINT-23-01-RESULTAT.md), [23-02](SPRINT-23-02-RESULTAT.md), ce dernier partiel et bloqué sur Windows) ; 23-03 à faire · **Durée :** non engagée.
 
 ## 1. Contexte, objectif et périmètre
 

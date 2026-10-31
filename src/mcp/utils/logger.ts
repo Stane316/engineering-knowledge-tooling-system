@@ -1,4 +1,5 @@
 import { EktsError } from '../../shared/errors.js';
+import { createRedactor, type Redactor } from './redaction.js';
 
 /**
  * Journalisation structurée du serveur MCP.
@@ -77,6 +78,13 @@ export interface LoggerOptions {
   readonly sink?: (line: string) => void;
   /** Horloge injectable (tests déterministes). */
   readonly now?: () => Date;
+  /**
+   * Caviardeur appliqué avant sérialisation (Sprint 23-02, C-T03).
+   *
+   * Défaut : construit depuis `process.env`. Une trace ne doit jamais contenir
+   * un secret, même recopié par un fournisseur dans son message d'erreur.
+   */
+  readonly redactor?: Redactor;
 }
 
 /**
@@ -92,6 +100,7 @@ export function createLogger(options: LoggerOptions = {}): McpLogger {
       process.stderr.write(line);
     });
   const now = options.now ?? ((): Date => new Date());
+  const redact = options.redactor ?? createRedactor();
 
   const enabled = (candidate: Exclude<McpLogLevel, 'silent'>): boolean =>
     level !== 'silent' && SEVERITY[candidate] >= SEVERITY[level];
@@ -106,19 +115,25 @@ export function createLogger(options: LoggerOptions = {}): McpLogger {
       return;
     }
 
+    const described = describeError(error);
     const record: Record<string, unknown> = {
       level: candidate,
-      message,
+      // Le caviardage s'applique au message **et** aux données : un message
+      // d'erreur peut recopier une clé, et une donnée peut contenir un texte
+      // sensible transmis par un outil.
+      message: redact.redact(message),
       timestamp: now().toISOString(),
     };
-    const described = describeError(error);
 
     if (described !== undefined) {
-      record.error = described;
+      record.error =
+        typeof described['message'] === 'string'
+          ? { ...described, message: redact.redact(described['message']) }
+          : described;
     }
 
     if (data !== undefined) {
-      record.data = data;
+      record.data = redact.redactData(data);
     }
 
     sink(`${JSON.stringify(record)}\n`);
