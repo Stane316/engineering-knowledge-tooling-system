@@ -68,6 +68,4 @@ G0 ne prouverait rien et coûterait le budget qu'il prétendrait justifier.
 
 ## 8. Commits
 
-`e4ff0a3` (24-01) · `437b968` (registre 24-01) · puis les commits de ce bilan,
-dont les hashes réels sont consignés au registre dans un commit documentaire
-séparé.
+`e4ff0a3` (24-01) · `437b968` (registre 24-01) · `da7c4df` (24-02, 24-03 et bilan).

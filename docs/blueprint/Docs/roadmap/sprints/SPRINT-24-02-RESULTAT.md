@@ -1,7 +1,7 @@
 # SPRINT-24-02 — Préparation G0 — résultat et dossier
 
 **Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Base :** `437b968` · **Date :** 31 octobre 2026
-**Statut :** ⚠️ **dossier préparatoire constitué · G0 NON OUVERT · C-T04/C-T05/C-T06 bloqués · C-P07 bloqué au sens strict**. Commit : **à renseigner**.
+**Statut :** ⚠️ **dossier préparatoire constitué · G0 NON OUVERT · C-T04/C-T05/C-T06 bloqués · C-P07 bloqué au sens strict**. Commit : **`da7c4df`**.
 
 **Accord du propriétaire (31/10/2026) :** poursuivre la préparation **malgré la réserve C-P07**, préparer G0 **pour exécution**, sans lancer de session sans feu vert opérationnel distinct.
 

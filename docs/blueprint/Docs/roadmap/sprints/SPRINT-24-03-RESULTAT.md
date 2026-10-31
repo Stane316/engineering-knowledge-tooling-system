@@ -1,7 +1,7 @@
 # SPRINT-24-03 — Matrice G1/G2 et décision finale — résultat
 
 **Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Base :** `437b968` · **Date :** 31 octobre 2026
-**Statut :** ⛔ **G1 et G2 NON ATTEINTS — aucun pilote autorisé**. Commit : **à renseigner**.
+**Statut :** ⛔ **G1 et G2 NON ATTEINTS — aucun pilote autorisé**. Commit : **`da7c4df`**.
 
 ## 1. Matrice de preuve, critère par critère
 
