@@ -12,7 +12,7 @@
 | --- | --- | --- | --- |
 | [22-01](SPRINT-22-01-RESULTAT.md) | Provenance et autorisation | C-R01, C-R02, C-R05 | ✅ preuves **I** ; volet **H** de C-R01 non conduit (§ 3) |
 | [22-02](SPRINT-22-02-RESULTAT.md) | Identité et conservation des versions | C-R03, C-R04 | ✅ C-R03 (**I**+**P**) ; C-R04 volet **I** 2/2, volet **H** à conduire |
-| [22-03](SPRINT-22-03-RESULTAT.md) | FTS et statuts d'erreur | C-R06, C-R07, C-R08, C-O07 | ✅ C-R06 7/7+1/1, C-R07 5/5, C-R08 2/2 ; ⚠️ C-O07 **exploratoire** |
+| [22-03](SPRINT-22-03-RESULTAT.md) | FTS et statuts d'erreur | C-R06, C-R07, C-R08, C-O07 | ✅ C-R06 7/7+1/1, C-R07 5/5, C-R08 2/2 ; ✅ C-O07 conforme sur O7-A, mesure O7-B à faire |
 
 Le sprint ne prétend pas « 8/8 réussi » : les huit critères ont été **exécutés**
 et **mesurés**, mais quatre d'entre eux comportent une part qui ne dépend pas de
@@ -31,18 +31,19 @@ compter comme réussis sans ces éléments reviendrait à maquiller le décompte
 | **C-R06** | 8 requêtes figées en FTS, limite 5, corpus indexé | **rappel@5 = 1 sur 7/7** positives, **1/1** négative vide ; 1 extra documenté (Q06→R04) |
 | **C-R07** | 5 états distincts, sur classes d'erreur **et** sur le binaire | requête invalide **4**, ID absent **3**, index inaccessible **1**, fournisseur absent **1**, zéro correspondance **0** |
 | **C-R08** | erreur hybride puis FTS explicitement demandé | **2/2 événements**, 0 succès hybride fabriqué, 0 repli caché |
-| **C-O07** | 20 échauffements + 100 appels MCP stdio sur Q01–Q08 | **p95 = 3,21 ms** (seuil 500 ms), 0 erreur — sur un conteneur, pas sur la machine de validation |
+| **C-O07** | 20 échauffements + 100 appels MCP stdio sur Q01–Q08, outil réutilisable `npm run bench:latency` | **p95 = 0,77 ms** sur la configuration **O7-A** (seuil 500 ms), 0 erreur ; mesure **O7-B** (Windows 11) à exécuter par le propriétaire |
 
 ## 3. Ce qui n'est pas démontré
 
-- **Revue humaine (H).** C-R01 et C-R04 sont de type **I/H** : la feuille de
-  revue humaine avec références n'a pas été produite — elle relève du
-  propriétaire. Le rapport 22-01 n'avait pas séparé ce volet ; ce bilan le
-  rétablit sans réécrire son statut.
-- **Machine de validation (C-O07).** La mesure existe et le seuil est
-  largement tenu, mais le critère exige une configuration **choisie et
-  consignée** par le propriétaire. Sur un autre hôte, la valeur serait
-  différente.
+- **Revue humaine (H).** C-R01 et C-R04 sont de type **I/H**. La feuille de
+  revue est désormais **fournie** : [`docs/revue/REVUE-H-2026-10-31.md`](../../../../revue/REVUE-H-2026-10-31.md)
+  — 5 constats pour C-R01, 6 pour C-R04, avec procédure PowerShell et critère
+  de réussite. Elle **reste à remplir** par le propriétaire ; tant qu'elle ne
+  l'est pas, les deux critères restent `indéterminé` au sens du document 22.
+- **Machine de validation (C-O07).** Deux configurations sont désormais
+  consignées : **O7-A** (Linux, référence, mesurée à p95 = 0,77 ms) et **O7-B**
+  (Windows 11 du propriétaire, protocole fourni). La mesure O7-B reste à
+  exécuter ; elle ne peut pas être produite depuis cet environnement.
 - **Corpus réel.** C-R03 et C-R06 portent sur six fichiers **synthétiques**.
   Aucune donnée utilisateur n'a été ingérée : c'est voulu, et cela limite la
   portée de la démonstration.

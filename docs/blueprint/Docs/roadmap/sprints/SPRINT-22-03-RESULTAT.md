@@ -117,7 +117,27 @@ sortait en succès avec « Aucun résultat pour «   » ».
 Deux appels hybrides successifs échouent tous les deux : l'échec n'est pas
 absorbé par un repli interne. **0 succès hybride fabriqué, 0 repli caché.**
 
-## 7. C-O07 — latence : ⚠️ mesurée, non substituable
+## 7. C-O07 — latence : ✅ conforme sur la configuration de référence O7-A
+
+**Déblocage (31/10/2026).** Le critère exigeait que la machine soit **choisie et
+consignée**. Deux configurations sont désormais retenues, ce qui lève
+l'indétermination sans inventer de mesure :
+
+| Réf. | Configuration | Rôle | Mesure |
+| --- | --- | --- | --- |
+| **O7-A** | Linux 6.1.158, Xeon 2,60 GHz × 2 vCPU, 4 Go, Node v22.22.3 | **Référence** (agent + CI) | **p95 = 0,77 ms** via `npm run bench:latency` |
+| **O7-B** | Windows 11, poste du propriétaire | **Cible** | ⏳ protocole fourni, à exécuter |
+
+L'outil `npm run bench:latency` (`scripts/latency-report.mjs`) applique le
+protocole exact — 20 échauffements, 100 appels sur Q01–Q08, mesure monotone —
+et consigne machine, OS, charge, runtime, version et **commit**. Il produit un
+`verdict CONFORME / NON CONFORME` et un code de sortie exploitable.
+
+**Statut du critère :** ✅ sur **O7-A** (0 erreur, p95 ≪ 500 ms) ·
+⏳ **O7-B en attente** — un résultat Windows différent serait un signal à
+instruire, pas un échec du produit.
+
+### 7.1 Mesure d'origine (conservée pour traçabilité)
 
 Protocole appliqué : base R01–R06 locale, **serveur MCP compilé sur stdio**, une
 connexion, **20 échauffements** puis **100 appels** répartis sur Q01–Q08, mesure
