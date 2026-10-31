@@ -1,7 +1,7 @@
 # SPRINT-24-02 — Préparation G0 — résultat et dossier
 
 **Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Base :** `437b968` · **Date :** 31 octobre 2026
-**Statut :** ✅ **C-O02 SATISFAIT sur Windows 11 build 26300 (11 PASS / 0 FAIL / 1 BLOCKED) · C-O03 toujours bloqué (second compte Windows) · G0 fermé**. Commits : `da7c4df`, `78dedcf`, `469c3ed` ; mesure finale : **à renseigner**.
+**Statut :** ✅ **C-O02 SATISFAIT sur Windows 11 build 26300 (11 PASS / 0 FAIL / 1 BLOCKED) · C-O03 toujours bloqué (second compte Windows) · G0 fermé**. Commits : `da7c4df`, `78dedcf`, `469c3ed` ; mesure finale : **`c8e7c22`**.
 
 **Accord du propriétaire (31/10/2026) :** poursuivre la préparation **malgré la réserve C-P07**, préparer G0 **pour exécution**, sans lancer de session sans feu vert opérationnel distinct.
 
