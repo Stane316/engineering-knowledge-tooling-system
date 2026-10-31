@@ -1,6 +1,6 @@
 # SPRINT-23-03 — Sauvegarde, contrats historiques et docs
 
-**Sprint parent :** [SPRINT-23](SPRINT-23.md) · **Statut :** 📄 décomposition validée, contenu à vérifier avant exécution ; ⏳ implémentation non commencée · **Durée :** non engagée.
+**Sprint parent :** [SPRINT-23](SPRINT-23.md) · **Statut :** ✅ **exécuté le 31/10/2026 — C-O04 2/2, C-O05, C-O06, C-W12 ; un écart P3 ouvert. Résultat : [SPRINT-23-03-RESULTAT](SPRINT-23-03-RESULTAT.md)**
 
 ## 1. Objectif, exigences et prérequis
 
