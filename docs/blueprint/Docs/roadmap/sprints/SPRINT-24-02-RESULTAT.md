@@ -1,7 +1,7 @@
 # SPRINT-24-02 — Préparation G0 — résultat et dossier
 
 **Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Base :** `437b968` · **Date :** 31 octobre 2026
-**Statut :** ⛔ **dossier G0 fermé · mesure O2-B exécutée · cause des 7 échecs établie : un défaut de mon script, pas du projet**. Commits : `da7c4df`, `78dedcf`, puis la correction finale **à renseigner**.
+**Statut :** ⛔ **dossier G0 fermé · mesure O2-B exécutée · cause des 7 échecs établie : un défaut de mon script, pas du projet**. Commits : `da7c4df`, `78dedcf`, `469c3ed`.
 
 **Accord du propriétaire (31/10/2026) :** poursuivre la préparation **malgré la réserve C-P07**, préparer G0 **pour exécution**, sans lancer de session sans feu vert opérationnel distinct.
 
