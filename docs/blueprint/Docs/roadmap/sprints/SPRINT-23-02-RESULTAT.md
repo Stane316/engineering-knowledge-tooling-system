@@ -133,5 +133,5 @@ d'avancement.
 | # | Écart | Ce qu'il faut |
 | --- | --- | --- |
 | **E23-1** | Accès non autorisé **mesuré sur POSIX le 31/10/2026** | compte `ekts-probe` créé ; `cat /tmp/ekts-acl/ekts.db` ⇒ **Permission denied (code 1)** ; contrôle : le même compte lit une copie `0644` (**code 0**) ⇒ le refus vient bien des permissions. ACL **Windows toujours non mesurées** (E23-2) |
-| **E23-2** | Windows non mesuré | Exécuter `scripts/windows-check.ps1` sur le poste Windows 11 et transmettre le JSON |
+| **E23-2** | Windows **mesuré le 31/10/2026** | Windows 11 Pro build 26300 : **11 PASS / 0 FAIL / 1 BLOCKED** ⇒ **C-O02 satisfait** sur cette configuration ; détail dans [SPRINT-24-02-RESULTAT](SPRINT-24-02-RESULTAT.md) § 9 |
 | **E23-3** | Aucune rétention ni export de traces | Si un export est souhaité (O03/O04), il devra porter un contrôle de droits explicite — décision de conception, pas un ajout silencieux |

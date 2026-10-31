@@ -24,7 +24,7 @@ explicite de ne pas lancer de pilote.
   Aucun statut de CI n'est revendiqué, ni vert ni rouge.
 - **Accès non autorisé refusé, mesuré** (compte `ekts-probe`, refus réel + contrôle).
 - **P3-23-01 non déterministe** (1/0 puis 1/1) : détection conservée, cause non établie.
-- **Mesure O2-B sur Windows 11 build 26300** : 5 PASS / 7 FAIL / 1 BLOCKED, puis **cause établie — un défaut de mon protocole** (`Stop` + `2>&1` sur `stderr`). `npm ci` réussit en 52 s. **C-O02 : non conclu**, ni satisfait ni en échec.
+- **Mesure O2-B, trois exécutions** : 5 PASS / 7 FAIL, puis cause établie (défaut de mon protocole : `Stop` + `2>&1` sur `stderr`), puis **11 PASS / 0 FAIL / 1 BLOCKED** sur le script corrigé ⇒ **C-O02 satisfait** sur Windows 11 Pro build 26300 (better-sqlite3 13.0.3, sqlite-vec 0.1.9, build 7,2 s, accents UTF-8, redémarrage).
 
 ## 3. Commandes et statuts
 
@@ -33,7 +33,7 @@ explicite de ne pas lancer de pilote.
 | `npx vitest run` (12 fichiers des critères M) | 0 | **97 passed / 5 skipped** |
 | `npm run verify` (dernière exécution, `fc97b64`) | 0 | 1 975 passed, 39 sautés — **aucun fichier de code modifié depuis** |
 | `gh run view 41220461921` | 0 | **jobs non démarrés** (facturation) |
-| `scripts/windows-check.ps1` | — | **non exécuté** |
+| `scripts/windows-check.ps1` | 0 | **11 PASS / 0 FAIL / 1 BLOCKED** (Windows 11 build 26300, commit `dfb371e`) |
 
 ## 4. Limites et blocages
 
@@ -41,7 +41,7 @@ explicite de ne pas lancer de pilote.
 | --- | --- | --- |
 | 1 | CI distante arrêtée par la facturation GitHub | aucun statut distant ; à rétablir côté compte |
 | 2 | PDF non exécuté | C-W03 partiel |
-| 3 | Windows 11 **mesuré mais invalidé par le protocole** (`npm ci` réussit) | C-O02 **non conclu**, C-O03 bloqué, O7-B à refaire |
+| 3 | Windows 11 **mesuré et satisfait** ; refus effectif non testé | **C-O02 levé**, **C-O03 bloqué**, O7-B conforme (p95 exact non transmis) |
 | 4 | C-P07 (confinement strict) | G1 non atteint |
 | 5 | G0-1 à G0-5 non fournis | aucune campagne ; C-T04/T05/T06 bloqués |
 
@@ -52,8 +52,8 @@ explicite de ne pas lancer de pilote.
 | P3-23-01 | divergence données/index après arrêt brutal | **ouvert** — non déterministe, reproduction instrumentée à planifier |
 | P3-24-01 | CI distante non exécutable (facturation) | **nouveau**, dépend d'une action du propriétaire |
 | P3-24-02 | PDF non exécuté faute de navigateur | **nouveau**, prérequis d'environnement |
-| P3-24-03 | `npm ci` **réussit** : le FAIL venait du protocole | **résolu** — 3 défauts corrigés, mesure à refaire |
-| P3-24-04 | protocole O2-B défectueux (5 défauts cumulés) | **corrigé** en deux passes (`78dedcf` puis correctif `stderr`) ; **les deux mesures ne valent pas preuve** |
+| P3-24-03 | `npm ci` **réussit** : le FAIL venait du protocole | **résolu** — mesure valide obtenue (11 PASS) |
+| P3-24-04 | protocole O2-B défectueux (5 défauts cumulés) | **résolu** — corrigé en deux passes ; la troisième mesure fait foi |
 | P3-24-05 | 12 vulnérabilités modérées dans la chaîne ESLint (dev) | **constat** — `--omit=dev` = 0 ; `npm audit fix --force` **refusé** (rétrograderait eslint@4) |
 
 ## 6. Risques résiduels
@@ -65,7 +65,7 @@ G0 ne prouverait rien et coûterait le budget qu'il prétendrait justifier.
 ## 7. Suites proposées
 
 1. Rétablir la CI (facturation) — action propriétaire.
-2. Relancer `scripts/windows-check.ps1` **corrigé** — il restitue la fin de la sortie de `npm ci`.
+2. Fournir le **second compte Windows** (C-O03) et le **p95 de O7-B** (champ `faits.latence` du JSON).
 3. Fournir G0-1 à G0-5 — action propriétaire.
 4. Ouvrir **S25** (ingestion et lecture gouvernée, option E validée) — décision
    de sprint distincte, non couverte par le feu vert du Sprint 24.

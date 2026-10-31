@@ -14,11 +14,11 @@
 | C-O04 | 31/10 | idem | `backup.test.ts` | 6 | 6 | 0 | ✅ (1 constat P3) |
 | C-O05 | 31/10 | idem | `audit-*` | 36 | 36 | 0 | ✅ |
 | C-O06 | 31/10 | idem | `tool-inventory` | 2 | 2 | 0 | ✅ |
-| C-O07 | 31/10 | Linux (référence) · Windows (O7-B) | `npm run bench:latency` | 2 | 1 | **1 (O7-B non concluant)** | ✅ O7-A (p95 0,73–0,77 ms) ; ⛔ **O7-B à refaire** |
+| C-O07 | 31/10 | Linux (référence) · Windows (O7-B) | `npm run bench:latency` | 2 | 2 | 0 | ✅ O7-A (p95 0,73–0,77 ms) ; ✅ **O7-B conforme** (p95 exact non transmis) |
 | C-T03 | 31/10 | idem | `traces-confidentiality` + compte `ekts-probe` | 5 + 1 | 5 + 1 | 0 | ✅ POSIX ; **ACL Windows bloquées** |
 | C-W03 | 31/10 | idem | `reports/*` | 20 | 15 | **5 (PDF)** | ⚠️ partiel |
-| C-O02 | 31/10 | **Windows 11 Pro build 26300 · i5-8250U · Node 24.14.0 · npm 11.21.0** | `windows-check.ps1` | 6 | 4 | **mesure invalidée** | ⏳ **non conclu** — `npm ci` réussit, protocole corrigé |
-| C-O03 | 31/10 | même machine + compte `ekts-probe` (POSIX) | `icacls`, `cat` | 2 | 1 | **1** (ACL Windows sur 0 base) | ⛔ **bloqué** |
+| C-O02 | 31/10 | **Windows 11 Pro build 26300 · i5-8250U · Node 24.14.0 · npm 11.21.0** | `windows-check.ps1` (commit `dfb371e`) | 9 | **9** | 0 | ✅ **satisfait sur cette configuration** |
+| C-O03 | 31/10 | Windows 11 + compte `ekts-probe` (POSIX) | `icacls`, `cat` | 2 | 1 | **1** (refus effectif Windows) | ⛔ **bloqué** |
 | C-T04/T05/T06 | — | — | campagne A/C/B | — | 0 | **toutes** | ⛔ bloqués (G0 fermé) |
 
 Les compteurs proviennent des exécutions consignées aux rapports 23-01 à 24-02 ;
@@ -29,7 +29,7 @@ aucun chiffre n'est extrapolé.
 | Porte | Condition | État | Motif |
 | --- | --- | --- | --- |
 | **G0** | hôte, modèle, fournisseur, budget, comptes | ⛔ **fermée** | cinq champs non fournis (24-02 § 2) |
-| **G1** | critères techniques M et P satisfaits | ⛔ **non atteint** | C-P07 bloqué, C-W03 partiel, C-O02/C-O03 bloqués |
+| **G1** | critères techniques M et P satisfaits | ⛔ **non atteint** | **C-P07 bloqué**, C-W03 partiel, **C-O03 bloqué** ; C-O02 levé |
 | **G2** | décision de valeur sur corpus réel | ⛔ **non atteint** | aucune campagne ; l'ingestion (S25) n'est pas commencée |
 | **G3** | décision du propriétaire | ⏳ **à venir** | dépend de G0–G2 |
 
@@ -39,15 +39,15 @@ aucun chiffre n'est extrapolé.
 techniques mesurables** et **non démontré sur la valeur comparative** : ce sont
 deux constats différents, et le second ne découle pas du premier.
 
-Ce qui empêche G1 est nommé, pas contourné : confinement vérifiable au sens
-strict (C-P07), rendu PDF (C-W03), et **C-O02 non conclu** — les sept échecs
-observés provenaient d'un défaut de mon protocole, pas du projet, et aucune
-exécution valide n'a encore eu lieu sur Windows.
+Ce qui empêche G1 est nommé, pas contourné : le confinement vérifiable au sens
+strict (C-P07) et le rendu PDF (C-W03). **C-O02 est levé** — mesuré et satisfait
+sur Windows 11 build 26300 ; **C-O03 reste bloqué** (refus effectif non testé
+sur Windows, faute de second compte).
 
 ## 4. Ce qu'il faudrait pour avancer
 
 1. Restaurer la CI (facturation GitHub) : sans elle, aucun statut distant.
 2. Exécuter `scripts/windows-check.ps1` sur le poste Windows 11.
-3. Relancer `scripts/windows-check.ps1` corrigé : il affiche la fin de la sortie de `npm ci`, donc la cause réelle.
+3. Fournir le second compte Windows pour C-O03 (et le p95 de O7-B depuis le JSON).
 4. Fournir les cinq champs G0 pour ouvrir la campagne A/C/B.
 5. Lever C-P07 : hôte agent réel autorisé, avec contrôle réseau observable.

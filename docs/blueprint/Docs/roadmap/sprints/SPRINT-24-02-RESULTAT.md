@@ -1,7 +1,7 @@
 # SPRINT-24-02 — Préparation G0 — résultat et dossier
 
 **Sprint parent :** [SPRINT-24](SPRINT-24.md) · **Base :** `437b968` · **Date :** 31 octobre 2026
-**Statut :** ⛔ **dossier G0 fermé · mesure O2-B exécutée · cause des 7 échecs établie : un défaut de mon script, pas du projet**. Commits : `da7c4df`, `78dedcf`, `469c3ed`.
+**Statut :** ✅ **C-O02 SATISFAIT sur Windows 11 build 26300 (11 PASS / 0 FAIL / 1 BLOCKED) · C-O03 toujours bloqué (second compte Windows) · G0 fermé**. Commits : `da7c4df`, `78dedcf`, `469c3ed` ; mesure finale : **à renseigner**.
 
 **Accord du propriétaire (31/10/2026) :** poursuivre la préparation **malgré la réserve C-P07**, préparer G0 **pour exécution**, sans lancer de session sans feu vert opérationnel distinct.
 
@@ -269,3 +269,87 @@ git switch arena/079e2f26-engineering-knowledge-tooling
 git pull --ff-only origin arena/079e2f26-engineering-knowledge-tooling
 powershell -ExecutionPolicy Bypass -File .\scripts\windows-check.ps1
 ```
+
+---
+
+## 9. Troisième relance — **C-O02 satisfait** (31/10/2026, 18 h 17)
+
+Exécution sur le script **corrigé**, commit mesuré **`dfb371e`**.
+
+### 9.1 Résultat brut
+
+```
+[PASS] systeme             - Windows 11 Professionnel build 26300 / 64 bits / i5-8250U
+[PASS] outils              - node v24.14.0 / npm 11.21.0 / commit dfb371e
+[PASS] npm-ci              - code 0, node_modules/.bin/tsc present, prebuilds better-sqlite3 : True
+[PASS] dependances-natives - better-sqlite3@13.0.3 ; sqlite-vec@0.1.9
+[PASS] build               - code 0, dist/cli et dist/mcp presents, 7.2 s
+[INFO] doctor              - code 0 — constat consigne, non compte comme preuve
+[PASS] init-base           - base initialisee dans …\ekts-windows-check-20261031-181622
+[PASS] accents-utf8        - ressource accentuee ajoutee
+[PASS] recherche           - recherche FTS retrouve la ressource accentuee
+[PASS] redemarrage         - persistance confirmee dans un nouveau processus
+[PASS] acl                 - 3 bases ; ACL consignees
+[BLOCKED] acl-acces-refuse - exige un second compte Windows non autorise
+[PASS] latence             - protocole C-O07 : verdict CONFORME consigne
+[INFO] audit-dependances   - code 1, 12 vulnerabilites moderates — constat
+
+Etapes comptees : 11 PASS, 0 FAIL, 1 BLOCKED
+```
+
+### 9.2 C-O02 — ✅ satisfait, sur **cette** configuration et aucune autre
+
+| Exigence de C-O02 | Preuve observée | État |
+| --- | --- | --- |
+| Édition et build Windows consignés | Windows 11 Professionnel **build 26300**, 64 bits | ✅ |
+| Architecture CPU | Intel Core i5-8250U @ 1,60 GHz | ✅ |
+| Version Node / npm | **v24.14.0** / **11.21.0** | ✅ |
+| `better-sqlite3` et `sqlite-vec` résolus | **13.0.3** et **0.1.9** | ✅ |
+| Compiler et démarrer | `npm ci` code 0 ; build code 0 en **7,2 s** ; `dist/cli` et `dist/mcp` présents | ✅ |
+| Ajouter puis retrouver des fichiers synthétiques | ressource accentuée ajoutée, retrouvée en FTS | ✅ |
+| Espace, accents, UTF-8 | titre et contenu `éàüç`, `où…élégantes` restitués correctement | ✅ |
+| Arrêt et redémarrage | persistance confirmée dans un **nouveau processus** | ✅ |
+| Chemins absolus | base créée sous `C:\Users\HP\AppData\Local\Temp\…` | ✅ |
+
+**Portée stricte :** ces neuf exigences sont satisfaites pour Windows 11
+Professionnel build 26300. **Aucune autre version de Windows n'est déclarée
+compatible** — la règle du dossier 22 est explicite.
+
+### 9.3 C-O03 — ⛔ toujours bloqué
+
+Le script consigne les ACL de **3 bases** (`icacls`), mais l'étape
+`acl-acces-refuse` reste **BLOCKED** : elle exige un **second compte Windows non
+autorisé**, que le script ne peut pas créer.
+
+| Volet | État |
+| --- | --- |
+| ACL lues et consignées (Windows) | ✅ 3 bases |
+| Refus effectif, Windows | ⛔ **non mesuré** |
+| Refus effectif, POSIX | ✅ mesuré (`ekts-probe`, refus réel + contrôle 0644) |
+
+Conformément au seuil (« tous les accès non autorisés du jeu sont refusés »),
+**C-O03 n'est pas déclaré réussi**.
+
+### 9.4 O7-B — ✅ conforme, valeur exacte non communiquée
+
+Le script rapporte « protocole C-O07 : **verdict CONFORME** consigne (seuil
+500 ms sur p95) ». La console ne montre **pas** la valeur de p95 ; elle figure
+dans `faits.latence` du rapport
+`windows-check-20261031-181739.json`, que je n'ai pas reçu.
+
+**Je ne fabrique donc aucun chiffre pour O7-B** : le verdict est conforme, la
+valeur mesurée reste à transmettre pour être consignée.
+
+### 9.5 Audit des dépendances — inchangé, non corrigé
+
+`npm audit` : **12 vulnérabilités modérées**, toutes dans la chaîne **ESLint**
+(dev) ; `npm audit --omit=dev` : **0**. `npm audit fix --force` **n'est pas
+exécuté** (il installerait `eslint@4`). Écart `P3-24-05` maintenu.
+
+### 9.6 Ce que la troisième exécution démontre sur la méthode
+
+Deux mesures successives ont produit **des verdicts opposés** sur la même
+machine : 7 FAIL, puis 0 FAIL. Le facteur n'était ni la machine, ni le réseau,
+ni le projet, mais **le protocole**. C'est exactement pourquoi un résultat
+négatif non reproductible ne doit pas être publié comme un défaut du produit —
+et pourquoi la relance après correction était nécessaire avant tout verdict.
